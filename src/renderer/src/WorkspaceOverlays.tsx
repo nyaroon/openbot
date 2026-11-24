@@ -873,7 +873,6 @@ function ServerSettings() {
           onRotateHostKey={serverRotatesHostKey(server()) ? rotateHostKey : undefined}
           onCreateInvite={createServerInvite}
           license={appPort().license}
-          companySignIn={appPort().auth}
           ownerTransfer={
             server().kind === "remote" &&
             server().hosted !== true &&

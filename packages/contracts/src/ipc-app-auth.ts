@@ -3,7 +3,6 @@ import type { AboveAppsSupport } from "./ipc-agent-dock";
 import type { AgentModelId, AvatarColor } from "./ipc-agent-identity";
 import type { AgentProviderId } from "./ipc-agent-status";
 import { integerInRange, isFiniteNumber, isIdentifier } from "./ipc-bounded-values";
-import { decodeRecord, nullableNumber, requiredBoolean, requiredNumber, requiredString } from "./ipc-decoding";
 import type { WhatsAppSignIn } from "./phone-identity";
 import { isDynamicRecord, isString } from "./runtime-values";
 
@@ -211,83 +210,8 @@ export type CentralAuthState =
       whatsapp?: WhatsAppSignIn;
       issue?: CentralAuthIssue | undefined;
     }
-  | { status: "company_sign_in"; email: string; issue?: CentralAuthIssue | undefined }
   | { status: "signed_in"; user: CentralAuthUser }
   | { status: "error"; issue: CentralAuthIssue };
-
-export interface CompanySignInConnection {
-  issuer: string;
-  clientId: string;
-  domains: string[];
-  enabled: boolean;
-  testedAt: number;
-  scimTokenCreatedAt: number | null;
-}
-
-export interface CompanySignInSettings {
-  redirectUri: string;
-  scimUrl: string;
-  domainRecord: { name: string; value: string };
-  domainCheck: boolean;
-  connection: CompanySignInConnection | null;
-}
-
-export interface TestCompanySignInInput {
-  serverId: string;
-  issuer: string;
-  clientId: string;
-  clientSecret: string;
-  domains: string[];
-}
-
-export interface TestCompanySignInResult {
-  email: string;
-}
-
-export interface SetCompanySignInEnabledInput {
-  serverId: string;
-  enabled: boolean;
-}
-
-export interface CompanySignInScimToken {
-  token: string;
-  createdAt: number;
-}
-
-export function decodeCompanySignInSettings(value: unknown): CompanySignInSettings {
-  const settings = decodeRecord(value, "company sign-in settings");
-  const record = decodeRecord(settings.domainRecord, "company sign-in domain record");
-  return {
-    redirectUri: requiredString(settings, "redirectUri"),
-    scimUrl: requiredString(settings, "scimUrl"),
-    domainRecord: { name: requiredString(record, "name"), value: requiredString(record, "value") },
-    domainCheck: requiredBoolean(settings, "domainCheck"),
-    connection: settings.connection === null ? null : decodeCompanySignInConnection(settings.connection),
-  };
-}
-
-function decodeCompanySignInConnection(value: unknown): CompanySignInConnection {
-  const connection = decodeRecord(value, "company sign-in connection");
-  const { domains } = connection;
-  if (!Array.isArray(domains) || !domains.every(isString)) throw new Error("Invalid company sign-in domains.");
-  return {
-    issuer: requiredString(connection, "issuer"),
-    clientId: requiredString(connection, "clientId"),
-    domains,
-    enabled: requiredBoolean(connection, "enabled"),
-    testedAt: requiredNumber(connection, "testedAt"),
-    scimTokenCreatedAt: nullableNumber(connection, "scimTokenCreatedAt"),
-  };
-}
-
-export function decodeCompanySignInScimToken(value: unknown): CompanySignInScimToken {
-  const token = decodeRecord(value, "SCIM token");
-  return { token: requiredString(token, "token"), createdAt: requiredNumber(token, "createdAt") };
-}
-
-export function decodeTestCompanySignInResult(value: unknown): TestCompanySignInResult {
-  return { email: requiredString(decodeRecord(value, "company sign-in test"), "email") };
-}
 
 export interface VerifyEmailCodeInput {
   challengeId: string;

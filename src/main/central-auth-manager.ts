@@ -1,8 +1,7 @@
-import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
 import { chmod, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { companySignInErrorKey } from "@openbot/contracts/company-sign-in";
 import { CREDIT_MEDIA_HOST_HEADER, CREDIT_MEDIA_HOST_TOKEN_HEADER } from "@openbot/contracts/credit-media";
 import type { HostKeyHandover } from "@openbot/contracts/host-key-handover";
 import { parseHostedServerClaim } from "@openbot/contracts/hosted-servers";
@@ -12,19 +11,11 @@ import type {
   CentralAuthIssue,
   CentralAuthState,
   CentralAuthUser,
-  CompanySignInScimToken,
-  CompanySignInSettings,
   MobileConnectedDevice,
   MobileConnectLink,
   MobileConnectTicket,
 } from "@openbot/contracts/ipc";
-import {
-  decodeCompanySignInScimToken,
-  decodeCompanySignInSettings,
-  isSignalHomeId,
-  type TestCompanySignInInput,
-  type TestCompanySignInResult,
-} from "@openbot/contracts/ipc";
+import { isSignalHomeId } from "@openbot/contracts/ipc";
 import { decodeRecord, requiredString } from "@openbot/contracts/ipc-decoding";
 import type { LiveActivityRelayPush } from "@openbot/contracts/live-activity-relay";
 import {
@@ -89,7 +80,6 @@ import {
   type RemoteInviteRecord,
   type RemoteMemberRecord,
 } from "./central-auth-records";
-import { awaitCompanySignIn, type CompanySignInBrowser, CompanySignInBrowserError } from "./company-sign-in-browser";
 import type { NotificationRelayRequest } from "./push-notifications";
 
 interface CentralAuthEvents {
@@ -111,7 +101,6 @@ interface CentralAuthManagerOptions {
   startupRequestTimeoutMs?: number;
   startupRetryDelaysMs?: readonly number[];
   emailCodeRequestTimeoutMs?: number;
-  companySignInBrowser?: CompanySignInBrowser | null;
   confirmSessionAtStart?: boolean;
 }
 
@@ -228,8 +217,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
   #emailCodeRequest: EmailCodeRequest | null = null;
   #profileRefresh: Deferred.Deferred<CentralAuthState, CentralAuthOperationError> | null = null;
   #profileRefreshGeneration = 0;
-  #companySignInCancel: Deferred.Deferred<void> | null = null;
-  #companySignInTestCancel: Deferred.Deferred<void> | null = null;
   #unavailableRetryTimer: ReturnType<typeof setTimeout> | null = null;
   #unavailableRetryFailures = 0;
   #disposed = false;
@@ -248,7 +235,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
       startupRequestTimeoutMs: options.startupRequestTimeoutMs ?? STARTUP_REQUEST_TIMEOUT_MS,
       startupRetryDelaysMs: options.startupRetryDelaysMs ?? STARTUP_RETRY_DELAYS_MS,
       emailCodeRequestTimeoutMs: options.emailCodeRequestTimeoutMs ?? EMAIL_CODE_REQUEST_TIMEOUT_MS,
-      companySignInBrowser: options.companySignInBrowser ?? null,
       confirmSessionAtStart: options.confirmSessionAtStart ?? false,
     };
   }
@@ -258,8 +244,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
     this.#disposed = true;
     this.#cancelUnavailableRetry();
     this.stopProfileRefresh();
-    this.#endCompanySignIn();
-    this.#endCompanySignInTest();
     while (this.#pending.size) yield* Effect.forEach([...this.#pending], Deferred.await, { concurrency: "unbounded" });
     yield* this.#sessionWrites.withPermit(Effect.void);
   }).bind(this);
@@ -1762,10 +1746,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
       .pipe(
         Effect.catch(({ cause: error }) =>
           Effect.sync(() => {
-            if (error instanceof AuthApiError && error.code === "company_sign_in_required") {
-              if (this.#emailCodeRequest === request) this.#emailCodeRequest = null;
-              return this.#startCompanySignIn(request.email);
-            }
             if (isDefinitiveEmailCodeRequestFailure(error) && this.#emailCodeRequest === request) {
               this.#emailCodeRequest = null;
             }
@@ -1839,212 +1819,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
             });
           }),
         ),
-      );
-    },
-    (operation) => this.#owned(operation),
-  ).bind(this);
-
-  openCompanySignIn(): Effect.Effect<CentralAuthState> {
-    return Effect.sync(() =>
-      this.#state.status === "company_sign_in" ? this.#startCompanySignIn(this.#state.email) : this.getState(),
-    );
-  }
-
-  cancelCompanySignIn(): Effect.Effect<CentralAuthState> {
-    return Effect.sync(() => {
-      this.#endCompanySignIn();
-      if (this.#state.status !== "company_sign_in") return this.getState();
-      return this.#setState({ status: "signed_out" });
-    });
-  }
-
-  #endCompanySignIn(): void {
-    if (this.#companySignInCancel) Deferred.doneUnsafe(this.#companySignInCancel, Effect.void);
-    this.#companySignInCancel = null;
-  }
-
-  #endCompanySignInTest(): void {
-    if (this.#companySignInTestCancel) Deferred.doneUnsafe(this.#companySignInTestCancel, Effect.void);
-    this.#companySignInTestCancel = null;
-  }
-
-  #startCompanySignIn(email: string): CentralAuthState {
-    this.#endCompanySignIn();
-    const browser = this.#options.companySignInBrowser;
-    if (!browser) {
-      return this.#setState({
-        status: "company_sign_in",
-        email,
-        issue: { code: "company_sign_in_unavailable", message: sourceText("error.auth.companySignInUnavailable") },
-      });
-    }
-    const cancel = Deferred.makeUnsafe<void>();
-    this.#companySignInCancel = cancel;
-    const state = this.#setState({ status: "company_sign_in", email });
-    Effect.runFork(this.#owned(this.#runCompanySignIn(browser, email, cancel)));
-    return state;
-  }
-
-  readonly #runCompanySignIn = Effect.fn("CentralAuth.runCompanySignIn")(function* (
-    this: CentralAuthManager,
-    browser: CompanySignInBrowser,
-    email: string,
-    cancel: Deferred.Deferred<void>,
-  ): Effect.fn.Return<void, never, CentralAuthTransport> {
-    const verifier = randomBytes(32).toString("base64url");
-    const challenge = createHash("sha256").update(verifier).digest("base64url");
-    const signedIn = yield* Effect.gen({ self: this }, function* () {
-      const params = yield* awaitCompanySignIn(browser, cancel, (returnTo, clientState) =>
-        this.#requestEffect(
-          "/v1/auth/company/start",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, returnTo, clientState, clientChallenge: challenge }),
-          },
-          decodeAuthorizationUrl,
-        ),
-      );
-      const code = params.get("code");
-      if (!code) return yield* new CompanySignInBrowserError({ code: "company_sign_in_failed" });
-      const session = yield* this.#requestEffect(
-        "/v1/auth/company/exchange",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code, codeVerifier: verifier }),
-        },
-        decodeSessionResponse,
-      );
-      if (this.#companySignInCancel !== cancel) {
-        yield* this.#requestEffect(
-          "/v1/auth/logout",
-          { method: "POST", headers: { Authorization: `Bearer ${session.sessionToken}` } },
-          decodeVoid,
-        ).pipe(Effect.catch(() => Effect.void));
-        return;
-      }
-      this.#companySignInCancel = null;
-      yield* this.#applyClaimedSession(session);
-    }).pipe(Effect.result);
-    if (Result.isSuccess(signedIn) || this.#companySignInCancel !== cancel) return;
-    const failure = signedIn.failure;
-    if (failure instanceof CompanySignInBrowserError && failure.code === "cancelled") return;
-    this.#companySignInCancel = null;
-    this.#setState({ status: "company_sign_in", email, issue: companySignInIssue(failure) });
-  });
-
-  readonly companySignInSettings = Effect.fn("CentralAuth.companySignInSettings")(
-    function* (this: CentralAuthManager, hostId: string) {
-      return yield* this.#authorizedRequestEffect(
-        companySignInPath(hostId),
-        { method: "GET" },
-        decodeCompanySignInSettings,
-      );
-    },
-    (operation) => this.#owned(operation),
-  ).bind(this);
-
-  readonly testCompanySignIn = Effect.fn("CentralAuth.testCompanySignIn")(
-    function* (
-      this: CentralAuthManager,
-      hostId: string,
-      input: Omit<TestCompanySignInInput, "serverId">,
-    ): Effect.fn.Return<TestCompanySignInResult, CentralAuthOperationError, CentralAuthTransport> {
-      const browser = this.#options.companySignInBrowser;
-      if (!browser) {
-        return yield* new CentralAuthOperationError({
-          cause: companySignInError("company_sign_in_unavailable"),
-        });
-      }
-      this.#endCompanySignInTest();
-      const cancel = Deferred.makeUnsafe<void>();
-      this.#companySignInTestCancel = cancel;
-      const params = yield* awaitCompanySignIn(browser, cancel, (returnTo, clientState) =>
-        this.#authorizedRequestEffect(
-          `${companySignInPath(hostId)}/test`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...input, returnTo, clientState }),
-          },
-          decodeAuthorizationUrl,
-        ),
-      ).pipe(
-        Effect.catchTag("CompanySignInBrowserError", (error) =>
-          Effect.fail(new CentralAuthOperationError({ cause: companySignInError(error.code) })),
-        ),
-        Effect.ensuring(
-          Effect.sync(() => {
-            if (this.#companySignInTestCancel === cancel) this.#companySignInTestCancel = null;
-          }),
-        ),
-      );
-      const email = params.get("email");
-      if (params.get("status") !== "passed" || !email) {
-        return yield* new CentralAuthOperationError({ cause: companySignInError("company_sign_in_failed") });
-      }
-      return { email };
-    },
-    (operation) => this.#owned(operation),
-  ).bind(this);
-
-  cancelCompanySignInTest(): Effect.Effect<void> {
-    return Effect.sync(() => this.#endCompanySignInTest());
-  }
-
-  readonly setCompanySignInEnabled = Effect.fn("CentralAuth.setCompanySignInEnabled")(
-    function* (this: CentralAuthManager, hostId: string, enabled: boolean) {
-      yield* this.#authorizedRequestEffect(
-        companySignInPath(hostId),
-        { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled }) },
-        decodeVoid,
-      );
-      return yield* this.#authorizedRequestEffect(
-        companySignInPath(hostId),
-        { method: "GET" },
-        decodeCompanySignInSettings,
-      );
-    },
-    (operation) => this.#owned(operation),
-  ).bind(this);
-
-  readonly removeCompanySignIn = Effect.fn("CentralAuth.removeCompanySignIn")(
-    function* (this: CentralAuthManager, hostId: string) {
-      yield* this.#authorizedRequestEffect(companySignInPath(hostId), { method: "DELETE" }, decodeVoid);
-      return yield* this.#authorizedRequestEffect(
-        companySignInPath(hostId),
-        { method: "GET" },
-        decodeCompanySignInSettings,
-      );
-    },
-    (operation) => this.#owned(operation),
-  ).bind(this);
-
-  readonly createCompanySignInScimToken = Effect.fn("CentralAuth.createCompanySignInScimToken")(
-    function* (
-      this: CentralAuthManager,
-      hostId: string,
-    ): Effect.fn.Return<CompanySignInScimToken, CentralAuthOperationError, CentralAuthTransport> {
-      return yield* this.#authorizedRequestEffect(
-        `${companySignInPath(hostId)}/scim-token`,
-        { method: "POST" },
-        decodeCompanySignInScimToken,
-      );
-    },
-    (operation) => this.#owned(operation),
-  ).bind(this);
-
-  readonly revokeCompanySignInScimToken = Effect.fn("CentralAuth.revokeCompanySignInScimToken")(
-    function* (
-      this: CentralAuthManager,
-      hostId: string,
-    ): Effect.fn.Return<CompanySignInSettings, CentralAuthOperationError, CentralAuthTransport> {
-      yield* this.#authorizedRequestEffect(`${companySignInPath(hostId)}/scim-token`, { method: "DELETE" }, decodeVoid);
-      return yield* this.#authorizedRequestEffect(
-        companySignInPath(hostId),
-        { method: "GET" },
-        decodeCompanySignInSettings,
       );
     },
     (operation) => this.#owned(operation),
@@ -2189,8 +1963,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
       this: CentralAuthManager,
     ): Effect.fn.Return<CentralAuthState, CentralAuthOperationError, CentralAuthTransport> {
       this.#emailCodeRequest = null;
-      this.#endCompanySignIn();
-      this.#endCompanySignInTest();
       if (this.#sessionToken) {
         const attempt8 = yield* Effect.gen({ self: this }, function* () {
           yield* this.#authorizedRequestEffect("/v1/auth/logout", { method: "POST" }, decodeVoid);
@@ -2441,7 +2213,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
       }
       if (this.#sessionToken !== sessionToken) return;
       logger.warn("The account service ended the session. This device is signed out.");
-      this.#endCompanySignInTest();
       yield* this.#clearStoredSessionEffect();
       if (this.#state.status === "signed_in") this.#setState({ status: "signed_out" });
     }).pipe(Effect.catch(() => Effect.void));
@@ -2790,25 +2561,6 @@ function emailCodeRequestIssue(error: unknown): CentralAuthIssue {
     code: "email_delivery_unknown",
     message: sourceText("error.auth.deliveryUnknown"),
   };
-}
-
-function companySignInPath(hostId: string): string {
-  return `/v2/remote/hosts/${encodeURIComponent(hostId)}/company-sign-in`;
-}
-
-function decodeAuthorizationUrl(value: unknown): string {
-  const url = new URL(requiredString(decodeRecord(value, "company sign-in page"), "authorizationUrl"));
-  if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("Invalid company sign-in page.");
-  return url.toString();
-}
-
-function companySignInError(code: string): AuthApiError {
-  return new AuthApiError(400, code, sourceText(companySignInErrorKey(code)));
-}
-
-function companySignInIssue(failure: CentralAuthOperationError | CompanySignInBrowserError): CentralAuthIssue {
-  if (failure instanceof CompanySignInBrowserError) return authApiIssue(companySignInError(failure.code));
-  return centralAuthIssue(failure.cause, "company_sign_in_failed", sourceText("error.auth.companySignInFailed"));
 }
 
 function isDefinitiveEmailCodeRequestFailure(error: unknown): boolean {

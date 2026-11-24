@@ -387,7 +387,6 @@ export const messages = {
   "server.settings.appearanceColorOption": "Kolor serwera: {color}",
   "server.settings.appearanceReset": "Resetuj kształt i kolor",
   "server.settings.access": "Dostęp",
-  "server.companySignIn.desktopOnly": "Skonfiguruj logowanie jednokrotne w aplikacji OpenBot na komputer.",
   "server.settings.publish": "Opublikuj ten serwer",
   "server.settings.published": "Serwer jest opublikowany",
   "server.settings.setUpDesktopTitle": "Skonfiguruj zdalny pulpit",

@@ -1,7 +1,6 @@
 import { isAvatarMimeType } from "@openbot/contracts/avatar-images";
 import { parseBillingPortalRequest, parseBillingStorageRequest } from "@openbot/contracts/billing";
 import { parseBillingDetailsRequest } from "@openbot/contracts/billing-details";
-import { WEB_APP_COMPANY_SIGN_IN_ERROR_PARAM } from "@openbot/contracts/company-sign-in";
 import {
   CREDITS_UNAVAILABLE_STATE,
   EMPTY_CREDIT_ACTIVITY,
@@ -26,11 +25,11 @@ import { type AuthService, AuthServiceError, readAnalyticsAnswer, readChatColor 
 import { AvatarUploadError, readAvatarUpload, removeAccountAvatar, storeAccountAvatar } from "./avatar-storage";
 import { BILLING_UNAVAILABLE_STATE, BillingError, type BillingService } from "./billing-service";
 import { withSuggestedCountry } from "./billing-tax";
-import { companySignInApiOrigin, inviteLinkOrigin } from "./canonical-redirect";
-import { CompanySignInError, type CompanySignInService, WEB_RETURN_PATH } from "./company-sign-in";
-import { randomToken, sha256 } from "./crypto";
+import { inviteLinkOrigin } from "./canonical-redirect";
+import { sha256 } from "./crypto";
 import type { CustomServerOffers } from "./custom-server-offers";
 import { runApiResponse } from "./effect-runtime";
+import { ExtensionSignInError, type ExtensionSignInService } from "./extension-sign-in";
 import type { readHostLogo } from "./host-logo";
 import type { HostedServerService } from "./hosted-server-service";
 import { HostedSiteInputError, requireIdempotencyKey } from "./hosted-site-contract";
@@ -45,8 +44,6 @@ import type { AuthUser, OwnerTransferEmailDelivery, TeamInviteEmailDelivery } fr
 const COOKIE = "__Host-openbot-web";
 const PREFIX = "/api/browser/";
 const COOKIE_ATTRIBUTES = "Path=/; Secure; HttpOnly; SameSite=Lax";
-const COMPANY_COOKIE = "__Host-openbot-company";
-const COMPANY_FLOW_SECONDS = 600;
 
 export interface BrowserApiServices {
   auth: Pick<
@@ -87,7 +84,7 @@ export interface BrowserApiServices {
     | "acceptOwnerTransfer"
     | "declineOwnerTransfer"
   >;
-  companySignIn: () => CompanySignInService;
+  extensionSignIn: () => ExtensionSignInService;
   hostLogo: (hostId: string, version: string) => ReturnType<typeof readHostLogo>;
   hosting: () => Pick<
     HostedServerService,
@@ -186,51 +183,10 @@ export function handleBrowserApi(request: Request, services: BrowserApiServices)
       !browserWriteContentTypeAllowed(request, path))
   )
     return Promise.resolve(failure(403, "browser_request_refused", "The browser request was refused."));
-  if (path === "company/return" && request.method === "GET")
-    return runApiResponse(finishCompanySignIn(request, services), services.errorResponse);
   if (request.headers.get("Sec-Fetch-Site") === "cross-site")
     return Promise.resolve(failure(403, "browser_request_refused", "The browser request was refused."));
   return runApiResponse(handleBrowserOperation(request, path, services), services.errorResponse);
 }
-
-const finishCompanySignIn = Effect.fn("BrowserApi.finishCompanySignIn")(function* (
-  request: Request,
-  services: BrowserApiServices,
-) {
-  const url = new URL(request.url);
-  const cookies = [`${COMPANY_COOKIE}=; ${COOKIE_ATTRIBUTES}; Max-Age=0`];
-  const back = (error?: string) => {
-    const target = new URL("/app", url.origin);
-    if (error) target.searchParams.set(WEB_APP_COMPANY_SIGN_IN_ERROR_PARAM, error);
-    const headers = new Headers({
-      Location: target.toString(),
-      "Cache-Control": "no-store",
-      "Referrer-Policy": "no-referrer",
-    });
-    for (const cookie of cookies) headers.append("Set-Cookie", cookie);
-    return new Response(null, { status: 303, headers });
-  };
-  const [clientState, verifier] = cookieValue(request, COMPANY_COOKIE)?.split(".") ?? [];
-  if (!clientState || !verifier || url.searchParams.get("state") !== clientState)
-    return back("invalid_company_sign_in_code");
-  const error = url.searchParams.get("error");
-  if (error) return back(/^[a-z_]{1,64}$/u.test(error) ? error : "company_sign_in_failed");
-  const result = yield* services
-    .companySignIn()
-    .exchange({ code: url.searchParams.get("code") ?? "", codeVerifier: verifier })
-    .pipe(
-      Effect.map((session) => ({ session })),
-      Effect.catchTag("CompanySignInError", (refusal) => Effect.succeed({ error: refusal.code })),
-    );
-  if ("error" in result) return back(result.error);
-  const previous = browserSessionToken(request);
-  if (previous) {
-    const user = yield* services.auth.authenticate(previous);
-    if (user) yield* services.remote.endAccountSession(user.id, yield* sha256(previous));
-  }
-  cookies.push(`${COOKIE}=${result.session.sessionToken}; ${COOKIE_ATTRIBUTES}; Max-Age=34560000`);
-  return back();
-});
 
 const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function* (
   request: Request,
@@ -266,37 +222,6 @@ const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function*
     response.headers.set("Set-Cookie", `${COOKIE}=${result.sessionToken}; ${COOKIE_ATTRIBUTES}; Max-Age=34560000`);
     return response;
   }
-  if (path === "company/start" && request.method === "POST") {
-    const body = yield* readJsonObject(request);
-    const email = yield* requiredString(body, "email");
-    const site = new URL(request.url);
-    const clientState = randomToken(24);
-    const verifier = randomToken(32);
-    return yield* services
-      .companySignIn()
-      .startSignIn(
-        {
-          email,
-          returnTo: new URL(WEB_RETURN_PATH, site.origin).toString(),
-          clientState,
-          clientChallenge: yield* sha256(verifier),
-          sourceIp: services.sourceIp(request),
-        },
-        companySignInApiOrigin(site),
-        site.origin,
-      )
-      .pipe(
-        Effect.map(({ authorizationUrl }) => {
-          const response = json({ authorizationUrl });
-          response.headers.set(
-            "Set-Cookie",
-            `${COMPANY_COOKIE}=${clientState}.${verifier}; ${COOKIE_ATTRIBUTES}; Max-Age=${COMPANY_FLOW_SECONDS}`,
-          );
-          return response;
-        }),
-        refuseWith(CompanySignInError),
-      );
-  }
   if (path === "checkout-attribution" && request.method === "POST") {
     const body = yield* readJsonObject(request);
     const firstTouch = requestFirstTouch(body.firstTouch);
@@ -323,9 +248,9 @@ const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function*
     const extensionId = yield* requiredString(body, "extensionId");
     const clientChallenge = yield* requiredString(body, "clientChallenge");
     return yield* services
-      .companySignIn()
-      .issueBrowserExtensionCode(user.id, { extensionId, clientChallenge })
-      .pipe(Effect.map(json), refuseWith(CompanySignInError));
+      .extensionSignIn()
+      .issueCode(user.id, { extensionId, clientChallenge })
+      .pipe(Effect.map(json), refuseWith(ExtensionSignInError));
   }
   if (path === "v2/remote/hosts" && request.method === "GET")
     return json({ hosts: yield* services.remote.listHosts(user.id) });

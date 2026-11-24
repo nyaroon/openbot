@@ -9,8 +9,6 @@ export const messages = defineMessages("extension", {
   "extension.signIn.cancelled": "The sign-in was cancelled.",
   "extension.signIn.failed": "Sign-in failed.",
   "extension.signIn.sessionFailed": "Could not check this session.",
-  "extension.signIn.companyUnsupported":
-    "This email signs in through your company. Go back and use Sign in with openbot.run.",
   "extension.connection.connecting": "Connecting to {server}…",
   "extension.connection.offline": "{server} is offline.",
   "extension.connection.changed": "The server changed. Try again.",

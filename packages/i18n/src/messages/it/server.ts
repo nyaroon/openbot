@@ -375,7 +375,6 @@ export const messages = {
   "server.settings.appearanceColorOption": "Colore del server: {color}",
   "server.settings.appearanceReset": "Ripristina forma e colore",
   "server.settings.access": "Accesso",
-  "server.companySignIn.desktopOnly": "Configura il single sign-on nell’app desktop di OpenBot.",
   "server.settings.publish": "Pubblica questo server",
   "server.settings.published": "Il server è pubblicato",
   "server.settings.setUpDesktopTitle": "Configura il desktop remoto",

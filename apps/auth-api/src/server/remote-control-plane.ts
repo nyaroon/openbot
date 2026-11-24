@@ -1455,66 +1455,6 @@ export class RemoteControlPlane {
     (operation) => operation.pipe(Effect.provide(this.#layer)),
   ).bind(this);
 
-  readonly joinByCompanySignIn = Effect.fn("RemoteControlPlane.joinByCompanySignIn")(
-    function* (
-      this: RemoteControlPlane,
-      hostId: string,
-      userId: string,
-      options: { restore: boolean },
-    ): Effect.fn.Return<"joined" | "member" | "removed" | "no_seat", RemoteFailure, RemoteDependencies> {
-      const dependencies = yield* RemoteDependencies;
-      const existing = yield* remoteCall(() =>
-        dependencies.database
-          .prepare(
-            "SELECT membership_id, role, status FROM remote_memberships WHERE host_id = ? AND user_id = ? LIMIT 1",
-          )
-          .bind(hostId, userId)
-          .first<Pick<RemoteMembershipRow, "membership_id" | "role" | "status">>(),
-      );
-      if (existing?.status === "active" || existing?.role === "owner") return "member";
-      if (existing && !options.restore) return "removed";
-      const memberSeat = yield* this.#memberSeat(hostId, userId);
-      const now = dependencies.now();
-      const membershipId = crypto.randomUUID();
-      const joinedNow = [hostId, userId, existing?.membership_id ?? membershipId, now] as const;
-      const joined = yield* remoteCall(() =>
-        dependencies.database.batch([
-          dependencies.database
-            .prepare(
-              `INSERT INTO remote_memberships(membership_id, host_id, user_id, role, status, created_at, updated_at)
-               SELECT ?, ?, ?, 'member', 'active', ?, ? WHERE ${memberSeat.sql}
-               ON CONFLICT(host_id, user_id) DO UPDATE SET
-                 role = 'member', status = 'active', updated_at = excluded.updated_at, removed_at = NULL
-                WHERE remote_memberships.status = 'revoked' AND remote_memberships.role <> 'owner'`,
-            )
-            .bind(membershipId, hostId, userId, now, now, ...memberSeat.binds),
-          dependencies.database
-            .prepare(
-              `UPDATE remote_sessions SET ended_at = ? WHERE host_id = ? AND user_id = ? AND ended_at IS NULL
-                AND ${JOINED_NOW_SQL}`,
-            )
-            .bind(now, hostId, userId, ...joinedNow),
-          this.#authEventStatement({ type: "account-servers-changed", userId }, now, {
-            sql: JOINED_NOW_SQL,
-            binds: [...joinedNow],
-          }),
-        ]),
-      );
-      if ((joined[0]?.meta.changes ?? 0) === 1) {
-        yield* this.#flushAuthEvents();
-        return "joined";
-      }
-      const concurrent = yield* remoteCall(() =>
-        dependencies.database
-          .prepare("SELECT 1 AS found FROM remote_memberships WHERE host_id = ? AND user_id = ? AND status = 'active'")
-          .bind(hostId, userId)
-          .first<{ found: number }>(),
-      );
-      return concurrent ? "member" : "no_seat";
-    },
-    (operation) => operation.pipe(Effect.provide(this.#layer)),
-  ).bind(this);
-
   readonly revokeInvite = Effect.fn("RemoteControlPlane.revokeInvite")(
     function* (
       this: RemoteControlPlane,

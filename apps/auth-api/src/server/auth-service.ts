@@ -58,7 +58,6 @@ interface AuthServiceOptions {
   analytics?: AccountAnalytics;
   attribution?: AccountAttribution;
   referrals?: Referrals;
-  usesCompanySignIn?: (email: string) => Effect.Effect<boolean, AuthOperationError>;
 }
 
 export interface EmailSignInStart {
@@ -94,7 +93,6 @@ class AuthDependencies extends Context.Service<
     analytics: AccountAnalytics;
     attribution: AccountAttribution | null;
     referrals: Referrals | null;
-    usesCompanySignIn: (email: string) => Effect.Effect<boolean, AuthOperationError>;
   }
 >()("@openbot/auth-api/AuthDependencies") {}
 
@@ -132,7 +130,6 @@ export class AuthService {
       analytics: options.analytics ?? NO_ACCOUNT_ANALYTICS,
       attribution: options.attribution ?? null,
       referrals: options.referrals ?? null,
-      usesCompanySignIn: options.usesCompanySignIn ?? (() => Effect.succeed(false)),
     });
   }
 
@@ -158,13 +155,6 @@ export class AuthService {
       const email = yield* authValidate(() => normalizeEmail(emailInput));
       if (dependencies.delivery?.phoneOnly && !phoneFromIdentityEmail(email)) {
         return yield* new AuthServiceError(400, "invalid_email", "Enter a valid WhatsApp number.");
-      }
-      if (yield* dependencies.usesCompanySignIn(email)) {
-        return yield* new AuthServiceError(
-          409,
-          "company_sign_in_required",
-          "This email signs in with your company account.",
-        );
       }
       const now = dependencies.now();
       if (idempotencyKey !== undefined && !isUuidV4(idempotencyKey)) {

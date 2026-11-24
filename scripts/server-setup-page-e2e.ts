@@ -70,7 +70,6 @@ const centralAuth: ServerModeOptions["centralAuth"] = {
       }
       return structuredClone(account);
     }),
-  cancelCompanySignIn: () => Effect.sync(() => structuredClone(account)),
   canPersistSession: () => true,
   redeemServerClaim: () => Effect.succeed(null),
   logout: () =>

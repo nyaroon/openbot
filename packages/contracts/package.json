@@ -26,7 +26,6 @@
     "./discord-app": "./src/discord-app.ts",
     "./discord-guild-grant": "./src/discord-guild-grant.ts",
     "./event-filter-value": "./src/event-filter-value.ts",
-    "./company-sign-in": "./src/company-sign-in.ts",
     "./phone-identity": "./src/phone-identity.ts",
     "./first-touch": "./src/first-touch.ts",
     "./promotion-code": "./src/promotion-code.ts",

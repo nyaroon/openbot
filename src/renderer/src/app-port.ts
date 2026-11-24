@@ -1,5 +1,4 @@
 import type { OpenBotDesktopApi } from "@openbot/contracts/ipc";
-import type { CompanySignInCalls } from "./features/servers/ServerCompanySignInSection";
 
 export interface AppPort {
   getAppInfo: OpenBotDesktopApi["getAppInfo"];
@@ -35,11 +34,10 @@ export interface AppPort {
   credits: OpenBotDesktopApi["credits"];
   referral: OpenBotDesktopApi["referral"];
   license: OpenBotDesktopApi["license"];
-  auth: CompanySignInCalls &
-    Pick<
-      OpenBotDesktopApi["auth"],
-      "listOwnerTransfers" | "acceptOwnerTransfer" | "declineOwnerTransfer" | "onOwnerTransfersChanged"
-    >;
+  auth: Pick<
+    OpenBotDesktopApi["auth"],
+    "listOwnerTransfers" | "acceptOwnerTransfer" | "declineOwnerTransfer" | "onOwnerTransfersChanged"
+  >;
   hostedServers: OpenBotDesktopApi["hostedServers"];
   routineFeed: OpenBotDesktopApi["routineFeed"];
   events: OpenBotDesktopApi["events"];

@@ -352,14 +352,6 @@ export function decodeCentralAuthState(value: unknown): CentralAuthState {
         ...(issue === undefined ? {} : { issue: decodeCentralAuthIssue(issue) }),
       };
     }
-    case "company_sign_in": {
-      const { issue } = state;
-      return {
-        status: "company_sign_in",
-        email: requiredString(state, "email"),
-        ...(issue === undefined ? {} : { issue: decodeCentralAuthIssue(issue) }),
-      };
-    }
     case "signed_in":
       return { status: "signed_in", user: decodeCentralAuthUser(state.user) };
     case "error":

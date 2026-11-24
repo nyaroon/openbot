@@ -3505,7 +3505,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
                         onCreateInvite={serverSettings.createInvite}
                         ownerTransfer={ownerTransferCalls()}
                         license={licenseCalls}
-                        onDownloadDesktopApp={() => void window.open("/download", "_blank", "noopener")}
                         onContactUs={() => window.location.assign(HOSTED_SERVER_CONTACT_URL)}
                         onUpdateMember={serverSettings.updateMember}
                         onRemoveMember={serverSettings.removeMember}

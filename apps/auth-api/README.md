@@ -254,12 +254,6 @@ GitHub Actions reads the remote-control secrets, `SKILLS_ADMIN_TOKEN`, `SITE_REP
 `SITE_OPERATIONS_ADMIN_TOKEN` and `SERVER_CLAIMS_ADMIN_TOKEN` from the `cloudflare-production` Environment. It includes
 them in Wrangler's temporary runtime secrets file.
 
-`COMPANY_SIGN_IN_SECRET` (at least 32 random bytes) turns on company sign-in (OpenID Connect and
-SCIM). It encrypts each company's client secret in D1, so never change or lose it: with another
-value, each company must enter its client secret again. Without it, company sign-in answers 503 and
-everyone signs in with an email code. GitHub Actions reads it from the `cloudflare-production`
-Environment; a local deployment reads it from the encrypted `.env.production`.
-
 `HOSTED_ARCHIVE_KEY_SECRET` (32 random bytes in base64), `B2_WORKER_KEY_ID_EU` and
 `B2_WORKER_APPLICATION_KEY_EU` are set together or not at all. They are for the archives of ended
 pool servers ([plan 012](../../plans/012-pool-server-archive.md)). The first encrypts the `age` key
@@ -271,7 +265,7 @@ change one, change it in both places and deploy the Worker.
 commas (a Chrome id is 32 letters from `a` to `p`). Only they get a sign-in from the web app: the
 extension opens `/app?extension=<id>&challenge=<c>&state=<s>` in its sign-in window, the person
 allows it, `/api/browser/extension/code` gives a one-time code, and the extension spends it with its
-verifier at `/v1/mobile-auth/company/exchange` (`platform: "unknown"`), as the phone does after a company sign-in. The extension first asks with no window (`&silent=1`,
+verifier at `/v1/auth/extension/exchange` (`platform: "unknown"`). The extension first asks with no window (`&silent=1`,
 `launchWebAuthFlow` not interactive): the web app gives the code at once when this account allowed this
 extension in this browser before (`openbot.web.extension-allowed.v1` in local storage), and else answers
 `login_required` or `consent_required`, and the extension opens the window. Without the variable, production gives no extension a

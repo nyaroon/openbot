@@ -151,7 +151,6 @@ export const RemoteOwnerInBrowser: Story = {
     server: remoteServer,
     hostStatus: null,
     initialSection: "members",
-    onDownloadDesktopApp: fn(),
   },
   render: (args) => (
     <>

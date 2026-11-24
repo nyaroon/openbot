@@ -1169,7 +1169,6 @@ export async function createApplicationServices({
   });
   teardown.push(TEARDOWN_ORDER.agentDock, "the agent dock", () => agentDock.destroy());
   const centralAuth = createCentralAuthManager({
-    companySignInBrowser: { open: (url) => shell.openExternal(url), language: () => language },
     confirmSessionAtStart: hostedServer !== null && hostedServer !== undefined,
   });
   teardown.push(TEARDOWN_ORDER.centralAuth, "the account runtime", () => Effect.runPromise(centralAuth.dispose()));

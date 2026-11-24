@@ -386,7 +386,6 @@ export const messages = {
   "server.settings.appearanceColorOption": "Цвет сервера: {color}",
   "server.settings.appearanceReset": "Сбросить форму и цвет",
   "server.settings.access": "Доступ",
-  "server.companySignIn.desktopOnly": "Настройте единый вход в настольном приложении OpenBot.",
   "server.settings.publish": "Опубликовать этот сервер",
   "server.settings.published": "Сервер опубликован",
   "server.settings.setUpDesktopTitle": "Настройка удалённого рабочего стола",

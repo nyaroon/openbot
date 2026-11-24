@@ -1,6 +1,5 @@
 import { normalizeAccountIdentity, phoneFromIdentityEmail } from "@openbot/contracts/phone-identity";
 import { referralCodeFromInput } from "@openbot/contracts/referral";
-import { normalizeEmailAddress } from "@openbot/contracts/validation";
 import { classifyFailure } from "@openbot/telemetry";
 import * as Crypto from "expo-crypto";
 import { useRef, useState } from "react";
@@ -10,7 +9,6 @@ import {
   type MobileEmailChallenge,
   MobileEmailSignInError,
   type MobileSession,
-  signInMobileWithCompany,
   startMobileEmailSignIn,
   verifyMobileEmailCode,
 } from "@/features/auth/api/mobile-auth";
@@ -65,8 +63,7 @@ export function useEmailSignIn({
   const [codeIssue, setCodeIssue] = useState<SignInIssue | null>(null);
   const [rejection, setRejection] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
-  const [pending, setPending] = useState<"send" | "resend" | "verify" | "company" | null>(null);
-  const [companyEmail, setCompanyEmail] = useState<string | null>(null);
+  const [pending, setPending] = useState<"send" | "resend" | "verify" | null>(null);
   const [verified, setVerified] = useState(false);
   const [needsNewCode, setNeedsNewCode] = useState(false);
   const [blockedUntil, setBlockedUntil] = useState(0);
@@ -113,10 +110,6 @@ export function useEmailSignIn({
       }
       sentInvite.current = inviteCode ?? undefined;
     }
-    if (kind === "send" && companyEmail === address) {
-      await signInWithCompany(address);
-      return;
-    }
     if (kind === "send" && !needsNewCode && challenge?.email === address && Date.now() < challenge.resendAt) {
       go("code");
       return;
@@ -146,19 +139,6 @@ export function useEmailSignIn({
         void haptics.notification("success");
       }
     } catch (error) {
-      if (error instanceof MobileEmailSignInError && error.code === "company_sign_in_required") {
-        scope.track("account_sign_in_started", {
-          method: "email",
-          result: "company_sign_in",
-          duration_ms: performance.now() - started,
-        });
-        requestId.current = null;
-        setPending(null);
-        setCompanyEmail(address);
-        go("email");
-        await signInWithCompany(address);
-        return;
-      }
       scope.track("account_sign_in_started", {
         method: "email",
         result: "failed",
@@ -185,39 +165,6 @@ export function useEmailSignIn({
       closeKeyboard(),
     ]);
     await connect(session);
-  }
-
-  async function signInWithCompany(address: string) {
-    setPending("company");
-    setEmailIssue(null);
-    const scope = mobileAnalytics.scope();
-    const started = performance.now();
-    try {
-      const session = await signInMobileWithCompany(address).catch((error: unknown) => {
-        scope.track("account_sign_in_completed", {
-          method: "company",
-          result: "failed",
-          failure_code: "operation_failed",
-          cause_code: classifyFailure(error),
-          duration_ms: performance.now() - started,
-        });
-        throw error;
-      });
-      scope.track("account_sign_in_completed", {
-        method: "company",
-        result: session ? "succeeded" : "cancelled",
-        duration_ms: performance.now() - started,
-      });
-      if (session) await finish(session);
-    } catch (error) {
-      const issue = issueFrom(error, t("error.auth.companySignInFailed"));
-      if (issue.code === "company_sign_in_not_found") setCompanyEmail(null);
-      if (issue.retryAfterSeconds) setBlockedUntil(Date.now() + issue.retryAfterSeconds * 1_000);
-      setEmailIssue(issue);
-      reject();
-    } finally {
-      setPending(null);
-    }
   }
 
   async function verify(value: string) {
@@ -247,7 +194,7 @@ export function useEmailSignIn({
 
   const leaving = useRef(false);
   async function back() {
-    if (pending === "send" || pending === "verify" || pending === "company" || verified || leaving.current) return;
+    if (pending === "send" || pending === "verify" || verified || leaving.current) return;
     const target = step === "code" ? "email" : "options";
     if (target === "options") {
       leaving.current = true;
@@ -273,7 +220,6 @@ export function useEmailSignIn({
     setEmail: (value: string) => {
       setEmail(value);
       setEmailIssue(null);
-      if (normalizeEmailAddress(value) !== companyEmail) setCompanyEmail(null);
       setBlockedUntil(0);
       requestId.current = null;
     },
@@ -285,9 +231,7 @@ export function useEmailSignIn({
     },
     sendCode: () => void requestCode("send"),
     resendCode: () => void requestCode("resend"),
-    sending: pending === "send" || pending === "company",
-    companySignIn: pending === "company",
-    usesCompanySignIn: companyEmail !== null && companyEmail === normalizeEmailAddress(email),
+    sending: pending === "send",
     resending: pending === "resend",
     retryIn,
     resendIn,

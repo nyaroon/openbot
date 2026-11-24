@@ -7,8 +7,8 @@ import {
   requestAuthService,
   requestAvatarBucket,
   requestBillingService,
-  requestCompanySignIn,
   requestCustomServerOffers,
+  requestExtensionSignIn,
   requestHostedServerService,
   requestHostedSiteService,
   requestOwnerTransferEmailDelivery,
@@ -23,7 +23,7 @@ function handle({ request }: { request: Request }) {
   return handleBrowserApi(request, {
     auth: requestAuthService(),
     remote: requestRemoteControlPlane(),
-    companySignIn: requestCompanySignIn,
+    extensionSignIn: requestExtensionSignIn,
     hostLogo: (hostId, version) => readHostLogo(requestAvatarBucket(), hostId, version),
     hosting: requestHostedServerService,
     customServerOffers: requestCustomServerOffers,

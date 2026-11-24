@@ -2,7 +2,6 @@ import { join } from "node:path";
 import { sourceText } from "@openbot/i18n/source";
 import { app, net } from "electron";
 import { CentralAuthManager, readCentralAuthApiUrl, readMobileConnectApiUrl } from "./central-auth-manager";
-import type { CompanySignInBrowser } from "./company-sign-in-browser";
 import {
   createSecretStorage,
   SECRET_STORAGE_KEY_FILE,
@@ -49,10 +48,7 @@ export function centralAuthApiUrl(): string {
   );
 }
 
-export function createCentralAuthManager(options: {
-  companySignInBrowser?: CompanySignInBrowser;
-  confirmSessionAtStart: boolean;
-}): CentralAuthManager {
+export function createCentralAuthManager(options: { confirmSessionAtStart: boolean }): CentralAuthManager {
   const apiUrl = centralAuthApiUrl();
   return new CentralAuthManager({
     apiUrl,
@@ -61,7 +57,6 @@ export function createCentralAuthManager(options: {
     fetch: accountServiceFetch,
     ...safeStorageCipher("error.app.macSecureStorageUnavailable"),
     keyringChanged: () => secretStorage().madeKeyFile(),
-    ...(options.companySignInBrowser ? { companySignInBrowser: options.companySignInBrowser } : {}),
     confirmSessionAtStart: options.confirmSessionAtStart,
   });
 }

@@ -52,8 +52,6 @@ export function ServerSetupScreen() {
     switch (code) {
       case "invalid_email":
         return t("account.login.emailInvalid");
-      case "company_sign_in_required":
-        return t("server.setup.errorCompany");
       case NO_ANSWER:
         return t("server.setup.errorNoAnswer");
       default:

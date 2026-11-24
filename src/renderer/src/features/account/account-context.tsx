@@ -100,7 +100,7 @@ const Auth = createSimpleContext({
       try {
         const state = await accountPort().auth.requestEmailCode(email);
         analytics.track("account_sign_in_started", {
-          result: state.status === "code_sent" || state.status === "company_sign_in" ? state.status : "failed",
+          result: state.status === "code_sent" ? state.status : "failed",
           ...(state.status === "error" ? { failure_code: authFailureCode(state.issue.code) } : {}),
         });
         applyCentralAuthState(state);
@@ -111,10 +111,6 @@ const Auth = createSimpleContext({
         });
         throw error;
       }
-    }
-
-    async function openCompanySignIn(): Promise<void> {
-      applyCentralAuthState(await accountPort().auth.openCompanySignIn());
     }
 
     async function retryCentralAccount(): Promise<void> {
@@ -281,7 +277,6 @@ const Auth = createSimpleContext({
       applyAccountUsage,
       refreshAccountUsage,
       requestEmailCode,
-      openCompanySignIn,
       retryCentralAccount,
       verifyEmailCode,
       logoutCentralAccount,

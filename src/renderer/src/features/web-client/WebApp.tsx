@@ -1,5 +1,4 @@
 import { agentTemplateIdFromWebAppSearch, WEB_APP_AGENT_TEMPLATE_PARAM } from "@openbot/contracts/agent-template-links";
-import { companySignInErrorKey, WEB_APP_COMPANY_SIGN_IN_ERROR_PARAM } from "@openbot/contracts/company-sign-in";
 import { type FirstTouch, readFirstTouch } from "@openbot/contracts/first-touch";
 import { inviteUrlFromWebAppSearch, WEB_APP_INVITE_FIELDS } from "@openbot/contracts/invite-links";
 import { type AppVariant, type CentralAuthState, type CentralAuthUser, isAvatarColor } from "@openbot/contracts/ipc";
@@ -75,8 +74,6 @@ class SignInIssueShown extends Error {
   }
 }
 
-class CompanySignInRequired extends Error {}
-
 const EMAIL_START_TIMEOUT_MS = 35_000;
 
 const SESSION_CHECK_TIMEOUT_MS = 15_000;
@@ -88,21 +85,6 @@ const UNCERTAIN_EMAIL_DELIVERY = new Set([
   "email_delivery_timeout",
   "email_delivery_unknown",
 ]);
-
-function takeCompanySignInError(): string | null {
-  const url = new URL(window.location.href);
-  const code = url.searchParams.get(WEB_APP_COMPANY_SIGN_IN_ERROR_PARAM);
-  if (code === null) return null;
-  url.searchParams.delete(WEB_APP_COMPANY_SIGN_IN_ERROR_PARAM);
-  window.history.replaceState(window.history.state, "", url);
-  return code;
-}
-
-const COMPANY_SIGN_IN = Symbol("company sign-in");
-
-function companySignInIssue(code: string) {
-  return { code, message: sourceText(companySignInErrorKey(code)) };
-}
 
 function takeAgentTemplateLink(): string | null {
   const url = new URL(window.location.href);
@@ -227,7 +209,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
   let billingReturnEvent: BillingReturn | null =
     initialBillingReturn ??
     (initialHostingReturn ? { outcome: initialHostingReturn.paid ? "completed" : "cancelled", kind: "plan" } : null);
-  let companySignInReturnError = takeCompanySignInError();
   const addressHadLink =
     agentTemplateId() !== null ||
     inviteUrl() !== null ||
@@ -236,8 +217,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
     startLink() !== null ||
     extensionConnect !== null ||
     initialBillingReturn !== null ||
-    initialHostingReturn !== null ||
-    companySignInReturnError !== null;
+    initialHostingReturn !== null;
   const [workspace, setWorkspace] = createSignal<typeof WebWorkspace>();
   async function showAccount(account: CentralAuthUser) {
     const view = await loadWorkspace();
@@ -271,8 +251,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       generation === sessionGeneration &&
       response.status === 401 &&
       input !== "/api/browser/email/start" &&
-      input !== "/api/browser/email/verify" &&
-      input !== "/api/browser/company/start"
+      input !== "/api/browser/email/verify"
     ) {
       if (state.account) channel?.postMessage("session-changed");
       clearSession();
@@ -304,13 +283,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
     });
     const value = await response.json();
     if (!response.ok) {
-      if (
-        path === "email/start" &&
-        isDynamicRecord(value) &&
-        isDynamicRecord(value.error) &&
-        value.error.code === "company_sign_in_required"
-      )
-        throw new CompanySignInRequired();
       if (path === "email/start" || path === "email/verify") {
         const retryAfterSeconds = Number.parseInt(response.headers.get("Retry-After") ?? "", 10);
         const issue = {
@@ -416,14 +388,10 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
           });
       }
     } finally {
-      const returnError = companySignInReturnError;
-      companySignInReturnError = null;
       if (!disposed)
         setState((draft) => {
           draft.loaded = true;
           draft.retrying = false;
-          if (returnError !== null && !draft.account && draft.login.status === "signed_out")
-            draft.login = { status: "error", issue: companySignInIssue(returnError) };
         });
     }
   }
@@ -453,7 +421,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       { idempotencyKey: attempt.idempotencyKey, signal: limit.signal },
     )
       .catch((error: unknown) => {
-        if (error instanceof CompanySignInRequired) return COMPANY_SIGN_IN;
         if (error instanceof SignInIssueShown) {
           uncertain = UNCERTAIN_EMAIL_DELIVERY.has(error.code);
           return null;
@@ -471,7 +438,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       .finally(() => window.clearTimeout(timer));
     if (emailStart === attempt && !uncertain) emailStart = null;
     if (value === null) return;
-    if (value === COMPANY_SIGN_IN) return openCompanySignIn(email);
     if (!isDynamicRecord(value) || !isString(value.challengeId) || typeof value.resendAt !== "number")
       throw new Error(text.t("webClient.login.responseInvalid"));
     const challengeId = value.challengeId;
@@ -488,30 +454,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
         ...(isString(value.developmentCode) ? { developmentCode: value.developmentCode } : {}),
         ...(whatsapp ? { whatsapp } : {}),
       };
-    });
-  }
-  async function openCompanySignIn(email: string) {
-    setState((draft) => {
-      draft.login = { status: "company_sign_in", email };
-    });
-    const response = await accountFetch("/api/browser/company/start", {
-      method: "POST",
-      credentials: "same-origin",
-      cache: "no-store",
-      headers: { "Content-Type": "application/json", "X-OpenBot-Browser": "1" },
-      body: JSON.stringify({ email }),
-    });
-    const value = await response.json().catch(() => null);
-    if (response.ok && isDynamicRecord(value) && isString(value.authorizationUrl)) {
-      window.location.assign(value.authorizationUrl);
-      return;
-    }
-    const code =
-      isDynamicRecord(value) && isDynamicRecord(value.error) && isString(value.error.code)
-        ? value.error.code
-        : "company_sign_in_failed";
-    setState((draft) => {
-      draft.login = { status: "company_sign_in", email, issue: companySignInIssue(code) };
     });
   }
   async function verify(challengeId: string, code: string, referralCode?: string) {
@@ -614,11 +556,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
                     inviteField
                     initialInviteCode={readReferralCode(() => window.localStorage, Date.now()) ?? undefined}
                     revealed={!loadingShown()}
-                    onOpenCompanySignIn={() =>
-                      state.login.status === "company_sign_in"
-                        ? openCompanySignIn(state.login.email)
-                        : Promise.resolve()
-                    }
                     onReset={async () => {
                       clearSession();
                       setState((draft) => {

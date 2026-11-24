@@ -370,7 +370,6 @@ export const messages = {
   "server.settings.appearanceColorOption": "サーバーの色: {color}",
   "server.settings.appearanceReset": "形と色をリセット",
   "server.settings.access": "アクセス",
-  "server.companySignIn.desktopOnly": "シングルサインオンは OpenBot デスクトップアプリで設定します。",
   "server.settings.publish": "このサーバーを公開",
   "server.settings.published": "サーバーは公開されています",
   "server.settings.setUpDesktopTitle": "リモートデスクトップを設定",

@@ -78,7 +78,6 @@ import { type ServerVaultOptions, ServerVaultPanel } from "../vault/ServerVaultP
 import { createServerAgentsSection, type ServerAgentDefaultsOptions } from "./ServerAgentsSection";
 import { createServerAuditSection, type ServerAuditOptions } from "./ServerAuditSection";
 import type { ServerBrowsingMemoryOptions } from "./ServerBrowsingMemorySetting";
-import { type CompanySignInCalls, createServerCompanySignInSection } from "./ServerCompanySignInSection";
 import { ServerCrmSetting } from "./ServerCrmSetting";
 import { ServerDesktopPanel } from "./ServerDesktopPanel";
 import { createServerGeneralSection } from "./ServerGeneralSection";
@@ -124,9 +123,7 @@ export interface ServerSettingsModalProps {
   onRotateHostKey?: (() => Promise<void>) | undefined;
   onCreateInvite: (input: { role: "admin" | "member"; email?: string; permanent?: boolean }) => Promise<InviteSummary>;
   license?: Pick<LicenseCalls, "getState" | "setUsers" | "changePlan"> | undefined;
-  companySignIn?: CompanySignInCalls | undefined;
   ownerTransfer?: OwnerTransferCalls | undefined;
-  onDownloadDesktopApp?: (() => void) | undefined;
   onContactUs?: () => void;
   onUpdateMember: (input: UpdateTeamMemberInput) => Promise<void>;
   onRemoveMember: (memberId: string) => Promise<void>;
@@ -251,13 +248,7 @@ const SECTION_ROWS: Partial<Record<Section, readonly AppTextKey[]>> = {
     "server.settings.skillLearning",
     "server.settings.browsingMemory",
   ],
-  members: [
-    "server.settings.publish",
-    "server.companySignIn.title",
-    "server.companySignIn.sso",
-    "server.companySignIn.scim",
-    "server.ownerTransfer.title",
-  ],
+  members: ["server.settings.publish", "server.ownerTransfer.title"],
   storage: ["settings.backgroundProcesses.title"],
   experimental: ["server.settings.experimentalCrm"],
 };
@@ -492,12 +483,6 @@ export function ServerSettingsModal(props: ServerSettingsModalProps) {
     },
     roles,
   );
-  const companySignIn = createServerCompanySignInSection(
-    host,
-    () => props.companySignIn,
-    () => props.onDownloadDesktopApp,
-    () => props.open && section() === "members",
-  );
   const ownerTransfer = createServerOwnerTransferSection(
     host,
     () => props.ownerTransfer,
@@ -553,7 +538,6 @@ export function ServerSettingsModal(props: ServerSettingsModalProps) {
         setSection(untrack(availableInitialSection) ?? "general");
         general.resetForServer();
         members.resetForServer();
-        companySignIn.resetForServer();
         ownerTransfer.resetForServer();
         roles.resetForServer();
         audit.resetForServer();
@@ -810,7 +794,6 @@ export function ServerSettingsModal(props: ServerSettingsModalProps) {
         </Show>
         <Tabs.Content value="members" class="settings-modal-tab-panel server-settings-panel" data-tab="members">
           <members.Panel />
-          <companySignIn.Panel />
           <ownerTransfer.Panel />
         </Tabs.Content>
         <Show when={roles.available()}>

@@ -53,8 +53,6 @@ async function readBody(response: Response): Promise<DynamicRecord | null> {
 function issueFrom(response: Response, body: DynamicRecord | null): CentralAuthIssue {
   const error = isDynamicRecord(body?.error) ? body.error : null;
   const code = error && isString(error.code) ? error.code : "sign_in_failed";
-  if (code === "company_sign_in_required")
-    return { code, message: currentText().t("extension.signIn.companyUnsupported") };
   const retryAfterSeconds = Number.parseInt(response.headers.get("Retry-After") ?? "", 10);
   return {
     code,
@@ -168,7 +166,7 @@ async function webCode(silent: boolean): Promise<{ code: string; verifier: strin
 }
 
 async function exchangeCode({ code, verifier }: { code: string; verifier: string }): Promise<ExtensionSession> {
-  const { response, body } = await accountRequest("/v1/mobile-auth/company/exchange", {
+  const { response, body } = await accountRequest("/v1/auth/extension/exchange", {
     method: "POST",
     body: { code, codeVerifier: verifier, deviceId: await deviceId(), deviceName: DEVICE_NAME, platform: "unknown" },
   });

@@ -57,7 +57,6 @@ export interface ServerModeOptions {
     CentralAuthManager,
     | "getState"
     | "requestEmailCode"
-    | "cancelCompanySignIn"
     | "verifyEmailCode"
     | "hasSession"
     | "retry"
@@ -317,10 +316,6 @@ export class ServerMode {
           ...(state.whatsapp ? { whatsapp_url: state.whatsapp.url, whatsapp_code: state.whatsapp.code } : {}),
         },
       };
-    }
-    if (state.status === "company_sign_in") {
-      yield* this.#options.centralAuth.cancelCompanySignIn();
-      return failure(409, "company_sign_in_required");
     }
     return issueFailure(state);
   });

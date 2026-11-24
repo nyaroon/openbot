@@ -11,7 +11,7 @@ export interface AuthRetentionResult {
   remoteInvites: number;
   mobileConnectLinks: number;
   serverClaims: number;
-  companySignIn: number;
+  extensionSignIn: number;
 }
 
 interface AuthRetentionOperation {
@@ -78,12 +78,7 @@ function authRetentionOperations(now: number): AuthRetentionOperation[] {
       cutoff: now,
     },
     {
-      name: "companySignIn",
-      sql: "DELETE FROM company_sign_in_flows WHERE expires_at <= ?",
-      cutoff: now,
-    },
-    {
-      name: "companySignIn",
+      name: "extensionSignIn",
       sql: "DELETE FROM company_sign_in_codes WHERE expires_at <= ? OR redeemed_at IS NOT NULL",
       cutoff: now,
     },
@@ -114,7 +109,7 @@ const prune = Effect.fn("AuthRetention.prune")(function* (now: number) {
     remoteInvites: 0,
     mobileConnectLinks: 0,
     serverClaims: 0,
-    companySignIn: 0,
+    extensionSignIn: 0,
   };
   for (const [index, operation] of operations.entries()) {
     deleted[operation.name] += results[index]?.meta.changes ?? 0;

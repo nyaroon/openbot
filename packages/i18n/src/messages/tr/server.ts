@@ -375,7 +375,6 @@ export const messages = {
   "server.settings.appearanceColorOption": "{color} sunucu rengi",
   "server.settings.appearanceReset": "Şekli ve rengi sıfırla",
   "server.settings.access": "Erişim",
-  "server.companySignIn.desktopOnly": "Çoklu oturum açmayı OpenBot masaüstü uygulamasında ayarlayın.",
   "server.settings.publish": "Bu sunucuyu yayımla",
   "server.settings.published": "Sunucu yayımlandı",
   "server.settings.setUpDesktopTitle": "Uzak masaüstünü ayarlayın",

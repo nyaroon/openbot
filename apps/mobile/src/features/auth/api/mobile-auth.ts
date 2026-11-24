@@ -1,5 +1,4 @@
 import { type AvatarMimeType, isValidAvatarImage } from "@openbot/contracts/avatar-images";
-import { companySignInErrorKey, MOBILE_COMPANY_SIGN_IN_RETURN } from "@openbot/contracts/company-sign-in";
 import { AVATAR_IMAGE_LIMITS } from "@openbot/contracts/input-limits";
 import { OPENBOT_CONTROL_PLANE_ORIGIN } from "@openbot/contracts/invite-links";
 import type { CentralAuthUser } from "@openbot/contracts/ipc";
@@ -17,26 +16,23 @@ import {
   type WhatsAppSignIn,
 } from "@openbot/contracts/phone-identity";
 import { type DynamicRecord, isBoolean, isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
-import { normalizeEmailAddress, normalizeOneTimeCode, validateProfileName } from "@openbot/contracts/validation";
+import { normalizeOneTimeCode, validateProfileName } from "@openbot/contracts/validation";
 import type { MobileTextKey } from "@openbot/i18n/mobile";
 import { bytesToBase64Url } from "@openbot/team-client/base64";
 import * as Crypto from "expo-crypto";
 import * as Device from "expo-device";
 import * as SecureStore from "expo-secure-store";
-import { openAuthSessionAsync } from "expo-web-browser";
 import { z } from "zod";
 import { isAndroid, isIOS } from "@/shared/lib/platform";
 import { currentText } from "@/shared/lib/text";
 import * as LockedKeychain from "../../../shared/lib/locked-keychain";
 import { fetch } from "../../support/model/logged-fetch";
-import { companySignInReturnParams } from "../model/company-sign-in-return";
 
 const MOBILE_SESSION_KEY = "openbot.mobile.session.v1";
 const MOBILE_REVOCATIONS_KEY = "openbot.mobile.pending-revocations.v1";
 const MOBILE_DEVICE_ID_KEY = "openbot.mobile.device-id.v1";
 const MOBILE_AUTH_REQUEST_TIMEOUT_MS = 10_000;
 const MOBILE_EMAIL_CODE_REQUEST_TIMEOUT_MS = 35_000;
-const MOBILE_COMPANY_START_TIMEOUT_MS = 20_000;
 
 const serializeMobileSessionStorage = serialQueue();
 const serializeMobileProfile = serialQueue();
@@ -56,7 +52,7 @@ export interface MobileSession {
   signIn?: AccountSignIn;
 }
 
-type AccountSignIn = "email" | "company";
+type AccountSignIn = "email";
 type MobileCredential = Pick<MobileSession, "apiUrl" | "sessionToken">;
 
 export function redeemMobileConnectUrl(value: string): Promise<MobileSession> {
@@ -201,70 +197,12 @@ export function verifyMobileEmailCode(
   });
 }
 
-export function signInMobileWithCompany(email: string): Promise<MobileSession | null> {
-  return exclusiveSignIn(async () => {
-    const address = normalizeEmailAddress(email);
-    if (!address) {
-      throw new MobileEmailSignInError(currentText().t("mobile.auth.email.error.invalidEmail"), "invalid_email");
-    }
-    void retryMobileSessionRevocations();
-    const current = await serializeMobileSessionStorage(() => readStoredSessionAndRevokeInvalid(true));
-    if (current) throw new Error(currentText().t("mobile.auth.error.alreadySignedIn"));
-    const verifier = randomToken();
-    const clientState = randomToken();
-    const challenge = base64Url(
-      await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, verifier, {
-        encoding: Crypto.CryptoEncoding.BASE64,
-      }),
-    );
-    const start = await mobileEmailRequest(
-      "/v1/auth/company/start",
-      { email: address, returnTo: MOBILE_COMPANY_SIGN_IN_RETURN, clientState, clientChallenge: challenge },
-      {},
-      MOBILE_COMPANY_START_TIMEOUT_MS,
-    );
-    if (!start.response.ok) throw companySignInError(errorCode(start.body), start.response);
-    const authorizationUrl = start.body?.authorizationUrl;
-    if (!isString(authorizationUrl) || !/^https?:\/\//u.test(authorizationUrl)) {
-      throw companySignInError("company_sign_in_failed");
-    }
-    const result = await openAuthSessionAsync(authorizationUrl, MOBILE_COMPANY_SIGN_IN_RETURN);
-    if (result.type !== "success") return null;
-    const params = companySignInReturnParams(result.url, clientState);
-    const failure = params?.get("error");
-    if (failure) throw companySignInError(failure);
-    const code = params?.get("code");
-    if (!code) throw companySignInError("company_sign_in_failed");
-    const device = await mobileDeviceIdentity();
-    const apiUrl = mobileAccountApiUrl();
-    const { response, body } = await mobileEmailRequest("/v1/mobile-auth/company/exchange", {
-      code,
-      codeVerifier: verifier,
-      deviceId: device.id,
-      deviceName: device.name,
-      platform: device.platform,
-    });
-    if (!response.ok) throw companySignInError(errorCode(body), response);
-    const session = decodeMobileSession(body, apiUrl, "company");
-    await saveMobileSession(session);
-    return session;
-  });
-}
-
-function randomToken(): string {
+function _randomToken(): string {
   return bytesToBase64Url(Crypto.getRandomBytes(32));
 }
 
-function base64Url(base64: string): string {
+function _base64Url(base64: string): string {
   return base64.replace(/\+/gu, "-").replace(/\//gu, "_").replace(/=+$/u, "");
-}
-
-function companySignInError(code: string, response?: Response): MobileEmailSignInError {
-  const text = currentText();
-  if (code === "rate_limited")
-    return new MobileEmailSignInError(text.t("mobile.auth.email.error.wait"), code, retryAfterSeconds(response));
-  if (code === "invalid_email") return new MobileEmailSignInError(text.t("mobile.auth.email.error.invalidEmail"), code);
-  return new MobileEmailSignInError(text.t(companySignInErrorKey(code)), code || "company_sign_in_failed");
 }
 
 async function mobileEmailRequest(
@@ -763,8 +701,7 @@ function decodeMobileSession(value: unknown, apiUrl: string, signIn: AccountSign
 
 function decodeStoredMobileSession(value: unknown): MobileSession {
   const credential = decodeStoredMobileCredential(value);
-  const signIn =
-    isDynamicRecord(value) && (value.signIn === "email" || value.signIn === "company") ? value.signIn : null;
+  const signIn = isDynamicRecord(value) && value.signIn === "email" ? value.signIn : null;
   return decodeMobileSession(value, credential.apiUrl, signIn);
 }
 

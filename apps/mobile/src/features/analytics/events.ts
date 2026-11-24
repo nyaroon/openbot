@@ -68,8 +68,8 @@ export const MOBILE_EVENTS = {
   conversation_action: { ...outcome, action: ["pin", "unpin", "hide", "unhide"] },
   usage_viewed: { scope: ["agent", "server"] },
   account_sign_out: outcome,
-  account_sign_in_started: { ...outcome, result: ["code_sent", "company_sign_in", "failed"], method: ["email"] },
-  account_sign_in_completed: { ...outcome, method: ["email", "company"] },
+  account_sign_in_started: { ...outcome, result: ["code_sent", "failed"], method: ["email"] },
+  account_sign_in_completed: { ...outcome, method: ["email"] },
   hosted_server_plans_action: {
     action: ["viewed", "setup_opened", "closed"],
     entry_point: ["drawer", "onboarding"],
