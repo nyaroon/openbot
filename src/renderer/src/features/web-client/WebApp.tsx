@@ -33,6 +33,7 @@ import {
 } from "../../error-reports";
 import { StaticI18nProvider } from "../../i18n-context";
 import { startupLoadingScene } from "../../startup-animation-preference";
+import { clearStorageUsageCache } from "../files/storage-usage";
 import { AnalyticsConsentRow, ConsentNotice } from "../onboarding/AnalyticsConsent";
 import { createOnboardingTeam, onboardingSessionSeed } from "../onboarding/onboarding-avatars";
 import { deleteRemoteWorkspaceFrames } from "../servers/remote-workspace-frame";
@@ -49,6 +50,7 @@ import { createWebAppearancePreference } from "./web-appearance-preference";
 import { syncWebChatBackground } from "./web-chat-background";
 import type { WebRuntimeFactory } from "./web-client-context";
 import { extensionReturnUrl, forgetExtensionConnect, takeExtensionConnect } from "./web-extension-connect";
+import { deleteCachedWebHosts } from "./web-host-cache";
 import { createWebLanguagePreference } from "./web-language-preference";
 
 export { loadSavedLanguage } from "./web-language-preference";
@@ -198,6 +200,8 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       deleteRemoteWorkspaceFrames(null);
       void deleteSavedAgentPictures(null);
       keepCachedWorkflows(null);
+      deleteCachedWebHosts(null);
+      clearStorageUsageCache();
     }
     sessionGeneration += 1;
     setState((draft) => {
