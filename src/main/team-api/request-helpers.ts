@@ -13,7 +13,6 @@ import {
   type CreateAgentInput,
   canAdministerServer,
   conversationMessageSender,
-  HOSTED_SITE_EVENT_ITEM_TYPE_PREFIX,
   isAgentModel,
   isAgentProvider,
   isAvatarHue,
@@ -196,14 +195,12 @@ function supportedConversationCursor(
 export function markerExclusionsForCapabilities(capabilities: ReadonlySet<string>): {
   excludeRoutineEvents: boolean;
   excludeRoutineRunEvents: boolean;
-  excludeHostedSiteEvents: boolean;
   excludeRoutineQuietAnswers: boolean;
   excludeSettingLinks?: boolean;
 } {
   return {
     excludeRoutineEvents: !capabilities.has("routine-event-markers"),
     excludeRoutineRunEvents: !capabilities.has("routine-run-event-markers"),
-    excludeHostedSiteEvents: !capabilities.has("hosted-site-event-markers"),
     excludeRoutineQuietAnswers: !capabilities.has(ROUTINE_QUIET_ANSWERS_CAPABILITY),
     excludeSettingLinks: !capabilities.has(SETTING_LINK_MARKERS_CAPABILITY),
   };
@@ -216,9 +213,6 @@ export function markerSupported(itemType: string | undefined, capabilities: Read
   if (itemType?.startsWith(MARKETPLACE_SUGGESTION_ITEM_TYPE_PREFIX)) return capabilities.has("routine-event-markers");
   if (itemType?.startsWith(ROUTINE_RUN_EVENT_ITEM_TYPE_PREFIX)) {
     return capabilities.has("routine-run-event-markers");
-  }
-  if (itemType?.startsWith(HOSTED_SITE_EVENT_ITEM_TYPE_PREFIX)) {
-    return capabilities.has("hosted-site-event-markers");
   }
   if (itemType?.startsWith(SETTING_LINK_ITEM_TYPE_PREFIX)) return capabilities.has(SETTING_LINK_MARKERS_CAPABILITY);
   return true;

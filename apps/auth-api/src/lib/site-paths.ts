@@ -27,7 +27,7 @@ export function siteHreflang(locale: SiteLocale): string {
 
 export type TranslatedSiteLocale = Exclude<SiteLocale, "en">;
 
-const LOCALIZED_PAGES = ["/", "/teams", "/pricing", "/contact"] as const;
+const LOCALIZED_PAGES = ["/", "/teams", "/contact"] as const;
 
 export type EnglishPagePath = (typeof LOCALIZED_PAGES)[number];
 

@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ContactRouteImport } from './routes/_contact'
 import { Route as HomeRouteImport } from './routes/_home'
-import { Route as PricingRouteImport } from './routes/_pricing'
 import { Route as TeamsRouteImport } from './routes/_teams'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AppPreviewRouteImport } from './routes/app-preview'
@@ -25,7 +24,6 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
-import { Route as ReportSiteRouteImport } from './routes/report-site'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as DotwellKnownAppleAppSiteAssociationRouteImport } from './routes/[.]well-known/apple-app-site-association'
@@ -46,7 +44,6 @@ import { Route as HomePtRouteImport } from './routes/_home/pt'
 import { Route as HomeRuRouteImport } from './routes/_home/ru'
 import { Route as HomeTrRouteImport } from './routes/_home/tr'
 import { Route as HomeZhRouteImport } from './routes/_home/zh'
-import { Route as PricingPricingRouteImport } from './routes/_pricing/pricing'
 import { Route as TeamsTeamsRouteImport } from './routes/_teams/teams'
 import { Route as AgentsTemplateIdRouteImport } from './routes/agents/$templateId'
 import { Route as BillingReturnRouteImport } from './routes/billing/return'
@@ -61,7 +58,6 @@ import { Route as DownloadPlatformRouteImport } from './routes/download/$platfor
 import { Route as GuidesIndexRouteImport } from './routes/guides/index'
 import { Route as GuidesSlugRouteImport } from './routes/guides/$slug'
 import { Route as GuidesRssDotxmlRouteImport } from './routes/guides/rss[.]xml'
-import { Route as HealthHostingRouteImport } from './routes/health/hosting'
 import { Route as HealthLiveRouteImport } from './routes/health/live'
 import { Route as HealthReadyRouteImport } from './routes/health/ready'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace/index'
@@ -95,20 +91,6 @@ import { Route as ContactPtContactRouteImport } from './routes/_contact/pt/conta
 import { Route as ContactRuContactRouteImport } from './routes/_contact/ru/contact'
 import { Route as ContactTrContactRouteImport } from './routes/_contact/tr/contact'
 import { Route as ContactZhContactRouteImport } from './routes/_contact/zh/contact'
-import { Route as PricingArPricingRouteImport } from './routes/_pricing/ar/pricing'
-import { Route as PricingDePricingRouteImport } from './routes/_pricing/de/pricing'
-import { Route as PricingEsPricingRouteImport } from './routes/_pricing/es/pricing'
-import { Route as PricingFrPricingRouteImport } from './routes/_pricing/fr/pricing'
-import { Route as PricingHePricingRouteImport } from './routes/_pricing/he/pricing'
-import { Route as PricingItPricingRouteImport } from './routes/_pricing/it/pricing'
-import { Route as PricingJaPricingRouteImport } from './routes/_pricing/ja/pricing'
-import { Route as PricingKoPricingRouteImport } from './routes/_pricing/ko/pricing'
-import { Route as PricingNlPricingRouteImport } from './routes/_pricing/nl/pricing'
-import { Route as PricingPlPricingRouteImport } from './routes/_pricing/pl/pricing'
-import { Route as PricingPtPricingRouteImport } from './routes/_pricing/pt/pricing'
-import { Route as PricingRuPricingRouteImport } from './routes/_pricing/ru/pricing'
-import { Route as PricingTrPricingRouteImport } from './routes/_pricing/tr/pricing'
-import { Route as PricingZhPricingRouteImport } from './routes/_pricing/zh/pricing'
 import { Route as TeamsArTeamsRouteImport } from './routes/_teams/ar/teams'
 import { Route as TeamsDeTeamsRouteImport } from './routes/_teams/de/teams'
 import { Route as TeamsEsTeamsRouteImport } from './routes/_teams/es/teams'
@@ -151,9 +133,6 @@ import { Route as V1MobileAuthSessionRouteImport } from './routes/v1/mobile-auth
 import { Route as V1MobileAuthTicketRouteImport } from './routes/v1/mobile-auth/ticket'
 import { Route as V1MobileChangelogRouteImport } from './routes/v1/mobile/changelog'
 import { Route as V1MobileFeaturesRouteImport } from './routes/v1/mobile/features'
-import { Route as V1SitesIndexRouteImport } from './routes/v1/sites/index'
-import { Route as V1SitesSiteIdRouteImport } from './routes/v1/sites/$siteId'
-import { Route as V1SitesReportsRouteImport } from './routes/v1/sites/reports'
 import { Route as V1SkillsIndexRouteImport } from './routes/v1/skills/index'
 import { Route as V1SkillsSkillIdRouteImport } from './routes/v1/skills/$skillId'
 import { Route as V1SkillsMineRouteImport } from './routes/v1/skills/mine'
@@ -163,11 +142,8 @@ import { Route as V1TeamAuthTicketRouteImport } from './routes/v1/team-auth/tick
 import { Route as V1TeamHostsIceServersRouteImport } from './routes/v1/team-hosts/ice-servers'
 import { Route as V1TeamInvitationsEmailRouteImport } from './routes/v1/team-invitations/email'
 import { Route as V1TeamTunnelsProvisionRouteImport } from './routes/v1/team-tunnels/provision'
-import { Route as V2AdminServerClaimsRouteImport } from './routes/v2/admin/server-claims'
 import { Route as V2DiscordAuthorizeRouteImport } from './routes/v2/discord/authorize'
 import { Route as V2DiscordCallbackRouteImport } from './routes/v2/discord/callback'
-import { Route as V2HostingPlansRouteImport } from './routes/v2/hosting/plans'
-import { Route as V2RemoteRouteWakeRouteImport } from './routes/v2/remote/route-wake'
 import { Route as V2ServerClaimsIndexRouteImport } from './routes/v2/server-claims/index'
 import { Route as V2ServerClaimsRedeemRouteImport } from './routes/v2/server-claims/redeem'
 import { Route as V2SlackAuthorizeRouteImport } from './routes/v2/slack/authorize'
@@ -198,10 +174,6 @@ import { Route as V1SkillsSkillIdIconRouteImport } from './routes/v1/skills/$ski
 import { Route as V1SkillsSkillIdInstallRouteImport } from './routes/v1/skills/$skillId/install'
 import { Route as V1SkillsAdminSubmissionsRouteImport } from './routes/v1/skills/admin/submissions'
 import { Route as V1SkillsSlugSlugRouteImport } from './routes/v1/skills/slug/$slug'
-import { Route as V2HostingBoatWebhookRouteImport } from './routes/v2/hosting/boat/webhook'
-import { Route as V2HostingClaimsRedeemRouteImport } from './routes/v2/hosting/claims/redeem'
-import { Route as V2HostingPoolAssignmentRouteImport } from './routes/v2/hosting/pool/assignment'
-import { Route as V2HostingServersIndexRouteImport } from './routes/v2/hosting/servers/index'
 import { Route as V2RemoteDiscordRouteReconcileRouteImport } from './routes/v2/remote/discord-route/reconcile'
 import { Route as V2RemoteDiscordRouteRemovedRouteImport } from './routes/v2/remote/discord-route/removed'
 import { Route as V2RemoteDiscordRouteValidateRouteImport } from './routes/v2/remote/discord-route/validate'
@@ -223,21 +195,11 @@ import { Route as V1MarketplaceAgentsAgentIdCardRouteImport } from './routes/v1/
 import { Route as V1MarketplaceAgentsAgentIdInstallRouteImport } from './routes/v1/marketplace/agents/$agentId/install'
 import { Route as V1MarketplaceAgentsAgentIdListingRouteImport } from './routes/v1/marketplace/agents/$agentId/listing'
 import { Route as V1MarketplaceAgentsAdminSubmissionsRouteImport } from './routes/v1/marketplace/agents/admin/submissions'
-import { Route as V1SitesAdminSiteIdBlockRouteImport } from './routes/v1/sites/admin/$siteId/block'
-import { Route as V1SitesUploadsUploadIdActivateRouteImport } from './routes/v1/sites/uploads/$uploadId/activate'
-import { Route as V1SitesUploadsUploadIdFileRouteImport } from './routes/v1/sites/uploads/$uploadId/file'
 import { Route as V1SkillsSkillIdVersionsVersionIdRouteImport } from './routes/v1/skills/$skillId/versions/$versionId'
 import { Route as V1SkillsAdminCardsVersionIdRouteImport } from './routes/v1/skills/admin/cards/$versionId'
 import { Route as V1SkillsAdminFeaturedSkillIdRouteImport } from './routes/v1/skills/admin/featured/$skillId'
 import { Route as V1SkillsAdminSubmissionsVersionIdRouteImport } from './routes/v1/skills/admin/submissions/$versionId'
 import { Route as V1SkillsAdminVerifiedSkillIdRouteImport } from './routes/v1/skills/admin/verified/$skillId'
-import { Route as V2HostingServersServerIdIndexRouteImport } from './routes/v2/hosting/servers/$serverId/index'
-import { Route as V2HostingServersServerIdActivityRouteImport } from './routes/v2/hosting/servers/$serverId/activity'
-import { Route as V2HostingServersServerIdCheckoutRouteImport } from './routes/v2/hosting/servers/$serverId/checkout'
-import { Route as V2HostingServersServerIdLifecycleRouteImport } from './routes/v2/hosting/servers/$serverId/lifecycle'
-import { Route as V2HostingServersServerIdRestartRouteImport } from './routes/v2/hosting/servers/$serverId/restart'
-import { Route as V2HostingServersServerIdStatusRouteImport } from './routes/v2/hosting/servers/$serverId/status'
-import { Route as V2HostingServersServerIdWakeRouteImport } from './routes/v2/hosting/servers/$serverId/wake'
 import { Route as V2RemoteHostsHostIdIndexRouteImport } from './routes/v2/remote/hosts/$hostId/index'
 import { Route as V2RemoteHostsHostIdAndroidNotificationRouteImport } from './routes/v2/remote/hosts/$hostId/android-notification'
 import { Route as V2RemoteHostsHostIdAppearanceRouteImport } from './routes/v2/remote/hosts/$hostId/appearance'
@@ -279,10 +241,6 @@ const ContactRoute = ContactRouteImport.update({
 } as any)
 const HomeRoute = HomeRouteImport.update({
   id: '/_home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/_pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamsRoute = TeamsRouteImport.update({
@@ -347,11 +305,6 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
   id: '/privacy-policy',
   path: '/privacy-policy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportSiteRoute = ReportSiteRouteImport.update({
-  id: '/report-site',
-  path: '/report-site',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -455,11 +408,6 @@ const HomeZhRoute = HomeZhRouteImport.update({
   path: '/zh',
   getParentRoute: () => HomeRoute,
 } as any)
-const PricingPricingRoute = PricingPricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
 const TeamsTeamsRoute = TeamsTeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
@@ -528,11 +476,6 @@ const GuidesSlugRoute = GuidesSlugRouteImport.update({
 const GuidesRssDotxmlRoute = GuidesRssDotxmlRouteImport.update({
   id: '/guides/rss.xml',
   path: '/guides/rss.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HealthHostingRoute = HealthHostingRouteImport.update({
-  id: '/health/hosting',
-  path: '/health/hosting',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HealthLiveRoute = HealthLiveRouteImport.update({
@@ -699,76 +642,6 @@ const ContactZhContactRoute = ContactZhContactRouteImport.update({
   id: '/zh/contact',
   path: '/zh/contact',
   getParentRoute: () => ContactRoute,
-} as any)
-const PricingArPricingRoute = PricingArPricingRouteImport.update({
-  id: '/ar/pricing',
-  path: '/ar/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingDePricingRoute = PricingDePricingRouteImport.update({
-  id: '/de/pricing',
-  path: '/de/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingEsPricingRoute = PricingEsPricingRouteImport.update({
-  id: '/es/pricing',
-  path: '/es/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingFrPricingRoute = PricingFrPricingRouteImport.update({
-  id: '/fr/pricing',
-  path: '/fr/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingHePricingRoute = PricingHePricingRouteImport.update({
-  id: '/he/pricing',
-  path: '/he/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingItPricingRoute = PricingItPricingRouteImport.update({
-  id: '/it/pricing',
-  path: '/it/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingJaPricingRoute = PricingJaPricingRouteImport.update({
-  id: '/ja/pricing',
-  path: '/ja/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingKoPricingRoute = PricingKoPricingRouteImport.update({
-  id: '/ko/pricing',
-  path: '/ko/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingNlPricingRoute = PricingNlPricingRouteImport.update({
-  id: '/nl/pricing',
-  path: '/nl/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingPlPricingRoute = PricingPlPricingRouteImport.update({
-  id: '/pl/pricing',
-  path: '/pl/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingPtPricingRoute = PricingPtPricingRouteImport.update({
-  id: '/pt/pricing',
-  path: '/pt/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingRuPricingRoute = PricingRuPricingRouteImport.update({
-  id: '/ru/pricing',
-  path: '/ru/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingTrPricingRoute = PricingTrPricingRouteImport.update({
-  id: '/tr/pricing',
-  path: '/tr/pricing',
-  getParentRoute: () => PricingRoute,
-} as any)
-const PricingZhPricingRoute = PricingZhPricingRouteImport.update({
-  id: '/zh/pricing',
-  path: '/zh/pricing',
-  getParentRoute: () => PricingRoute,
 } as any)
 const TeamsArTeamsRoute = TeamsArTeamsRouteImport.update({
   id: '/ar/teams',
@@ -985,21 +858,6 @@ const V1MobileFeaturesRoute = V1MobileFeaturesRouteImport.update({
   path: '/v1/mobile/features',
   getParentRoute: () => rootRouteImport,
 } as any)
-const V1SitesIndexRoute = V1SitesIndexRouteImport.update({
-  id: '/v1/sites/',
-  path: '/v1/sites/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const V1SitesSiteIdRoute = V1SitesSiteIdRouteImport.update({
-  id: '/v1/sites/$siteId',
-  path: '/v1/sites/$siteId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const V1SitesReportsRoute = V1SitesReportsRouteImport.update({
-  id: '/v1/sites/reports',
-  path: '/v1/sites/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const V1SkillsIndexRoute = V1SkillsIndexRouteImport.update({
   id: '/v1/skills/',
   path: '/v1/skills/',
@@ -1045,11 +903,6 @@ const V1TeamTunnelsProvisionRoute = V1TeamTunnelsProvisionRouteImport.update({
   path: '/v1/team-tunnels/provision',
   getParentRoute: () => rootRouteImport,
 } as any)
-const V2AdminServerClaimsRoute = V2AdminServerClaimsRouteImport.update({
-  id: '/v2/admin/server-claims',
-  path: '/v2/admin/server-claims',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const V2DiscordAuthorizeRoute = V2DiscordAuthorizeRouteImport.update({
   id: '/v2/discord/authorize',
   path: '/v2/discord/authorize',
@@ -1058,16 +911,6 @@ const V2DiscordAuthorizeRoute = V2DiscordAuthorizeRouteImport.update({
 const V2DiscordCallbackRoute = V2DiscordCallbackRouteImport.update({
   id: '/v2/discord/callback',
   path: '/v2/discord/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const V2HostingPlansRoute = V2HostingPlansRouteImport.update({
-  id: '/v2/hosting/plans',
-  path: '/v2/hosting/plans',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const V2RemoteRouteWakeRoute = V2RemoteRouteWakeRouteImport.update({
-  id: '/v2/remote/route-wake',
-  path: '/v2/remote/route-wake',
   getParentRoute: () => rootRouteImport,
 } as any)
 const V2ServerClaimsIndexRoute = V2ServerClaimsIndexRouteImport.update({
@@ -1226,26 +1069,6 @@ const V1SkillsSlugSlugRoute = V1SkillsSlugSlugRouteImport.update({
   path: '/v1/skills/slug/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const V2HostingBoatWebhookRoute = V2HostingBoatWebhookRouteImport.update({
-  id: '/v2/hosting/boat/webhook',
-  path: '/v2/hosting/boat/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const V2HostingClaimsRedeemRoute = V2HostingClaimsRedeemRouteImport.update({
-  id: '/v2/hosting/claims/redeem',
-  path: '/v2/hosting/claims/redeem',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const V2HostingPoolAssignmentRoute = V2HostingPoolAssignmentRouteImport.update({
-  id: '/v2/hosting/pool/assignment',
-  path: '/v2/hosting/pool/assignment',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const V2HostingServersIndexRoute = V2HostingServersIndexRouteImport.update({
-  id: '/v2/hosting/servers/',
-  path: '/v2/hosting/servers/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const V2RemoteDiscordRouteReconcileRoute =
   V2RemoteDiscordRouteReconcileRouteImport.update({
     id: '/v2/remote/discord-route/reconcile',
@@ -1365,23 +1188,6 @@ const V1MarketplaceAgentsAdminSubmissionsRoute =
     path: '/v1/marketplace/agents/admin/submissions',
     getParentRoute: () => rootRouteImport,
   } as any)
-const V1SitesAdminSiteIdBlockRoute = V1SitesAdminSiteIdBlockRouteImport.update({
-  id: '/v1/sites/admin/$siteId/block',
-  path: '/v1/sites/admin/$siteId/block',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const V1SitesUploadsUploadIdActivateRoute =
-  V1SitesUploadsUploadIdActivateRouteImport.update({
-    id: '/v1/sites/uploads/$uploadId/activate',
-    path: '/v1/sites/uploads/$uploadId/activate',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const V1SitesUploadsUploadIdFileRoute =
-  V1SitesUploadsUploadIdFileRouteImport.update({
-    id: '/v1/sites/uploads/$uploadId/file',
-    path: '/v1/sites/uploads/$uploadId/file',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const V1SkillsSkillIdVersionsVersionIdRoute =
   V1SkillsSkillIdVersionsVersionIdRouteImport.update({
     id: '/versions/$versionId',
@@ -1410,48 +1216,6 @@ const V1SkillsAdminVerifiedSkillIdRoute =
   V1SkillsAdminVerifiedSkillIdRouteImport.update({
     id: '/v1/skills/admin/verified/$skillId',
     path: '/v1/skills/admin/verified/$skillId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const V2HostingServersServerIdIndexRoute =
-  V2HostingServersServerIdIndexRouteImport.update({
-    id: '/v2/hosting/servers/$serverId/',
-    path: '/v2/hosting/servers/$serverId/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const V2HostingServersServerIdActivityRoute =
-  V2HostingServersServerIdActivityRouteImport.update({
-    id: '/v2/hosting/servers/$serverId/activity',
-    path: '/v2/hosting/servers/$serverId/activity',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const V2HostingServersServerIdCheckoutRoute =
-  V2HostingServersServerIdCheckoutRouteImport.update({
-    id: '/v2/hosting/servers/$serverId/checkout',
-    path: '/v2/hosting/servers/$serverId/checkout',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const V2HostingServersServerIdLifecycleRoute =
-  V2HostingServersServerIdLifecycleRouteImport.update({
-    id: '/v2/hosting/servers/$serverId/lifecycle',
-    path: '/v2/hosting/servers/$serverId/lifecycle',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const V2HostingServersServerIdRestartRoute =
-  V2HostingServersServerIdRestartRouteImport.update({
-    id: '/v2/hosting/servers/$serverId/restart',
-    path: '/v2/hosting/servers/$serverId/restart',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const V2HostingServersServerIdStatusRoute =
-  V2HostingServersServerIdStatusRouteImport.update({
-    id: '/v2/hosting/servers/$serverId/status',
-    path: '/v2/hosting/servers/$serverId/status',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const V2HostingServersServerIdWakeRoute =
-  V2HostingServersServerIdWakeRouteImport.update({
-    id: '/v2/hosting/servers/$serverId/wake',
-    path: '/v2/hosting/servers/$serverId/wake',
     getParentRoute: () => rootRouteImport,
   } as any)
 const V2RemoteHostsHostIdIndexRoute =
@@ -1672,7 +1436,6 @@ export interface FileRoutesByFullPath {
   '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/report-site': typeof ReportSiteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/.well-known/apple-app-site-association': typeof DotwellKnownAppleAppSiteAssociationRoute
@@ -1692,7 +1455,6 @@ export interface FileRoutesByFullPath {
   '/ru': typeof HomeRuRoute
   '/tr': typeof HomeTrRoute
   '/zh': typeof HomeZhRoute
-  '/pricing': typeof PricingPricingRoute
   '/teams': typeof TeamsTeamsRoute
   '/agents/$templateId': typeof AgentsTemplateIdRoute
   '/billing/return': typeof BillingReturnRoute
@@ -1703,7 +1465,6 @@ export interface FileRoutesByFullPath {
   '/download/$platform': typeof DownloadPlatformRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/guides/rss.xml': typeof GuidesRssDotxmlRoute
-  '/health/hosting': typeof HealthHostingRoute
   '/health/live': typeof HealthLiveRoute
   '/health/ready': typeof HealthReadyRoute
   '/marketplace/apps': typeof MarketplaceAppsRoute
@@ -1741,20 +1502,6 @@ export interface FileRoutesByFullPath {
   '/ru/contact': typeof ContactRuContactRoute
   '/tr/contact': typeof ContactTrContactRoute
   '/zh/contact': typeof ContactZhContactRoute
-  '/ar/pricing': typeof PricingArPricingRoute
-  '/de/pricing': typeof PricingDePricingRoute
-  '/es/pricing': typeof PricingEsPricingRoute
-  '/fr/pricing': typeof PricingFrPricingRoute
-  '/he/pricing': typeof PricingHePricingRoute
-  '/it/pricing': typeof PricingItPricingRoute
-  '/ja/pricing': typeof PricingJaPricingRoute
-  '/ko/pricing': typeof PricingKoPricingRoute
-  '/nl/pricing': typeof PricingNlPricingRoute
-  '/pl/pricing': typeof PricingPlPricingRoute
-  '/pt/pricing': typeof PricingPtPricingRoute
-  '/ru/pricing': typeof PricingRuPricingRoute
-  '/tr/pricing': typeof PricingTrPricingRoute
-  '/zh/pricing': typeof PricingZhPricingRoute
   '/ar/teams': typeof TeamsArTeamsRoute
   '/de/teams': typeof TeamsDeTeamsRoute
   '/es/teams': typeof TeamsEsTeamsRoute
@@ -1795,8 +1542,6 @@ export interface FileRoutesByFullPath {
   '/v1/mobile-auth/ticket': typeof V1MobileAuthTicketRoute
   '/v1/mobile/changelog': typeof V1MobileChangelogRoute
   '/v1/mobile/features': typeof V1MobileFeaturesRoute
-  '/v1/sites/$siteId': typeof V1SitesSiteIdRoute
-  '/v1/sites/reports': typeof V1SitesReportsRoute
   '/v1/skills/$skillId': typeof V1SkillsSkillIdRouteWithChildren
   '/v1/skills/mine': typeof V1SkillsMineRoute
   '/v1/stripe/webhook': typeof V1StripeWebhookRoute
@@ -1805,17 +1550,13 @@ export interface FileRoutesByFullPath {
   '/v1/team-hosts/ice-servers': typeof V1TeamHostsIceServersRoute
   '/v1/team-invitations/email': typeof V1TeamInvitationsEmailRoute
   '/v1/team-tunnels/provision': typeof V1TeamTunnelsProvisionRoute
-  '/v2/admin/server-claims': typeof V2AdminServerClaimsRoute
   '/v2/discord/authorize': typeof V2DiscordAuthorizeRoute
   '/v2/discord/callback': typeof V2DiscordCallbackRoute
-  '/v2/hosting/plans': typeof V2HostingPlansRoute
-  '/v2/remote/route-wake': typeof V2RemoteRouteWakeRoute
   '/v2/server-claims/redeem': typeof V2ServerClaimsRedeemRoute
   '/v2/slack/authorize': typeof V2SlackAuthorizeRoute
   '/v2/slack/callback': typeof V2SlackCallbackRoute
   '/marketplace/skills/': typeof MarketplaceSkillsIndexRoute
   '/v1/agent-templates/': typeof V1AgentTemplatesIndexRoute
-  '/v1/sites/': typeof V1SitesIndexRoute
   '/v1/skills/': typeof V1SkillsIndexRoute
   '/v2/server-claims/': typeof V2ServerClaimsIndexRoute
   '/v1/agent-templates/$templateId/avatar': typeof V1AgentTemplatesTemplateIdAvatarRoute
@@ -1841,9 +1582,6 @@ export interface FileRoutesByFullPath {
   '/v1/skills/$skillId/install': typeof V1SkillsSkillIdInstallRoute
   '/v1/skills/admin/submissions': typeof V1SkillsAdminSubmissionsRouteWithChildren
   '/v1/skills/slug/$slug': typeof V1SkillsSlugSlugRoute
-  '/v2/hosting/boat/webhook': typeof V2HostingBoatWebhookRoute
-  '/v2/hosting/claims/redeem': typeof V2HostingClaimsRedeemRoute
-  '/v2/hosting/pool/assignment': typeof V2HostingPoolAssignmentRoute
   '/v2/remote/discord-route/reconcile': typeof V2RemoteDiscordRouteReconcileRoute
   '/v2/remote/discord-route/removed': typeof V2RemoteDiscordRouteRemovedRoute
   '/v2/remote/discord-route/validate': typeof V2RemoteDiscordRouteValidateRoute
@@ -1859,7 +1597,6 @@ export interface FileRoutesByFullPath {
   '/v1/marketplace/agents/': typeof V1MarketplaceAgentsIndexRoute
   '/v1/me/billing/': typeof V1MeBillingIndexRoute
   '/v1/me/license/': typeof V1MeLicenseIndexRoute
-  '/v2/hosting/servers/': typeof V2HostingServersIndexRoute
   '/v2/remote/hosts/': typeof V2RemoteHostsIndexRoute
   '/v2/remote/owner-transfers/': typeof V2RemoteOwnerTransfersIndexRoute
   '/v2/remote/sessions/': typeof V2RemoteSessionsIndexRoute
@@ -1869,20 +1606,11 @@ export interface FileRoutesByFullPath {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
-  '/v1/sites/admin/$siteId/block': typeof V1SitesAdminSiteIdBlockRoute
-  '/v1/sites/uploads/$uploadId/activate': typeof V1SitesUploadsUploadIdActivateRoute
-  '/v1/sites/uploads/$uploadId/file': typeof V1SitesUploadsUploadIdFileRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
   '/v1/skills/admin/featured/$skillId': typeof V1SkillsAdminFeaturedSkillIdRoute
   '/v1/skills/admin/submissions/$versionId': typeof V1SkillsAdminSubmissionsVersionIdRoute
   '/v1/skills/admin/verified/$skillId': typeof V1SkillsAdminVerifiedSkillIdRoute
-  '/v2/hosting/servers/$serverId/activity': typeof V2HostingServersServerIdActivityRoute
-  '/v2/hosting/servers/$serverId/checkout': typeof V2HostingServersServerIdCheckoutRoute
-  '/v2/hosting/servers/$serverId/lifecycle': typeof V2HostingServersServerIdLifecycleRoute
-  '/v2/hosting/servers/$serverId/restart': typeof V2HostingServersServerIdRestartRoute
-  '/v2/hosting/servers/$serverId/status': typeof V2HostingServersServerIdStatusRoute
-  '/v2/hosting/servers/$serverId/wake': typeof V2HostingServersServerIdWakeRoute
   '/v2/remote/hosts/$hostId/android-notification': typeof V2RemoteHostsHostIdAndroidNotificationRoute
   '/v2/remote/hosts/$hostId/appearance': typeof V2RemoteHostsHostIdAppearanceRoute
   '/v2/remote/hosts/$hostId/checkout': typeof V2RemoteHostsHostIdCheckoutRoute
@@ -1909,7 +1637,6 @@ export interface FileRoutesByFullPath {
   '/v2/remote/owner-transfers/$transferId/decline': typeof V2RemoteOwnerTransfersTransferIdDeclineRoute
   '/v2/remote/sessions/$sessionId/end': typeof V2RemoteSessionsSessionIdEndRoute
   '/v2/remote/sessions/$sessionId/ticket': typeof V2RemoteSessionsSessionIdTicketRoute
-  '/v2/hosting/servers/$serverId/': typeof V2HostingServersServerIdIndexRoute
   '/v2/remote/hosts/$hostId/': typeof V2RemoteHostsHostIdIndexRoute
   '/v1/marketplace/agents/admin/cards/$versionId': typeof V1MarketplaceAgentsAdminCardsVersionIdRoute
   '/v1/marketplace/agents/admin/featured/$agentId': typeof V1MarketplaceAgentsAdminFeaturedAgentIdRoute
@@ -1933,7 +1660,6 @@ export interface FileRoutesByTo {
   '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/report-site': typeof ReportSiteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/.well-known/apple-app-site-association': typeof DotwellKnownAppleAppSiteAssociationRoute
@@ -1953,7 +1679,6 @@ export interface FileRoutesByTo {
   '/ru': typeof HomeRuRoute
   '/tr': typeof HomeTrRoute
   '/zh': typeof HomeZhRoute
-  '/pricing': typeof PricingPricingRoute
   '/teams': typeof TeamsTeamsRoute
   '/agents/$templateId': typeof AgentsTemplateIdRoute
   '/billing/return': typeof BillingReturnRoute
@@ -1964,7 +1689,6 @@ export interface FileRoutesByTo {
   '/download/$platform': typeof DownloadPlatformRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/guides/rss.xml': typeof GuidesRssDotxmlRoute
-  '/health/hosting': typeof HealthHostingRoute
   '/health/live': typeof HealthLiveRoute
   '/health/ready': typeof HealthReadyRoute
   '/marketplace/apps': typeof MarketplaceAppsRoute
@@ -2002,20 +1726,6 @@ export interface FileRoutesByTo {
   '/ru/contact': typeof ContactRuContactRoute
   '/tr/contact': typeof ContactTrContactRoute
   '/zh/contact': typeof ContactZhContactRoute
-  '/ar/pricing': typeof PricingArPricingRoute
-  '/de/pricing': typeof PricingDePricingRoute
-  '/es/pricing': typeof PricingEsPricingRoute
-  '/fr/pricing': typeof PricingFrPricingRoute
-  '/he/pricing': typeof PricingHePricingRoute
-  '/it/pricing': typeof PricingItPricingRoute
-  '/ja/pricing': typeof PricingJaPricingRoute
-  '/ko/pricing': typeof PricingKoPricingRoute
-  '/nl/pricing': typeof PricingNlPricingRoute
-  '/pl/pricing': typeof PricingPlPricingRoute
-  '/pt/pricing': typeof PricingPtPricingRoute
-  '/ru/pricing': typeof PricingRuPricingRoute
-  '/tr/pricing': typeof PricingTrPricingRoute
-  '/zh/pricing': typeof PricingZhPricingRoute
   '/ar/teams': typeof TeamsArTeamsRoute
   '/de/teams': typeof TeamsDeTeamsRoute
   '/es/teams': typeof TeamsEsTeamsRoute
@@ -2056,8 +1766,6 @@ export interface FileRoutesByTo {
   '/v1/mobile-auth/ticket': typeof V1MobileAuthTicketRoute
   '/v1/mobile/changelog': typeof V1MobileChangelogRoute
   '/v1/mobile/features': typeof V1MobileFeaturesRoute
-  '/v1/sites/$siteId': typeof V1SitesSiteIdRoute
-  '/v1/sites/reports': typeof V1SitesReportsRoute
   '/v1/skills/$skillId': typeof V1SkillsSkillIdRouteWithChildren
   '/v1/skills/mine': typeof V1SkillsMineRoute
   '/v1/stripe/webhook': typeof V1StripeWebhookRoute
@@ -2066,17 +1774,13 @@ export interface FileRoutesByTo {
   '/v1/team-hosts/ice-servers': typeof V1TeamHostsIceServersRoute
   '/v1/team-invitations/email': typeof V1TeamInvitationsEmailRoute
   '/v1/team-tunnels/provision': typeof V1TeamTunnelsProvisionRoute
-  '/v2/admin/server-claims': typeof V2AdminServerClaimsRoute
   '/v2/discord/authorize': typeof V2DiscordAuthorizeRoute
   '/v2/discord/callback': typeof V2DiscordCallbackRoute
-  '/v2/hosting/plans': typeof V2HostingPlansRoute
-  '/v2/remote/route-wake': typeof V2RemoteRouteWakeRoute
   '/v2/server-claims/redeem': typeof V2ServerClaimsRedeemRoute
   '/v2/slack/authorize': typeof V2SlackAuthorizeRoute
   '/v2/slack/callback': typeof V2SlackCallbackRoute
   '/marketplace/skills': typeof MarketplaceSkillsIndexRoute
   '/v1/agent-templates': typeof V1AgentTemplatesIndexRoute
-  '/v1/sites': typeof V1SitesIndexRoute
   '/v1/skills': typeof V1SkillsIndexRoute
   '/v2/server-claims': typeof V2ServerClaimsIndexRoute
   '/v1/agent-templates/$templateId/avatar': typeof V1AgentTemplatesTemplateIdAvatarRoute
@@ -2102,9 +1806,6 @@ export interface FileRoutesByTo {
   '/v1/skills/$skillId/install': typeof V1SkillsSkillIdInstallRoute
   '/v1/skills/admin/submissions': typeof V1SkillsAdminSubmissionsRouteWithChildren
   '/v1/skills/slug/$slug': typeof V1SkillsSlugSlugRoute
-  '/v2/hosting/boat/webhook': typeof V2HostingBoatWebhookRoute
-  '/v2/hosting/claims/redeem': typeof V2HostingClaimsRedeemRoute
-  '/v2/hosting/pool/assignment': typeof V2HostingPoolAssignmentRoute
   '/v2/remote/discord-route/reconcile': typeof V2RemoteDiscordRouteReconcileRoute
   '/v2/remote/discord-route/removed': typeof V2RemoteDiscordRouteRemovedRoute
   '/v2/remote/discord-route/validate': typeof V2RemoteDiscordRouteValidateRoute
@@ -2120,7 +1821,6 @@ export interface FileRoutesByTo {
   '/v1/marketplace/agents': typeof V1MarketplaceAgentsIndexRoute
   '/v1/me/billing': typeof V1MeBillingIndexRoute
   '/v1/me/license': typeof V1MeLicenseIndexRoute
-  '/v2/hosting/servers': typeof V2HostingServersIndexRoute
   '/v2/remote/hosts': typeof V2RemoteHostsIndexRoute
   '/v2/remote/owner-transfers': typeof V2RemoteOwnerTransfersIndexRoute
   '/v2/remote/sessions': typeof V2RemoteSessionsIndexRoute
@@ -2130,20 +1830,11 @@ export interface FileRoutesByTo {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
-  '/v1/sites/admin/$siteId/block': typeof V1SitesAdminSiteIdBlockRoute
-  '/v1/sites/uploads/$uploadId/activate': typeof V1SitesUploadsUploadIdActivateRoute
-  '/v1/sites/uploads/$uploadId/file': typeof V1SitesUploadsUploadIdFileRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
   '/v1/skills/admin/featured/$skillId': typeof V1SkillsAdminFeaturedSkillIdRoute
   '/v1/skills/admin/submissions/$versionId': typeof V1SkillsAdminSubmissionsVersionIdRoute
   '/v1/skills/admin/verified/$skillId': typeof V1SkillsAdminVerifiedSkillIdRoute
-  '/v2/hosting/servers/$serverId/activity': typeof V2HostingServersServerIdActivityRoute
-  '/v2/hosting/servers/$serverId/checkout': typeof V2HostingServersServerIdCheckoutRoute
-  '/v2/hosting/servers/$serverId/lifecycle': typeof V2HostingServersServerIdLifecycleRoute
-  '/v2/hosting/servers/$serverId/restart': typeof V2HostingServersServerIdRestartRoute
-  '/v2/hosting/servers/$serverId/status': typeof V2HostingServersServerIdStatusRoute
-  '/v2/hosting/servers/$serverId/wake': typeof V2HostingServersServerIdWakeRoute
   '/v2/remote/hosts/$hostId/android-notification': typeof V2RemoteHostsHostIdAndroidNotificationRoute
   '/v2/remote/hosts/$hostId/appearance': typeof V2RemoteHostsHostIdAppearanceRoute
   '/v2/remote/hosts/$hostId/checkout': typeof V2RemoteHostsHostIdCheckoutRoute
@@ -2170,7 +1861,6 @@ export interface FileRoutesByTo {
   '/v2/remote/owner-transfers/$transferId/decline': typeof V2RemoteOwnerTransfersTransferIdDeclineRoute
   '/v2/remote/sessions/$sessionId/end': typeof V2RemoteSessionsSessionIdEndRoute
   '/v2/remote/sessions/$sessionId/ticket': typeof V2RemoteSessionsSessionIdTicketRoute
-  '/v2/hosting/servers/$serverId': typeof V2HostingServersServerIdIndexRoute
   '/v2/remote/hosts/$hostId': typeof V2RemoteHostsHostIdIndexRoute
   '/v1/marketplace/agents/admin/cards/$versionId': typeof V1MarketplaceAgentsAdminCardsVersionIdRoute
   '/v1/marketplace/agents/admin/featured/$agentId': typeof V1MarketplaceAgentsAdminFeaturedAgentIdRoute
@@ -2184,7 +1874,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_contact': typeof ContactRouteWithChildren
   '/_home': typeof HomeRouteWithChildren
-  '/_pricing': typeof PricingRouteWithChildren
   '/_teams': typeof TeamsRouteWithChildren
   '/app': typeof AppRoute
   '/app-preview': typeof AppPreviewRoute
@@ -2198,7 +1887,6 @@ export interface FileRoutesById {
   '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/report-site': typeof ReportSiteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/.well-known/apple-app-site-association': typeof DotwellKnownAppleAppSiteAssociationRoute
@@ -2218,7 +1906,6 @@ export interface FileRoutesById {
   '/_home/ru': typeof HomeRuRoute
   '/_home/tr': typeof HomeTrRoute
   '/_home/zh': typeof HomeZhRoute
-  '/_pricing/pricing': typeof PricingPricingRoute
   '/_teams/teams': typeof TeamsTeamsRoute
   '/agents/$templateId': typeof AgentsTemplateIdRoute
   '/billing/return': typeof BillingReturnRoute
@@ -2229,7 +1916,6 @@ export interface FileRoutesById {
   '/download/$platform': typeof DownloadPlatformRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/guides/rss.xml': typeof GuidesRssDotxmlRoute
-  '/health/hosting': typeof HealthHostingRoute
   '/health/live': typeof HealthLiveRoute
   '/health/ready': typeof HealthReadyRoute
   '/marketplace/apps': typeof MarketplaceAppsRoute
@@ -2268,20 +1954,6 @@ export interface FileRoutesById {
   '/_contact/ru/contact': typeof ContactRuContactRoute
   '/_contact/tr/contact': typeof ContactTrContactRoute
   '/_contact/zh/contact': typeof ContactZhContactRoute
-  '/_pricing/ar/pricing': typeof PricingArPricingRoute
-  '/_pricing/de/pricing': typeof PricingDePricingRoute
-  '/_pricing/es/pricing': typeof PricingEsPricingRoute
-  '/_pricing/fr/pricing': typeof PricingFrPricingRoute
-  '/_pricing/he/pricing': typeof PricingHePricingRoute
-  '/_pricing/it/pricing': typeof PricingItPricingRoute
-  '/_pricing/ja/pricing': typeof PricingJaPricingRoute
-  '/_pricing/ko/pricing': typeof PricingKoPricingRoute
-  '/_pricing/nl/pricing': typeof PricingNlPricingRoute
-  '/_pricing/pl/pricing': typeof PricingPlPricingRoute
-  '/_pricing/pt/pricing': typeof PricingPtPricingRoute
-  '/_pricing/ru/pricing': typeof PricingRuPricingRoute
-  '/_pricing/tr/pricing': typeof PricingTrPricingRoute
-  '/_pricing/zh/pricing': typeof PricingZhPricingRoute
   '/_teams/ar/teams': typeof TeamsArTeamsRoute
   '/_teams/de/teams': typeof TeamsDeTeamsRoute
   '/_teams/es/teams': typeof TeamsEsTeamsRoute
@@ -2322,8 +1994,6 @@ export interface FileRoutesById {
   '/v1/mobile-auth/ticket': typeof V1MobileAuthTicketRoute
   '/v1/mobile/changelog': typeof V1MobileChangelogRoute
   '/v1/mobile/features': typeof V1MobileFeaturesRoute
-  '/v1/sites/$siteId': typeof V1SitesSiteIdRoute
-  '/v1/sites/reports': typeof V1SitesReportsRoute
   '/v1/skills/$skillId': typeof V1SkillsSkillIdRouteWithChildren
   '/v1/skills/mine': typeof V1SkillsMineRoute
   '/v1/stripe/webhook': typeof V1StripeWebhookRoute
@@ -2332,17 +2002,13 @@ export interface FileRoutesById {
   '/v1/team-hosts/ice-servers': typeof V1TeamHostsIceServersRoute
   '/v1/team-invitations/email': typeof V1TeamInvitationsEmailRoute
   '/v1/team-tunnels/provision': typeof V1TeamTunnelsProvisionRoute
-  '/v2/admin/server-claims': typeof V2AdminServerClaimsRoute
   '/v2/discord/authorize': typeof V2DiscordAuthorizeRoute
   '/v2/discord/callback': typeof V2DiscordCallbackRoute
-  '/v2/hosting/plans': typeof V2HostingPlansRoute
-  '/v2/remote/route-wake': typeof V2RemoteRouteWakeRoute
   '/v2/server-claims/redeem': typeof V2ServerClaimsRedeemRoute
   '/v2/slack/authorize': typeof V2SlackAuthorizeRoute
   '/v2/slack/callback': typeof V2SlackCallbackRoute
   '/marketplace/skills/': typeof MarketplaceSkillsIndexRoute
   '/v1/agent-templates/': typeof V1AgentTemplatesIndexRoute
-  '/v1/sites/': typeof V1SitesIndexRoute
   '/v1/skills/': typeof V1SkillsIndexRoute
   '/v2/server-claims/': typeof V2ServerClaimsIndexRoute
   '/v1/agent-templates/$templateId/avatar': typeof V1AgentTemplatesTemplateIdAvatarRoute
@@ -2368,9 +2034,6 @@ export interface FileRoutesById {
   '/v1/skills/$skillId/install': typeof V1SkillsSkillIdInstallRoute
   '/v1/skills/admin/submissions': typeof V1SkillsAdminSubmissionsRouteWithChildren
   '/v1/skills/slug/$slug': typeof V1SkillsSlugSlugRoute
-  '/v2/hosting/boat/webhook': typeof V2HostingBoatWebhookRoute
-  '/v2/hosting/claims/redeem': typeof V2HostingClaimsRedeemRoute
-  '/v2/hosting/pool/assignment': typeof V2HostingPoolAssignmentRoute
   '/v2/remote/discord-route/reconcile': typeof V2RemoteDiscordRouteReconcileRoute
   '/v2/remote/discord-route/removed': typeof V2RemoteDiscordRouteRemovedRoute
   '/v2/remote/discord-route/validate': typeof V2RemoteDiscordRouteValidateRoute
@@ -2386,7 +2049,6 @@ export interface FileRoutesById {
   '/v1/marketplace/agents/': typeof V1MarketplaceAgentsIndexRoute
   '/v1/me/billing/': typeof V1MeBillingIndexRoute
   '/v1/me/license/': typeof V1MeLicenseIndexRoute
-  '/v2/hosting/servers/': typeof V2HostingServersIndexRoute
   '/v2/remote/hosts/': typeof V2RemoteHostsIndexRoute
   '/v2/remote/owner-transfers/': typeof V2RemoteOwnerTransfersIndexRoute
   '/v2/remote/sessions/': typeof V2RemoteSessionsIndexRoute
@@ -2396,20 +2058,11 @@ export interface FileRoutesById {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
-  '/v1/sites/admin/$siteId/block': typeof V1SitesAdminSiteIdBlockRoute
-  '/v1/sites/uploads/$uploadId/activate': typeof V1SitesUploadsUploadIdActivateRoute
-  '/v1/sites/uploads/$uploadId/file': typeof V1SitesUploadsUploadIdFileRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
   '/v1/skills/admin/featured/$skillId': typeof V1SkillsAdminFeaturedSkillIdRoute
   '/v1/skills/admin/submissions/$versionId': typeof V1SkillsAdminSubmissionsVersionIdRoute
   '/v1/skills/admin/verified/$skillId': typeof V1SkillsAdminVerifiedSkillIdRoute
-  '/v2/hosting/servers/$serverId/activity': typeof V2HostingServersServerIdActivityRoute
-  '/v2/hosting/servers/$serverId/checkout': typeof V2HostingServersServerIdCheckoutRoute
-  '/v2/hosting/servers/$serverId/lifecycle': typeof V2HostingServersServerIdLifecycleRoute
-  '/v2/hosting/servers/$serverId/restart': typeof V2HostingServersServerIdRestartRoute
-  '/v2/hosting/servers/$serverId/status': typeof V2HostingServersServerIdStatusRoute
-  '/v2/hosting/servers/$serverId/wake': typeof V2HostingServersServerIdWakeRoute
   '/v2/remote/hosts/$hostId/android-notification': typeof V2RemoteHostsHostIdAndroidNotificationRoute
   '/v2/remote/hosts/$hostId/appearance': typeof V2RemoteHostsHostIdAppearanceRoute
   '/v2/remote/hosts/$hostId/checkout': typeof V2RemoteHostsHostIdCheckoutRoute
@@ -2436,7 +2089,6 @@ export interface FileRoutesById {
   '/v2/remote/owner-transfers/$transferId/decline': typeof V2RemoteOwnerTransfersTransferIdDeclineRoute
   '/v2/remote/sessions/$sessionId/end': typeof V2RemoteSessionsSessionIdEndRoute
   '/v2/remote/sessions/$sessionId/ticket': typeof V2RemoteSessionsSessionIdTicketRoute
-  '/v2/hosting/servers/$serverId/': typeof V2HostingServersServerIdIndexRoute
   '/v2/remote/hosts/$hostId/': typeof V2RemoteHostsHostIdIndexRoute
   '/v1/marketplace/agents/admin/cards/$versionId': typeof V1MarketplaceAgentsAdminCardsVersionIdRoute
   '/v1/marketplace/agents/admin/featured/$agentId': typeof V1MarketplaceAgentsAdminFeaturedAgentIdRoute
@@ -2462,7 +2114,6 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/privacy'
     | '/privacy-policy'
-    | '/report-site'
     | '/sitemap.xml'
     | '/terms'
     | '/.well-known/apple-app-site-association'
@@ -2482,7 +2133,6 @@ export interface FileRouteTypes {
     | '/ru'
     | '/tr'
     | '/zh'
-    | '/pricing'
     | '/teams'
     | '/agents/$templateId'
     | '/billing/return'
@@ -2493,7 +2143,6 @@ export interface FileRouteTypes {
     | '/download/$platform'
     | '/guides/$slug'
     | '/guides/rss.xml'
-    | '/health/hosting'
     | '/health/live'
     | '/health/ready'
     | '/marketplace/apps'
@@ -2531,20 +2180,6 @@ export interface FileRouteTypes {
     | '/ru/contact'
     | '/tr/contact'
     | '/zh/contact'
-    | '/ar/pricing'
-    | '/de/pricing'
-    | '/es/pricing'
-    | '/fr/pricing'
-    | '/he/pricing'
-    | '/it/pricing'
-    | '/ja/pricing'
-    | '/ko/pricing'
-    | '/nl/pricing'
-    | '/pl/pricing'
-    | '/pt/pricing'
-    | '/ru/pricing'
-    | '/tr/pricing'
-    | '/zh/pricing'
     | '/ar/teams'
     | '/de/teams'
     | '/es/teams'
@@ -2585,8 +2220,6 @@ export interface FileRouteTypes {
     | '/v1/mobile-auth/ticket'
     | '/v1/mobile/changelog'
     | '/v1/mobile/features'
-    | '/v1/sites/$siteId'
-    | '/v1/sites/reports'
     | '/v1/skills/$skillId'
     | '/v1/skills/mine'
     | '/v1/stripe/webhook'
@@ -2595,17 +2228,13 @@ export interface FileRouteTypes {
     | '/v1/team-hosts/ice-servers'
     | '/v1/team-invitations/email'
     | '/v1/team-tunnels/provision'
-    | '/v2/admin/server-claims'
     | '/v2/discord/authorize'
     | '/v2/discord/callback'
-    | '/v2/hosting/plans'
-    | '/v2/remote/route-wake'
     | '/v2/server-claims/redeem'
     | '/v2/slack/authorize'
     | '/v2/slack/callback'
     | '/marketplace/skills/'
     | '/v1/agent-templates/'
-    | '/v1/sites/'
     | '/v1/skills/'
     | '/v2/server-claims/'
     | '/v1/agent-templates/$templateId/avatar'
@@ -2631,9 +2260,6 @@ export interface FileRouteTypes {
     | '/v1/skills/$skillId/install'
     | '/v1/skills/admin/submissions'
     | '/v1/skills/slug/$slug'
-    | '/v2/hosting/boat/webhook'
-    | '/v2/hosting/claims/redeem'
-    | '/v2/hosting/pool/assignment'
     | '/v2/remote/discord-route/reconcile'
     | '/v2/remote/discord-route/removed'
     | '/v2/remote/discord-route/validate'
@@ -2649,7 +2275,6 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/'
     | '/v1/me/billing/'
     | '/v1/me/license/'
-    | '/v2/hosting/servers/'
     | '/v2/remote/hosts/'
     | '/v2/remote/owner-transfers/'
     | '/v2/remote/sessions/'
@@ -2659,20 +2284,11 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
-    | '/v1/sites/admin/$siteId/block'
-    | '/v1/sites/uploads/$uploadId/activate'
-    | '/v1/sites/uploads/$uploadId/file'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
     | '/v1/skills/admin/featured/$skillId'
     | '/v1/skills/admin/submissions/$versionId'
     | '/v1/skills/admin/verified/$skillId'
-    | '/v2/hosting/servers/$serverId/activity'
-    | '/v2/hosting/servers/$serverId/checkout'
-    | '/v2/hosting/servers/$serverId/lifecycle'
-    | '/v2/hosting/servers/$serverId/restart'
-    | '/v2/hosting/servers/$serverId/status'
-    | '/v2/hosting/servers/$serverId/wake'
     | '/v2/remote/hosts/$hostId/android-notification'
     | '/v2/remote/hosts/$hostId/appearance'
     | '/v2/remote/hosts/$hostId/checkout'
@@ -2699,7 +2315,6 @@ export interface FileRouteTypes {
     | '/v2/remote/owner-transfers/$transferId/decline'
     | '/v2/remote/sessions/$sessionId/end'
     | '/v2/remote/sessions/$sessionId/ticket'
-    | '/v2/hosting/servers/$serverId/'
     | '/v2/remote/hosts/$hostId/'
     | '/v1/marketplace/agents/admin/cards/$versionId'
     | '/v1/marketplace/agents/admin/featured/$agentId'
@@ -2723,7 +2338,6 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/privacy'
     | '/privacy-policy'
-    | '/report-site'
     | '/sitemap.xml'
     | '/terms'
     | '/.well-known/apple-app-site-association'
@@ -2743,7 +2357,6 @@ export interface FileRouteTypes {
     | '/ru'
     | '/tr'
     | '/zh'
-    | '/pricing'
     | '/teams'
     | '/agents/$templateId'
     | '/billing/return'
@@ -2754,7 +2367,6 @@ export interface FileRouteTypes {
     | '/download/$platform'
     | '/guides/$slug'
     | '/guides/rss.xml'
-    | '/health/hosting'
     | '/health/live'
     | '/health/ready'
     | '/marketplace/apps'
@@ -2792,20 +2404,6 @@ export interface FileRouteTypes {
     | '/ru/contact'
     | '/tr/contact'
     | '/zh/contact'
-    | '/ar/pricing'
-    | '/de/pricing'
-    | '/es/pricing'
-    | '/fr/pricing'
-    | '/he/pricing'
-    | '/it/pricing'
-    | '/ja/pricing'
-    | '/ko/pricing'
-    | '/nl/pricing'
-    | '/pl/pricing'
-    | '/pt/pricing'
-    | '/ru/pricing'
-    | '/tr/pricing'
-    | '/zh/pricing'
     | '/ar/teams'
     | '/de/teams'
     | '/es/teams'
@@ -2846,8 +2444,6 @@ export interface FileRouteTypes {
     | '/v1/mobile-auth/ticket'
     | '/v1/mobile/changelog'
     | '/v1/mobile/features'
-    | '/v1/sites/$siteId'
-    | '/v1/sites/reports'
     | '/v1/skills/$skillId'
     | '/v1/skills/mine'
     | '/v1/stripe/webhook'
@@ -2856,17 +2452,13 @@ export interface FileRouteTypes {
     | '/v1/team-hosts/ice-servers'
     | '/v1/team-invitations/email'
     | '/v1/team-tunnels/provision'
-    | '/v2/admin/server-claims'
     | '/v2/discord/authorize'
     | '/v2/discord/callback'
-    | '/v2/hosting/plans'
-    | '/v2/remote/route-wake'
     | '/v2/server-claims/redeem'
     | '/v2/slack/authorize'
     | '/v2/slack/callback'
     | '/marketplace/skills'
     | '/v1/agent-templates'
-    | '/v1/sites'
     | '/v1/skills'
     | '/v2/server-claims'
     | '/v1/agent-templates/$templateId/avatar'
@@ -2892,9 +2484,6 @@ export interface FileRouteTypes {
     | '/v1/skills/$skillId/install'
     | '/v1/skills/admin/submissions'
     | '/v1/skills/slug/$slug'
-    | '/v2/hosting/boat/webhook'
-    | '/v2/hosting/claims/redeem'
-    | '/v2/hosting/pool/assignment'
     | '/v2/remote/discord-route/reconcile'
     | '/v2/remote/discord-route/removed'
     | '/v2/remote/discord-route/validate'
@@ -2910,7 +2499,6 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents'
     | '/v1/me/billing'
     | '/v1/me/license'
-    | '/v2/hosting/servers'
     | '/v2/remote/hosts'
     | '/v2/remote/owner-transfers'
     | '/v2/remote/sessions'
@@ -2920,20 +2508,11 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
-    | '/v1/sites/admin/$siteId/block'
-    | '/v1/sites/uploads/$uploadId/activate'
-    | '/v1/sites/uploads/$uploadId/file'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
     | '/v1/skills/admin/featured/$skillId'
     | '/v1/skills/admin/submissions/$versionId'
     | '/v1/skills/admin/verified/$skillId'
-    | '/v2/hosting/servers/$serverId/activity'
-    | '/v2/hosting/servers/$serverId/checkout'
-    | '/v2/hosting/servers/$serverId/lifecycle'
-    | '/v2/hosting/servers/$serverId/restart'
-    | '/v2/hosting/servers/$serverId/status'
-    | '/v2/hosting/servers/$serverId/wake'
     | '/v2/remote/hosts/$hostId/android-notification'
     | '/v2/remote/hosts/$hostId/appearance'
     | '/v2/remote/hosts/$hostId/checkout'
@@ -2960,7 +2539,6 @@ export interface FileRouteTypes {
     | '/v2/remote/owner-transfers/$transferId/decline'
     | '/v2/remote/sessions/$sessionId/end'
     | '/v2/remote/sessions/$sessionId/ticket'
-    | '/v2/hosting/servers/$serverId'
     | '/v2/remote/hosts/$hostId'
     | '/v1/marketplace/agents/admin/cards/$versionId'
     | '/v1/marketplace/agents/admin/featured/$agentId'
@@ -2973,7 +2551,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_contact'
     | '/_home'
-    | '/_pricing'
     | '/_teams'
     | '/app'
     | '/app-preview'
@@ -2987,7 +2564,6 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/privacy'
     | '/privacy-policy'
-    | '/report-site'
     | '/sitemap.xml'
     | '/terms'
     | '/.well-known/apple-app-site-association'
@@ -3007,7 +2583,6 @@ export interface FileRouteTypes {
     | '/_home/ru'
     | '/_home/tr'
     | '/_home/zh'
-    | '/_pricing/pricing'
     | '/_teams/teams'
     | '/agents/$templateId'
     | '/billing/return'
@@ -3018,7 +2593,6 @@ export interface FileRouteTypes {
     | '/download/$platform'
     | '/guides/$slug'
     | '/guides/rss.xml'
-    | '/health/hosting'
     | '/health/live'
     | '/health/ready'
     | '/marketplace/apps'
@@ -3057,20 +2631,6 @@ export interface FileRouteTypes {
     | '/_contact/ru/contact'
     | '/_contact/tr/contact'
     | '/_contact/zh/contact'
-    | '/_pricing/ar/pricing'
-    | '/_pricing/de/pricing'
-    | '/_pricing/es/pricing'
-    | '/_pricing/fr/pricing'
-    | '/_pricing/he/pricing'
-    | '/_pricing/it/pricing'
-    | '/_pricing/ja/pricing'
-    | '/_pricing/ko/pricing'
-    | '/_pricing/nl/pricing'
-    | '/_pricing/pl/pricing'
-    | '/_pricing/pt/pricing'
-    | '/_pricing/ru/pricing'
-    | '/_pricing/tr/pricing'
-    | '/_pricing/zh/pricing'
     | '/_teams/ar/teams'
     | '/_teams/de/teams'
     | '/_teams/es/teams'
@@ -3111,8 +2671,6 @@ export interface FileRouteTypes {
     | '/v1/mobile-auth/ticket'
     | '/v1/mobile/changelog'
     | '/v1/mobile/features'
-    | '/v1/sites/$siteId'
-    | '/v1/sites/reports'
     | '/v1/skills/$skillId'
     | '/v1/skills/mine'
     | '/v1/stripe/webhook'
@@ -3121,17 +2679,13 @@ export interface FileRouteTypes {
     | '/v1/team-hosts/ice-servers'
     | '/v1/team-invitations/email'
     | '/v1/team-tunnels/provision'
-    | '/v2/admin/server-claims'
     | '/v2/discord/authorize'
     | '/v2/discord/callback'
-    | '/v2/hosting/plans'
-    | '/v2/remote/route-wake'
     | '/v2/server-claims/redeem'
     | '/v2/slack/authorize'
     | '/v2/slack/callback'
     | '/marketplace/skills/'
     | '/v1/agent-templates/'
-    | '/v1/sites/'
     | '/v1/skills/'
     | '/v2/server-claims/'
     | '/v1/agent-templates/$templateId/avatar'
@@ -3157,9 +2711,6 @@ export interface FileRouteTypes {
     | '/v1/skills/$skillId/install'
     | '/v1/skills/admin/submissions'
     | '/v1/skills/slug/$slug'
-    | '/v2/hosting/boat/webhook'
-    | '/v2/hosting/claims/redeem'
-    | '/v2/hosting/pool/assignment'
     | '/v2/remote/discord-route/reconcile'
     | '/v2/remote/discord-route/removed'
     | '/v2/remote/discord-route/validate'
@@ -3175,7 +2726,6 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/'
     | '/v1/me/billing/'
     | '/v1/me/license/'
-    | '/v2/hosting/servers/'
     | '/v2/remote/hosts/'
     | '/v2/remote/owner-transfers/'
     | '/v2/remote/sessions/'
@@ -3185,20 +2735,11 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
-    | '/v1/sites/admin/$siteId/block'
-    | '/v1/sites/uploads/$uploadId/activate'
-    | '/v1/sites/uploads/$uploadId/file'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
     | '/v1/skills/admin/featured/$skillId'
     | '/v1/skills/admin/submissions/$versionId'
     | '/v1/skills/admin/verified/$skillId'
-    | '/v2/hosting/servers/$serverId/activity'
-    | '/v2/hosting/servers/$serverId/checkout'
-    | '/v2/hosting/servers/$serverId/lifecycle'
-    | '/v2/hosting/servers/$serverId/restart'
-    | '/v2/hosting/servers/$serverId/status'
-    | '/v2/hosting/servers/$serverId/wake'
     | '/v2/remote/hosts/$hostId/android-notification'
     | '/v2/remote/hosts/$hostId/appearance'
     | '/v2/remote/hosts/$hostId/checkout'
@@ -3225,7 +2766,6 @@ export interface FileRouteTypes {
     | '/v2/remote/owner-transfers/$transferId/decline'
     | '/v2/remote/sessions/$sessionId/end'
     | '/v2/remote/sessions/$sessionId/ticket'
-    | '/v2/hosting/servers/$serverId/'
     | '/v2/remote/hosts/$hostId/'
     | '/v1/marketplace/agents/admin/cards/$versionId'
     | '/v1/marketplace/agents/admin/featured/$agentId'
@@ -3239,7 +2779,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   ContactRoute: typeof ContactRouteWithChildren
   HomeRoute: typeof HomeRouteWithChildren
-  PricingRoute: typeof PricingRouteWithChildren
   TeamsRoute: typeof TeamsRouteWithChildren
   AppRoute: typeof AppRoute
   AppPreviewRoute: typeof AppPreviewRoute
@@ -3253,7 +2792,6 @@ export interface RootRouteChildren {
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   PrivacyRoute: typeof PrivacyRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
-  ReportSiteRoute: typeof ReportSiteRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   DotwellKnownAppleAppSiteAssociationRoute: typeof DotwellKnownAppleAppSiteAssociationRoute
@@ -3267,7 +2805,6 @@ export interface RootRouteChildren {
   DownloadPlatformRoute: typeof DownloadPlatformRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   GuidesRssDotxmlRoute: typeof GuidesRssDotxmlRoute
-  HealthHostingRoute: typeof HealthHostingRoute
   HealthLiveRoute: typeof HealthLiveRoute
   HealthReadyRoute: typeof HealthReadyRoute
   MarketplaceAppsRoute: typeof MarketplaceAppsRoute
@@ -3311,8 +2848,6 @@ export interface RootRouteChildren {
   V1MobileAuthTicketRoute: typeof V1MobileAuthTicketRoute
   V1MobileChangelogRoute: typeof V1MobileChangelogRoute
   V1MobileFeaturesRoute: typeof V1MobileFeaturesRoute
-  V1SitesSiteIdRoute: typeof V1SitesSiteIdRoute
-  V1SitesReportsRoute: typeof V1SitesReportsRoute
   V1SkillsSkillIdRoute: typeof V1SkillsSkillIdRouteWithChildren
   V1SkillsMineRoute: typeof V1SkillsMineRoute
   V1StripeWebhookRoute: typeof V1StripeWebhookRoute
@@ -3321,17 +2856,13 @@ export interface RootRouteChildren {
   V1TeamHostsIceServersRoute: typeof V1TeamHostsIceServersRoute
   V1TeamInvitationsEmailRoute: typeof V1TeamInvitationsEmailRoute
   V1TeamTunnelsProvisionRoute: typeof V1TeamTunnelsProvisionRoute
-  V2AdminServerClaimsRoute: typeof V2AdminServerClaimsRoute
   V2DiscordAuthorizeRoute: typeof V2DiscordAuthorizeRoute
   V2DiscordCallbackRoute: typeof V2DiscordCallbackRoute
-  V2HostingPlansRoute: typeof V2HostingPlansRoute
-  V2RemoteRouteWakeRoute: typeof V2RemoteRouteWakeRoute
   V2ServerClaimsRedeemRoute: typeof V2ServerClaimsRedeemRoute
   V2SlackAuthorizeRoute: typeof V2SlackAuthorizeRoute
   V2SlackCallbackRoute: typeof V2SlackCallbackRoute
   MarketplaceSkillsIndexRoute: typeof MarketplaceSkillsIndexRoute
   V1AgentTemplatesIndexRoute: typeof V1AgentTemplatesIndexRoute
-  V1SitesIndexRoute: typeof V1SitesIndexRoute
   V1SkillsIndexRoute: typeof V1SkillsIndexRoute
   V2ServerClaimsIndexRoute: typeof V2ServerClaimsIndexRoute
   V1AuthEmailStartRoute: typeof V1AuthEmailStartRoute
@@ -3343,9 +2874,6 @@ export interface RootRouteChildren {
   V1MobileAuthEmailVerifyRoute: typeof V1MobileAuthEmailVerifyRoute
   V1SkillsAdminSubmissionsRoute: typeof V1SkillsAdminSubmissionsRouteWithChildren
   V1SkillsSlugSlugRoute: typeof V1SkillsSlugSlugRoute
-  V2HostingBoatWebhookRoute: typeof V2HostingBoatWebhookRoute
-  V2HostingClaimsRedeemRoute: typeof V2HostingClaimsRedeemRoute
-  V2HostingPoolAssignmentRoute: typeof V2HostingPoolAssignmentRoute
   V2RemoteDiscordRouteReconcileRoute: typeof V2RemoteDiscordRouteReconcileRoute
   V2RemoteDiscordRouteRemovedRoute: typeof V2RemoteDiscordRouteRemovedRoute
   V2RemoteDiscordRouteValidateRoute: typeof V2RemoteDiscordRouteValidateRoute
@@ -3359,24 +2887,14 @@ export interface RootRouteChildren {
   V2RemoteTelegramRouteValidateRoute: typeof V2RemoteTelegramRouteValidateRoute
   V2RemoteWebhookRouteValidateRoute: typeof V2RemoteWebhookRouteValidateRoute
   V1MarketplaceAgentsIndexRoute: typeof V1MarketplaceAgentsIndexRoute
-  V2HostingServersIndexRoute: typeof V2HostingServersIndexRoute
   V2RemoteHostsIndexRoute: typeof V2RemoteHostsIndexRoute
   V2RemoteOwnerTransfersIndexRoute: typeof V2RemoteOwnerTransfersIndexRoute
   V2RemoteSessionsIndexRoute: typeof V2RemoteSessionsIndexRoute
   V1AuthWhatsappWebhookSecretRoute: typeof V1AuthWhatsappWebhookSecretRoute
   V1MarketplaceAgentsAdminSubmissionsRoute: typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
-  V1SitesAdminSiteIdBlockRoute: typeof V1SitesAdminSiteIdBlockRoute
-  V1SitesUploadsUploadIdActivateRoute: typeof V1SitesUploadsUploadIdActivateRoute
-  V1SitesUploadsUploadIdFileRoute: typeof V1SitesUploadsUploadIdFileRoute
   V1SkillsAdminCardsVersionIdRoute: typeof V1SkillsAdminCardsVersionIdRoute
   V1SkillsAdminFeaturedSkillIdRoute: typeof V1SkillsAdminFeaturedSkillIdRoute
   V1SkillsAdminVerifiedSkillIdRoute: typeof V1SkillsAdminVerifiedSkillIdRoute
-  V2HostingServersServerIdActivityRoute: typeof V2HostingServersServerIdActivityRoute
-  V2HostingServersServerIdCheckoutRoute: typeof V2HostingServersServerIdCheckoutRoute
-  V2HostingServersServerIdLifecycleRoute: typeof V2HostingServersServerIdLifecycleRoute
-  V2HostingServersServerIdRestartRoute: typeof V2HostingServersServerIdRestartRoute
-  V2HostingServersServerIdStatusRoute: typeof V2HostingServersServerIdStatusRoute
-  V2HostingServersServerIdWakeRoute: typeof V2HostingServersServerIdWakeRoute
   V2RemoteHostsHostIdAndroidNotificationRoute: typeof V2RemoteHostsHostIdAndroidNotificationRoute
   V2RemoteHostsHostIdAppearanceRoute: typeof V2RemoteHostsHostIdAppearanceRoute
   V2RemoteHostsHostIdCheckoutRoute: typeof V2RemoteHostsHostIdCheckoutRoute
@@ -3403,7 +2921,6 @@ export interface RootRouteChildren {
   V2RemoteOwnerTransfersTransferIdDeclineRoute: typeof V2RemoteOwnerTransfersTransferIdDeclineRoute
   V2RemoteSessionsSessionIdEndRoute: typeof V2RemoteSessionsSessionIdEndRoute
   V2RemoteSessionsSessionIdTicketRoute: typeof V2RemoteSessionsSessionIdTicketRoute
-  V2HostingServersServerIdIndexRoute: typeof V2HostingServersServerIdIndexRoute
   V2RemoteHostsHostIdIndexRoute: typeof V2RemoteHostsHostIdIndexRoute
   V1MarketplaceAgentsAdminCardsVersionIdRoute: typeof V1MarketplaceAgentsAdminCardsVersionIdRoute
   V1MarketplaceAgentsAdminFeaturedAgentIdRoute: typeof V1MarketplaceAgentsAdminFeaturedAgentIdRoute
@@ -3426,13 +2943,6 @@ declare module '@tanstack/solid-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_pricing': {
-      id: '/_pricing'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_teams': {
@@ -3524,13 +3034,6 @@ declare module '@tanstack/solid-router' {
       path: '/privacy-policy'
       fullPath: '/privacy-policy'
       preLoaderRoute: typeof PrivacyPolicyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/report-site': {
-      id: '/report-site'
-      path: '/report-site'
-      fullPath: '/report-site'
-      preLoaderRoute: typeof ReportSiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -3673,13 +3176,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof HomeZhRouteImport
       parentRoute: typeof HomeRoute
     }
-    '/_pricing/pricing': {
-      id: '/_pricing/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
     '/_teams/teams': {
       id: '/_teams/teams'
       path: '/teams'
@@ -3776,13 +3272,6 @@ declare module '@tanstack/solid-router' {
       path: '/guides/rss.xml'
       fullPath: '/guides/rss.xml'
       preLoaderRoute: typeof GuidesRssDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/health/hosting': {
-      id: '/health/hosting'
-      path: '/health/hosting'
-      fullPath: '/health/hosting'
-      preLoaderRoute: typeof HealthHostingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/health/live': {
@@ -4015,104 +3504,6 @@ declare module '@tanstack/solid-router' {
       fullPath: '/zh/contact'
       preLoaderRoute: typeof ContactZhContactRouteImport
       parentRoute: typeof ContactRoute
-    }
-    '/_pricing/ar/pricing': {
-      id: '/_pricing/ar/pricing'
-      path: '/ar/pricing'
-      fullPath: '/ar/pricing'
-      preLoaderRoute: typeof PricingArPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/de/pricing': {
-      id: '/_pricing/de/pricing'
-      path: '/de/pricing'
-      fullPath: '/de/pricing'
-      preLoaderRoute: typeof PricingDePricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/es/pricing': {
-      id: '/_pricing/es/pricing'
-      path: '/es/pricing'
-      fullPath: '/es/pricing'
-      preLoaderRoute: typeof PricingEsPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/fr/pricing': {
-      id: '/_pricing/fr/pricing'
-      path: '/fr/pricing'
-      fullPath: '/fr/pricing'
-      preLoaderRoute: typeof PricingFrPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/he/pricing': {
-      id: '/_pricing/he/pricing'
-      path: '/he/pricing'
-      fullPath: '/he/pricing'
-      preLoaderRoute: typeof PricingHePricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/it/pricing': {
-      id: '/_pricing/it/pricing'
-      path: '/it/pricing'
-      fullPath: '/it/pricing'
-      preLoaderRoute: typeof PricingItPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/ja/pricing': {
-      id: '/_pricing/ja/pricing'
-      path: '/ja/pricing'
-      fullPath: '/ja/pricing'
-      preLoaderRoute: typeof PricingJaPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/ko/pricing': {
-      id: '/_pricing/ko/pricing'
-      path: '/ko/pricing'
-      fullPath: '/ko/pricing'
-      preLoaderRoute: typeof PricingKoPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/nl/pricing': {
-      id: '/_pricing/nl/pricing'
-      path: '/nl/pricing'
-      fullPath: '/nl/pricing'
-      preLoaderRoute: typeof PricingNlPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/pl/pricing': {
-      id: '/_pricing/pl/pricing'
-      path: '/pl/pricing'
-      fullPath: '/pl/pricing'
-      preLoaderRoute: typeof PricingPlPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/pt/pricing': {
-      id: '/_pricing/pt/pricing'
-      path: '/pt/pricing'
-      fullPath: '/pt/pricing'
-      preLoaderRoute: typeof PricingPtPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/ru/pricing': {
-      id: '/_pricing/ru/pricing'
-      path: '/ru/pricing'
-      fullPath: '/ru/pricing'
-      preLoaderRoute: typeof PricingRuPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/tr/pricing': {
-      id: '/_pricing/tr/pricing'
-      path: '/tr/pricing'
-      fullPath: '/tr/pricing'
-      preLoaderRoute: typeof PricingTrPricingRouteImport
-      parentRoute: typeof PricingRoute
-    }
-    '/_pricing/zh/pricing': {
-      id: '/_pricing/zh/pricing'
-      path: '/zh/pricing'
-      fullPath: '/zh/pricing'
-      preLoaderRoute: typeof PricingZhPricingRouteImport
-      parentRoute: typeof PricingRoute
     }
     '/_teams/ar/teams': {
       id: '/_teams/ar/teams'
@@ -4408,27 +3799,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1MobileFeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/v1/sites/': {
-      id: '/v1/sites/'
-      path: '/v1/sites'
-      fullPath: '/v1/sites/'
-      preLoaderRoute: typeof V1SitesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v1/sites/$siteId': {
-      id: '/v1/sites/$siteId'
-      path: '/v1/sites/$siteId'
-      fullPath: '/v1/sites/$siteId'
-      preLoaderRoute: typeof V1SitesSiteIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v1/sites/reports': {
-      id: '/v1/sites/reports'
-      path: '/v1/sites/reports'
-      fullPath: '/v1/sites/reports'
-      preLoaderRoute: typeof V1SitesReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/v1/skills/': {
       id: '/v1/skills/'
       path: '/v1/skills'
@@ -4492,13 +3862,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1TeamTunnelsProvisionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/v2/admin/server-claims': {
-      id: '/v2/admin/server-claims'
-      path: '/v2/admin/server-claims'
-      fullPath: '/v2/admin/server-claims'
-      preLoaderRoute: typeof V2AdminServerClaimsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/v2/discord/authorize': {
       id: '/v2/discord/authorize'
       path: '/v2/discord/authorize'
@@ -4511,20 +3874,6 @@ declare module '@tanstack/solid-router' {
       path: '/v2/discord/callback'
       fullPath: '/v2/discord/callback'
       preLoaderRoute: typeof V2DiscordCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/plans': {
-      id: '/v2/hosting/plans'
-      path: '/v2/hosting/plans'
-      fullPath: '/v2/hosting/plans'
-      preLoaderRoute: typeof V2HostingPlansRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/remote/route-wake': {
-      id: '/v2/remote/route-wake'
-      path: '/v2/remote/route-wake'
-      fullPath: '/v2/remote/route-wake'
-      preLoaderRoute: typeof V2RemoteRouteWakeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v2/server-claims/': {
@@ -4737,34 +4086,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1SkillsSlugSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/v2/hosting/boat/webhook': {
-      id: '/v2/hosting/boat/webhook'
-      path: '/v2/hosting/boat/webhook'
-      fullPath: '/v2/hosting/boat/webhook'
-      preLoaderRoute: typeof V2HostingBoatWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/claims/redeem': {
-      id: '/v2/hosting/claims/redeem'
-      path: '/v2/hosting/claims/redeem'
-      fullPath: '/v2/hosting/claims/redeem'
-      preLoaderRoute: typeof V2HostingClaimsRedeemRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/pool/assignment': {
-      id: '/v2/hosting/pool/assignment'
-      path: '/v2/hosting/pool/assignment'
-      fullPath: '/v2/hosting/pool/assignment'
-      preLoaderRoute: typeof V2HostingPoolAssignmentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/servers/': {
-      id: '/v2/hosting/servers/'
-      path: '/v2/hosting/servers'
-      fullPath: '/v2/hosting/servers/'
-      preLoaderRoute: typeof V2HostingServersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/v2/remote/discord-route/reconcile': {
       id: '/v2/remote/discord-route/reconcile'
       path: '/v2/remote/discord-route/reconcile'
@@ -4912,27 +4233,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1MarketplaceAgentsAdminSubmissionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/v1/sites/admin/$siteId/block': {
-      id: '/v1/sites/admin/$siteId/block'
-      path: '/v1/sites/admin/$siteId/block'
-      fullPath: '/v1/sites/admin/$siteId/block'
-      preLoaderRoute: typeof V1SitesAdminSiteIdBlockRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v1/sites/uploads/$uploadId/activate': {
-      id: '/v1/sites/uploads/$uploadId/activate'
-      path: '/v1/sites/uploads/$uploadId/activate'
-      fullPath: '/v1/sites/uploads/$uploadId/activate'
-      preLoaderRoute: typeof V1SitesUploadsUploadIdActivateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v1/sites/uploads/$uploadId/file': {
-      id: '/v1/sites/uploads/$uploadId/file'
-      path: '/v1/sites/uploads/$uploadId/file'
-      fullPath: '/v1/sites/uploads/$uploadId/file'
-      preLoaderRoute: typeof V1SitesUploadsUploadIdFileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/v1/skills/$skillId/versions/$versionId': {
       id: '/v1/skills/$skillId/versions/$versionId'
       path: '/versions/$versionId'
@@ -4966,55 +4266,6 @@ declare module '@tanstack/solid-router' {
       path: '/v1/skills/admin/verified/$skillId'
       fullPath: '/v1/skills/admin/verified/$skillId'
       preLoaderRoute: typeof V1SkillsAdminVerifiedSkillIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/servers/$serverId/': {
-      id: '/v2/hosting/servers/$serverId/'
-      path: '/v2/hosting/servers/$serverId'
-      fullPath: '/v2/hosting/servers/$serverId/'
-      preLoaderRoute: typeof V2HostingServersServerIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/servers/$serverId/activity': {
-      id: '/v2/hosting/servers/$serverId/activity'
-      path: '/v2/hosting/servers/$serverId/activity'
-      fullPath: '/v2/hosting/servers/$serverId/activity'
-      preLoaderRoute: typeof V2HostingServersServerIdActivityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/servers/$serverId/checkout': {
-      id: '/v2/hosting/servers/$serverId/checkout'
-      path: '/v2/hosting/servers/$serverId/checkout'
-      fullPath: '/v2/hosting/servers/$serverId/checkout'
-      preLoaderRoute: typeof V2HostingServersServerIdCheckoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/servers/$serverId/lifecycle': {
-      id: '/v2/hosting/servers/$serverId/lifecycle'
-      path: '/v2/hosting/servers/$serverId/lifecycle'
-      fullPath: '/v2/hosting/servers/$serverId/lifecycle'
-      preLoaderRoute: typeof V2HostingServersServerIdLifecycleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/servers/$serverId/restart': {
-      id: '/v2/hosting/servers/$serverId/restart'
-      path: '/v2/hosting/servers/$serverId/restart'
-      fullPath: '/v2/hosting/servers/$serverId/restart'
-      preLoaderRoute: typeof V2HostingServersServerIdRestartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/servers/$serverId/status': {
-      id: '/v2/hosting/servers/$serverId/status'
-      path: '/v2/hosting/servers/$serverId/status'
-      fullPath: '/v2/hosting/servers/$serverId/status'
-      preLoaderRoute: typeof V2HostingServersServerIdStatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/v2/hosting/servers/$serverId/wake': {
-      id: '/v2/hosting/servers/$serverId/wake'
-      path: '/v2/hosting/servers/$serverId/wake'
-      fullPath: '/v2/hosting/servers/$serverId/wake'
-      preLoaderRoute: typeof V2HostingServersServerIdWakeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v2/remote/hosts/$hostId/': {
@@ -5335,45 +4586,6 @@ const HomeRouteChildren: HomeRouteChildren = {
 
 const HomeRouteWithChildren = HomeRoute._addFileChildren(HomeRouteChildren)
 
-interface PricingRouteChildren {
-  PricingPricingRoute: typeof PricingPricingRoute
-  PricingArPricingRoute: typeof PricingArPricingRoute
-  PricingDePricingRoute: typeof PricingDePricingRoute
-  PricingEsPricingRoute: typeof PricingEsPricingRoute
-  PricingFrPricingRoute: typeof PricingFrPricingRoute
-  PricingHePricingRoute: typeof PricingHePricingRoute
-  PricingItPricingRoute: typeof PricingItPricingRoute
-  PricingJaPricingRoute: typeof PricingJaPricingRoute
-  PricingKoPricingRoute: typeof PricingKoPricingRoute
-  PricingNlPricingRoute: typeof PricingNlPricingRoute
-  PricingPlPricingRoute: typeof PricingPlPricingRoute
-  PricingPtPricingRoute: typeof PricingPtPricingRoute
-  PricingRuPricingRoute: typeof PricingRuPricingRoute
-  PricingTrPricingRoute: typeof PricingTrPricingRoute
-  PricingZhPricingRoute: typeof PricingZhPricingRoute
-}
-
-const PricingRouteChildren: PricingRouteChildren = {
-  PricingPricingRoute: PricingPricingRoute,
-  PricingArPricingRoute: PricingArPricingRoute,
-  PricingDePricingRoute: PricingDePricingRoute,
-  PricingEsPricingRoute: PricingEsPricingRoute,
-  PricingFrPricingRoute: PricingFrPricingRoute,
-  PricingHePricingRoute: PricingHePricingRoute,
-  PricingItPricingRoute: PricingItPricingRoute,
-  PricingJaPricingRoute: PricingJaPricingRoute,
-  PricingKoPricingRoute: PricingKoPricingRoute,
-  PricingNlPricingRoute: PricingNlPricingRoute,
-  PricingPlPricingRoute: PricingPlPricingRoute,
-  PricingPtPricingRoute: PricingPtPricingRoute,
-  PricingRuPricingRoute: PricingRuPricingRoute,
-  PricingTrPricingRoute: PricingTrPricingRoute,
-  PricingZhPricingRoute: PricingZhPricingRoute,
-}
-
-const PricingRouteWithChildren =
-  PricingRoute._addFileChildren(PricingRouteChildren)
-
 interface TeamsRouteChildren {
   TeamsTeamsRoute: typeof TeamsTeamsRoute
   TeamsArTeamsRoute: typeof TeamsArTeamsRoute
@@ -5580,7 +4792,6 @@ const V1MarketplaceAgentsAdminSubmissionsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRouteWithChildren,
   HomeRoute: HomeRouteWithChildren,
-  PricingRoute: PricingRouteWithChildren,
   TeamsRoute: TeamsRouteWithChildren,
   AppRoute: AppRoute,
   AppPreviewRoute: AppPreviewRoute,
@@ -5594,7 +4805,6 @@ const rootRouteChildren: RootRouteChildren = {
   LlmsDottxtRoute: LlmsDottxtRoute,
   PrivacyRoute: PrivacyRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
-  ReportSiteRoute: ReportSiteRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   DotwellKnownAppleAppSiteAssociationRoute:
@@ -5609,7 +4819,6 @@ const rootRouteChildren: RootRouteChildren = {
   DownloadPlatformRoute: DownloadPlatformRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   GuidesRssDotxmlRoute: GuidesRssDotxmlRoute,
-  HealthHostingRoute: HealthHostingRoute,
   HealthLiveRoute: HealthLiveRoute,
   HealthReadyRoute: HealthReadyRoute,
   MarketplaceAppsRoute: MarketplaceAppsRoute,
@@ -5653,8 +4862,6 @@ const rootRouteChildren: RootRouteChildren = {
   V1MobileAuthTicketRoute: V1MobileAuthTicketRoute,
   V1MobileChangelogRoute: V1MobileChangelogRoute,
   V1MobileFeaturesRoute: V1MobileFeaturesRoute,
-  V1SitesSiteIdRoute: V1SitesSiteIdRoute,
-  V1SitesReportsRoute: V1SitesReportsRoute,
   V1SkillsSkillIdRoute: V1SkillsSkillIdRouteWithChildren,
   V1SkillsMineRoute: V1SkillsMineRoute,
   V1StripeWebhookRoute: V1StripeWebhookRoute,
@@ -5663,17 +4870,13 @@ const rootRouteChildren: RootRouteChildren = {
   V1TeamHostsIceServersRoute: V1TeamHostsIceServersRoute,
   V1TeamInvitationsEmailRoute: V1TeamInvitationsEmailRoute,
   V1TeamTunnelsProvisionRoute: V1TeamTunnelsProvisionRoute,
-  V2AdminServerClaimsRoute: V2AdminServerClaimsRoute,
   V2DiscordAuthorizeRoute: V2DiscordAuthorizeRoute,
   V2DiscordCallbackRoute: V2DiscordCallbackRoute,
-  V2HostingPlansRoute: V2HostingPlansRoute,
-  V2RemoteRouteWakeRoute: V2RemoteRouteWakeRoute,
   V2ServerClaimsRedeemRoute: V2ServerClaimsRedeemRoute,
   V2SlackAuthorizeRoute: V2SlackAuthorizeRoute,
   V2SlackCallbackRoute: V2SlackCallbackRoute,
   MarketplaceSkillsIndexRoute: MarketplaceSkillsIndexRoute,
   V1AgentTemplatesIndexRoute: V1AgentTemplatesIndexRoute,
-  V1SitesIndexRoute: V1SitesIndexRoute,
   V1SkillsIndexRoute: V1SkillsIndexRoute,
   V2ServerClaimsIndexRoute: V2ServerClaimsIndexRoute,
   V1AuthEmailStartRoute: V1AuthEmailStartRoute,
@@ -5685,9 +4888,6 @@ const rootRouteChildren: RootRouteChildren = {
   V1MobileAuthEmailVerifyRoute: V1MobileAuthEmailVerifyRoute,
   V1SkillsAdminSubmissionsRoute: V1SkillsAdminSubmissionsRouteWithChildren,
   V1SkillsSlugSlugRoute: V1SkillsSlugSlugRoute,
-  V2HostingBoatWebhookRoute: V2HostingBoatWebhookRoute,
-  V2HostingClaimsRedeemRoute: V2HostingClaimsRedeemRoute,
-  V2HostingPoolAssignmentRoute: V2HostingPoolAssignmentRoute,
   V2RemoteDiscordRouteReconcileRoute: V2RemoteDiscordRouteReconcileRoute,
   V2RemoteDiscordRouteRemovedRoute: V2RemoteDiscordRouteRemovedRoute,
   V2RemoteDiscordRouteValidateRoute: V2RemoteDiscordRouteValidateRoute,
@@ -5701,26 +4901,15 @@ const rootRouteChildren: RootRouteChildren = {
   V2RemoteTelegramRouteValidateRoute: V2RemoteTelegramRouteValidateRoute,
   V2RemoteWebhookRouteValidateRoute: V2RemoteWebhookRouteValidateRoute,
   V1MarketplaceAgentsIndexRoute: V1MarketplaceAgentsIndexRoute,
-  V2HostingServersIndexRoute: V2HostingServersIndexRoute,
   V2RemoteHostsIndexRoute: V2RemoteHostsIndexRoute,
   V2RemoteOwnerTransfersIndexRoute: V2RemoteOwnerTransfersIndexRoute,
   V2RemoteSessionsIndexRoute: V2RemoteSessionsIndexRoute,
   V1AuthWhatsappWebhookSecretRoute: V1AuthWhatsappWebhookSecretRoute,
   V1MarketplaceAgentsAdminSubmissionsRoute:
     V1MarketplaceAgentsAdminSubmissionsRouteWithChildren,
-  V1SitesAdminSiteIdBlockRoute: V1SitesAdminSiteIdBlockRoute,
-  V1SitesUploadsUploadIdActivateRoute: V1SitesUploadsUploadIdActivateRoute,
-  V1SitesUploadsUploadIdFileRoute: V1SitesUploadsUploadIdFileRoute,
   V1SkillsAdminCardsVersionIdRoute: V1SkillsAdminCardsVersionIdRoute,
   V1SkillsAdminFeaturedSkillIdRoute: V1SkillsAdminFeaturedSkillIdRoute,
   V1SkillsAdminVerifiedSkillIdRoute: V1SkillsAdminVerifiedSkillIdRoute,
-  V2HostingServersServerIdActivityRoute: V2HostingServersServerIdActivityRoute,
-  V2HostingServersServerIdCheckoutRoute: V2HostingServersServerIdCheckoutRoute,
-  V2HostingServersServerIdLifecycleRoute:
-    V2HostingServersServerIdLifecycleRoute,
-  V2HostingServersServerIdRestartRoute: V2HostingServersServerIdRestartRoute,
-  V2HostingServersServerIdStatusRoute: V2HostingServersServerIdStatusRoute,
-  V2HostingServersServerIdWakeRoute: V2HostingServersServerIdWakeRoute,
   V2RemoteHostsHostIdAndroidNotificationRoute:
     V2RemoteHostsHostIdAndroidNotificationRoute,
   V2RemoteHostsHostIdAppearanceRoute: V2RemoteHostsHostIdAppearanceRoute,
@@ -5753,7 +4942,6 @@ const rootRouteChildren: RootRouteChildren = {
     V2RemoteOwnerTransfersTransferIdDeclineRoute,
   V2RemoteSessionsSessionIdEndRoute: V2RemoteSessionsSessionIdEndRoute,
   V2RemoteSessionsSessionIdTicketRoute: V2RemoteSessionsSessionIdTicketRoute,
-  V2HostingServersServerIdIndexRoute: V2HostingServersServerIdIndexRoute,
   V2RemoteHostsHostIdIndexRoute: V2RemoteHostsHostIdIndexRoute,
   V1MarketplaceAgentsAdminCardsVersionIdRoute:
     V1MarketplaceAgentsAdminCardsVersionIdRoute,

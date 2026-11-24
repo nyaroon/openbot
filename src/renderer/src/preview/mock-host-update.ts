@@ -40,8 +40,7 @@ export function createMockHostUpdate(options: MockHostUpdateOptions): MockHostUp
     currentVersion: status.currentVersion,
     latestVersion: status.availableVersion,
     phase: "idle",
-    method:
-      status.remoteUpdates === "managed" ? "host-manager" : status.phase === "unsupported" ? "hosted" : "self-update",
+    method: status.remoteUpdates === "managed" ? "host-manager" : "self-update",
   };
   return {
     getReleaseStatus: async () => clone(release),

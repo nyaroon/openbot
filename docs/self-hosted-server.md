@@ -2,7 +2,7 @@
 
 A self-hosted server is the Linux OpenBot build on your own computer with no screen: a VPS, a home
 server or a cloud VM. It is a normal Remote host of your account. You use it from the desktop app,
-the iPhone app or `openbot.run/app`, as you use a [hosted server](hosted-servers.md). You install
+the iPhone app or `openbot.run/app`, as you use a hosted server. You install
 and control it from a terminal.
 
 To run it in a container, see [Docker](docker.md).
@@ -20,7 +20,7 @@ sudo openbot login
 server shows in the server list of that account. Its name is "OpenBot"; give another one with
 `sudo openbot login --name <name>` or `sudo openbot name <name>`. A name has 6 to 32 characters.
 Then connect a provider from the app, as on a hosted server (see
-[Providers](hosted-servers.md#providers)).
+Providers).
 
 ### Install from the app
 
@@ -116,7 +116,7 @@ in a terminal, for the same reason.
 Anyone with the admin token can get a session for any email, also of an existing account. Keep the
 token on the operator's computer only: it is in the encrypted `apps/auth-api/.env.production`. For a
 Leaseweb VPS, `leaseweb-pool.ts custom` makes the claim and does all the other steps
-(see [Leaseweb VPS](hosted-servers.md#leaseweb-vps)). The owner sees each claimed server session in their account
+(see Leaseweb VPS). The owner sees each claimed server session in their account
 sessions, and can revoke it there.
 
 Install options go after `sudo bash -s --`:
@@ -156,7 +156,7 @@ unless-stopped`; without one, the container stays stopped. When the server does 
 `sudo openbot restart`.
 
 When the start of OpenBot fails again and again, the service stops, and systemd does not start it again
-(see [Start loop](hosted-servers.md#start-loop)). `openbot status` then says so. Read the reason with
+(see Start loop). `openbot status` then says so. Read the reason with
 `openbot logs`. Install a newer release with `sudo openbot update`, or try again with
 `sudo openbot restart`. The update timer also starts the service again about each hour, with a
 newer release when one is staged.
@@ -167,7 +167,7 @@ socket.
 ## Memory
 
 A self-hosted server uses the memory guards of a hosted server (see
-[Memory](hosted-servers.md#memory)). When free memory is low, new turns wait in the queue and start
+Memory). When free memory is low, new turns wait in the queue and start
 again when memory is available. A message from a person starts first. The browser opens no new tab
 and unloads idle pages sooner. By default, a fixed number of turns run at the same time: 2 up to
 5 GiB of memory, 8 up to 10 GiB, and 16 above. An owner or admin can choose another number, 1 to 128, or
@@ -189,7 +189,7 @@ one warning.
 
 Agent processes run at nice 10 with an OOM value of 500, also a job that an agent detaches. At the
 `critical` level, OpenBot stops leftover agent processes first. Node programs of agents see the CPU
-limit of the unit in `os.cpus()`. See [agent processes](hosted-servers.md#memory).
+limit of the unit in `os.cpus()`. See agent processes.
 
 ## Display size
 
@@ -341,7 +341,7 @@ With `mode` set to `self`, `openbot-hosted-server` does not wait for a claim or 
 It starts a D-Bus session with an unlocked keyring, as on a hosted server, and runs OpenBot under
 Xvfb with `OPENBOT_SERVER=1`. Main (`src/main/server-mode.ts`) then opens the control socket
 `/run/openbot/control.sock` and publishes the host after each sign-in. The
-[watchdog](hosted-servers.md#watchdog) also runs: when main stops updating its heartbeat file for 10
+watchdog also runs: when main stops updating its heartbeat file for 10
 minutes, the watchdog stops OpenBot and systemd starts it again.
 
 The server has two Xvfb displays, one in each of two nested `xvfb-run` commands that share one
@@ -353,7 +353,7 @@ display has a window manager (Openbox) and a dark background with the OpenBot lo
 title bars, and a right-click on the empty screen opens a menu with a terminal and a file manager. See
 [Computer Use and remote desktop](architecture/computer-use.md#agent-display-on-a-server).
 
-Updates work as on a hosted server (see [Updates](hosted-servers.md#updates)): the timer stages a
+Updates work as on a hosted server (see Updates): the timer stages a
 new release, and it starts at the next boot, or when an owner, an admin or a permitted member
 installs it in Server Settings > Updates. When an owner turns on the automatic update switch (it is
 off by default), the server also installs it when it is idle. A hosted server always does this, and

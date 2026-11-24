@@ -17,7 +17,6 @@ export const messages = defineMessages("error.auth", {
     "OpenBot could not reach the account service. Check your connection, then try again.",
   "error.auth.serviceTimeout": "The account service did not answer in time. Try again.",
   "error.auth.serviceStatus": "The account service returned an error ({status}). Try again later.",
-  "error.auth.invalidHostedServer": "The account service returned an invalid hosted server.",
   "error.auth.invalidServerClaim": "The account service returned an invalid server claim.",
   "error.auth.codeNotSent": "OpenBot could not send the sign-in code.",
   "error.auth.deliveryTimeout":

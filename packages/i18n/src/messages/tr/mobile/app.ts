@@ -28,8 +28,6 @@ export const messages = {
   "mobile.app.route.editMessage": "Mesajı düzenle",
   "mobile.app.route.serverOptions": "Sunucu seçenekleri",
   "mobile.app.route.members": "Üyeler",
-  "mobile.app.route.hostedServerPlans": "Bulut sunucusu",
-  "mobile.app.route.hostedServerSetup": "Kurulum",
   "mobile.app.route.schedule": "Zamanlama",
   "mobile.app.route.workflows": "İş akışları",
   "mobile.app.route.workflow": "İş akışı",

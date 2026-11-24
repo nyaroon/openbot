@@ -77,7 +77,6 @@ interface Probe {
 }
 
 const isReady = Schema.is(Schema.Struct({ status: Schema.Literal("ready") }));
-const isHostingOk = Schema.is(Schema.Struct({ status: Schema.Literal("ok") }));
 const isSkillList = Schema.is(Schema.Struct({ skills: Schema.Array(Schema.Unknown) }));
 
 const jsonBody = (body: string, test: (value: unknown) => boolean) => {
@@ -96,7 +95,6 @@ const PROBES: Record<ServiceId, Probe> = {
     paths: ["/health/ready", "/health/turn"],
     healthy: (b) => jsonBody(b, isReady),
   },
-  hosted: { origin: "api", paths: ["/health/hosting"], healthy: (b) => jsonBody(b, isHostingOk) },
   updates: {
     origin: "github",
     paths: [`${RELEASE_PATH}/latest-mac.yml`, `${RELEASE_PATH}/latest.yml`, `${RELEASE_PATH}/latest-linux.yml`],
@@ -181,7 +179,6 @@ function readState(): StateFile {
       services: {
         accounts: emptyService(),
         connections: emptyService(),
-        hosted: emptyService(),
         updates: emptyService(),
         marketplace: emptyService(),
       },

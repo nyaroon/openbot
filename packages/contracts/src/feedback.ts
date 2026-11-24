@@ -16,7 +16,6 @@ const MOBILE_BUG_FORM = { template: "mobile_bug_report.yml", titlePrefix: "[Mobi
 const MOBILE_SERVER_KINDS = {
   "Desktop app": "Desktop app on my computer",
   Server: "Self-hosted server",
-  "Hosted server": "Hosted server",
 } as const satisfies Record<FeedbackHost, string>;
 
 const ISSUE_FORMS = {
@@ -103,7 +102,7 @@ export const FEATURE_REQUEST_TYPES = [
 ] as const;
 export type FeatureRequestType = (typeof FEATURE_REQUEST_TYPES)[number];
 
-export const FEEDBACK_HOSTS = ["Desktop app", "Server", "Hosted server"] as const;
+export const FEEDBACK_HOSTS = ["Desktop app", "Server"] as const;
 export type FeedbackHost = (typeof FEEDBACK_HOSTS)[number];
 export const FEEDBACK_SURFACES = ["Desktop app", "Web app", "Phone app"] as const;
 export type FeedbackSurface = (typeof FEEDBACK_SURFACES)[number];

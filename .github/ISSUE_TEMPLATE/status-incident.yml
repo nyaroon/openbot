@@ -28,7 +28,6 @@ body:
       options:
         - Accounts and sign-in
         - Connections
-        - Hosted servers
         - App updates
         - Marketplace
     validations:

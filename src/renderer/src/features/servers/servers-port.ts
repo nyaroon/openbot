@@ -33,10 +33,6 @@ export interface ServersPort {
     OpenBotDesktopApi["hostAdmin"],
     "cancelUpdate" | "getUpdateStatus" | "restartHost" | "rotateHostKey" | "startUpdate" | "updateIdentity"
   >;
-  hostedServers: Pick<
-    OpenBotDesktopApi["hostedServers"],
-    "list" | "openCheckout" | "openCustomCheckout" | "restart" | "wake"
-  >;
   localServers: OpenBotDesktopApi["localServers"];
   host: Pick<
     OpenBotDesktopApi["host"],

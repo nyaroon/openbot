@@ -50,7 +50,6 @@ export function remoteServerSummaries(
         role: server.role,
         active: activeServerId === server.id,
         ...(server.memberLimit === undefined ? {} : { memberLimit: server.memberLimit }),
-        ...(server.hosted === undefined ? {} : { hosted: server.hosted }),
         ...(server.restartAvailable === undefined ? {} : { restartAvailable: server.restartAvailable }),
         ...(server.storageGb === undefined ? {} : { storageGb: server.storageGb }),
         ...(server.paymentRequired ? { paymentRequired: true as const } : {}),
@@ -62,9 +61,6 @@ export function remoteServerSummaries(
         connectionSequence: status.connectionSequence,
         ...(status.capabilitiesPending ? { capabilitiesPending: true as const } : {}),
         hostRestart: status.hostRestart ?? null,
-        hostedSleep: status.hostedSleep ?? null,
-        hostedIssue: status.hostedIssue ?? null,
-        hostedStart: status.hostedStart ?? null,
       };
     }),
   ];

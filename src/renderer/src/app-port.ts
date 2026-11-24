@@ -29,21 +29,24 @@ export interface AppPort {
   >;
   agentTemplates: Pick<OpenBotDesktopApi["agentTemplates"], "onOpenLink" | "takePendingLink">;
   acpRegistry: OpenBotDesktopApi["acpRegistry"];
-  hostedSites: OpenBotDesktopApi["hostedSites"];
   billing: OpenBotDesktopApi["billing"];
   license: OpenBotDesktopApi["license"];
   auth: Pick<
     OpenBotDesktopApi["auth"],
     "listOwnerTransfers" | "acceptOwnerTransfer" | "declineOwnerTransfer" | "onOwnerTransfersChanged"
   >;
-  hostedServers: OpenBotDesktopApi["hostedServers"];
   routineFeed: OpenBotDesktopApi["routineFeed"];
   events: OpenBotDesktopApi["events"];
   plugins: Pick<OpenBotDesktopApi["plugins"], "onOpenListing" | "takePendingListing">;
   marketplace: Pick<OpenBotDesktopApi["marketplace"], "onOpenListing" | "takePendingListing">;
   servers: Pick<
     OpenBotDesktopApi["servers"],
-    "onInvite" | "takePendingInvite" | "getOwnerTransfer" | "startOwnerTransfer" | "cancelOwnerTransfer"
+    | "onInvite"
+    | "takePendingInvite"
+    | "createInstallClaim"
+    | "getOwnerTransfer"
+    | "startOwnerTransfer"
+    | "cancelOwnerTransfer"
   >;
 }
 

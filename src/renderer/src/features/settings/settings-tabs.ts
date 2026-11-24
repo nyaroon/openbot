@@ -11,7 +11,6 @@ import {
   PanelRight,
   PanelTop,
   Power,
-  Server,
   Settings,
   Smartphone,
   UserRound,
@@ -31,8 +30,7 @@ export type SettingsTab =
   | "profile"
   | "billing"
   | "mobile-connect"
-  | "updates"
-  | "hosted-servers";
+  | "updates";
 
 type SettingsRow = {
   titleKey: AppTextKey;
@@ -252,13 +250,6 @@ export const navItems: ReadonlyArray<SettingsNavItem> = [
       { titleKey: "settings.updates.managed.title", descriptionKey: "settings.updates.managed.description" },
     ],
   },
-  {
-    value: "hosted-servers",
-    titleKey: "settings.tab.hostedServers.title",
-    descriptionKey: "settings.tab.hostedServers.description",
-    icon: Server,
-    rows: [],
-  },
 ];
 
 export function navItem(tab: SettingsTab): SettingsNavItem {
@@ -271,7 +262,6 @@ export function settingsTabShown(
   tab: SettingsTab,
   window: { platform: AppInfo["platform"] | undefined; chatWindow: boolean },
 ): boolean {
-  if (tab === "hosted-servers") return false;
   if (tab === "dynamic-island") return dynamicIslandSettingsShown(window.platform, window.chatWindow);
   if (tab === "agent-dock") return window.platform !== undefined && !window.chatWindow;
   return true;

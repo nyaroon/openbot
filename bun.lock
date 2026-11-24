@@ -261,19 +261,6 @@
         "wrangler": "catalog:",
       },
     },
-    "apps/site-router": {
-      "name": "@openbot/site-router",
-      "version": "0.0.0",
-      "dependencies": {
-        "@openbot/contracts": "workspace:*",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@cloudflare/workers-types": "catalog:",
-        "typescript": "catalog:",
-        "wrangler": "catalog:",
-      },
-    },
     "apps/status": {
       "name": "@openbot/status",
       "version": "0.0.0",
@@ -1230,8 +1217,6 @@
     "@openbot/mobile-updates": ["@openbot/mobile-updates@workspace:apps/mobile-updates"],
 
     "@openbot/remote-api": ["@openbot/remote-api@workspace:remote/api"],
-
-    "@openbot/site-router": ["@openbot/site-router@workspace:apps/site-router"],
 
     "@openbot/status": ["@openbot/status@workspace:apps/status"],
 

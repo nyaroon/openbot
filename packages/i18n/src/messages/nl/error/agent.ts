@@ -182,8 +182,6 @@ export const messages = {
     "Lokale scripts hebben de routines van deze agent het afgelopen uur {limit} keer uitgevoerd. Probeer het later opnieuw.",
   "error.agent.workspaceOnlyMacOnly":
     "Alleen werkruimte is voor deze aanbieder alleen beschikbaar op macOS. Kies Volledige toegang in de instellingen van de agent.",
-  "error.agent.lowMemory":
-    "Deze server heeft weinig geheugen. Je bericht wacht in de wachtrij en start zodra er geheugen vrij is. Met een groter abonnement krijgt de server meer geheugen.",
   "error.agent.lowMemoryServer":
     "Deze server heeft weinig geheugen. Je bericht wacht in de wachtrij en start zodra er geheugen vrij is.",
   "error.agent.workspaceOnlyToolMissing":

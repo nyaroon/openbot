@@ -20,7 +20,6 @@ export const messages = {
     "OpenBot はアカウントサービスに接続できませんでした。接続を確認してから、もう一度お試しください。",
   "error.auth.serviceTimeout": "アカウントサービスが時間内に応答しませんでした。もう一度お試しください。",
   "error.auth.serviceStatus": "アカウントサービスがエラー ({status}) を返しました。後でもう一度お試しください。",
-  "error.auth.invalidHostedServer": "アカウントサービスが無効なホスト型サーバーを返しました。",
   "error.auth.invalidServerClaim": "アカウントサービスが無効なサーバーコードを返しました。",
   "error.auth.codeNotSent": "OpenBot がサインインコードを送信できませんでした。",
   "error.auth.deliveryTimeout":

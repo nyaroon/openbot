@@ -19,15 +19,10 @@ decrypted development settings, then generated defaults. An explicit empty value
 Shared settings do not replace the local ticket keys, auth webhook secret, report hash secret, or
 skills admin token. Shell values and saved overrides can replace these local values.
 
-The encrypted `.env.dev` holds the Stripe sandbox keys, the development `BOAT_API_KEY`, and the webhook secrets of the `test`
-Worker. The boat key creates real VMs, but only when the Worker also has
-`HOSTED_SERVER_TEMPLATE`. `wrangler.jsonc` sets
-`HOSTED_SERVERS_ENABLED` to `true` and `HOSTED_SERVERS_ALLOWED_USER_IDS` to `*`, so a local Worker
-with a template lets each local account create one. Set `HOSTED_SERVERS_ALLOWED_USER_IDS` in the
-shell to limit access. A VM cannot reach a local Worker, so use `bun run dev --hosting=test` for a real server (see
-[Real servers from a development build](../../docs/hosted-servers.md#real-servers-from-a-development-build)).
+The encrypted `.env.dev` holds the Stripe sandbox keys and the webhook secrets of the `test`
+Worker.
 Set `DOTENV_PRIVATE_KEY_DEV` in your shell profile to load the shared values in every worktree.
-Without this key, the Worker starts with generated local defaults and no Stripe or boat keys. Shell
+Without this key, the Worker starts with generated local defaults and no Stripe keys. Shell
 values override shared values. Development commands do not read the root `.env.keys`; production
 commands continue to use that file.
 
@@ -40,8 +35,7 @@ plan), the license Prices, the Polish VAT Tax Rate and the Customer Portal setti
 It is safe to run again: a changed amount makes a new Price and moves the lookup key to it. The Portal
 has no plan change (`subscription_update` is off); it cancels plans and updates payment methods.
 `POST /v1/me/billing/storage` (and `/api/browser/v1/me/billing/storage`) with
-`{subscriptionId, tier}` buys a storage tier for a server on a VPS of the operator. See
-[Hosted servers](../../docs/hosted-servers.md#storage-tiers).
+`{subscriptionId, tier}` buys a storage tier for a server on a VPS of the operator.
 
 The optional Worker variable `VIES_REQUESTER_VAT_ID` is the seller's EU VAT ID (for example
 `PL1234567890`). With it, the EU VIES check of a buyer's VAT ID returns a consultation number, which the
@@ -60,11 +54,9 @@ shell as `STRIPE_WEBHOOK_SECRET`:
 stripe listen --forward-to http://127.0.0.1:3100/v1/stripe/webhook
 ```
 
-For the `test` Worker, `bun run hosting:setup --target=test` makes or updates its Stripe and boat
-webhooks and writes their signing secrets to `.env.dev`. Run it with `DOTENV_PRIVATE_KEY_DEV`
-set in the shell. Then run `bun run api:deploy:test`. It
-also sets the allow list from `HOSTED_SERVERS_TEST_ALLOW_LIST` and the developer key
-`HOSTED_SERVERS_DEVELOPER_KEY` from `.env.dev`.
+For the `test` Worker, `bun run hosting:setup --target=test` makes or updates its Stripe
+webhook and writes their signing secrets to `.env.dev`. Run it with `DOTENV_PRIVATE_KEY_DEV`
+set in the shell. Then run `bun run api:deploy:test`.
 
 `scripts/stripe-flows-e2e.ts` checks the plan flows against the sandbox and a local Worker: renewal,
 failed renewal, cancel at the period end, plan change, renew, delete, another account's server, a
@@ -72,12 +64,7 @@ deleted customer, a refund, a dispute, the welcome email of a first plan, and th
 (`storage-tier`, which needs the storage Prices of the bootstrap). The `license-*`
 scenarios check the license: buy, Checkout, one open Checkout page, change users, the user count,
 renewal, failed renewal, currency, isolation from the server plans, and the user limit at a join. Each scenario uses a Stripe
-test clock and deletes it at the end. Start the Worker
-with `HOSTED_SERVERS_ENABLED=true`, `HOSTED_SERVERS_ALLOWED_USER_IDS` set to the output of
-`bun scripts/stripe-flows-e2e.ts --print-user-ids`, `HOSTED_SERVER_TEMPLATE=e2e-template`, and
-`BOAT_API_KEY=e2e-invalid-key`, and forward the webhooks to it. Without a template, hosting is off and
-each server scenario fails with `hosting_unavailable`. A value in the shell overrides `.env.dev`; without the fake key, each paid
-scenario creates a real boat VM. Then, from the
+test clock and deletes it at the end. Start the Worker and forward the webhooks to it. Then, from the
 repository root:
 
 ```bash
@@ -98,14 +85,6 @@ not the Stripe test clock.
 
 The `portal` scenario prints a Customer Portal cancel page and waits until you use it. Then it checks
 that the plan change flow of an old app opens the Portal home, and that the Portal has no plan change. The report goes to `.openbot-build/stripe-flows-e2e.json`.
-
-The `boat` scenario runs only when you name it. It pays for a server, waits until OpenBot in the VM
-signs in and publishes the host, restarts the service to check the stored session, and deletes the
-server. It needs the real `BOAT_API_KEY`, a template from `bun run hosting:template` whose
-`--auth-api-url` reaches your Worker (for example a `cloudflared tunnel --url` to its port), and
-`HOSTED_SERVER_TEMPLATE` set to that template. Start the Worker with
-`__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.trycloudflare.com`, or Vite refuses the tunnel host. A boat
-trial account allows only `small` and `default`, so use a Starter or Standard plan there.
 
 `bun run api:deploy:test` loads the `.env.dev` values before `.env.production`. Shell
 values still win, so the test Worker gets the sandbox keys and never live keys.
@@ -215,10 +194,9 @@ from their own socket. Workers Logs are off. To see where the relay runs, read t
 
 For a deployed Worker, `bun run api:deploy` decrypts `.env.production`. It sends
 `EMAIL_SMTP_PASSWORD`, `SKILLS_ADMIN_TOKEN`, `REMOTE_TICKET_PRIVATE_JWK`,
-`REMOTE_TICKET_PUBLIC_JWKS`, `REMOTE_AUTH_WEBHOOK_SECRET`, and `SITE_REPORT_HASH_SECRET` to
+`REMOTE_TICKET_PUBLIC_JWKS`, and `REMOTE_AUTH_WEBHOOK_SECRET` to
 `wrangler secret put` through standard input, and `GITHUB_APP_PRIVATE_KEY` when it is set. It then
-builds and deploys the Worker. Production deployment preserves `HOSTED_SERVER_TEMPLATE`; the
-desktop release workflow owns that setting. Test deployment can still set its own template.
+builds and deploys the Worker.
 
 Production also requires `OPENPANEL_CLIENT_ID` and `OPENPANEL_CLIENT_SECRET` from an OpenPanel
 write-only server client. Keep both in the encrypted `.env.production` for local deployment and in
@@ -242,17 +220,10 @@ as the signed-in user. In GitHub Actions the secret is
 Secrets are never passed as process arguments. The other values are Worker
 variables. The SMTP connection uses TLS from the start and accepts only port 465.
 
-GitHub Actions reads the remote-control secrets, `SKILLS_ADMIN_TOKEN`, `SITE_REPORT_HASH_SECRET`, and the optional
-`SITE_OPERATIONS_ADMIN_TOKEN` and `SERVER_CLAIMS_ADMIN_TOKEN` from the `cloudflare-production` Environment. It includes
+GitHub Actions reads the remote-control secrets, `SKILLS_ADMIN_TOKEN`, and the optional
+`SERVER_CLAIMS_ADMIN_TOKEN` from the `cloudflare-production` Environment. It includes
 them in Wrangler's temporary runtime secrets file.
 
-`HOSTED_ARCHIVE_KEY_SECRET` (32 random bytes in base64), `B2_WORKER_KEY_ID_EU` and
-`B2_WORKER_APPLICATION_KEY_EU` are set together or not at all. They are for the archives of ended
-pool servers ([plan 012](../../plans/012-pool-server-archive.md)). The first encrypts the `age` key
-of each archive in `hosted_server_archives`; with another value, no archive can be restored. The B2
-key reads the `openbot-pool-archive-eu` bucket and nothing else. The encrypted `.env.production` has
-all three, and GitHub Actions reads them from the `cloudflare-production` Environment. When you
-change one, change it in both places and deploy the Worker.
 `BROWSER_EXTENSION_IDS` lists the ids of the published OpenBot browser extensions, separated by
 commas (a Chrome id is 32 letters from `a` to `p`). Only they get a sign-in from the web app: the
 extension opens `/app?extension=<id>&challenge=<c>&state=<s>` in its sign-in window, the person

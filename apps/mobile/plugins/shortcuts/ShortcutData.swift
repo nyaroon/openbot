@@ -11,8 +11,6 @@ struct ShortcutDirectory: Decodable {
     let id: String
     /// The key the app connects with. A message goes only to a server with this key.
     let publicKey: String
-    /// A hosted server can sleep. The sender then asks it to start and waits for it.
-    let hosted: Bool
   }
 
   struct Agent: Decodable, Identifiable {

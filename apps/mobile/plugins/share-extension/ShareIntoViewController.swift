@@ -111,7 +111,6 @@ class ShareIntoViewController: UIViewController {
       "sessionToken": session.sessionToken,
       "hostId": server.id,
       "hostPublicKey": server.publicKey,
-      "hosted": server.hosted,
       "agentId": agent.id,
       "text": model.text,
       "files": content.files.map { ["name": $0.name, "mimeType": $0.mimeType] },

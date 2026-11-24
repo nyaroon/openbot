@@ -21,7 +21,6 @@ export const messages = {
     "OpenBot konnte den Kontodienst nicht erreichen. Prüfe deine Verbindung und versuche es erneut.",
   "error.auth.serviceTimeout": "Der Kontodienst hat nicht rechtzeitig geantwortet. Versuche es erneut.",
   "error.auth.serviceStatus": "Der Kontodienst hat einen Fehler zurückgegeben ({status}). Versuche es später erneut.",
-  "error.auth.invalidHostedServer": "Der Kontodienst hat einen ungültigen gehosteten Server zurückgegeben.",
   "error.auth.invalidServerClaim": "Der Kontodienst hat einen ungültigen Server-Code zurückgegeben.",
   "error.auth.codeNotSent": "OpenBot konnte den Anmeldecode nicht senden.",
   "error.auth.deliveryTimeout":

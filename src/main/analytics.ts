@@ -7,7 +7,6 @@ import {
   type CentralAuthUser,
   COMPUTER_USE_MCP_SERVER_NAME,
   type ConversationMessage,
-  hostedSiteConversationEvent,
   isAgentModel,
   parseRoutineRunConversationEventItemType,
   ROUTINE_RUN_SOURCES,
@@ -56,7 +55,6 @@ const PROVIDER_EVENT_PATTERN = new RegExp(`^(?:${AGENT_PROVIDERS.join("|")})_(?:
 
 const MAX_PENDING_EVENTS = 100;
 const MAX_ACTIVE_TURNS = 1_000;
-const MAX_HOSTED_SITE_OPERATIONS = 10_000;
 const ACTIVE_TURN_TTL_MS = 24 * 60 * 60 * 1_000;
 const MAX_TOOL_ROWS_PER_TURN = 32;
 const MAX_TURN_TOKENS = 10_000_000_000;
@@ -200,8 +198,7 @@ type HostEventName =
   | "system_startup"
   | "system_unclean_exit"
   | "system_main_loop_profile"
-  | "system_remote_connect"
-  | "hosted_site_action";
+  | "system_remote_connect";
 const LINKED_ONLY_EVENTS: ReadonlySet<HostEventName> = new Set([
   "system_site_visited",
   "system_tool_used",
@@ -405,11 +402,9 @@ const HOST_ALLOWLIST = {
     "first_request_ms",
     "total_ms",
     "wait_ms",
-    "hosted_start_wait_ms",
     "failed_attempts",
     "signal_home",
   ],
-  hosted_site_action: ["action", "entry_point", "result", "failure_code"],
 } as const satisfies Record<HostEventName, readonly string[]>;
 
 type HostPropertyName = (typeof HOST_ALLOWLIST)[HostEventName][number];
@@ -450,8 +445,6 @@ export class HostAnalytics {
   #bufferOwnerlessEvents = true;
   #pending: HostPendingEvent[] = [];
   readonly #activeTurns = new Map<string, ActiveTurn>();
-  readonly #hostedSiteOwners = new Map<string, AnalyticsSubject | null>();
-  readonly #hostedSiteTerminalOperations = new Set<string>();
   readonly #siteDomains = new Map<string, string>();
   readonly #routineRunOwners = new Map<string, AnalyticsSubject | null>();
   readonly #routineRunReports = new Set<string>();
@@ -503,7 +496,6 @@ export class HostAnalytics {
 
   handleAgentEvent(event: AgentEvent): void {
     if (event.type === "conversation" && this.#client) {
-      this.#handleHostedSiteConversation(event.snapshot.messages);
       this.#handleRoutineRunConversation(event.snapshot.agentId, event.snapshot.messages);
     }
     if (!this.#client && !this.#reports) return;
@@ -684,7 +676,6 @@ export class HostAnalytics {
       ...(summary.firstRequest ? { first_request: summary.firstRequest } : {}),
       total_ms: summary.totalMs,
       wait_ms: summary.waitMs,
-      ...(summary.hostedStartWaitMs === undefined ? {} : { hosted_start_wait_ms: summary.hostedStartWaitMs }),
       failed_attempts: summary.failedAttempts,
       ...(summary.signalHome === undefined ? {} : { signal_home: summary.signalHome }),
     };
@@ -843,7 +834,6 @@ export class HostAnalytics {
     this.#trackingEnabled = enabled;
     this.#configureReports();
     if (!enabled) {
-      this.#hostedSiteOwners.clear();
       this.#activeTurns.clear();
       this.#siteDomains.clear();
       this.#routineRunOwners.clear();
@@ -854,56 +844,6 @@ export class HostAnalytics {
       return;
     }
     this.flushPending();
-  }
-
-  #handleHostedSiteConversation(messages: readonly ConversationMessage[]): void {
-    const events = messages.flatMap((message) => {
-      const event = hostedSiteConversationEvent(message);
-      return event ? [event] : [];
-    });
-    const terminalOperations = new Set(
-      events.filter((event) => event.status !== "running").map((event) => event.operationId),
-    );
-    const observedRunningOperations = new Set(this.#hostedSiteOwners.keys());
-    for (const event of events) {
-      if (event.status === "running") {
-        if (terminalOperations.has(event.operationId)) continue;
-        const owner = this.#currentSubject();
-        if (!this.#hostedSiteOwners.has(event.operationId)) this.#hostedSiteOwners.set(event.operationId, owner);
-        continue;
-      }
-      if (!observedRunningOperations.has(event.operationId)) continue;
-      if (this.#hostedSiteTerminalOperations.has(event.operationId)) continue;
-      this.#hostedSiteTerminalOperations.add(event.operationId);
-      const owner = this.#hostedSiteOwners.get(event.operationId) ?? null;
-      this.#hostedSiteOwners.delete(event.operationId);
-      if (!owner) continue;
-      this.#trackForOwner(
-        "hosted_site_action",
-        {
-          action: event.action,
-          entry_point: "agent",
-          result: event.status === "succeeded" ? "succeeded" : "failed",
-          ...(event.status === "failed"
-            ? { failure_code: "hosted_site_failed" }
-            : event.status === "cancelled" || event.status === "interrupted"
-              ? { failure_code: event.status }
-              : {}),
-        },
-        owner,
-        false,
-      );
-    }
-    while (this.#hostedSiteOwners.size > MAX_HOSTED_SITE_OPERATIONS) {
-      const oldest = this.#hostedSiteOwners.keys().next();
-      if (oldest.done) break;
-      this.#hostedSiteOwners.delete(oldest.value);
-    }
-    while (this.#hostedSiteTerminalOperations.size > MAX_HOSTED_SITE_OPERATIONS) {
-      const oldest = this.#hostedSiteTerminalOperations.values().next();
-      if (oldest.done) break;
-      this.#hostedSiteTerminalOperations.delete(oldest.value);
-    }
   }
 
   #handleRoutineRunConversation(agentId: string, messages: readonly ConversationMessage[]): void {
@@ -1290,7 +1230,7 @@ function sanitizeHostProperty(name: HostEventName, key: string, value: unknown):
     }
     if (key === "signal_home") return isSignalHomeName(value) ? value : undefined;
     if (key === "failed_attempts") return boundedCount(value, 100_000);
-    if (key === "wait_ms" || key === "hosted_start_wait_ms") return boundedCount(value, MAX_REMOTE_CONNECT_WAIT_MS);
+    if (key === "wait_ms") return boundedCount(value, MAX_REMOTE_CONNECT_WAIT_MS);
     return boundedCount(value, MAX_REMOTE_CONNECT_PHASE_MS);
   }
   if (name === "system_resources") {
@@ -1338,16 +1278,7 @@ function sanitizeHostProperty(name: HostEventName, key: string, value: unknown):
     return safe?.[key];
   }
   if (key === "failure_code") {
-    return isString(value)
-      ? name === "hosted_site_action"
-        ? hostedSiteFailureCode(value)
-        : systemFailureCode(value)
-      : "unknown";
-  }
-  if (name === "hosted_site_action") {
-    if (key === "action") return isOneOf(["publish", "replace", "delete"] as const, value) ? value : undefined;
-    if (key === "entry_point") return value === "agent" ? value : undefined;
-    if (key === "result") return isOneOf(["succeeded", "failed"] as const, value) ? value : undefined;
+    return isString(value) ? systemFailureCode(value) : "unknown";
   }
   if (key === "provider") return isOneOf(AGENT_PROVIDERS, value) ? value : undefined;
   if (key === "reasoning_effort") {
@@ -1505,10 +1436,6 @@ function reportedModel(value: string): string {
   if (separator < 0) return value;
   const prefix = value.slice(0, separator);
   return isOneOf(AGENT_PROVIDERS, prefix) && !isKeyOnlyProvider(prefix) ? value : "custom";
-}
-
-function hostedSiteFailureCode(value: string): string {
-  return value === "hosted_site_failed" || value === "cancelled" || value === "interrupted" ? value : "unknown";
 }
 
 function normalizedTurnStatus(value: string): string {

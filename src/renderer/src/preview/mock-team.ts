@@ -203,17 +203,14 @@ export function createMockTeam(
       if (!server) throw new Error("Server not found");
       return clone(server);
     },
+    createInstallClaim: async () => ({ claim: "preview-claim-0123456789", expiresAt: Date.now() + 600_000 }),
     retryConnection: async (serverId) => {
       const server = servers.find((candidate) => candidate.id === serverId);
       if (!server) throw new Error("Server not found");
-      if (server.state === "online" && !server.issue && !server.hostedSleep && !server.hostedIssue)
-        return clone(server);
+      if (server.state === "online" && !server.issue) return clone(server);
       const connected = {
         ...server,
         state: "online" as const,
-        hostedSleep: null,
-        hostedIssue: null,
-        hostedStart: null,
         connectionSequence: (server.connectionSequence ?? 0) + 1,
       };
       servers = servers.map((item) => (item.id === serverId ? connected : item));

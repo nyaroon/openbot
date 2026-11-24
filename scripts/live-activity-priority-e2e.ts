@@ -175,7 +175,6 @@ function register(away: boolean): void {
       readOptions: {
         excludeRoutineEvents: true,
         excludeRoutineRunEvents: true,
-        excludeHostedSiteEvents: true,
         excludeRoutineQuietAnswers: true,
       },
     },

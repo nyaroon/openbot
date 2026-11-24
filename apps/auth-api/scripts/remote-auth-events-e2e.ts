@@ -255,12 +255,6 @@ async function cronSendsTheEventsOfItsDeletesOnceAfterThem() {
     throw new Error(`Unexpected request: ${url}`);
   };
   globalThis.fetch = Object.assign(routedFetch, { preconnect: originalFetch.preconnect });
-  const { publicKey, privateKey } = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, [
-    "sign",
-    "verify",
-  ]);
-  const publicJwk = await crypto.subtle.exportKey("jwk", publicKey);
-  const privateJwk = await crypto.subtle.exportKey("jwk", privateKey);
   try {
     await createWorkerHandler(() => new Response(null, { status: 404 })).scheduled(
       { scheduledTime: now },
@@ -268,10 +262,6 @@ async function cronSendsTheEventsOfItsDeletesOnceAfterThem() {
         DB: sqliteD1(database),
         REMOTE_AUTH_WEBHOOK_URL: SIGNAL_URL,
         REMOTE_AUTH_WEBHOOK_SECRET: SECRET,
-        BOAT_API_KEY: "boat-key",
-        REMOTE_TICKET_PRIVATE_JWK: JSON.stringify({ ...privateJwk, kid: "ticket-1" }),
-        REMOTE_TICKET_PUBLIC_JWKS: JSON.stringify({ keys: [{ ...publicJwk, kid: "ticket-1" }] }),
-        REMOTE_TICKET_KEY_ID: "ticket-1",
       },
     );
   } finally {

@@ -70,7 +70,6 @@ import type { HostService } from "../host-service";
 import type { HostSignalHomeService } from "../host-signal-home";
 import type { HostTurnLimitsPreferenceStore } from "../host-turn-limits-preference-store";
 import type { HostVoiceModelService } from "../host-voice-model";
-import type { HostedSiteDesktopService } from "../hosted-site-service";
 import type { InstanceTransferService } from "../instance-transfer-service";
 import type { McpToolRuntimePreparation } from "../ipc/mcp-server-handlers";
 import type { LibraryFoldersService } from "../library-folders-service";
@@ -310,7 +309,6 @@ export interface TeamApiBackgroundProcesses {
   list(): ReturnType<typeof listBackgroundProcesses>;
   stop(id: string): ReturnType<typeof stopBackgroundProcess>;
 }
-export type TeamApiHostedSites = Pick<HostedSiteDesktopService, "listServerSites" | "deleteServerSite">;
 
 export type TeamApiHiddenAgents = Pick<AgentService, "listHiddenAgents" | "setAgentHidden">;
 
@@ -650,7 +648,6 @@ export interface TeamApiOptions {
   liveVoice?: TeamApiLiveVoice;
   voiceTranscription?: TeamApiVoiceTranscription;
   clientBrowser?: TeamApiClientBrowser;
-  hostedSites?: TeamApiHostedSites;
   agentImport?: TeamApiAgentImport;
   hermesImport?: TeamApiHermesImport;
   instanceTransfer?: TeamApiInstanceTransfer;

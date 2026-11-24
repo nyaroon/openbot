@@ -186,9 +186,6 @@ export const messages = {
     "L’utilisation de la machine n’est pas prise en charge par cette connexion.",
   "error.team.machineAlertMemberInvalid":
     "Seul un propriétaire ou un admin de ce serveur peut recevoir les alertes de la machine.",
-  "error.team.hostedSitesUnsupported": "Les sites ne sont pas pris en charge par cette connexion.",
-  "error.team.hostedSitesUnregistered": "Ce serveur n’est pas enregistré auprès d’OpenBot : il n’a donc pas de sites.",
-  "error.team.hostedSiteNotFound": "Site introuvable.",
   "error.team.markUnreadUnsupported": "Ce client ne permet pas de marquer des conversations comme non lues.",
   "error.team.inviteServiceUnavailable": "Le service d’invitation n’est pas disponible.",
   "error.team.logoNotFound": "Logo du serveur introuvable.",

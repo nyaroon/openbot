@@ -26,7 +26,7 @@ OpenBot app from another store has another id and does not get that data.
 3. Enter the code that OpenBot sends to the email. The page signs in when the code is complete.
 4. The page shows when the server is online. Then open OpenBot on your computer, on your phone or at
    `openbot.run/app`, sign in with the same email and select the server.
-5. Connect a provider from the app, as on a [hosted server](hosted-servers.md#providers).
+5. Connect a provider from the app, as on a hosted server.
 
 The server gets the name `OpenBot`. To change it, open Server Settings in the app.
 

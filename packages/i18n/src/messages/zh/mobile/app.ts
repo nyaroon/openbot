@@ -28,8 +28,6 @@ export const messages = {
   "mobile.app.route.editMessage": "编辑消息",
   "mobile.app.route.serverOptions": "服务器选项",
   "mobile.app.route.members": "成员",
-  "mobile.app.route.hostedServerPlans": "云服务器",
-  "mobile.app.route.hostedServerSetup": "配置",
   "mobile.app.route.schedule": "日程",
   "mobile.app.route.workflows": "工作流",
   "mobile.app.route.workflow": "工作流",

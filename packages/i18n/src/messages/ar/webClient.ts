@@ -33,8 +33,6 @@ export const messages = {
   "webClient.notice.connectComputer": "ربط خادم",
   "webClient.connect.description":
     "شغّل OpenBot على حاسوبك للدردشة مع وكلائك من هذا المتصفح. يمكنك أيضًا الانضمام إلى خادم بدعوة.",
-  "webClient.connect.descriptionHosted":
-    "أنشئ خادمًا مستضافًا للدردشة مع وكلائك من هذا المتصفح. يمكنك أيضًا تشغيل OpenBot على حاسوبك، أو الانضمام إلى خادم بدعوة.",
   "webClient.connect.stepInstall": "ثبّت OpenBot وافتحه على حاسوبك.",
   "webClient.connect.stepSignIn": "سجّل الدخول ببريدك الإلكتروني.",
   "webClient.connect.stepRemote": "في OpenBot، افتح إعدادات الخادم > الأعضاء وفعّل نشر هذا الخادم.",

@@ -1,9 +1,7 @@
 import {
   BILLING_INTERVALS,
   BILLING_METADATA,
-  BILLING_OPTIONAL_CURRENCIES,
   BILLING_PLAN_IDS,
-  BILLING_PLANS,
   BILLING_STORAGE_UPGRADE_TIERS,
   BILLING_SUBSCRIPTION_STATUSES,
   type BillingCurrency,
@@ -31,12 +29,6 @@ import {
   CUSTOM_SERVER_PAID_STATUSES,
   type CustomServerPlan,
 } from "@openbot/contracts/custom-server-plans";
-import type {
-  HostedServerCatalog,
-  HostedServerCatalogPlan,
-  HostedServerEntryPoint,
-  HostedServerPlanPrices,
-} from "@openbot/contracts/hosted-servers";
 import {
   LICENSE_METADATA,
   LICENSE_METADATA_KIND,
@@ -48,7 +40,6 @@ import {
 import { isDynamicRecord, isOneOf, isString } from "@openbot/contracts/runtime-values";
 import { sourceText } from "@openbot/i18n/source";
 import { Context, Effect, Layer } from "effect";
-import { SOLD_OUT_PLANS } from "../lib/pricing-page";
 import {
   type AccountAnalytics,
   type BillingAction,
@@ -67,15 +58,8 @@ import {
 } from "./billing-errors";
 import type { BillingOss } from "./billing-oss";
 import { type BillingPurchase, purchaseEvent, reportPurchase, subscriptionEnd } from "./billing-purchase";
-import {
-  type BillingSales,
-  type BillingSalesSynced,
-  isDisputeInquiry,
-  paymentReversal,
-  withoutTax,
-} from "./billing-sales";
+import { type BillingSales, type BillingSalesSynced, paymentReversal, withoutTax } from "./billing-sales";
 import { billingDetailsOf, checkoutCountryMismatch, checkoutTax, setCustomerBillingDetails } from "./billing-tax";
-import type { HostedFailure } from "./hosted-server-service";
 import {
   type FailedLicenseInvoice,
   LicenseService,
@@ -113,7 +97,6 @@ import { ViesClient } from "./vies-client";
 const WEBHOOK_EVENT_RETENTION_MS = 7 * 24 * 60 * 60_000;
 const WELCOME_EMAIL_CLAIM_PREFIX = "openbot_welcome_email:";
 const SERVER_ID_PATTERN = /^[A-Za-z0-9:_-]{1,128}$/u;
-const DISPUTE_DELETES_SERVER_MS = 30 * 24 * 60 * 60 * 1000;
 const LAPSED_PLAN_GRACE_MS = 24 * 60 * 60 * 1000;
 const LAPSED_PLAN_READ_INTERVAL_MS = 60 * 60 * 1000;
 const LAPSED_PLAN_BATCH_SIZE = 20;
@@ -162,9 +145,8 @@ export interface BillingServiceOptions {
   countryRequired?: boolean;
   fetch: StripeFetch;
   now?: () => number;
-  onSubscriptionSynced?: (sync: SubscriptionSync) => Effect.Effect<void, HostedFailure | RemoteFailure>;
+  onSubscriptionSynced?: (sync: SubscriptionSync) => Effect.Effect<void, RemoteFailure>;
   onCustomServerChanged?: (hostId: string) => Effect.Effect<void, RemoteFailure>;
-  onServerRefunded?: (refund: ServerRefund) => Effect.Effect<void, HostedFailure>;
   onLicenseChanged?: (userId: string) => Effect.Effect<void, RemoteFailure>;
   analytics?: AccountAnalytics;
   sales?: BillingSales;
@@ -174,11 +156,6 @@ export interface BillingServiceOptions {
   vies?: ViesClient;
   onVatMismatch?: (text: string) => void;
   oss?: BillingOss;
-}
-
-export interface ServerRefund {
-  userId: string;
-  serverId: string;
 }
 
 export interface FirstPlanStart {
@@ -235,7 +212,6 @@ export interface CheckoutRequest {
   currency: BillingCurrency;
   target: BillingReturnTarget;
   origin: string;
-  entryPoint?: HostedServerEntryPoint;
   license?: LicenseOrder;
   earlyStartAt?: number;
   promotionCode?: string;
@@ -247,9 +223,8 @@ class BillingDependencies extends Context.Service<
     database: D1Database;
     stripe: StripeClient;
     now: () => number;
-    onSubscriptionSynced: ((sync: SubscriptionSync) => Effect.Effect<void, HostedFailure | RemoteFailure>) | null;
+    onSubscriptionSynced: ((sync: SubscriptionSync) => Effect.Effect<void, RemoteFailure>) | null;
     onCustomServerChanged: ((hostId: string) => Effect.Effect<void, RemoteFailure>) | null;
-    onServerRefunded: ((refund: ServerRefund) => Effect.Effect<void, HostedFailure>) | null;
     analytics: AccountAnalytics;
   }
 >()("auth-api/BillingService/Dependencies") {}
@@ -290,7 +265,6 @@ export class BillingService {
       now,
       onSubscriptionSynced,
       onCustomServerChanged: options.onCustomServerChanged ?? null,
-      onServerRefunded: options.onServerRefunded ?? null,
       analytics: this.#analytics,
     });
     this.license = new LicenseService({
@@ -308,42 +282,6 @@ export class BillingService {
       ...(options.onPurchase ? { onPurchase: options.onPurchase } : {}),
     });
   }
-
-  readonly catalog = Effect.fn("BillingService.catalog")(
-    function* (
-      this: BillingService,
-    ): Effect.fn.Return<HostedServerCatalog, BillingError | BillingOperationError, BillingDependencies> {
-      const prices = yield* this.#prices();
-      const plans = BILLING_PLANS.flatMap((plan): HostedServerCatalogPlan[] => {
-        const amounts = (currency: BillingCurrency): Record<BillingInterval, number> | null => {
-          const month = priceAmount(prices.get(billingLookupKey(plan.id, "month")), currency);
-          const year = priceAmount(prices.get(billingLookupKey(plan.id, "year")), currency);
-          return month === null || year === null ? null : { month, year };
-        };
-        const eur = amounts("eur");
-        const usd = amounts("usd");
-        const pln = amounts("pln");
-        if (!eur || !usd || !pln) return [];
-        const planPrices: HostedServerPlanPrices = { eur, usd, pln };
-        for (const currency of BILLING_OPTIONAL_CURRENCIES) {
-          const optional = amounts(currency);
-          if (optional) planPrices[currency] = optional;
-        }
-        const entry: HostedServerCatalogPlan = {
-          id: plan.id,
-          diskGb: storageTierGb(plan.id, 0),
-          memberLimit: plan.memberLimit,
-          relativeSpeed: plan.relativeSpeed,
-          prices: planPrices,
-        };
-        if (SOLD_OUT_PLANS.has(plan.id)) entry.soldOut = true;
-        return [entry];
-      });
-      if (plans.length === 0) return yield* plansUnavailable();
-      return { plans };
-    },
-    (operation) => operation.pipe(Effect.provide(this.#layer)),
-  ).bind(this);
 
   readonly ensureCustomer = Effect.fn("BillingService.ensureCustomer")(
     function* (
@@ -501,7 +439,6 @@ export class BillingService {
             amount,
             returnUrl: `${destination.pathname}${destination.search}`,
             createdAt: dependencies.now(),
-            ...(request.entryPoint ? { entryPoint: request.entryPoint } : {}),
           })
           .pipe(Effect.mapError(() => new BillingOperationError({})));
       } else
@@ -513,7 +450,6 @@ export class BillingService {
           interval: request.interval,
           currency: request.currency,
           amount,
-          ...(request.entryPoint ? { entryPoint: request.entryPoint } : {}),
         });
       if (order && licensePlan) {
         const licenseAmount = licensePeriodAmount(licensePlan, order.users, request.currency);
@@ -999,22 +935,6 @@ export class BillingService {
       if (reversal?.type === "payment_disputed" && payment && synced) {
         yield* this.cancelSubscription(payment.subscriptionId);
         synced = yield* this.#syncSubscription(payment.subscriptionId);
-      }
-      if (synced?.kind === "plan" && synced.ended && synced.serverId && dependencies.onServerRefunded) {
-        const invoiceId = synced.latestInvoiceId;
-        const refunded =
-          reversal?.type === "payment_refunded" ||
-          (reversal?.type === "payment_disputed" &&
-            !isDisputeInquiry(event) &&
-            synced.startedAt !== null &&
-            event.created * 1_000 - synced.startedAt < DISPUTE_DELETES_SERVER_MS) ||
-          (event.type === "customer.subscription.deleted" &&
-            invoiceId !== null &&
-            (yield* this.#stripeCall(() => dependencies.stripe.isInvoiceRefunded(invoiceId))));
-        if (refunded)
-          yield* dependencies
-            .onServerRefunded({ userId: synced.userId, serverId: synced.serverId })
-            .pipe(Effect.mapError((error) => (error instanceof BillingError ? error : new BillingOperationError({}))));
       }
       const failedInvoice = synced?.kind === "license" ? failedRenewalInvoice(event, synced.currency) : null;
       if (synced?.kind === "license" && failedInvoice) yield* this.license.paymentFailed(synced, failedInvoice);

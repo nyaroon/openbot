@@ -129,11 +129,6 @@ const Settings = createSimpleContext({
       setAppSettingRowRequest(null);
       setMobileInstallRequest(null);
     });
-    const [hostedServerDeleteRequest, setHostedServerDeleteRequest] = createSignal<{
-      serverId: string;
-      nonce: number;
-    } | null>(null);
-    let hostedServerDeleteNonce = 0;
     const [generalSettings, setGeneralSettings] = createSignal<GeneralSettingsValue>(
       {
         ...DEFAULT_GENERAL_SETTINGS,
@@ -454,11 +449,6 @@ const Settings = createSimpleContext({
       openAppSettings(trigger, tab);
     }
 
-    function openHostedServerDelete(serverId: string, trigger?: HTMLElement | null): void {
-      setHostedServerDeleteRequest({ serverId, nonce: ++hostedServerDeleteNonce });
-      openAppSettings(trigger, "hosted-servers");
-    }
-
     function openMobileInstall(platform: MobilePlatformLogoVariant, trigger?: HTMLElement | null): void {
       setMobileInstallRequest({ platform, nonce: ++mobileInstallNonce });
       openAppSettings(trigger, "mobile-connect");
@@ -697,8 +687,6 @@ const Settings = createSimpleContext({
       openNotificationLevels,
       appSettingRowRequest,
       openAppSettingRow,
-      hostedServerDeleteRequest,
-      openHostedServerDelete,
       mobileInstallRequest,
       openMobileInstall,
       clearMobileInstallRequest,

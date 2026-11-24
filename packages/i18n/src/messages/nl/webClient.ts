@@ -33,8 +33,6 @@ export const messages = {
   "webClient.notice.connectComputer": "Verbind een server",
   "webClient.connect.description":
     "Draai OpenBot op je computer om vanuit deze browser met je agents te chatten. Je kunt ook lid worden van een server met een uitnodiging.",
-  "webClient.connect.descriptionHosted":
-    "Maak een gehoste server om vanuit deze browser met je agents te chatten. Je kunt OpenBot ook op je computer draaien, of lid worden van een server met een uitnodiging.",
   "webClient.connect.stepInstall": "Installeer en open OpenBot op je computer.",
   "webClient.connect.stepSignIn": "Log in met je e-mailadres.",
   "webClient.connect.stepRemote": "Open in OpenBot Serverinstellingen > Leden en zet Publiceer deze server aan.",

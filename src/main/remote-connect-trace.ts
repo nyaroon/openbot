@@ -36,7 +36,6 @@ export interface RemoteConnectSummary {
   readonly totalMs: number;
   readonly failedAttempts: number;
   readonly waitMs: number;
-  readonly hostedStartWaitMs?: number;
   readonly signalHome?: string;
   readonly firstRequest?: "ok" | "error";
 }
@@ -47,7 +46,6 @@ interface Attempt {
   readonly phases: Partial<Record<RemoteConnectPhase, number>>;
   lastPhase: RemoteConnectPhase | "start";
   session?: "new" | "stored" | "reused";
-  hostedStartWaitMs?: number;
   signalHome?: string;
 }
 
@@ -98,11 +96,6 @@ export class RemoteConnectTrace {
     this.#connected.add(hostId);
   }
 
-  hostedStart(hostId: string, waitedMs: number): void {
-    const attempt = this.#attempts.get(hostId);
-    if (attempt) attempt.hostedStartWaitMs = waitedMs;
-  }
-
   signalHome(hostId: string, ticket: string): void {
     const attempt = this.#attempts.get(hostId);
     if (attempt) attempt.signalHome = signalHomeOf(ticket);
@@ -150,7 +143,6 @@ export class RemoteConnectTrace {
       totalMs: quantize(now - attempt.startedAt),
       failedAttempts,
       waitMs: quantize(now - (failedAttempts > 0 && streak ? streak.startedAt : attempt.startedAt)),
-      ...(attempt.hostedStartWaitMs === undefined ? {} : { hostedStartWaitMs: quantize(attempt.hostedStartWaitMs) }),
       ...(attempt.signalHome === undefined ? {} : { signalHome: attempt.signalHome }),
       ...(firstRequest ? { firstRequest } : {}),
     });

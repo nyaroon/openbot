@@ -150,7 +150,7 @@ Fargate cannot run the image with the Electron sandbox on:
 Fargate does not let you set the shared memory size. When `/dev/shm` is smaller than 1 GiB, the image
 tells Chromium to use `/tmp`.
 
-Do not turn off the sandbox to use Fargate. Use EC2, or a [hosted server](hosted-servers.md).
+Do not turn off the sandbox to use Fargate. Use EC2, or a hosted server.
 
 ## Not confirmed
 

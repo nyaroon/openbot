@@ -12,8 +12,6 @@ export const messages = {
   "mobile.onboarding.server.body": "הסוכנים רצים בשרת. יש לבחור איך לחבר שרת.",
   "mobile.onboarding.server.computer": "המחשב שלי",
   "mobile.onboarding.server.computerBody": "שימוש ב-OpenBot במחשב שלך בתור השרת.",
-  "mobile.onboarding.server.cloud": "שרת בענן",
-  "mobile.onboarding.server.cloudBody": "שימוש בשרת ש-OpenBot מפעיל עבורך.",
   "mobile.onboarding.server.invitation": "הזמנה",
   "mobile.onboarding.server.invitationBody": "הצטרפות לשרת ששיתפו איתך.",
   "mobile.onboarding.server.computerTitle": "חיבור המחשב שלך",

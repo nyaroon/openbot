@@ -69,29 +69,6 @@ const INCIDENTS: readonly Incident[] = [
     ],
   },
   {
-    id: 2360,
-    url: `${ISSUES}/2360`,
-    title: "Some hosted servers stayed at “Starting”",
-    kind: "incident",
-    impact: "partial",
-    components: ["hosted", "connections"],
-    startedAt: "2026-10-10T13:20:00Z",
-    resolvedAt: "2026-10-10T16:45:00Z",
-    updates: [
-      { at: "2026-10-10T16:45:00Z", stage: "resolved", body: "All affected servers are connected again." },
-      {
-        at: "2026-10-10T14:30:00Z",
-        stage: "identified",
-        body: "After a restart of the connection server, some hosted servers did not connect again. To fix it now, restart the server in Settings → Hosted servers.",
-      },
-      {
-        at: "2026-10-10T13:20:00Z",
-        stage: "investigating",
-        body: "Some hosted servers show “Starting” and do not open.",
-      },
-    ],
-  },
-  {
     id: 2288,
     url: `${ISSUES}/2288`,
     title: "Account database maintenance",
@@ -149,7 +126,6 @@ const INCIDENTS: readonly Incident[] = [
 
 const FAILED: Partial<Record<ServiceId, Record<string, number>>> = {
   connections: { "2026-10-11": 55, "2026-10-10": 20 },
-  hosted: { "2026-10-10": 205 },
   accounts: { "2026-09-03": 25 },
 };
 const DEGRADED: Partial<Record<ServiceId, Record<string, number>>> = {

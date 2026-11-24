@@ -32,8 +32,6 @@ export const messages = {
   "webClient.notice.connectComputer": "连接服务器",
   "webClient.connect.description":
     "在你的电脑上运行 OpenBot，即可在这个浏览器里与助手对话。你也可以通过邀请加入一台服务器。",
-  "webClient.connect.descriptionHosted":
-    "创建云服务器，即可在这个浏览器中与你的助手对话。你也可以在自己的电脑上运行 OpenBot，或通过邀请加入服务器。",
   "webClient.connect.stepInstall": "在你的电脑上安装并打开 OpenBot。",
   "webClient.connect.stepSignIn": "用邮箱登录。",
   "webClient.connect.stepRemote": "在 OpenBot 中打开服务器设置 > 成员，然后打开发布该服务器。",

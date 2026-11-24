@@ -23,7 +23,6 @@ import type { VirtualItem } from "@tanstack/virtual-core";
 import { createEffect, createMemo, createSignal, onCleanup, untrack } from "solid-js";
 import { groupAgentMessageMarkers, markOpenAgentMessages, teammateTurnAnswers } from "../agent-message-timeline";
 import type { ConversationProps, ConversationTarget } from "../conversation-types";
-import { summarizeHostedSiteMessages } from "../hosted-site-timeline";
 import { narrationRows, placeTurnRowsByTime, placeUpdatesAfterSteers } from "../narration-rows";
 import {
   expandRoutineRunGroups,
@@ -152,9 +151,7 @@ export function createScrollStore(deps: ScrollStoreDeps) {
       ? placeTurnRowsByTime(listed, turnRowsList)
       : placeUpdatesAfterSteers(listed, turnRowsList);
     const complete = progressUpdates ? shown.filter((message) => !held(message)) : shown;
-    return summarizeHostedSiteMessages(
-      withQuestionContext(complete, deps.props.messages, deps.props.prompt?.turnId, turnNarration),
-    );
+    return withQuestionContext(complete, deps.props.messages, deps.props.prompt?.turnId, turnNarration);
   });
   const routineRunTurns = createMemo(() => routineRunTurnMessages(deps.props.messages, shownMessages()));
   const userRowSeenAt = new Map<string, number>();

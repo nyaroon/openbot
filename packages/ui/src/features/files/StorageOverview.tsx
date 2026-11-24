@@ -45,7 +45,6 @@ export interface StorageOverviewProps {
   scannedAt?: string | null;
   breakdown: readonly StorageBreakdown[];
   freeBytes?: number | null;
-  hostedPlan?: boolean;
   agents: readonly AgentProfile[];
   agentUsage: readonly AgentStorageRow[];
   conversations: readonly ConversationStorageRow[];
@@ -150,7 +149,6 @@ export function StorageOverview(props: StorageOverviewProps) {
                   state={props.state}
                   scannedAt={props.scannedAt}
                   freeBytes={props.freeBytes}
-                  hostedPlan={props.hostedPlan}
                   now={props.now}
                 />
               </p>
@@ -334,7 +332,6 @@ function StorageCaption(props: {
   state: StorageScanState;
   scannedAt?: string | null | undefined;
   freeBytes?: number | null | undefined;
-  hostedPlan?: boolean | undefined;
   now?: Date | undefined;
 }) {
   const { t, format } = useText();
@@ -346,7 +343,7 @@ function StorageCaption(props: {
         t("files.storage.measured", { time: relativeTime(props.scannedAt, props.now ?? new Date(), t, format) }),
       );
     if (props.freeBytes != null) {
-      const size = props.hostedPlan ? format.fileSize(props.freeBytes) : format.diskSize(props.freeBytes);
+      const size = format.diskSize(props.freeBytes);
       result.push(t("files.storage.free", { size }));
     }
     return result.join(" · ");

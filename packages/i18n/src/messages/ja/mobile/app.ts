@@ -28,8 +28,6 @@ export const messages = {
   "mobile.app.route.editMessage": "メッセージを編集",
   "mobile.app.route.serverOptions": "サーバーのオプション",
   "mobile.app.route.members": "メンバー",
-  "mobile.app.route.hostedServerPlans": "クラウドサーバー",
-  "mobile.app.route.hostedServerSetup": "セットアップ",
   "mobile.app.route.schedule": "スケジュール",
   "mobile.app.route.workflows": "ワークフロー",
   "mobile.app.route.workflow": "ワークフロー",

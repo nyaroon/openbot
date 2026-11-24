@@ -44,7 +44,6 @@ import { useCSSVariable, useUniwind } from "uniwind";
 import { showFailureAlert } from "@/features/analytics/failure-reports";
 import type { MobileSession } from "@/features/auth/api/mobile-auth";
 import { mobileUserName } from "@/features/auth/api/mobile-user-name";
-import { hostedServerCalls } from "@/features/servers/api/hosted-servers";
 import {
   type DrawerToolId,
   isDrawerToolId,
@@ -52,10 +51,6 @@ import {
   setDrawerToolPinned,
   useDrawerToolLayout,
 } from "@/features/servers/model/drawer-tools";
-import {
-  refreshHostedServerAvailability,
-  useHostedServerAvailability,
-} from "@/features/servers/model/hosted-server-availability";
 import { DrawerPinnedWorkflows, useDrawerWorkflows } from "@/features/workflows/components/drawer-workflows";
 import { type MobileServer, useMobileWorkspaceSelector } from "@/features/workspace/context/mobile-workspace-context";
 import { moveServerId } from "@/features/workspace/model/server-order";
@@ -63,9 +58,7 @@ import { serverRowState } from "@/features/workspace/model/server-row-state";
 import { serverStatusLabel, showsOnline } from "@/features/workspace/model/server-status";
 import { type MenuAction, type MenuComponentRef, MenuView } from "@/shared/components/menu-view";
 import { ProfileAvatar } from "@/shared/components/profile-avatar";
-import { devFeatureOverride } from "@/shared/lib/dev-feature-overrides";
 import { haptics } from "@/shared/lib/haptics";
-import { refreshMobileFeatures, useMobileFeature } from "@/shared/lib/mobile-features";
 import { useReducedMotion } from "@/shared/lib/motion";
 import { isAndroid, longPressDelay } from "@/shared/lib/platform";
 import { currentText, useText } from "@/shared/lib/text";
@@ -179,16 +172,13 @@ export const ServerDrawerContent = memo(function ServerDrawerContent({
   const canReorder = serverIds.length > 1;
   const showsList = listOpen || editing || !activeServer;
   const memberCount = useDrawerMemberCount(activeServer?.id ?? "");
-  const hostedServerIds = useHostedServerAvailability((state) =>
-    state.userId === session.user.id ? state.serverIds : null,
-  );
   const exiting = useRef(false);
   function serverExit(server: MobileServer): ServerExit | null {
     if (server.role !== "owner") return "leave";
     const kind = localServerKind(server.id);
     if (kind === "computer") return null;
     if (kind === "onComputer") return "delete";
-    return hostedServerIds && !hostedServerIds.has(server.id) ? "remove" : null;
+    return "remove";
   }
   function menuActions(server: MobileServer): MenuAction[] {
     const actions: MenuAction[] = canReorder
@@ -265,18 +255,6 @@ export const ServerDrawerContent = memo(function ServerDrawerContent({
     setDragging(false);
     setListOpen(false);
   }, [open]);
-
-  const accountHasPlans = useHostedServerAvailability((state) => state.userId === session.user.id && state.available);
-  const ownsHostedServers = useHostedServerAvailability(
-    (state) => state.userId === session.user.id && state.ownsServers,
-  );
-  const cloudServersOn = useMobileFeature(session.apiUrl, "cloudServers");
-  const showsPlans = devFeatureOverride("cloudServers") ?? ((accountHasPlans && cloudServersOn) || ownsHostedServers);
-  useEffect(() => {
-    if (!open) return;
-    void refreshHostedServerAvailability(session.user.id, hostedServerCalls(session));
-    void refreshMobileFeatures(session.apiUrl);
-  }, [open, session]);
 
   function move(serverId: string, targetIndex: number) {
     const next = moveServerId(serverIds, serverId, targetIndex);
@@ -511,11 +489,7 @@ export const ServerDrawerContent = memo(function ServerDrawerContent({
                 accessibilityRole="button"
                 className="flex-row items-center gap-3 rounded-2xl px-3"
                 style={({ pressed }) => ({ height: SERVER_ROW_HEIGHT - 4, opacity: pressed ? 0.58 : 1 })}
-                onPress={() =>
-                  onNavigate(
-                    showsPlans ? { pathname: "/hosted-server", params: { entryPoint: "drawer" } } : "/add-server",
-                  )
-                }
+                onPress={() => onNavigate("/add-server")}
               >
                 <View
                   className="items-center justify-center bg-control"
@@ -528,7 +502,7 @@ export const ServerDrawerContent = memo(function ServerDrawerContent({
                   <Plus color={mutedColor} size={20} strokeWidth={2} />
                 </View>
                 <Typography.Paragraph className="font-medium" numberOfLines={1} style={typeScale.rowTitle}>
-                  {showsPlans ? t("mobile.server.drawer.add") : t("mobile.server.drawer.join")}
+                  {t("mobile.server.drawer.join")}
                 </Typography.Paragraph>
               </Pressable>
             )}

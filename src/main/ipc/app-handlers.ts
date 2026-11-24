@@ -1,5 +1,4 @@
 import { bugReportFormUrl } from "@openbot/contracts/feedback";
-import { HOSTED_SERVER_CONTACT_URL } from "@openbot/contracts/hosted-servers";
 import { INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import {
   type AnalyticsPreference,
@@ -95,7 +94,6 @@ const EXTERNAL_DESTINATIONS: Record<ExternalDestination, string | ((translate: A
   "instagram-post": "https://www.instagram.com/",
   "tiktok-post": "https://www.tiktok.com/upload",
   "grok-bot-export": GROK_BOT_EXPORT_URL,
-  "hosted-server-contact": HOSTED_SERVER_CONTACT_URL,
   download: DOWNLOAD_URL,
   "mac-screen-recording": MAC_PERMISSION_URLS["screen-recording"],
 };

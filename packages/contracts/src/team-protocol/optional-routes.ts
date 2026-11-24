@@ -86,7 +86,6 @@ import { HOST_TIMEZONE_CODECS } from "./host-timezone-v1";
 import { HOST_TURN_LIMITS_CODECS } from "./host-turn-limits-v1";
 import { HOST_UPDATE_CODECS } from "./host-update-v1";
 import { HOST_VOICE_MODEL_CODECS } from "./host-voice-model-v1";
-import { HOSTED_SITES_CODECS } from "./hosted-sites-v1";
 import { INSTANCE_TRANSFER_CHUNKS_CODECS } from "./instance-transfer-chunks-v1";
 import { INSTANCE_TRANSFER_FULL_COPY_CODECS } from "./instance-transfer-full-copy-v1";
 import { INSTANCE_TRANSFER_CODECS } from "./instance-transfer-v1";
@@ -244,7 +243,6 @@ const CODECS: ReadonlyMap<string, OptionalRouteCodec> = new Map([
   ...PUSH_NOTIFICATIONS_CODECS,
   ...ANDROID_PUSH_NOTIFICATIONS_CODECS,
   ...PUSH_NOTIFICATION_THREADS_CODECS,
-  ...HOSTED_SITES_CODECS,
   ...WORKSPACE_DIRECTORY_CODECS,
   ...AGENT_HOST_SETTINGS_CODECS,
   ...AGENT_BACKUP_MODELS_CODECS,

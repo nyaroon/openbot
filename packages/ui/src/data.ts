@@ -19,7 +19,6 @@ import type {
   ConversationReaction,
   ConversationSubagent,
   ConversationTurnTrace,
-  HostedSiteConversationEvent,
   ImageGenerationInfo,
   InstalledSkill,
   McpServerConfig,
@@ -123,18 +122,6 @@ export type ChatActionMarkerModel =
       runs: Array<{ id: string; marker: RoutineRunMarkerModel }>;
       timestamp: string;
       expanded?: boolean;
-    }
-  | {
-      kind: "hosted-site";
-      sourceAgentId: string | null;
-      action: HostedSiteConversationEvent["action"];
-      status: HostedSiteConversationEvent["status"];
-      operationId: string;
-      siteId: string | null;
-      title: string;
-      hostname: string | null;
-      url: string | null;
-      timestamp: string;
     }
   | {
       kind: "channel-routing";

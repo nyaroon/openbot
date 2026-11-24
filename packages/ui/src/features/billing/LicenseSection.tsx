@@ -61,8 +61,8 @@ import {
 import type { JSX } from "@solidjs/web";
 import { createEffect, createSignal, For, Match, onSettled, Show, Switch, untrack } from "solid-js";
 import { useText } from "../../text";
-import { guessHostedCurrency, HOSTED_BILLING_CURRENCY, HostedBillingSwitch } from "../servers/HostedServerPricing";
 import { type BillingDetailsCalls, BillingDetailsFields, createBillingDetailsForm } from "./BillingDetailsFields";
+import { BILLING_CURRENCY_BY_CODE, BillingPeriodSwitch, guessBillingCurrencyCode } from "./billing-currency";
 import type { LicenseStore } from "./license-store";
 import { formatMinorMoney } from "./money";
 
@@ -543,7 +543,7 @@ function BuyLicenseDialog(props: {
   const [people, setPeople] = createSignal(Math.max(minimum, start?.license?.users ?? minimum));
   const [interval, setInterval] = createSignal<BillingInterval>(start?.interval ?? "year");
   const currency = untrack(
-    () => props.state.currency ?? start?.currency ?? HOSTED_BILLING_CURRENCY[guessHostedCurrency()],
+    () => props.state.currency ?? start?.currency ?? BILLING_CURRENCY_BY_CODE[guessBillingCurrencyCode()],
   );
   const contact = () => people() > LICENSE_MAX_USERS;
   const order = () => licenseOrderFor(people());
@@ -604,7 +604,7 @@ function BuyLicenseDialog(props: {
             onChange={details.edit}
           />
         </Show>
-        <HostedBillingSwitch
+        <BillingPeriodSwitch
           billing={interval() === "year" ? "yearly" : "monthly"}
           discountPercent={LICENSE_YEAR_DISCOUNT_PERCENT}
           disabled={props.store.state.pending !== null}
@@ -831,7 +831,7 @@ function ChangePlanDialog(props: {
     >
       <div class="billing-license-change">
         <Show when={toTeam() && licensePlanOf(props.license).interval === "month"}>
-          <HostedBillingSwitch
+          <BillingPeriodSwitch
             billing={interval() === "year" ? "yearly" : "monthly"}
             discountPercent={LICENSE_YEAR_DISCOUNT_PERCENT}
             disabled={props.store.state.pending !== null}

@@ -1056,7 +1056,6 @@ export function ConversationTimeline() {
                                                             onOpenRoutine={openRoutineSettings}
                                                             openRoutineThread={openRoutineThread}
                                                             routineRunFailure={routineRunFailure}
-                                                            onOpenHostedSite={(url) => void openExternalMessageUrl(url)}
                                                             onOpenLink={(url) => void openExternalMessageUrl(url)}
                                                             onWithdrawFeedback={withdrawFeedback()}
                                                             onRequestFeedbackChange={requestFeedbackChange()}

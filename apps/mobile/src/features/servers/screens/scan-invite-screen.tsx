@@ -15,7 +15,7 @@ export function ScanInviteScreen({
   joinPath = "/add-server",
   underHeader = false,
 }: {
-  joinPath?: "/add-server" | "/hosted-server/join";
+  joinPath?: "/add-server";
   underHeader?: boolean;
 }) {
   const { t } = useText();

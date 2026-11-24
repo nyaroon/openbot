@@ -2,21 +2,6 @@ import { isAgentTemplateId } from "@openbot/contracts/agent-template-links";
 import { type BillingState, parseBillingState } from "@openbot/contracts/billing";
 import { type BillingDetails, parseBillingDetails } from "@openbot/contracts/billing-details";
 import {
-  type CustomServerCheckoutResult,
-  parseCustomServerCheckoutResult,
-} from "@openbot/contracts/custom-server-plans";
-import {
-  type HostedServerCatalog,
-  type HostedServerList,
-  type HostedServerSummary,
-  parseHostedServerCatalog,
-  parseHostedServerList,
-  parseHostedServerSummary,
-  parseServerClaim,
-  type ServerClaim,
-} from "@openbot/contracts/hosted-servers";
-import { parseHostedSiteList, parseHostedSiteSummary } from "@openbot/contracts/hosted-sites";
-import {
   type AccountSession,
   AGENT_DEFAULT_KEYS,
   type AgentDefaults,
@@ -59,8 +44,6 @@ import {
   type ExternalLinkPreference,
   type GitHubConnectorRepositories,
   type GitHubConnectorStatus,
-  type HostedSiteList,
-  type HostedSiteSummary,
   IDLE_RESTART_TARGETS,
   type IdleRestart,
   isAgentMemoryLimit,
@@ -167,6 +150,7 @@ import {
   isOneOf,
   isString,
 } from "@openbot/contracts/runtime-values";
+import { parseServerClaim, type ServerClaim } from "@openbot/contracts/server-install";
 
 export function decodeAppInfo(value: unknown): AppInfo {
   const info = decodeRecord(value, "app info");
@@ -429,9 +413,8 @@ export function decodeMobileConnectedDevices(value: unknown): MobileConnectedDev
 
 export function decodeAccountSessions(value: unknown): AccountSession[] {
   return decodeList(value, "account session list", (session) => {
-    const { kind, hostedServer } = session;
+    const { kind } = session;
     if (!isOneOf(["desktop", "mobile"] as const, kind)) throw new Error("Invalid kind.");
-    if (hostedServer !== undefined && !isBoolean(hostedServer)) throw new Error("Invalid hostedServer.");
     return {
       sessionId: requiredString(session, "sessionId"),
       name: requiredString(session, "name"),
@@ -439,7 +422,6 @@ export function decodeAccountSessions(value: unknown): AccountSession[] {
       current: requiredBoolean(session, "current"),
       connectedAt: requiredNumber(session, "connectedAt"),
       lastActiveAt: requiredNumber(session, "lastActiveAt"),
-      ...(hostedServer === undefined ? {} : { hostedServer }),
     };
   });
 }
@@ -708,18 +690,6 @@ export function decodeAgentImportSkill(value: unknown): string {
 
 export const decodeVoid = emptyDecoder("IPC returned unexpected data.");
 
-export function decodeHostedSite(value: unknown): HostedSiteSummary {
-  const site = parseHostedSiteSummary(value);
-  if (!site) throw new Error("Invalid hosted site response.");
-  return site;
-}
-
-export function decodeHostedSiteList(value: unknown): HostedSiteList {
-  const list = parseHostedSiteList(value);
-  if (!list) throw new Error("Invalid hosted site list response.");
-  return list;
-}
-
 export function decodeGitHubConnectorStatus(value: unknown): GitHubConnectorStatus {
   const status = parseGitHubConnectorStatus(value);
   if (!status) throw new Error("Invalid GitHub connector response.");
@@ -762,34 +732,10 @@ export function decodeLicenseState(value: unknown): LicenseState {
   return state;
 }
 
-export function decodeHostedServer(value: unknown): HostedServerSummary {
-  const server = parseHostedServerSummary(value);
-  if (!server) throw new Error("Invalid hosted server response.");
-  return server;
-}
-
-export function decodeCustomServerCheckoutResult(value: unknown): CustomServerCheckoutResult {
-  const result = parseCustomServerCheckoutResult(value);
-  if (!result) throw new Error("Invalid custom server checkout response.");
-  return result;
-}
-
 export function decodeServerClaim(value: unknown): ServerClaim {
   const claim = parseServerClaim(value);
   if (!claim) throw new Error("Invalid server claim response.");
   return claim;
-}
-
-export function decodeHostedServerCatalog(value: unknown): HostedServerCatalog {
-  const catalog = parseHostedServerCatalog(value);
-  if (!catalog) throw new Error("Invalid hosted server plans response.");
-  return catalog;
-}
-
-export function decodeHostedServerList(value: unknown): HostedServerList {
-  const list = parseHostedServerList(value);
-  if (!list) throw new Error("Invalid hosted server list response.");
-  return list;
 }
 
 export function decodeCustomProviders(value: unknown): CustomProviderSummary[] {
@@ -849,11 +795,6 @@ export function decodeDiscoverModelsResult(value: unknown): DiscoverModelsResult
 
 export function decodeProviderDetectionSettings(value: unknown): ProviderDetectionSettings {
   if (!isProviderDetectionSettings(value)) throw new Error("Invalid detection settings response.");
-  return value;
-}
-
-export function decodeNullablePath(value: unknown): string | null {
-  if (value !== null && !isString(value)) throw new Error("Invalid directory response.");
   return value;
 }
 

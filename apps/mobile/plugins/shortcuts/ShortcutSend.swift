@@ -20,8 +20,8 @@ enum ShortcutSendOutcome: String {
 /// message, and closes. The server then sends the reply as a notification, as for each message.
 @MainActor
 enum ShortcutMessageSender {
-  /// iOS stops an intent that performs for about 30 seconds. A send that takes longer, such as to a
-  /// hosted server that must start, ends as not confirmed.
+  /// iOS stops an intent that performs for about 30 seconds. A send that takes longer ends as not
+  /// confirmed.
   private static let limit: TimeInterval = 24
 
   /// Resumes the caller once: with the result of the send, or when the time ends.
@@ -55,7 +55,6 @@ enum ShortcutMessageSender {
       "sessionToken": session.sessionToken,
       "hostId": server.id,
       "hostPublicKey": server.publicKey,
-      "hosted": server.hosted,
       "agentId": agent.id,
       "text": text,
       "files": [[String: String]](),

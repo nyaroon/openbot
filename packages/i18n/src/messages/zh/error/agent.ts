@@ -144,8 +144,6 @@ export const messages = {
   "error.agent.automationPayloadTooLong": "载荷超过 {limit} 个字符。",
   "error.agent.automationRateLimited": "过去一小时内本地脚本运行了该助手的自动化任务 {limit} 次，请稍后再试。",
   "error.agent.workspaceOnlyMacOnly": "该服务商的“仅工作区”仅在 macOS 上可用，请在助手设置中选择完全访问。",
-  "error.agent.lowMemory":
-    "该服务器内存不足。你的消息会在队列中等待，内存释放后自动开始。更大的套餐可为服务器提供更多内存。",
   "error.agent.lowMemoryServer": "该服务器内存不足。你的消息会在队列中等待，内存释放后自动开始。",
   "error.agent.workspaceOnlyToolMissing":
     "“仅工作区”需要 {tool}，但 OpenBot 没有找到它。请安装它，或在助手设置中选择完全访问。",

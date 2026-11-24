@@ -332,7 +332,7 @@ with no marker comes from a release before v0.7.0, and the host refuses it with 
 
 ### Server safe mode
 
-A server that stopped its start loop (see [hosted servers](../hosted-servers.md#start-loop)) keeps a
+A server that stopped its start loop (see hosted servers) keeps a
 minimal Team API up: `src/main/server-safe-mode.ts`, with the routes in
 `src/main/team-api/server-safe-mode-api.ts`. It opens no `openbot.db` and starts no service. It reads
 the team file without a write, so members sign in with their sessions and the WebRTC peer

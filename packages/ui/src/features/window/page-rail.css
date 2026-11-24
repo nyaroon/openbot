@@ -77,12 +77,6 @@
   height: var(--openbot-space-6);
 }
 
-.window-rail-button.window-rail-server > .window-rail-server-sleep {
-  position: absolute;
-  inset-block-end: var(--openbot-space-1);
-  inset-inline-end: var(--openbot-space-1);
-}
-
 .window-rail-button {
   --openbot-icon-stroke: var(--openbot-icon-stroke-lg);
 

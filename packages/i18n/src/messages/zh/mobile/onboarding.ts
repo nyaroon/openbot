@@ -12,8 +12,6 @@ export const messages = {
   "mobile.onboarding.server.body": "助手运行在服务器上。请选择连接方式。",
   "mobile.onboarding.server.computer": "我的电脑",
   "mobile.onboarding.server.computerBody": "把电脑上的 OpenBot 作为服务器。",
-  "mobile.onboarding.server.cloud": "云服务器",
-  "mobile.onboarding.server.cloudBody": "使用 OpenBot 为你运行的服务器。",
   "mobile.onboarding.server.invitation": "邀请",
   "mobile.onboarding.server.invitationBody": "加入别人分享给你的服务器。",
   "mobile.onboarding.server.computerTitle": "连接你的电脑",

@@ -293,7 +293,7 @@ surcharge at the end of each month
 does not say whether the month is the calendar month or starts on the contract date. TURN relay
 traffic goes out too, so it counts. To see the traffic, use `leaseweb-pool.ts traffic` (in and out of
 each VPS this month, from the Leaseweb metrics, and the part of its pack that out used; see
-[hosted servers](hosted-servers.md#leaseweb-references)), or add up `network_out_bytes` of
+hosted servers), or add up `network_out_bytes` of
 `signal_capacity` (ANALYTICS.md) by `turn_host`. On 2026-11-18 the two gave the same numbers for AU.
 
 Setup of each machine (Ubuntu 26.04):

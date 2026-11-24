@@ -28,8 +28,6 @@ export const messages = {
   "mobile.app.route.editMessage": "Editar mensaje",
   "mobile.app.route.serverOptions": "Opciones del servidor",
   "mobile.app.route.members": "Miembros",
-  "mobile.app.route.hostedServerPlans": "Servidor en la nube",
-  "mobile.app.route.hostedServerSetup": "Configuración",
   "mobile.app.route.schedule": "Programación",
   "mobile.app.route.workflows": "Flujos de trabajo",
   "mobile.app.route.workflow": "Flujo de trabajo",

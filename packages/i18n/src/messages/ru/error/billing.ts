@@ -3,11 +3,6 @@ import type { messages as source } from "../../en/error/billing";
 
 export const messages = {
   "error.billing.lifecycleFailed": "Не удалось изменить тариф сервера. Обновите раздел «Оплата» и повторите попытку.",
-  "error.billing.confirmMismatch": "Введите название сервера, чтобы удалить его.",
-  "error.billing.restartBusy": "Сейчас сервер нельзя перезапустить. Повторите попытку через минуту.",
-  "error.billing.restartUnavailable": "Этот сервер нельзя перезапустить отсюда. Обратитесь в поддержку.",
-  "error.billing.planRequired": "Тариф этого сервера закончился. Продлите его, чтобы запустить сервер.",
-  "error.billing.planSoldOut": "Этот тариф распродан. Выберите другой тариф.",
   "error.billing.storageUnavailable": "Это хранилище недоступно для этого сервера.",
   "error.billing.storagePaymentFailed": "Оплата хранилища не прошла. Обновите способ оплаты и попробуйте снова.",
   "error.billing.licenseExists": "У этого аккаунта уже есть лицензия. Вместо этого измените число пользователей.",

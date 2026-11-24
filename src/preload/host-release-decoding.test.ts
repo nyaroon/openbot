@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { decodeHostReleaseStatusFromMain } from "./host-release-decoding";
 
-const status = { currentVersion: "0.25.2", latestVersion: "0.26.0", phase: "available", method: "hosted" };
+const status = { currentVersion: "0.25.2", latestVersion: "0.26.0", phase: "available", method: "self-update" };
 describe("release status from main", () => {
   it("accepts a release result", () => {
     expect(decodeHostReleaseStatusFromMain(status)).toEqual(status);

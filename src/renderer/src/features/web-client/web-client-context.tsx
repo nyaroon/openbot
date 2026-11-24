@@ -18,9 +18,6 @@ import type {
   ConversationPage,
   ConversationReadState,
   HiddenAgent,
-  HostedServerIssue,
-  HostedServerSleep,
-  HostedServerStart,
   MemberChatColorEntry,
   ProviderModelSourceEntry,
   QueueSnapshot,
@@ -49,7 +46,6 @@ import { MESSAGE_DELETE_CAPABILITY } from "@openbot/contracts/team-protocol/mess
 import { SIDEBAR_PINS_CAPABILITY } from "@openbot/contracts/team-protocol/sidebar-pins-v1";
 import { cleanAgentMessageText } from "@openbot/team-client/agent-message-text";
 import { createFocusUsePing } from "@openbot/team-client/focus-use";
-import { WAKE_RECONNECT_DELAY_MS } from "@openbot/team-client/hosted-server-wake";
 import type { RemoteTeamHost } from "@openbot/team-client/remote-directory";
 import {
   createRemoteConnectionRecovery,
@@ -99,7 +95,6 @@ import {
   saveAgentPicture,
 } from "./web-agent-pictures";
 import type { WebHostNotice } from "./web-host-connections";
-import { createWebHostLifecycle } from "./web-host-lifecycle";
 import { WebHostOtherTabError, type WebHostState } from "./web-host-lock";
 import {
   createWebWorkspaceRuntime,
@@ -169,9 +164,6 @@ interface WebWorkspaceState {
   presence: TeamPresenceSnapshot | null;
   capabilities: string[];
   status: "connecting" | "online" | "offline";
-  hostedSleep: HostedServerSleep | null;
-  hostedIssue: HostedServerIssue | null;
-  hostedStart: HostedServerStart | null;
   connectionError: UserErrorDetails | null;
   hostOffline: boolean;
   otherTab: boolean;
@@ -252,9 +244,6 @@ export function createWebWorkspace(
     presence: null,
     capabilities: [],
     status: "offline",
-    hostedSleep: null,
-    hostedIssue: null,
-    hostedStart: null,
     connectionError: null,
     hostOffline: false,
     otherTab: false,
@@ -309,7 +298,7 @@ export function createWebWorkspace(
   const aroundReads = new Map<string, number>();
   const heldDeltas = new Map<string, Array<Extract<AgentEvent, { type: "conversation-delta" }>>>();
   const hostEventListeners = new Set<(event: AgentEvent | TeamRealtimeEvent) => void>();
-  let connectionPromise: { hostId: string; opened: boolean; promise: Promise<void> } | null = null;
+  let connectionPromise: { hostId: string; promise: Promise<void> } | null = null;
   let recoveryBlocked = false;
   let recovery = makeRecovery();
   function makeRecovery() {
@@ -327,7 +316,6 @@ export function createWebWorkspace(
             draft.recovery = status;
           });
       },
-      () => (state.hostedSleep === "waking" ? WAKE_RECONNECT_DELAY_MS : null),
     );
   }
   function noteConnectionFailure(error: unknown) {
@@ -351,31 +339,6 @@ export function createWebWorkspace(
     recovery.refresh();
     recovery.setActive(!document.hidden);
   }
-  const hostLifecycle = createWebHostLifecycle({
-    accountFetch: props.accountFetch,
-    hostId: () => hostId,
-    disposed: () => disposed,
-    status: () => state.status,
-    hostedSleep: () => state.hostedSleep,
-    setHostedSleep,
-    setIssue: (issue) =>
-      setState((draft) => {
-        draft.hostedIssue = issue;
-      }),
-    setStart: (start) =>
-      setState((draft) => {
-        draft.hostedStart = start;
-      }),
-    suspend: () => {
-      recoveryBlocked = true;
-      recovery.suspend();
-    },
-    recover: () => {
-      recoveryBlocked = false;
-      recovery.refresh();
-      recover();
-    },
-  });
   const hostNoticeListeners = new Set<(hostId: string, event: WebHostNotice, agents: ClientAgentSummary[]) => void>();
   const wholeApprovalReads = new Set<string>();
   let promptListRead: "idle" | "reading" | "again" = "idle";
@@ -490,7 +453,6 @@ export function createWebWorkspace(
         if (disposed || id !== hostId) return;
         generation += 1;
         restartCapable = false;
-        hostLifecycle.endSleep();
         recoveryBlocked = true;
         recovery.suspend();
         setState((draft) => {
@@ -547,7 +509,6 @@ export function createWebWorkspace(
         });
         if (update.state === "offline") generation += 1;
         if (update.code) {
-          hostLifecycle.endSleep();
           recoveryBlocked = true;
           recovery.suspend();
         }
@@ -571,10 +532,7 @@ export function createWebWorkspace(
           return;
         }
         if (unavailable) {
-          const current = generation;
-          void hostLifecycle.hostUnavailable(update.hostId, connectionPromise?.opened ?? false).then((retry) => {
-            if (retry && !update.hostOffline && !disposed && current === generation) recover();
-          });
+          if (!update.hostOffline && !disposed) recover();
         } else if (state.hostRestart && update.state === "offline") recover();
         if (update.state === "online" && update.resync && !connectionPromise) recover();
       },
@@ -1046,7 +1004,6 @@ export function createWebWorkspace(
           hostId = null;
           recovery.dispose();
           recovery = makeRecovery();
-          hostLifecycle.endSleep();
           selectedId = null;
           setState((draft) => {
             draft.host = null;
@@ -1151,12 +1108,6 @@ export function createWebWorkspace(
   function retryHosts(): Promise<void> {
     return refreshHosts().catch(() => undefined);
   }
-  function setHostedSleep(hostedSleep: HostedServerSleep | null): void {
-    if (state.hostedSleep !== hostedSleep)
-      setState((draft) => {
-        draft.hostedSleep = hostedSleep;
-      });
-  }
   function clearRevokedWorkspace(): void {
     if (hostId) {
       deleteRemoteWorkspaceFrame(props.accountId, hostId);
@@ -1204,7 +1155,6 @@ export function createWebWorkspace(
     )
       return false;
     clearRevokedWorkspace();
-    hostLifecycle.endSleep();
     recoveryBlocked = true;
     recovery.suspend();
     const failure = { message: error.message, reference: errorReference(error) };
@@ -1217,12 +1167,9 @@ export function createWebWorkspace(
   async function reconnect(): Promise<void> {
     const host = state.hosts.find((listed) => listed.hostId === hostId) ?? state.host;
     if (!host || connectionPromise) return;
-    if (state.hostedSleep === "sleeping" || state.hostedIssue) await hostLifecycle.retry();
-    else {
-      await props.onSessionCheck();
-      recoveryBlocked = false;
-      await connect(host);
-    }
+    await props.onSessionCheck();
+    recoveryBlocked = false;
+    await connect(host);
   }
   async function joinInvite(inviteUrl: string): Promise<void> {
     const normalizedInviteUrl = inviteUrl.trim();
@@ -1241,9 +1188,8 @@ export function createWebWorkspace(
     recoveryBlocked = false;
     recovery.dispose();
     recovery = makeRecovery();
-    if (!connectionPromise || connectionPromise.hostId !== host.hostId) hostLifecycle.endSleep();
     try {
-      await attemptConnection(host, true, takeOver);
+      await attemptConnection(host, takeOver);
     } catch (error) {
       if (!disposed && hostId === host.hostId) noteConnectionFailure(error);
       if (!disposed && hostId === host.hostId && state.recovery?.phase !== "suspended") recover();
@@ -1256,15 +1202,15 @@ export function createWebWorkspace(
     const host = state.host;
     if (host && state.otherTab) await connect(host, true);
   }
-  function attemptConnection(host: RemoteTeamHost, opened = false, takeOver = false): Promise<void> {
+  function attemptConnection(host: RemoteTeamHost, takeOver = false): Promise<void> {
     if (connectionPromise?.hostId === host.hostId) return connectionPromise.promise;
-    const promise = connectWorkspace(host, opened, takeOver).finally(() => {
+    const promise = connectWorkspace(host, takeOver).finally(() => {
       if (connectionPromise?.promise === promise) connectionPromise = null;
     });
-    connectionPromise = { hostId: host.hostId, opened, promise };
+    connectionPromise = { hostId: host.hostId, promise };
     return promise;
   }
-  async function connectWorkspace(host: RemoteTeamHost, opened: boolean, takeOver: boolean) {
+  async function connectWorkspace(host: RemoteTeamHost, takeOver: boolean) {
     const current = ++generation;
     const sameHost = hostId === host.hostId;
     const keepWorkspace = sameHost && state.workspaceLoaded;
@@ -1276,7 +1222,6 @@ export function createWebWorkspace(
     hostId = host.hostId;
     writeWebServerSelection(props.accountId, host.hostId);
     if (!keepWorkspace) selectedId = null;
-    if (!sameHost) hostLifecycle.endSleep();
     if (!sameHost) restartCapable = false;
     setState((draft) => {
       draft.host = host;
@@ -1385,7 +1330,6 @@ export function createWebWorkspace(
       const [agents, agentStatus, models] = await (early.gate ?? readGate());
       if (disposed || current !== generation) return;
       revokedReconnect = false;
-      hostLifecycle.endSleep();
       const unblocked = recoveryBlocked;
       if (unblocked) {
         recoveryBlocked = false;
@@ -1468,14 +1412,12 @@ export function createWebWorkspace(
       });
       if (blockAccess(error)) throw error;
       if (error instanceof WebHostOtherTabError) {
-        hostLifecycle.endSleep();
         recoveryBlocked = true;
         recovery.suspend();
         setState((draft) => {
           draft.connectionError = null;
         });
       } else if (error instanceof WebHostIncompatibleError || error instanceof WebHostConnectionError) {
-        hostLifecycle.endSleep();
         recoveryBlocked = true;
         recovery.suspend();
         const failure = { message: error.message, reference: errorReference(error) };
@@ -1488,7 +1430,6 @@ export function createWebWorkspace(
         setState((draft) => {
           draft.connectionError = failure;
         });
-        await hostLifecycle.hostUnavailable(host.hostId, opened);
       }
       throw error;
     }
@@ -2062,11 +2003,9 @@ export function createWebWorkspace(
     const visibility = () => {
       pageFocus();
       if (document.hidden) {
-        hostLifecycle.cancelPending();
         if (hostId && state.status !== "online") generation += 1;
         recovery.setActive(false);
       } else {
-        hostLifecycle.resume();
         if (state.status !== "online" && state.recovery?.phase !== "suspended") recoverNow();
       }
     };
@@ -2083,7 +2022,6 @@ export function createWebWorkspace(
       if (readsTimer) clearTimeout(readsTimer);
       readsTimer = null;
       recovery.dispose();
-      hostLifecycle.dispose();
       focusUse.dispose();
       document.removeEventListener("visibilitychange", visibility);
       window.removeEventListener("online", network);

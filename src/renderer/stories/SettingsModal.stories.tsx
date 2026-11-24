@@ -87,8 +87,6 @@ const storyAgentDock = {
 
 function SettingsModalStory(props: {
   initialOpen: boolean;
-  hostedServers?: boolean;
-  hostedServersDelayMs?: number;
   initialTab?: SettingsTab;
   openTab?: SettingsTab;
   scheduledRestart?: UpdateStatus["scheduledRestart"];
@@ -107,13 +105,6 @@ function SettingsModalStory(props: {
     toast.dismiss();
     if (window.openbot === mock.api) window.openbot = previousApi;
   });
-  const hostedServersApi = {
-    ...mock.api.hostedServers,
-    list: async () => {
-      await new Promise((resolve) => window.setTimeout(resolve, props.hostedServersDelayMs ?? 0));
-      return mock.api.hostedServers.list();
-    },
-  };
   const [open, setOpen] = createSignal(props.initialOpen);
   const [value, setValue] = createSignal({ ...storyGeneralSettings });
   const [updateStatus, setUpdateStatus] = createSignal<UpdateStatus>(storyInitialUpdateStatus(props));
@@ -250,8 +241,6 @@ function SettingsModalStory(props: {
               onSetRemoteNetworkRoute={(route) => mock.api.setRemoteNetworkRoute({ route })}
               onUpdateAction={runUpdateAction}
               billingApi={billingApi}
-              hostedServersApi={props.hostedServers ? hostedServersApi : undefined}
-              onAddHostedServer={props.hostedServers ? fn() : undefined}
               agentDock={props.agentDock ? storyAgentDock : undefined}
             />
           )}
@@ -395,18 +384,6 @@ export const AgentDock: Story = {
 
 export const Billing: Story = {
   render: () => <SettingsModalStory initialOpen initialTab="billing" />,
-};
-
-export const HostedServers: Story = {
-  render: () => <SettingsModalStory initialOpen hostedServers initialTab="hosted-servers" />,
-};
-
-export const HostedServersFastList: Story = {
-  render: () => <SettingsModalStory initialOpen hostedServers hostedServersDelayMs={300} openTab="hosted-servers" />,
-};
-
-export const HostedServersSlowList: Story = {
-  render: () => <SettingsModalStory initialOpen hostedServers hostedServersDelayMs={3_000} openTab="hosted-servers" />,
 };
 
 export const ScheduledRemoteUpdate: Story = {

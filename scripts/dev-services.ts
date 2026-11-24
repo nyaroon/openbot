@@ -33,8 +33,6 @@ import {
   developmentChildEnvironment,
   developmentSettingsForService,
   loadDevelopmentEnvironment,
-  loadSharedDevelopmentEnvironment,
-  requireDevelopmentValues,
 } from "./development-environment";
 import { resolveDevelopmentAppDataRoot } from "./development-state-paths";
 import { withoutElectronRuntimeFlags } from "./electron-spawn-env";
@@ -196,15 +194,13 @@ function seedDevelopmentProfile(profile: string, environment: NodeJS.ProcessEnv)
   });
 }
 
-const DEVELOPMENT_OPTIONS = ["--dry-run", "--force", "--shared", "--isolated", "--hosting=test", "--slack"] as const;
-const TEST_ACCOUNT_API_URL = "https://openbot-auth-api-test.internal9671.workers.dev";
+const DEVELOPMENT_OPTIONS = ["--dry-run", "--force", "--shared", "--isolated", "--slack"] as const;
 
 export interface DevelopmentInvocation {
   target: DevelopmentTarget;
   dryRun: boolean;
   force: boolean;
   shared: boolean;
-  hostingTest: boolean;
   slack: boolean;
 }
 
@@ -225,16 +221,8 @@ export function parseDevelopmentTarget(args: string[]): DevelopmentInvocation {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
     shared: args.includes("--shared"),
-    hostingTest: args.includes("--hosting=test"),
     slack: args.includes("--slack"),
   };
-}
-
-async function readHostingDeveloperKey(): Promise<string> {
-  const shared = await loadSharedDevelopmentEnvironment(projectRoot);
-  const environment = { ...shared, ...process.env };
-  requireDevelopmentValues(environment, ["HOSTED_SERVERS_DEVELOPER_KEY"]);
-  return environment.HOSTED_SERVERS_DEVELOPER_KEY ?? "";
 }
 
 function prepareVoiceRuntime(): void {
@@ -253,7 +241,7 @@ function prepareVoiceRuntime(): void {
 }
 
 async function main(): Promise<void> {
-  const { target, dryRun, force, shared, hostingTest, slack } = parseDevelopmentTarget(process.argv.slice(2));
+  const { target, dryRun, force, shared, slack } = parseDevelopmentTarget(process.argv.slice(2));
   if (!dryRun && prepareDevelopmentEnvironment() === "created") {
     logger.info("Prepared local development state.");
   }
@@ -261,14 +249,6 @@ async function main(): Promise<void> {
   if (!dryRun && services.includes("app")) prepareVoiceRuntime();
   const developmentEnvironment = dryRun ? {} : await loadDevelopmentEnvironment(projectRoot);
   const sharedEnvironment = developmentEnvironmentForTarget(target);
-  if (hostingTest) {
-    sharedEnvironment.OPENBOT_AUTH_API_URL = TEST_ACCOUNT_API_URL;
-    sharedEnvironment.OPENBOT_MOBILE_AUTH_API_URL = TEST_ACCOUNT_API_URL;
-    sharedEnvironment.OPENBOT_DEV_INSTANCE_ID ??= developmentInstanceIdForWorktree("openbot:hosting-test");
-    sharedEnvironment.OPENBOT_HOSTING_DEVELOPER_KEY = await readHostingDeveloperKey();
-    sharedEnvironment.OPENBOT_DEV_REMOTE_ROLE = "none";
-    logger.info(`The app signs in to the test account Worker: ${TEST_ACCOUNT_API_URL}.`);
-  }
   sharedEnvironment.OPENBOT_DEV_STACK_ID = String(process.pid);
 
   const { specs, stack } = await withDevPortAllocation(async (records) => {
@@ -386,7 +366,6 @@ async function allocateDevelopmentPorts(
     if (!sharedEnvironment.OPENBOT_AUTH_API_URL) {
       sharedEnvironment.OPENBOT_AUTH_API_URL = `http://127.0.0.1:${apiPort}`;
     }
-    configureSiteHostingDevelopmentEnvironment(sharedEnvironment, apiPort);
     if (services.includes("remote")) {
       const signalPort = await findAvailablePort(
         readPort(sharedEnvironment.REMOTE_SIGNAL_PORT) ?? DEFAULT_REMOTE_SIGNAL_PORT,
@@ -562,12 +541,6 @@ async function runDevelopmentServices(specs: DevelopmentServiceSpec[], stack: De
     await stopAll("SIGTERM");
     throw error;
   }
-}
-
-export function configureSiteHostingDevelopmentEnvironment(environment: NodeJS.ProcessEnv, apiPort: number): void {
-  environment.SITE_PUBLISH_ENABLED ??= "true";
-  environment.SITE_COOKIE_ISOLATION_READY ??= "true";
-  environment.SITE_LOCAL_ORIGIN ??= `http://openbot.localhost:${apiPort}`;
 }
 
 export function configureMobileConnectDevelopmentNetwork(

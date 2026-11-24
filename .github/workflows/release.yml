@@ -1174,12 +1174,12 @@ jobs:
 
   # Posts the highlights of `.github/release-announcement.json`, which the `validate` job checked, as
   # OpenBot through a channel webhook (docs/RELEASING.md#discord-announcement). It waits for the
-  # Docker image and the boat snapshot, so the post says "is out" only when every channel has the
+  # Docker image, so the post says "is out" only when every channel has the
   # version. A failure here does not undo the release: re-run this job. A re-run after a success
   # posts the message again.
   discord-announce:
     name: Announce the release on Discord
-    needs: [validate, publish, docker-publish, hosted-release]
+    needs: [validate, publish, docker-publish]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -1203,40 +1203,6 @@ jobs:
           DISCORD_RELEASE_ROLE_ID: ${{ vars.DISCORD_RELEASE_ROLE_ID }}
           RELEASE_VERSION: ${{ needs.validate.outputs.release_version }}
         run: bun scripts/discord-release-announcement.ts send "$RELEASE_VERSION"
-
-  hosted-release:
-    name: Publish boat server snapshot
-    needs: [validate, publish]
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    environment: cloudflare-production
-    permissions:
-      contents: read
-    # The same lock as the production Worker deploy. Keep every pending release.
-    concurrency:
-      group: cloudflare-production-worker
-      cancel-in-progress: false
-      queue: max
-    steps:
-      - name: Check out tagged source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Set up Bun
-        uses: ./.github/actions/setup-bun
-        with:
-          install: ignore-scripts
-
-      - name: Build and select production snapshot
-        env:
-          RELEASE_TAG: ${{ needs.validate.outputs.release_tag }}
-          GH_TOKEN: ${{ github.token }}
-          BOAT_TEMPLATE_API_KEY: ${{ secrets.BOAT_TEMPLATE_API_KEY }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PRODUCTION_DEPLOY_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: bash scripts/hosting/release-boat-template.sh
 
   # Pushes the images that the `docker` job checked, after the GitHub Release exists, so `latest` on
   # GHCR never names a release that did not publish. It runs no build code: it only loads, tags and

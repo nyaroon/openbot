@@ -9,7 +9,6 @@ import {
   CirclePause,
   Clock3,
   DropdownMenu,
-  Globe2,
   LoaderCircle,
   LogIn,
   Marker,
@@ -51,7 +50,6 @@ interface ChatActionMarkerProps {
   onOpenRoutine?: ((routine: { routineId: string; name: string }) => void) | undefined;
   openRoutineThread?: ((routineId: string) => (() => void) | undefined) | undefined;
   routineRunFailure?: ((runId: string) => string | undefined) | undefined;
-  onOpenHostedSite?: ((url: string) => void) | undefined;
   onOpenLink?: ((url: string) => void) | undefined;
   onWithdrawFeedback?: ((messageId: string) => Promise<WithdrawFeedbackStatus>) | undefined;
   onRequestFeedbackChange?: ((request: { number: number; change: "fix" | "remove" }) => void) | undefined;
@@ -133,7 +131,6 @@ export function ChatActionMarker(props: ChatActionMarkerProps) {
                       onOpenRoutine={props.onOpenRoutine}
                       openRoutineThread={props.openRoutineThread}
                       routineRunFailure={props.routineRunFailure}
-                      onOpenHostedSite={props.onOpenHostedSite}
                       onOpenLink={props.onOpenLink}
                       onToggleRoutineRun={props.onToggleRoutineRun}
                       onToggleAgentMessage={props.onToggleAgentMessage}
@@ -530,9 +527,6 @@ function SingleChatActionMarker(
               />
             )}
           </Show>
-          <Show when={props.marker.kind === "hosted-site" && props.marker}>
-            {(marker) => <HostedSiteTarget marker={marker()} onOpenHostedSite={props.onOpenHostedSite} />}
-          </Show>
           <Show when={props.marker.kind === "skill-lifecycle" && props.marker}>
             {(marker) => (
               <ActionTarget
@@ -747,46 +741,6 @@ function RoutineRunHistory(props: {
         </ol>
       </div>
     </div>
-  );
-}
-
-function HostedSiteTarget(props: {
-  marker: Extract<ChatActionMarkerModel, { kind: "hosted-site" }>;
-  onOpenHostedSite?: ((url: string) => void) | undefined;
-}) {
-  const { t } = useText();
-  const name = () => props.marker.hostname ?? props.marker.title;
-  const status = () => hostedSiteMarkerStatus(props.marker.status);
-  const interactive = () =>
-    props.marker.status === "succeeded" &&
-    props.marker.action !== "delete" &&
-    Boolean(props.marker.url) &&
-    Boolean(props.onOpenHostedSite);
-  const content = (
-    <>
-      <MarkerIcon>
-        <Dynamic component={hostedSiteIcon(props.marker.status)} aria-hidden="true" />
-      </MarkerIcon>
-      <span class="chat-action-target-name">{name()}</span>
-    </>
-  );
-  return (
-    <Show
-      when={interactive()}
-      fallback={<span class={`chat-action-target chat-action-target-status-${status()}`}>{content}</span>}
-    >
-      <Button
-        variant="ghost"
-        type="button"
-        class={`chat-action-target chat-action-target-status-${status()}`}
-        aria-label={t("chat.marker.openSite", { name: name() })}
-        onClick={() => {
-          if (props.marker.url) props.onOpenHostedSite?.(props.marker.url);
-        }}
-      >
-        {content}
-      </Button>
-    </Show>
   );
 }
 
@@ -1083,27 +1037,6 @@ function markerLabel(
         ? t("chat.marker.routine.updated")
         : t("chat.marker.routine.deleted");
   }
-  if (marker.kind === "hosted-site") {
-    if (marker.action === "publish") {
-      if (marker.status === "running") return t("chat.marker.site.deploying");
-      if (marker.status === "succeeded") return t("chat.marker.site.published");
-      if (marker.status === "failed") return t("chat.marker.site.deployFailed");
-      if (marker.status === "interrupted") return t("chat.marker.site.deployInterrupted");
-      return t("chat.marker.site.deployCancelled");
-    }
-    if (marker.action === "replace") {
-      if (marker.status === "running") return t("chat.marker.site.updating");
-      if (marker.status === "succeeded") return t("chat.marker.site.updated");
-      if (marker.status === "failed") return t("chat.marker.site.updateFailed");
-      if (marker.status === "interrupted") return t("chat.marker.site.updateInterrupted");
-      return t("chat.marker.site.updateCancelled");
-    }
-    if (marker.status === "running") return t("chat.marker.site.deleting");
-    if (marker.status === "succeeded") return t("chat.marker.site.deleted");
-    if (marker.status === "failed") return t("chat.marker.site.deleteFailed");
-    if (marker.status === "interrupted") return t("chat.marker.site.deleteInterrupted");
-    return t("chat.marker.site.deleteCancelled");
-  }
   if (marker.status === "queued") return t("chat.marker.run.invoked");
   if (marker.status === "running") return t("chat.marker.run.running");
   if (marker.status === "needs-attention") return t("chat.marker.run.needsAttention");
@@ -1170,24 +1103,7 @@ function markerAccessibleLabel(
     const names = marker.agentIds.map((id) => agents.find((candidate) => candidate.id === id)?.name ?? unavailable);
     return t("chat.marker.accessible.routing", { label, agent: list(names) });
   }
-  if (marker.kind === "hosted-site")
-    return t("chat.marker.accessible.named", { label, name: marker.hostname ?? marker.title });
   return t("chat.marker.accessible.named", { label, name: marker.routineName });
-}
-
-function hostedSiteMarkerStatus(
-  status: Extract<ChatActionMarkerModel, { kind: "hosted-site" }>["status"],
-): ChatActionMarkerStatus {
-  if (status === "running") return "in-progress";
-  if (status === "succeeded") return "completed";
-  return status;
-}
-
-function hostedSiteIcon(status: Extract<ChatActionMarkerModel, { kind: "hosted-site" }>["status"]) {
-  if (status === "running") return LoaderCircle;
-  if (status === "succeeded") return Globe2;
-  if (status === "failed") return X;
-  return CirclePause;
 }
 
 function routineMarkerStatus(

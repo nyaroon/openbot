@@ -82,7 +82,6 @@ export interface ServerSummary {
   role: TeamRole | null;
   active: boolean;
   memberLimit?: number;
-  hosted?: boolean;
   restartAvailable?: boolean;
   storageGb?: number;
   paymentRequired?: true;
@@ -94,21 +93,7 @@ export interface ServerSummary {
   connectionSequence?: number;
   capabilitiesPending?: true;
   hostRestart?: { state: Exclude<HostRestartState, "none">; version: string | null } | null;
-  hostedSleep?: HostedServerSleep | null;
-  hostedIssue?: HostedServerIssue | null;
-  hostedStart?: HostedServerStart | null;
 }
-
-export type HostedServerIssue = "plan_ended" | "wake_failed" | "start_timeout";
-
-export type HostedServerStartStep = "machine" | "restore" | "openbot" | "provider_limit";
-
-export interface HostedServerStart {
-  step: HostedServerStartStep;
-  startedAt: number;
-}
-
-export type HostedServerSleep = "sleeping" | "waking";
 
 export interface JoinServerInput {
   inviteUrl: string;

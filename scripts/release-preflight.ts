@@ -66,7 +66,7 @@ try {
 
 try {
   const productionSecrets = run("gh", ["secret", "list", "--env", "cloudflare-production"]);
-  for (const name of ["BOAT_TEMPLATE_API_KEY", "CLOUDFLARE_PRODUCTION_DEPLOY_TOKEN"]) {
+  for (const name of ["CLOUDFLARE_PRODUCTION_DEPLOY_TOKEN"]) {
     if (!productionSecrets.split("\n").some((line) => line.startsWith(`${name}\t`))) {
       failures.push(`GitHub cloudflare-production secret ${name} is missing`);
     }

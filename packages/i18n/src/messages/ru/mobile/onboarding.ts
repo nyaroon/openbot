@@ -12,8 +12,6 @@ export const messages = {
   "mobile.onboarding.server.body": "Агенты работают на сервере. Выберите, как подключить сервер.",
   "mobile.onboarding.server.computer": "Мой компьютер",
   "mobile.onboarding.server.computerBody": "Используйте OpenBot на компьютере как сервер.",
-  "mobile.onboarding.server.cloud": "Облачный сервер",
-  "mobile.onboarding.server.cloudBody": "Используйте сервер, который OpenBot обслуживает за вас.",
   "mobile.onboarding.server.invitation": "Приглашение",
   "mobile.onboarding.server.invitationBody": "Присоединитесь к серверу, к которому вам дали доступ.",
   "mobile.onboarding.server.computerTitle": "Подключите компьютер",

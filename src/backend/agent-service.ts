@@ -220,7 +220,6 @@ import { DuplicationGate, toAgentDuplicationFailed } from "./agent/duplication-g
 import type { FailureContext, FailureSignal } from "./agent/failure-signal";
 import { FeedbackWithdrawal } from "./agent/feedback-withdrawal";
 import { type FinishCheckInput, FinishCheckResult, finishCheckPrompt } from "./agent/finish-check";
-import { type AgentHostedSites, HostedSiteCoordinator } from "./agent/hosted-site-coordinator";
 import { ImageGenRuntime } from "./agent/image-gen-runtime";
 import {
   decodeGeneratedImage,
@@ -424,7 +423,6 @@ export interface AgentServiceOptions {
   clientFactory?: AgentClientFactory | null;
   bundledExecutables?: BundledProviderExecutables;
   prepareAgentWorkspace?: (agent: AgentSummary) => Effect.Effect<void, AgentLifecycleFailed>;
-  hostedSites?: AgentHostedSites | null;
   visualPreview?: ChatVisualPreviewHost | null;
   setCommitCoAuthor?: SetCommitCoAuthor | undefined;
   clearPictureBackground?: ((bytes: Uint8Array) => Uint8Array | null) | undefined;
@@ -485,7 +483,6 @@ export interface AgentServiceOptions {
   agentApiKeys?: AgentApiKeys | null;
   hostMemory?: HostMemory | null;
   hostTurnLimits?: { turnLimit(): number | "unlimited" | null; agentTaskLimit(): number };
-  hostedStorageGb?: () => number | null;
   agentCursorDrawn?: boolean;
   computerUseOnWayland?: boolean;
   computerUseInputRefused?: () => boolean;
@@ -568,7 +565,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
   readonly #providerUseChanges = Semaphore.makeUnsafe(1);
   readonly #endpoints: CustomEndpoints;
   readonly #prepareAgentWorkspace: (agent: AgentSummary) => Effect.Effect<void, AgentLifecycleFailed>;
-  readonly #hostedSites: HostedSiteCoordinator;
   readonly #conversation: ConversationRuntime;
   readonly #attention: AttentionRegistry;
   readonly #images: ImageGenRuntime;
@@ -626,7 +622,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       clientFactory = null,
       bundledExecutables = DEFAULT_BUNDLED_EXECUTABLES,
       prepareAgentWorkspace = () => Effect.void,
-      hostedSites = null,
       sidebarLayout = null,
       libraryFolders = null,
       credentials = NO_PROVIDER_CREDENTIALS,
@@ -875,17 +870,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
           );
         },
       },
-    });
-    this.#hostedSites = new HostedSiteCoordinator({
-      store,
-      conversation: this.#conversation,
-      hostedSites,
-      emitError: (code, error, agentId) => this.#emitError(code, error, agentId),
-      reportFailure: (code, error, agentId) => {
-        this.#reportFailure(code, error, agentId);
-      },
-      isStopping: () => this.#stopping,
-      redact: (text) => this.#mcp.redact(text),
     });
     this.#providers = new ProviderRuntime({
       offProviders: options.offProviders ?? [],
@@ -1193,7 +1177,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
     this.#attention = new AttentionRegistry({
       conversation: this.#conversation,
       browser: this.#browser,
-      hostedSites: this.#hostedSites,
       routines: this.#routines,
       ...(approvalAutomation === undefined ? {} : { approvalAutomation }),
       workspaceSandboxed: (agentId) => {
@@ -1353,7 +1336,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
         link: options.linkWallet?.connected() ?? false,
       }),
       serverHost: hostMemory !== null,
-      ...(options.hostedStorageGb ? { hostedStorageGb: options.hostedStorageGb } : {}),
       ...(options.agentCursorDrawn ? { agentCursorDrawn: true } : {}),
       ...(options.computerUseOnWayland ? { computerUseOnWayland: true } : {}),
       ...(options.computerUseInputRefused ? { computerUseInputRefused: options.computerUseInputRefused } : {}),
@@ -1983,7 +1965,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       drain: this.#drain,
       threads: this.#threads,
       turn: this.#turn,
-      hostedSites: this.#hostedSites,
       compaction: this.#compaction,
       apiKeys: options.agentApiKeys ?? null,
       deleteWithRevokedApproval: options.deleteWithRevokedApproval ?? ((_agentId, remove) => remove()),
@@ -2045,7 +2026,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       attachments: this.#attachments,
       channels: this.channels,
       messaging: this.messaging,
-      hostedSites: this.#hostedSites,
       routines: this.#routines,
       memories: this.#memories,
       waits: this.#waits,
@@ -5199,7 +5179,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       );
     yield* lifecycleStep("recover agent state", () => {
       this.#boot.recoverPersistedTurns();
-      this.#hostedSites.restore();
       const paused = this.#routines.pauseForAgentsHiddenBeforeWork();
       if (paused > 0)
         logger.info("Routines of agents hidden by an earlier version were turned off.", { count: paused });
@@ -5850,7 +5829,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
     yield* this.#liveVoice.dispose();
     this.#routineTimer.dispose();
     yield* this.#memoryHold.dispose();
-    this.#hostedSites.dispose();
     this.#compaction.dispose();
     this.#deltas.dispose();
     this.#conversation.dispose();

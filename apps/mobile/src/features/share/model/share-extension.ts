@@ -25,7 +25,6 @@ interface ShareExtensionServer {
   id: string;
   name: string;
   publicKey: string;
-  hosted: boolean;
 }
 
 export interface ShareExtensionAgent {

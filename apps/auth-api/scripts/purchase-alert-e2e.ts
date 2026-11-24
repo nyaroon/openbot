@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { licensePeriodAmount } from "@openbot/contracts/license";
 import { Effect } from "effect";
-import { createHostedBilling } from "../src/server/hosted-billing";
+import { createBilling } from "../src/server/create-billing";
 import { sqliteD1 } from "./sqlite-d1";
 
 const ROOT = resolve(import.meta.dirname, "../../..");
@@ -95,15 +95,14 @@ async function run(alertUrl: string | undefined) {
   const alerts: string[] = [];
   const work: Promise<void>[] = [];
   const gate: { reads: number; waiting: (() => void)[] } = { reads: 0, waiting: [] };
-  const { billing } = createHostedBilling(
+  const billing = createBilling(
     {
       DB: sqliteD1(database),
       STRIPE_SECRET_KEY: "sk_test_none",
       STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET,
-      ...(alertUrl ? { HOSTED_POOL_ALERT_WEBHOOK_URL: alertUrl } : {}),
+      ...(alertUrl ? { OPERATOR_ALERT_WEBHOOK_URL: alertUrl } : {}),
     },
     {
-      removeHost: () => Effect.void,
       planChanged: () => Effect.void,
       licenseChanged: () => Effect.void,
       schedule: (effect) => work.push(Effect.runPromise(effect)),

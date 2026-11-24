@@ -186,7 +186,6 @@ async function runCase(fixture: (typeof CASES)[number]): Promise<CaseResult> {
         readOptions: {
           excludeRoutineEvents: true,
           excludeRoutineRunEvents: true,
-          excludeHostedSiteEvents: true,
           excludeRoutineQuietAnswers: true,
         },
       },

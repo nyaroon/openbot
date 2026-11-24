@@ -76,21 +76,19 @@ async function run() {
     hostId: string,
     session: string,
     firstRequest: "ok" | "error",
-    hostedWaitMs?: number,
     afterBegin = () => {},
     signalTicket = US_TICKET,
   ) => {
     trace.begin(hostId);
     afterBegin();
     for (const phase of REMOTE_CONNECT_PHASES) {
-      if (phase === "compatibility" && hostedWaitMs !== undefined) trace.hostedStart(hostId, hostedWaitMs);
       trace.mark(hostId, phase, phase === "session" ? session : phase === "first-request" ? firstRequest : "ok");
       if (phase === "ticket") trace.signalHome(hostId, signalTicket);
     }
   };
   const remoteEvents = () => sent.filter((event) => event.name === "system_remote_connect");
 
-  connect(HOST, "ok", "ok", 61_234);
+  connect(HOST, "ok", "ok");
   await sentCount(1);
   const first = remoteEvents()[0]?.properties ?? {};
   check(
@@ -107,7 +105,6 @@ async function run() {
       first.wait_ms === first.total_ms,
     first,
   );
-  check("the hosted start wait has two significant digits", first.hosted_start_wait_ms === 61_000, first);
 
   const stored = trace.begin(HOST);
   trace.mark(HOST, "session", "stored");
@@ -123,15 +120,14 @@ async function run() {
       Number.isInteger(failed.session_ms) &&
       !("ticket_ms" in failed) &&
       !("first_request" in failed) &&
-      !("signal_home" in failed) &&
-      !("hosted_start_wait_ms" in failed),
+      !("signal_home" in failed),
     failed,
   );
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
     trace.fail(HOST, trace.begin(HOST), "error");
   }
-  connect(HOST, "reused", "error", undefined, undefined, ENTRY_TICKET);
+  connect(HOST, "reused", "error", undefined, ENTRY_TICKET);
   await sentCount(3);
   const retried = remoteEvents()[2]?.properties ?? {};
   check(
@@ -164,14 +160,7 @@ async function run() {
   );
 
   const old = trace.begin(LAST_HOST);
-  connect(
-    LAST_HOST,
-    "ok",
-    "ok",
-    undefined,
-    () => trace.fail(LAST_HOST, old, "cancelled"),
-    ticket({ signal: "Not A Home!" }),
-  );
+  connect(LAST_HOST, "ok", "ok", () => trace.fail(LAST_HOST, old, "cancelled"), ticket({ signal: "Not A Home!" }));
   await sentCount(5);
   const last = remoteEvents()[4]?.properties ?? {};
   check(

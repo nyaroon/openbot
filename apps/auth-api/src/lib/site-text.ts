@@ -42,7 +42,7 @@ export function siteText(t: AppTranslate) {
       index: sourceCode,
     },
   };
-  const links = { teams: t("sitePage.site.forTeams"), pricing: t("sitePage.site.pricing") };
+  const links = { teams: t("sitePage.site.forTeams") };
   return {
     download,
     app: t("sitePage.site.app"),
@@ -112,7 +112,6 @@ export function siteText(t: AppTranslate) {
         marketplace: t("sitePage.site.footer.marketplace"),
         changelog,
         teams: t("sitePage.site.footer.teams"),
-        pricing: links.pricing,
         contact,
         brand,
         sourceCode,

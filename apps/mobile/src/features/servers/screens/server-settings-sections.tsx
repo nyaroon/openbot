@@ -1,5 +1,4 @@
 import { DEFAULT_TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
-import { WAKE_RECONNECT_STATES } from "@openbot/team-client/hosted-server-wake";
 import { router } from "expo-router";
 import { Typography } from "heroui-native";
 import type { LucideIcon } from "lucide-react-native";
@@ -8,7 +7,6 @@ import ArrowLeftRight from "lucide-react-native/icons/arrow-left-right";
 import Bot from "lucide-react-native/icons/bot";
 import Clock from "lucide-react-native/icons/clock";
 import Download from "lucide-react-native/icons/download";
-import Earth from "lucide-react-native/icons/earth";
 import Fingerprint from "lucide-react-native/icons/fingerprint-pattern";
 import HardDrive from "lucide-react-native/icons/hard-drive";
 import KeyRound from "lucide-react-native/icons/key-round";
@@ -26,8 +24,6 @@ import UsersRound from "lucide-react-native/icons/users-round";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Alert } from "react-native";
 import { confirmOwner } from "@/features/app-lock/model/app-lock";
-import { useMobileSession } from "@/features/auth/context/mobile-session-context";
-import { hostedServerCalls } from "@/features/servers/api/hosted-servers";
 import {
   ServerBrowsingMemoryRow,
   ServerMemoryLimitRow,
@@ -38,13 +34,11 @@ import {
 import { ServerVoiceModelRow } from "@/features/servers/components/server-voice-model-row";
 import { TrailingValue } from "@/features/servers/components/trailing-value";
 import { SERVER_ROLE_LABEL_KEYS } from "@/features/servers/model/server-role";
-import { canRestartServer, useOwnerHostedServerIds } from "@/features/servers/model/server-settings-access";
 import { timeZoneLabel } from "@/features/servers/model/time-zones";
 import { useLockedAction } from "@/features/servers/model/use-locked-action";
 import { useServerBrowserProfiles } from "@/features/servers/model/use-server-browser-profiles";
 import { useServerProviders } from "@/features/servers/model/use-server-providers";
 import { signalLatencyTone, useServerSignalHome } from "@/features/servers/model/use-server-signal-home";
-import { useServerSites } from "@/features/servers/model/use-server-sites";
 import { useServerTimezone } from "@/features/servers/model/use-server-timezone";
 import { updateAvailable, useServerUpdate } from "@/features/servers/model/use-server-update";
 import { SettingsRow, SettingsSection } from "@/features/settings/components/settings-content";
@@ -97,7 +91,6 @@ export function ServerPeopleSection({ server }: { server: MobileServer }) {
   const roles = row((checks) => checks.canManageServerRoles(server.id));
   const audit = row((checks) => checks.canReadServerAudit(server.id));
   const ownerTransfer = row((checks) => checks.canTransferOwnership(server.id));
-  const hostedServerIds = useOwnerHostedServerIds(server);
   const memberCount = memberCountByServer[server.id];
   return (
     <SettingsSection title={t("mobile.server.settings.peopleSection")}>
@@ -146,7 +139,7 @@ export function ServerPeopleSection({ server }: { server: MobileServer }) {
           disabled={audit === "disabled"}
         />
       )}
-      {ownerTransfer === "hidden" || hostedServerIds?.has(server.id) ? null : (
+      {ownerTransfer === "hidden" ? null : (
         <LinkRow
           label={t("mobile.server.route.ownerTransfer")}
           icon={UserRoundCog}
@@ -176,14 +169,13 @@ export function ServerDataSections({ serverId }: { serverId: string }) {
   const row = useServerRows(serverId);
   const vault = row((checks) => checks.canManageVault(serverId));
   const browserProfiles = row((checks) => checks.canManageBrowserProfiles(serverId));
-  const sites = row((checks) => checks.canViewHostedSites(serverId));
   const storage = row((checks) => checks.canReadServerStorage(serverId));
   const importAgents = row((checks) => checks.canImportAgents(serverId));
   const transfer = row((checks) => checks.canTransferServer(serverId));
   const shown = (state: ServerRowState) => state !== "hidden";
   return (
     <>
-      {shown(vault) || shown(browserProfiles) || shown(sites) || shown(storage) ? (
+      {shown(vault) || shown(browserProfiles) || shown(storage) ? (
         <SettingsSection title={t("mobile.server.settings.dataSection")}>
           {shown(vault) ? (
             <LinkRow
@@ -197,7 +189,6 @@ export function ServerDataSections({ serverId }: { serverId: string }) {
           {shown(browserProfiles) ? (
             <ServerBrowserProfilesRow serverId={serverId} disabled={browserProfiles === "disabled"} />
           ) : null}
-          {shown(sites) ? <ServerSitesRow serverId={serverId} disabled={sites === "disabled"} /> : null}
           {shown(storage) ? (
             <LinkRow
               label={t("mobile.server.settings.storage")}
@@ -235,23 +226,15 @@ export function ServerDataSections({ serverId }: { serverId: string }) {
   );
 }
 
-export function ServerConnectionSection({
-  server,
-  hostedServerIds,
-}: {
-  server: MobileServer;
-  hostedServerIds: ReadonlySet<string> | null;
-}) {
+export function ServerConnectionSection({ server }: { server: MobileServer }) {
   const { t } = useText();
   const serverId = server.id;
-  const { refreshServer, hostedServerStarting, canRestartServerItself, restartServerItself } = useMobileWorkspace();
-  const { session } = useMobileSession();
+  const { refreshServer, canRestartServerItself, restartServerItself } = useMobileWorkspace();
   const action = useLockedAction();
   const { busy, error } = action;
   const [restarting, setRestarting] = useState(false);
   const [restarted, setRestarted] = useState<string | null>(null);
-  const hosted = canRestartServer(server, hostedServerIds);
-  const selfHosted = !hosted && canRestartServerItself(serverId);
+  const canRestart = canRestartServerItself(serverId);
   function perform(operation: () => Promise<void>, failure?: (error: unknown) => string) {
     setRestarted(null);
     return action.perform(operation, failure);
@@ -268,7 +251,7 @@ export function ServerConnectionSection({
           {busy && !restarting ? t("mobile.server.settings.refreshing") : t("mobile.server.settings.refresh")}
         </Typography.Paragraph>
       </SettingsRow>
-      {hosted || selfHosted ? (
+      {canRestart ? (
         <SettingsRow
           leading={<RowIcon icon={RotateCcw} tone="accent" />}
           disclosure={false}
@@ -286,12 +269,7 @@ export function ServerConnectionSection({
                       async () => {
                         setRestarting(true);
                         try {
-                          if (selfHosted) await restartServerItself(serverId);
-                          else {
-                            if (!session) throw new Error(currentText().t("mobile.server.hosted.restartFailed"));
-                            const restart = await hostedServerCalls(session).restart(serverId);
-                            if (WAKE_RECONNECT_STATES.has(restart.state)) hostedServerStarting(serverId);
-                          }
+                          await restartServerItself(serverId);
                         } finally {
                           setRestarting(false);
                         }
@@ -585,26 +563,6 @@ function ServerBrowserProfilesRow({ serverId, disabled }: { serverId: string; di
       onPress={() => router.push({ pathname: "/server-settings/browser-profiles", params: { serverId } })}
     >
       <Typography.Paragraph>{t("mobile.server.route.browserProfiles")}</Typography.Paragraph>
-    </SettingsRow>
-  );
-}
-
-function ServerSitesRow({ serverId, disabled }: { serverId: string; disabled?: boolean }) {
-  const { t } = useText();
-  const { query } = useServerSites(serverId);
-  const list = query.data;
-  return (
-    <SettingsRow
-      leading={<RowIcon icon={Earth} />}
-      trailing={
-        list ? (
-          <TrailingValue value={t("mobile.server.settings.siteCount", { count: list.used, limit: list.limit })} />
-        ) : undefined
-      }
-      disabled={disabled}
-      onPress={() => router.push({ pathname: "/server-settings/sites", params: { serverId } })}
-    >
-      <Typography.Paragraph>{t("mobile.server.settings.sites")}</Typography.Paragraph>
     </SettingsRow>
   );
 }

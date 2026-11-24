@@ -3,7 +3,6 @@ import { EventEmitter } from "node:events";
 import { chmod, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import type { HostKeyHandover } from "@openbot/contracts/host-key-handover";
-import { parseHostedServerClaim } from "@openbot/contracts/hosted-servers";
 import type {
   AvatarColor,
   AvatarImageInput,
@@ -100,7 +99,6 @@ interface CentralAuthManagerOptions {
   startupRequestTimeoutMs?: number;
   startupRetryDelaysMs?: readonly number[];
   emailCodeRequestTimeoutMs?: number;
-  confirmSessionAtStart?: boolean;
 }
 
 interface StoredMobileConnectLink {
@@ -234,7 +232,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
       startupRequestTimeoutMs: options.startupRequestTimeoutMs ?? STARTUP_REQUEST_TIMEOUT_MS,
       startupRetryDelaysMs: options.startupRetryDelaysMs ?? STARTUP_RETRY_DELAYS_MS,
       emailCodeRequestTimeoutMs: options.emailCodeRequestTimeoutMs ?? EMAIL_CODE_REQUEST_TIMEOUT_MS,
-      confirmSessionAtStart: options.confirmSessionAtStart ?? false,
     };
   }
 
@@ -541,7 +538,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
                   current: z.boolean(),
                   connectedAt: z.number().finite(),
                   lastActiveAt: z.number().finite(),
-                  hostedServer: z.boolean().exactOptional(),
                 }),
               ),
             })
@@ -1592,7 +1588,7 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
     }
     const sessionToken = this.#sessionToken;
     const storedUser = this.#sessionUser?.token === sessionToken ? this.#sessionUser.user : null;
-    if (storedUser && !this.#options.confirmSessionAtStart) {
+    if (storedUser) {
       const state = this.#setState({ status: "signed_in", user: storedUser });
       Effect.runFork(this.#owned(this.#confirmRestoredSession(sessionToken)).pipe(Effect.ignore));
       return state;
@@ -1784,30 +1780,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
   canPersistSession(): boolean {
     return this.#options.canPersist();
   }
-
-  readonly redeemHostedServerClaim = Effect.fn("CentralAuth.redeemHostedServerClaim")(
-    function* (
-      this: CentralAuthManager,
-      claim: string,
-    ): Effect.fn.Return<
-      { hostId: string; name: string; user: CentralAuthUser },
-      CentralAuthOperationError,
-      CentralAuthTransport
-    > {
-      const redeemed = yield* this.#requestEffect(
-        "/v2/hosting/claims/redeem",
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ claim }) },
-        (value) => {
-          const parsed = parseHostedServerClaim(value);
-          if (!parsed) throw new Error("Invalid hosted server claim.");
-          return parsed;
-        },
-      );
-      const user = yield* this.#applyClaimedSession(redeemed);
-      return { hostId: redeemed.hostId, name: redeemed.name, user };
-    },
-    (operation) => this.#owned(operation),
-  ).bind(this);
 
   readonly redeemServerClaim = Effect.fn("CentralAuth.redeemServerClaim")(
     function* (

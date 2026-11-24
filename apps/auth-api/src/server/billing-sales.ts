@@ -7,7 +7,6 @@ import {
   type BillingPlanId,
   isBillingAmount,
 } from "@openbot/contracts/billing";
-import { HOSTED_SERVER_ENTRY_POINTS, type HostedServerEntryPoint } from "@openbot/contracts/hosted-servers";
 import { LICENSE_METADATA, LICENSE_METADATA_KIND, LICENSE_PRODUCT_ID } from "@openbot/contracts/license";
 import { isOneOf } from "@openbot/contracts/runtime-values";
 import { Effect, Schema } from "effect";
@@ -20,7 +19,7 @@ import {
 import { AccountAttribution } from "./account-attribution";
 import { alertAmount, alertCode, alertLine, alertUsers } from "./billing-purchase";
 import { BillingUsd, BillingUsdError } from "./billing-usd";
-import type { HostedPoolAlert } from "./hosted-pool-alert";
+import type { OperatorAlert } from "./operator-alert";
 import { SalesAnalyticsDelivery, SalesAnalyticsDeliveryError } from "./sales-analytics-delivery";
 import type { StripeEvent } from "./stripe-client";
 
@@ -43,7 +42,7 @@ export interface BillingSalesOptions {
   clientId: string | undefined;
   clientSecret: string | undefined;
   now?: () => number;
-  saleAlert?: HostedPoolAlert | null;
+  saleAlert?: OperatorAlert | null;
 }
 
 export interface BillingSalesCheckout {
@@ -57,7 +56,6 @@ export interface BillingSalesCheckout {
   amount: number;
   returnUrl: string;
   createdAt: number;
-  entryPoint?: HostedServerEntryPoint;
 }
 
 export interface BillingSalesLicenseCheckout {
@@ -135,7 +133,6 @@ interface FactAttributes {
   product?: BillingProduct;
   plan?: BillingPlanId;
   users?: number;
-  entryPoint?: HostedServerEntryPoint;
   interval?: BillingInterval;
   currency?: BillingCurrency;
   amount?: number;
@@ -196,7 +193,7 @@ export class BillingSales {
   readonly #now: () => number;
   readonly #fetch: (input: string, init: RequestInit) => Promise<Response>;
   readonly #delivery: SalesAnalyticsDelivery;
-  readonly #saleAlert: HostedPoolAlert | null;
+  readonly #saleAlert: OperatorAlert | null;
 
   constructor(options: BillingSalesOptions) {
     this.#saleAlert = options.saleAlert ?? null;
@@ -225,7 +222,6 @@ export class BillingSales {
       interval: input.interval,
       currency: input.currency,
       amount: input.amount,
-      ...(isOneOf(HOSTED_SERVER_ENTRY_POINTS, input.entryPoint) ? { entryPoint: input.entryPoint } : {}),
     } satisfies FactAttributes);
     const sourceKey = `checkout:${input.sessionId}:started`;
     const expiresAt = createdAt + CHECKOUT_LIFETIME_MS;
@@ -866,7 +862,6 @@ export class BillingSales {
               ...actionProperties,
               action: "checkout_started",
               checkout_status: "started",
-              ...(attributes.entryPoint ? { entry_point: attributes.entryPoint } : {}),
             }
           : row.fact_type === "checkout_expired"
             ? { ...actionProperties, action: "checkout_expired", checkout_status: "expired" }
@@ -1231,7 +1226,6 @@ function parseAttributes(value: string): FactAttributes | null {
     if (record.product === "server" || record.product === "license") output.product = record.product;
     if (isOneOf(BILLING_PLAN_IDS, record.plan)) output.plan = record.plan;
     if (isAnalyticsLicenseUsers(record.users)) output.users = record.users;
-    if (isOneOf(HOSTED_SERVER_ENTRY_POINTS, record.entryPoint)) output.entryPoint = record.entryPoint;
     if (isOneOf(BILLING_INTERVALS, record.interval)) output.interval = record.interval;
     if (isOneOf(BILLING_CURRENCIES, record.currency)) output.currency = record.currency;
     if (record.amount === undefined || isBillingAmount(record.amount)) {

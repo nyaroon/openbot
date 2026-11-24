@@ -116,7 +116,7 @@ export const WEB_APP_BILLING_PARAM = "billing";
 
 const WEB_APP_START_PARAM = "start";
 export interface WebAppStart {
-  kind: "server" | "license";
+  kind: "license";
   order: PricingOrder | null;
 }
 
@@ -126,5 +126,5 @@ export function takeWebAppStart(url: URL): WebAppStart | null {
   const order = parsePricingOrder(url.searchParams);
   url.searchParams.delete(WEB_APP_START_PARAM);
   for (const param of PRICING_ORDER_PARAMS) url.searchParams.delete(param);
-  return start === "server" || start === "license" ? { kind: start, order } : null;
+  return start === "license" ? { kind: start, order } : null;
 }

@@ -127,9 +127,7 @@ export interface InstalledSkill {
 }
 
 export function isBuiltInSkill(skill: InstalledSkill): boolean {
-  return (
-    skill.origin === "managed" || skill.slug === "openbot-site-hosting" || skill.skillId === "openbot-site-hosting"
-  );
+  return skill.origin === "managed";
 }
 
 export function isFolderSkill(skill: InstalledSkill): boolean {

@@ -73,15 +73,6 @@ const installedSkills: InstalledSkill[] = [
     description: "Polish and refine existing motion against the transitions.dev method.",
   },
   {
-    skillId: "skill-site-hosting",
-    slug: "openbot-site-hosting",
-    name: "Site Hosting",
-    installedVersion: 1,
-    availableVersion: 1,
-    state: "installed",
-    origin: "managed",
-  },
-  {
     skillId: "skill-shadcn-to-zaidan",
     slug: "shadcn-to-zaidan",
     name: "Shadcn To Zaidan",

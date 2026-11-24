@@ -9,7 +9,6 @@ import { Alert, Keyboard, View } from "react-native";
 import { ServerAppearancePicker } from "@/features/servers/components/server-appearance-picker";
 import { SERVER_AVATAR_CORNER_RATIO, ServerAvatar } from "@/features/servers/components/server-avatar";
 import { ServerStatusLabel } from "@/features/servers/components/server-status-label";
-import { useOwnerHostedServerIds } from "@/features/servers/model/server-settings-access";
 import { useLockedAction } from "@/features/servers/model/use-locked-action";
 import { useServerUpdate } from "@/features/servers/model/use-server-update";
 import {
@@ -52,7 +51,6 @@ export function ServerSettingsScreen() {
 }
 
 function ServerSettingsHome({ server }: { server: MobileServer }) {
-  const hostedServerIds = useOwnerHostedServerIds(server);
   const { canEditServerAppearance } = useMobileWorkspace();
   return (
     <SettingsContent>
@@ -62,8 +60,8 @@ function ServerSettingsHome({ server }: { server: MobileServer }) {
       <ServerPeopleSection server={server} />
       <ServerAiSection serverId={server.id} />
       <ServerDataSections serverId={server.id} />
-      <ServerConnectionSection server={server} hostedServerIds={hostedServerIds} />
-      <ServerExitSection server={server} hostedServerIds={hostedServerIds} />
+      <ServerConnectionSection server={server} />
+      <ServerExitSection server={server} />
       <ServerKeySettings server={server} />
     </SettingsContent>
   );
@@ -91,13 +89,7 @@ function ServerStatusLine({ server }: { server: MobileServer }) {
   );
 }
 
-function ServerExitSection({
-  server,
-  hostedServerIds,
-}: {
-  server: MobileServer;
-  hostedServerIds: ReadonlySet<string> | null;
-}) {
+function ServerExitSection({ server }: { server: MobileServer }) {
   const { t, errorMessage } = useText();
   const { leaveServer, removeServer, deleteLocalServer, localServerKind } = useMobileWorkspace();
   const serverId = server.id;
@@ -167,7 +159,6 @@ function ServerExitSection({
         </SettingsRow>
       </SettingsSection>
     );
-  if (!hostedServerIds || hostedServerIds.has(serverId)) return null;
   return (
     <SettingsSection footer={error}>
       <SettingsRow

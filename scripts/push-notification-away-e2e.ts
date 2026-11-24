@@ -30,7 +30,6 @@ const logger = createOpenBotLogger("push-notification-away-e2e");
 const readOptions = {
   excludeRoutineEvents: true,
   excludeRoutineRunEvents: true,
-  excludeHostedSiteEvents: true,
   excludeRoutineQuietAnswers: true,
 };
 

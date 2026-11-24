@@ -21,7 +21,6 @@ const FAILURE_OPERATIONS: Record<MobileEventName, Operation> = {
   agent_input_action: "team",
   conversation_action: "team",
   team_action: "team",
-  hosted_server_plans_action: "team",
   attachment_action: "attachment",
   message_send: "turn",
   conversation_opened: "turn",

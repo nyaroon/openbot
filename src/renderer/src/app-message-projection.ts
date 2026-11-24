@@ -1,5 +1,4 @@
 import { feedbackSentIssue } from "@openbot/contracts/feedback";
-import { serverInstallEvent } from "@openbot/contracts/hosted-servers";
 import type { ConversationMessage, ConversationSearchPage, QueueDeliveryStatus } from "@openbot/contracts/ipc";
 import {
   AGENT_INSTRUCTIONS_CHANGE_ITEM_TYPE,
@@ -8,7 +7,6 @@ import {
   CONVERSATION_MEMORY_CHANGES_ITEM_TYPE,
   CONVERSATION_PLAN_ITEM_TYPE,
   CONVERSATION_SUBAGENTS_ITEM_TYPE,
-  hostedSiteConversationEvent,
   isChannelChangeMarker,
   isContextResetMarker,
   isPlanContinuationMarker,
@@ -25,6 +23,7 @@ import {
   skillConversationEvent,
   skillSuggestionEvent,
 } from "@openbot/contracts/ipc";
+import { serverInstallEvent } from "@openbot/contracts/server-install";
 import { sourceText as englishSourceText } from "@openbot/i18n/source";
 import { cleanAgentMessageText } from "@openbot/team-client/agent-message-text";
 
@@ -81,8 +80,7 @@ export function toAgentMessage(message: ConversationMessage, ownerAgentId?: stri
   const exchangeSenderId = message.senderAgentId ?? message.exchange?.senderAgentId;
   const routineEvent = routineConversationEvent(message);
   const routineRunEvent = routineRunConversationEvent(message);
-  const hostedSiteEvent = hostedSiteConversationEvent(message);
-  const actionMarker = chatActionMarker(message, ownerAgentId, routineEvent, routineRunEvent, hostedSiteEvent);
+  const actionMarker = chatActionMarker(message, ownerAgentId, routineEvent, routineRunEvent);
   const plan = messagePlan(message);
   const subagents = message.itemType === CONVERSATION_SUBAGENTS_ITEM_TYPE ? message.subagents : undefined;
   const memoryChanges = message.author === "system" && message.itemType === CONVERSATION_MEMORY_CHANGES_ITEM_TYPE;
@@ -392,7 +390,6 @@ function chatActionMarker(
   ownerAgentId: string | undefined,
   routineEvent: ReturnType<typeof routineConversationEvent>,
   routineRunEvent: ReturnType<typeof routineRunConversationEvent>,
-  hostedSiteEvent: ReturnType<typeof hostedSiteConversationEvent>,
 ): ChatActionMarkerModel | null {
   if (message.exchange) {
     const targetDeliveries = message.exchange.deliveries.map((delivery) => ({
@@ -487,20 +484,6 @@ function chatActionMarker(
       runId: message.routine.runId,
       routineName: message.routine.name,
       status: "queued",
-      timestamp: message.createdAt,
-    };
-  }
-  if (hostedSiteEvent) {
-    return {
-      kind: "hosted-site",
-      sourceAgentId: ownerAgentId ?? null,
-      action: hostedSiteEvent.action,
-      status: hostedSiteEvent.status,
-      operationId: hostedSiteEvent.operationId,
-      siteId: hostedSiteEvent.siteId,
-      title: hostedSiteEvent.title,
-      hostname: hostedSiteEvent.hostname,
-      url: hostedSiteEvent.url,
       timestamp: message.createdAt,
     };
   }

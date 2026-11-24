@@ -10,7 +10,6 @@ import {
   ContextMenu,
   DropdownMenu,
   Eye,
-  Moon,
   MotionTooltip,
   PanelLeft,
   Plus,
@@ -20,22 +19,7 @@ import { SwapLabel } from "@openbot/ui/components/SwapLabel";
 import { createEffect, createSignal, For, Show, untrack } from "solid-js";
 import { useText } from "../../text";
 import { type ServerActionCallbacks, ServerActionItems } from "./ServerActionItems";
-import {
-  ServerPlanBanner,
-  ServerPlanChip,
-  ServerPlanCount,
-  serverPlanDaysLeft,
-  serverPlanEnds,
-  serverPlanStatusLabels,
-} from "./ServerPlanEnd";
-import {
-  addServerLabel,
-  type HiddenLocalServer,
-  ServerMark,
-  ServerSleepDot,
-  serverHostedSleep,
-  serverStatusLabels,
-} from "./ServerRail";
+import { type HiddenLocalServer, ServerMark, serverStatusLabels } from "./ServerRail";
 
 export type ServerView = "rail" | "menu";
 
@@ -58,7 +42,6 @@ export interface ServerMenuProps extends ServerActionCallbacks {
   onViewChange: (view: ServerView) => void;
   onSelect: (serverId: string) => void;
   onAdd?: () => void;
-  addCreatesServer?: boolean | undefined;
   onCreateLocal?: (() => void) | undefined;
   onInstallServer?: (() => void) | undefined;
   hiddenLocal?: HiddenLocalServer | undefined;
@@ -83,29 +66,14 @@ function CheckCircle(props: { checked: boolean }) {
 let lastShown: { id: string | undefined; name: string } | undefined;
 
 export function ServerMenu(props: ServerMenuProps) {
-  const { t, format } = useText();
+  const { t } = useText();
   const [menuOpen, setMenuOpen] = createSignal(false);
   const rail = untrack(() => props.rail === true);
   let anchor: HTMLElement | undefined;
   let trigger: HTMLElement | undefined;
   const activeServer = () => props.servers.find((server) => server.active);
   const activeServers = () => props.servers.filter((server) => server.active);
-  const activeSleep = () => {
-    const server = activeServer();
-    return server ? serverHostedSleep(server) : null;
-  };
-  const planEnds = () => serverPlanEnds(props.servers, props.planDeletesAt);
-  const planDeletesAt = (serverId: string) => props.planDeletesAt?.(serverId) ?? null;
-  const planCount = () => {
-    const first = props.view === "menu" ? planEnds()[0] : undefined;
-    return first ? serverPlanDaysLeft(first.deleteAt) : null;
-  };
-  const triggerTitle = () => {
-    const sleep = activeSleep();
-    if (sleep === "sleeping") return t("server.sleep.tooltipSleeping", { name: props.serverName });
-    if (sleep === "waking") return t("server.sleep.tooltipWaking", { name: props.serverName });
-    return props.serverName;
-  };
+  const triggerTitle = () => props.serverName;
   const shownBefore = lastShown;
   let markId = shownBefore?.id;
   createEffect(
@@ -141,17 +109,7 @@ export function ServerMenu(props: ServerMenuProps) {
           ? "window-rail-button window-rail-server"
           : buttonVariants({ variant: "ghost", size: "sm", class: "sidebar-server-name no-drag" })
       }
-      aria-label={[
-        t("server.menu.open", { name: props.serverName }),
-        ...(activeSleep() === "sleeping" ? [t("server.state.sleeping")] : []),
-        ...(activeSleep() === "waking" ? [t("server.state.waking")] : []),
-        ...(props.view === "menu"
-          ? planEnds().flatMap((end) => [
-              end.server.name,
-              ...serverPlanStatusLabels(end.server, end.deleteAt, t, format),
-            ])
-          : []),
-      ].join(", ")}
+      aria-label={[t("server.menu.open", { name: props.serverName })].join(", ")}
       aria-hidden={props.compact ? "true" : undefined}
       aria-keyshortcuts="Shift+F10"
       tabindex={props.compact ? -1 : 0}
@@ -184,23 +142,10 @@ export function ServerMenu(props: ServerMenuProps) {
           );
         }}
       </For>
-      <Show
-        when={!rail}
-        fallback={
-          <Show when={activeSleep()}>
-            {(sleep) => (
-              <span class="server-menu-sleep window-rail-server-sleep" data-state={sleep()} aria-hidden="true" />
-            )}
-          </Show>
-        }
-      >
+      <Show when={!rail} fallback={null}>
         <SwapLabel class="sidebar-server-name-label" text={props.serverName} from={shownBefore?.name} dir="auto" />
-        <Show when={activeSleep()}>
-          {(sleep) => <Moon class="sidebar-server-name-sleep" data-state={sleep()} aria-hidden="true" />}
-        </Show>
         <ChevronsUpDown class="sidebar-server-name-chevron" aria-hidden="true" />
       </Show>
-      <Show when={planCount()}>{(count) => <ServerPlanCount count={count()} class="server-plan-trigger-count" />}</Show>
     </DropdownMenu.Trigger>
   );
 
@@ -222,36 +167,27 @@ export function ServerMenu(props: ServerMenuProps) {
             <Show
               when={props.view === "menu"}
               fallback={
-                <>
-                  <Show when={props.onOpenSettings ? activeServer() : undefined}>
-                    {(server) => (
-                      <ServerActionItems
-                        menu={DropdownMenu}
-                        server={server()}
-                        trigger={() => trigger ?? null}
-                        onOpenSettings={props.onOpenSettings}
-                        onLeave={props.onLeave}
-                        onDelete={props.onDelete}
-                        canDelete={props.canDelete}
-                        onRestart={props.onRestart}
-                        canRestart={props.canRestart}
-                        onRemove={props.onRemove}
-                        canRemove={props.canRemove}
-                        onHide={props.onHide}
-                        canHide={props.canHide}
-                      />
-                    )}
-                  </Show>
-                </>
+                <Show when={props.onOpenSettings ? activeServer() : undefined}>
+                  {(server) => (
+                    <ServerActionItems
+                      menu={DropdownMenu}
+                      server={server()}
+                      trigger={() => trigger ?? null}
+                      onOpenSettings={props.onOpenSettings}
+                      onLeave={props.onLeave}
+                      onDelete={props.onDelete}
+                      canDelete={props.canDelete}
+                      onRestart={props.onRestart}
+                      canRestart={props.canRestart}
+                      onRemove={props.onRemove}
+                      canRemove={props.canRemove}
+                      onHide={props.onHide}
+                      canHide={props.canHide}
+                    />
+                  )}
+                </Show>
               }
             >
-              <Show when={props.onRenewPlan}>
-                {(onRenewPlan) => (
-                  <For each={planEnds()} keyed={(end) => end.server.id}>
-                    {(end) => <ServerPlanBanner menu={DropdownMenu} end={end()} onRenew={onRenewPlan()} />}
-                  </For>
-                )}
-              </Show>
               <div class="ui-menu-label" aria-hidden="true">
                 {t("server.rail.label")}
               </div>
@@ -260,11 +196,7 @@ export function ServerMenu(props: ServerMenuProps) {
                   <DropdownMenu.Sub>
                     <DropdownMenu.SubTrigger
                       class="server-menu-row"
-                      aria-label={[
-                        server().name,
-                        ...serverStatusLabels(server(), t),
-                        ...serverPlanStatusLabels(server(), planDeletesAt(server().id), t, format),
-                      ].join(", ")}
+                      aria-label={[server().name, ...serverStatusLabels(server(), t)].join(", ")}
                       aria-current={server().active ? "true" : undefined}
                       data-cuelume-navigate=""
                       onClick={() => selectServer(server())}
@@ -275,11 +207,9 @@ export function ServerMenu(props: ServerMenuProps) {
                         <ServerMark server={server()} />
                       </span>
                       <span class="server-menu-name">{server().name}</span>
-                      <ServerSleepDot server={server()} class="server-menu-sleep" />
                       <Show when={server().notificationsMuted}>
                         <BellOff class="server-menu-muted size-3" aria-hidden="true" />
                       </Show>
-                      <ServerPlanChip server={server()} deleteAt={planDeletesAt(server().id)} />
                       <ChevronRight class="agent-context-submenu-chevron size-4" aria-hidden="true" />
                     </DropdownMenu.SubTrigger>
                     <DropdownMenu.Portal>
@@ -314,7 +244,7 @@ export function ServerMenu(props: ServerMenuProps) {
                   <span class="server-menu-add-circle" aria-hidden="true">
                     <Plus />
                   </span>
-                  <span>{t(addServerLabel(props))}</span>
+                  <span>{t("server.rail.addRemote")}</span>
                 </DropdownMenu.Item>
               </Show>
               <Show when={props.onCreateLocal}>

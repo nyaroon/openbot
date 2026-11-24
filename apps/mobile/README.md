@@ -522,7 +522,7 @@ The new section is `## [x.y.z] - In review`, and `/changelog` does not show it. 
 review a build on their own, and each can take days. When testers can install the build from one
 store, run `bun run mobile:release` and select 3, or `bun run mobile:release:published ios` (or
 `android`). It writes today's date for that store, for example `## [x.y.z] - 2026-10-14 (Android)`,
-and raises that store's `cloudServers` and `browser` flags and newest version in
+and raises that store's `browser` flag and newest version in
 `apps/auth-api/src/server/mobile-features-config.ts`. Merge that change to `main`. After the Worker
 deploy, the site shows the version with that store, the other store as "In review", and Discord gets
 the post of that store. When the other store makes the build available, do the same for that store.
@@ -1010,7 +1010,6 @@ where available, `duration_ms`. Failure codes are fixed categories, never raw er
 | `account_sign_out` | Sign-out result under the initiating account |
 | `account_sign_in_started` | Email sign-in code request (also a resend); `method=email`, `result` is `code_sent` or `failed`, duration |
 | `account_sign_in_completed` | Email sign-in code check; `method=email`, result, duration |
-| `hosted_server_plans_action` | Hosted server plans sheet `viewed` and `closed`, or a server in setup opened (`setup_opened`); `entry_point` is `drawer` or `onboarding` when known. The mobile sheet has no purchase |
 | `onboarding_step` | First-run `step` (`hello`, `server`, `agent`, `look`, `name`, `role`, `task`, `ready`) with `action` `viewed`, `next`, `back` or `skipped` |
 | `onboarding_completed` | First run ended; `skipped` is true when the user skipped it |
 | `notification_settings_action` | Notifications turned on or off, preview, thread replies or Live Activities switched (`enabled`), or the phone's permission prompt answered (`permission` is `granted`, `denied` or `undetermined`) |

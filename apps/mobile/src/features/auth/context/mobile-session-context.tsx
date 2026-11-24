@@ -77,8 +77,6 @@ export function MobileSessionProvider({ children }: PropsWithChildren) {
     if (sessionRef.current?.sessionToken !== session?.sessionToken || sessionRef.current?.apiUrl !== session?.apiUrl) {
       sessionScope.current += 1;
       queryClient.removeQueries({ queryKey: queryKeys.accountSessions() });
-      queryClient.removeQueries({ queryKey: queryKeys.hostedServerPlans() });
-      queryClient.removeQueries({ queryKey: queryKeys.billing() });
       deleteComposerDrafts();
       deleteSideQuestions();
     }

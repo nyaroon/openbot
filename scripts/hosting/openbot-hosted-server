@@ -63,33 +63,13 @@ if [ "${1:-}" = --watchdog ]; then
   exit 0
 fi
 state="$HOME/.config/openbot-hosted"
-mode=hosted
-if [ -r /opt/OpenBot/hosted/mode ] && [ "$(</opt/OpenBot/hosted/mode)" = self ]; then mode=self; fi
 
-if [ "${1:-}" != --in-session ] && [ "$mode" = self ]; then
+if [ "${1:-}" != --in-session ]; then
   mkdir -p "$state"
   chmod 0700 "$state"
   exec dbus-run-session -- "$0" --in-session
 fi
-if [ "${1:-}" != --in-session ]; then
-  for _ in $(seq 1 300); do
-    [ -s "$state/env" ] && break
-    sleep 2
-  done
-  [ -s "$state/env" ] || { echo "The hosted server env file is missing." >&2; exit 1; }
-  exec dbus-run-session -- "$0" --in-session
-fi
-
-if [ "$mode" = hosted ]; then
-  while IFS='=' read -r key value; do
-    case $key in
-      OPENBOT_HOSTED_HOST_ID | OPENBOT_HOSTED_CLAIM) export "$key=$value" ;;
-    esac
-  done <"$state/env"
-  export OPENBOT_HOSTED_SERVER=1
-else
-  export OPENBOT_SERVER=1
-fi
+export OPENBOT_SERVER=1
 requested_size=""
 if [ -r /opt/OpenBot/hosted/openbot.env ]; then
   while IFS='=' read -r key value || [ -n "$key" ]; do
@@ -146,20 +126,6 @@ export GNOME_KEYRING_CONTROL
 
 openbot=(bash -c 'echo "$$" >"$XDG_RUNTIME_DIR/openbot.pid" && exec "$@"' openbot-hosted-server
   /opt/OpenBot/app/openbot --password-store=gnome-libsecret)
-if [ "$mode" = hosted ] && [ -e /etc/systemd/system/display-manager.service ]; then
-  search=0
-  pgrep -u "$(id -u)" -x xauth >/dev/null 2>&1 || search=$?
-  if [ "$search" -eq 1 ]; then rm -f "$HOME/.Xauthority-c" "$HOME/.Xauthority-l"; fi
-  for _ in $(seq 1 60); do
-    if DISPLAY=:0 XAUTHORITY="$HOME/.Xauthority" xdpyinfo >/dev/null 2>&1; then
-      export OPENBOT_AGENT_DISPLAY=:0
-      exec xvfb-run -a -f "$HOME/.Xauthority" -s "-screen 0 1280x800x24 -nolisten tcp" "${openbot[@]}"
-    fi
-    sleep 2
-  done
-  echo "The boat desktop session did not start. OpenBot uses two virtual displays." >&2
-fi
-
 exec xvfb-run -a -s "-screen 0 $(display_size "$requested_size")x24 -nolisten tcp -wr -noreset" \
   bash -c 'command -v xsetroot >/dev/null && xsetroot -cursor_name left_ptr; if [ -r "$1" ]; then bash "$1" </dev/null & fi; shift; export OPENBOT_AGENT_DISPLAY=$DISPLAY; exec xvfb-run -a -f "$XAUTHORITY" -s "-screen 0 1280x800x24 -nolisten tcp" "$@"' \
   openbot-hosted-server /opt/OpenBot/app/resources/hosting/openbot-desktop "${openbot[@]}"

@@ -6784,7 +6784,6 @@ try {
             {
               excludeRoutineEvents: true,
               excludeRoutineRunEvents: true,
-              excludeHostedSiteEvents: true,
               excludeRoutineQuietAnswers: true,
               excludeSettingLinks: true,
             },

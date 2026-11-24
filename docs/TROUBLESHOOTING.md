@@ -271,7 +271,7 @@ device disconnects. With the setting on, the entry is named `Electron`.
 To see when a Mac slept, run `pmset -g log | grep -E " Sleep | Wake "`. `logs/main/main.log` (see
 [Report a problem](#report-a-problem)) has a `Keeping this computer awake.` line when OpenBot
 starts to keep it awake. For routines that run when no computer of yours is on, use a
-[hosted server](hosted-servers.md) or a [self-hosted server](self-hosted-server.md).
+hosted server or a [self-hosted server](self-hosted-server.md).
 
 ## A company firewall or proxy blocks OpenBot
 

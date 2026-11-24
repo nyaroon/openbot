@@ -28,8 +28,6 @@ export const messages = {
   "mobile.app.route.editMessage": "تعديل الرسالة",
   "mobile.app.route.serverOptions": "خيارات الخادم",
   "mobile.app.route.members": "الأعضاء",
-  "mobile.app.route.hostedServerPlans": "خادم سحابي",
-  "mobile.app.route.hostedServerSetup": "الإعداد",
   "mobile.app.route.schedule": "الجدول",
   "mobile.app.route.workflows": "مسارات العمل",
   "mobile.app.route.workflow": "سير العمل",

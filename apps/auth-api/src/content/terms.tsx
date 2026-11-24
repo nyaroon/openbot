@@ -77,7 +77,7 @@ export function Terms() {
       </p>
       <p>
         Commercial License subscriptions are available with monthly or annual billing periods. Current pricing and plan
-        details are available on the <Link to="/pricing">{PRICING_LABEL}</Link> page.
+        details are available on the {PRICING_LABEL} page.
       </p>
       <p>
         The detailed rules governing Commercial Licenses, including Seat assignments, additional Seats, renewals,
@@ -101,7 +101,7 @@ export function Terms() {
       </p>
       <p>
         Hosted Server subscriptions are available with monthly or annual billing periods. Current pricing, available
-        plans, and their technical specifications are presented on the <Link to="/pricing">{PRICING_LABEL}</Link> page.
+        plans, and their technical specifications are presented on the {PRICING_LABEL} page.
       </p>
 
       <h2>Pricing and Plan Selection</h2>
@@ -535,7 +535,7 @@ export function Terms() {
       </p>
       <p>
         The applicable fees, billing periods, plan characteristics, and any additional charges are presented on the{" "}
-        <Link to="/pricing">OpenBot Pricing</Link> page and during the purchasing process.
+        OpenBot Pricing page and during the purchasing process.
       </p>
       <p>
         Commercial Licenses are billed according to the number of Seats purchased and the applicable billing period, in

@@ -15,7 +15,6 @@ import { MACHINE_METRIC_ICONS, MACHINE_METRIC_LABELS, useMachineMetricDetail } f
 
 export interface UsageMachineMeterProps {
   metrics: MachineMetrics;
-  hostedPlan?: boolean;
   onOpenStorage: () => void;
 }
 
@@ -78,14 +77,14 @@ export function UsageMachineMeter(props: UsageMachineMeterProps) {
                 data-tone={metricTone(props.metrics, "disk")}
                 aria-label={t("usage.machine.openStorage", {
                   percent: percentText(props.metrics, "disk"),
-                  detail: detail(props.metrics, "disk", props.hostedPlan),
+                  detail: detail(props.metrics, "disk"),
                 })}
                 onClick={() => {
                   setOpen(false);
                   props.onOpenStorage();
                 }}
               >
-                <MetricDetail metrics={props.metrics} metric="disk" hostedPlan={props.hostedPlan} inButton />
+                <MetricDetail metrics={props.metrics} metric="disk" inButton />
               </Button>
             </footer>
           </Popover.Content>
@@ -110,12 +109,7 @@ function metricTone(metrics: MachineMetrics, metric: MachineMetric): MachineMetr
   );
 }
 
-function MetricDetail(props: {
-  metrics: MachineMetrics;
-  metric: MachineMetric;
-  hostedPlan?: boolean | undefined;
-  inButton?: boolean;
-}): JSX.Element {
+function MetricDetail(props: { metrics: MachineMetrics; metric: MachineMetric; inButton?: boolean }): JSX.Element {
   const { t } = useText();
   const percentText = useMetricPercentText();
   const detail = useMachineMetricDetail();
@@ -141,7 +135,7 @@ function MetricDetail(props: {
         aria-hidden={props.inButton ? "true" : undefined}
         getValueLabel={() => t("files.machine.used", { percent: percentText(props.metrics, props.metric) })}
       />
-      <span class="usage-machine-detail-size">{detail(props.metrics, props.metric, props.hostedPlan)}</span>
+      <span class="usage-machine-detail-size">{detail(props.metrics, props.metric)}</span>
     </>
   );
 }

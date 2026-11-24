@@ -20,7 +20,7 @@ export function RollingPrice(props: { value: number; format: (value: number) => 
     return undefined;
   };
   return (
-    <span class={props.class ?? "hosted-plan-amount"}>
+    <span class={props.class ?? "rolling-price"}>
       <span class="sr-only">{props.format(props.value)}</span>
       <span ref={roll.ref} class="t-digit-group" style={{ "--digit-dir-y": direction() }} aria-hidden="true">
         <DigitRuns

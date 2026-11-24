@@ -25,27 +25,18 @@ async function main(): Promise<void> {
   assertFcmServiceAccount();
   await putRequiredSecret("EMAIL_SMTP_PASSWORD");
   await putRequiredSecret("SKILLS_ADMIN_TOKEN");
-  await putRequiredSecret("SITE_REPORT_HASH_SECRET");
   await putRequiredSecret("REMOTE_TICKET_PRIVATE_JWK");
   await putRequiredSecret("REMOTE_TICKET_PUBLIC_JWKS");
   await putRequiredSecret("REMOTE_AUTH_WEBHOOK_SECRET");
   assertStripeKeyMode();
   await putOptionalSecretSet("STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET");
-  await putOptionalSecretSet("BOAT_API_KEY", "BOAT_WEBHOOK_SECRET");
-  if (cloudflareEnvironment === "test") await putOptionalSecret("HOSTED_SERVER_TEMPLATE");
   await putOptionalSecret("GITHUB_APP_PRIVATE_KEY");
-  await putOptionalSecretSet("HOSTED_ARCHIVE_KEY_SECRET", "B2_WORKER_KEY_ID_EU", "B2_WORKER_APPLICATION_KEY_EU");
   await putOptionalSecret("SERVER_CLAIMS_ADMIN_TOKEN");
-  if (!cloudflareEnvironment) await putOptionalSecret("HOSTED_POOL_ALERT_WEBHOOK_URL");
   await putOptionalSecretSet("SLACK_CLIENT_ID", "SLACK_CLIENT_SECRET", "SLACK_STATE_SECRET");
   await putOptionalSecretSet("SLACK_ROUTE_PRIVATE_JWK", "SLACK_ROUTE_KEY_ID");
   await putOptionalSecretSet("DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET", "DISCORD_STATE_SECRET");
   await putOptionalSecretSet("DISCORD_ROUTE_PRIVATE_JWK", "DISCORD_ROUTE_KEY_ID");
   await putOptionalSecretSet("TELEGRAM_BOT_ID", "TELEGRAM_BOT_USERNAME");
-  if (cloudflareEnvironment === "test") {
-    await putTestAllowList();
-    await putOptionalSecret("HOSTED_SERVERS_DEVELOPER_KEY");
-  }
   if (!cloudflareEnvironment) {
     await putRequiredSecret("OPENPANEL_CLIENT_ID");
     await putRequiredSecret("OPENPANEL_CLIENT_SECRET");
@@ -115,22 +106,6 @@ function assertStripeKeyMode(): void {
   }
   if (!cloudflareEnvironment && !live)
     throw new Error("STRIPE_SECRET_KEY is not a live key. Production takes only live keys.");
-}
-
-async function putTestAllowList(): Promise<void> {
-  const value = process.env.HOSTED_SERVERS_TEST_ALLOW_LIST?.trim();
-  if (!value) {
-    logger.info("HOSTED_SERVERS_TEST_ALLOW_LIST is not set. The Worker keeps its current allow list.");
-    return;
-  }
-  if (value.startsWith("encrypted:")) throw new Error("HOSTED_SERVERS_TEST_ALLOW_LIST is not decrypted.");
-  if (value.split(",").some((entry) => entry.trim() === "*")) {
-    throw new Error("HOSTED_SERVERS_TEST_ALLOW_LIST must name accounts, not `*`.");
-  }
-  await run(wranglerExecutable, ["secret", "put", "HOSTED_SERVERS_ALLOWED_USER_IDS", ...environmentArgs], {
-    input: `${value}\n`,
-    label: "HOSTED_SERVERS_ALLOWED_USER_IDS secret",
-  });
 }
 
 async function putOptionalSecret(name: string): Promise<void> {

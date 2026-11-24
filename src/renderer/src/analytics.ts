@@ -1,13 +1,5 @@
 import { isKeyOnlyProvider } from "@openbot/contracts/agent-providers";
-import {
-  BILLING_CURRENCIES,
-  BILLING_INTERVALS,
-  BILLING_PLAN_IDS,
-  type BillingCurrency,
-  type BillingInterval,
-  type BillingPlanId,
-} from "@openbot/contracts/billing";
-import { HOSTED_SERVER_ENTRY_POINTS, type HostedServerEntryPoint } from "@openbot/contracts/hosted-servers";
+import { BILLING_CURRENCIES, BILLING_INTERVALS, BILLING_PLAN_IDS } from "@openbot/contracts/billing";
 import {
   AGENT_PROVIDERS,
   AGENT_REASONING_EFFORTS,
@@ -257,33 +249,6 @@ interface DesktopAnalyticsEvents {
     result: AnalyticsResult;
     failure_code?: string;
   };
-  hosted_site_action: {
-    action: "publish" | "replace" | "delete";
-    entry_point: "agent" | "settings";
-    result: AnalyticsResult;
-    failure_code?: string;
-  };
-  hosted_server_upsell: {
-    action: "shown" | "see_plans" | "dismissed";
-    entry_point: "routine_created" | "routines_list" | "server_offline";
-  };
-  hosted_server_plans_action: {
-    action:
-      | "viewed"
-      | "currency_changed"
-      | "interval_changed"
-      | "plan_selected"
-      | "create_failed"
-      | "payment_open_failed"
-      | "retried"
-      | "closed"
-      | "join_opened";
-    entry_point?: HostedServerEntryPoint;
-    plan?: BillingPlanId;
-    interval?: BillingInterval;
-    currency?: BillingCurrency;
-    failure_code?: string;
-  };
   limit_reached: {
     kind: "servers" | "members" | "license_users";
     action: "shown" | "manage_clicked" | "confirmed" | "dismissed" | "contact_clicked";
@@ -429,9 +394,6 @@ const EVENT_PROPERTY_ALLOWLIST = {
   speech_model_action: ["action", "entry_point", "result", "duration_ms", "failure_code"],
   speech_settings_action: ["action", "result", "voice", "failure_code"],
   reaction_action: ["action", "result", "failure_code"],
-  hosted_site_action: ["action", "entry_point", "result", "failure_code"],
-  hosted_server_upsell: ["action", "entry_point"],
-  hosted_server_plans_action: ["action", "entry_point", "plan", "interval", "currency", "failure_code"],
   limit_reached: ["kind", "action", "role"],
   license_action: ["action", "result", "direction", "failure_code"],
   sales_contact_clicked: ["entry_point"],
@@ -521,7 +483,6 @@ const SAFE_FAILURE_CODES = new Set([
   "update_failed",
   "webhook_route_limit",
   "verification_failed",
-  "hosted_site_failed",
   "cancelled",
   "interrupted",
   "mcp_server_test_failed",
@@ -604,19 +565,6 @@ const EVENT_ACTIONS: Partial<Record<AnalyticsEventName, readonly string[]>> = {
   speech_model_action: ["download"],
   speech_settings_action: ["read_replies_on", "read_replies_off", "voice_changed"],
   reaction_action: ["add", "remove"],
-  hosted_site_action: ["publish", "replace", "delete"],
-  hosted_server_upsell: ["shown", "see_plans", "dismissed"],
-  hosted_server_plans_action: [
-    "viewed",
-    "currency_changed",
-    "interval_changed",
-    "plan_selected",
-    "create_failed",
-    "payment_open_failed",
-    "retried",
-    "closed",
-    "join_opened",
-  ],
   limit_reached: ["shown", "manage_clicked", "confirmed", "dismissed", "contact_clicked"],
   license_action: [
     "buy_opened",
@@ -643,11 +591,8 @@ const EVENT_ENUMS: Partial<Record<AnalyticsEventName, Readonly<Record<string, re
   agent_input_action: { kind: ["prompt", "approval"] },
   search_action: { scope: ["global", "agent"] },
   team_action: { entry_point: ["in_app", "invite_deep_link"] },
-  hosted_site_action: { entry_point: ["agent", "settings"] },
-  hosted_server_upsell: { entry_point: ["routine_created", "routines_list", "server_offline"] },
   speech_model_action: { entry_point: ["settings", "voice_conversation"] },
   voice_conversation_action: { trigger: ["button", "voice"] },
-  hosted_server_plans_action: { entry_point: HOSTED_SERVER_ENTRY_POINTS },
   limit_reached: { kind: ["servers", "members", "license_users"] },
   sales_contact_clicked: { entry_point: ["add_server", "license", "members"] },
   billing_return_viewed: { kind: ["plan", "license", "portal"] },

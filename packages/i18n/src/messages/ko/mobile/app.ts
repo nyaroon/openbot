@@ -28,8 +28,6 @@ export const messages = {
   "mobile.app.route.editMessage": "메시지 수정",
   "mobile.app.route.serverOptions": "서버 옵션",
   "mobile.app.route.members": "멤버",
-  "mobile.app.route.hostedServerPlans": "클라우드 서버",
-  "mobile.app.route.hostedServerSetup": "설정",
   "mobile.app.route.schedule": "일정",
   "mobile.app.route.workflows": "워크플로",
   "mobile.app.route.workflow": "워크플로",

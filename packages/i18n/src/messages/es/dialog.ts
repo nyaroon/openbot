@@ -2,7 +2,6 @@ import type { PartialTranslation } from "../../message";
 import type { messages as source } from "../en/dialog";
 
 export const messages = {
-  "dialog.chooseSiteDirectory": "Elige una carpeta de sitio estático",
   "dialog.chooseAgentFolder": "Elige una carpeta para {agent}",
   "dialog.chooseChannelFolder": "Elige una carpeta para {channel}",
   "dialog.chooseAgentExclusion": "Elige una carpeta que {agent} no debe cambiar",

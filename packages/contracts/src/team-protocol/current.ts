@@ -118,7 +118,6 @@ import { HOST_TIMEZONE_CAPABILITY } from "./host-timezone-v1";
 import { HOST_TURN_LIMITS_CAPABILITY } from "./host-turn-limits-v1";
 import { HOST_UPDATE_CAPABILITY } from "./host-update-v1";
 import { HOST_VOICE_MODEL_CAPABILITY } from "./host-voice-model-v1";
-import { HOSTED_SITES_CAPABILITY } from "./hosted-sites-v1";
 import { INSTANCE_TRANSFER_CHUNKS_CAPABILITY } from "./instance-transfer-chunks-v1";
 import { INSTANCE_TRANSFER_FULL_COPY_CAPABILITY } from "./instance-transfer-full-copy-v1";
 import { INSTANCE_TRANSFER_CAPABILITY } from "./instance-transfer-v1";
@@ -387,7 +386,6 @@ export {
   HOST_TIMEZONE_CAPABILITY,
   HOST_TURN_LIMITS_CAPABILITY,
   HOST_UPDATE_CAPABILITY,
-  HOSTED_SITES_CAPABILITY,
   INSTANCE_TRANSFER_CAPABILITY,
   INSTANCE_TRANSFER_CHUNKS_CAPABILITY,
   INSTANCE_TRANSFER_FULL_COPY_CAPABILITY,
@@ -540,7 +538,6 @@ const TEAM_CAPABILITY_REGISTRY = [
   ["browser-control", ALL_BOOTSTRAP],
   ["conversation-pagination", ALL_BOOTSTRAP],
   ["direct-messages", ALL_BOOTSTRAP],
-  ["hosted-site-event-markers", ALL_BOOTSTRAP],
   ["remote-desktop", ALL_BOOTSTRAP],
   ["routine-event-markers", ALL_BOOTSTRAP],
   ["routine-run-event-markers", ALL_BOOTSTRAP],
@@ -604,7 +601,6 @@ const TEAM_CAPABILITY_REGISTRY = [
   [INSTANCE_TRANSFER_CAPABILITY, V7],
   [AGENT_PUBLISH_CAPABILITY, ALL_BOOTSTRAP],
   [LIVE_ACTIVITY_PUSH_CAPABILITY, ALL_BOOTSTRAP],
-  [HOSTED_SITES_CAPABILITY, ALL_BOOTSTRAP],
   [TEAM_MESSAGE_CLIENT_ID_CAPABILITY, ALL_BOOTSTRAP],
   [WORKSPACE_DIRECTORY_CAPABILITY, ALL_BOOTSTRAP],
   [AGENT_HOST_SETTINGS_CAPABILITY, ALL],

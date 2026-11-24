@@ -36,7 +36,7 @@ export function PricingSection() {
           <ButtonLink to="/download" variant="primary" size="md" icon="download">
             {text().download}
           </ButtonLink>
-          <ButtonLink to={path("/pricing")} variant="secondary" size="md" icon="arrow-right">
+          <ButtonLink to={path("/commercial-license")} variant="secondary" size="md" icon="arrow-right">
             {text().license}
           </ButtonLink>
         </div>

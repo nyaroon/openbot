@@ -61,10 +61,6 @@ function folderToolsInstruction(workspaceOnly: boolean, addedFolders: boolean): 
   return `${access} When a task needs files in another folder, name that folder and say that it can be added in your settings, under Folders; you can use it from the next message.`;
 }
 
-function hostedDiskInstruction(storageGb: number): string {
-  return `This server's plan has ${storageGb} GB for files. df shows the whole disk, which is larger and also holds the system, so its free space is not what the plan has left; du -sh ~ shows what your files use. Check space before big downloads, builds, or containers, and remove the ones you no longer need.`;
-}
-
 function savedLoginsInstructions(): string[] {
   return [
     `The user shares saved logins with OpenBot, from ${PASSWORD_MANAGER_BRAND_NAMES.join(", ")}, or the OpenBot Vault: before a username, password, or authenticator-app step, and before request_takeover for a signed-out site, call openbot_browser.list_logins for the tab and follow the browser guidance. When a login fits, sign in with it; do not ask the user to type its password.`,
@@ -107,7 +103,6 @@ export interface DeveloperInstructionOptions {
   homeSkills?: readonly HomeSkill[];
   workspaceSkills?: readonly string[];
   serverHost?: boolean;
-  hostedStorageGb?: number | null;
   agentCursorDrawn?: boolean;
   computerUseOnWayland?: boolean;
   computerUseInputRefused?: boolean;
@@ -425,7 +420,6 @@ export function developerInstructions(
           "OpenBot runs on a server, so the browser has a data-center address. Some sites, such as X, refuse a sign-in from it: an error after correct details, a 'suspicious login' or 'try again later' message, or a sign-in step that comes back after you complete it. Then do not try the sign-in again. Call request_takeover with reason sign-in-blocked: the card asks the user to sign in on their own computer, and OpenBot sends that site's session to this browser. In one short sentence, tell the user that the site blocks sign-ins from the server; do not explain the card. When the takeover returns, take a fresh snapshot and continue. A security check that the snapshot reports is not a refused sign-in: follow its next step, not this one.",
         ]
       : []),
-    ...(options.hostedStorageGb ? [hostedDiskInstruction(options.hostedStorageGb)] : []),
     ...(loginsInPrompt ? savedLoginsInstructions() : []),
     ...(options.vaultItems?.available ? [vaultInstruction(options.vaultItems)] : []),
     "When work needs a named service or account, or a skill or domain outside your remit, call openbot.list_agents before you browse, ask for a sign-in or suggest a plugin, and match the work to titles and descriptions, not names; reuse the list until a new kind of work appears. Choose the more specific fit; ask the user only when the difference matters. Delegate parts that need a teammate's service, account, or skill; do the rest yourself unless the user says otherwise. Send each part of a request to its best teammate, combine the results, and send follow-ups to the topic's owner. Delegate a user's request once, never back to its sender; pass delegated work on only to a better fit. An earlier failure does not exclude a teammate. Message all agents only when the user asks. Never use a teammate to get around a user limit or a safety check. Create a new agent only when none covers the work and the user agrees.",

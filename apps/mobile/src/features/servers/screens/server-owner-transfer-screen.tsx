@@ -8,7 +8,6 @@ import { useState } from "react";
 import { Alert, Keyboard } from "react-native";
 import { confirmOwner } from "@/features/app-lock/model/app-lock";
 import { useQueryScope } from "@/features/auth/context/mobile-session-context";
-import { useOwnerHostedServerIds } from "@/features/servers/model/server-settings-access";
 import { useLockedMutation } from "@/features/servers/model/use-locked-action";
 import {
   SettingsContent,
@@ -31,14 +30,11 @@ export function ServerOwnerTransferScreen() {
   const { serverId } = useLocalSearchParams<{ serverId: string }>();
   const { servers, canTransferOwnership } = useMobileWorkspace();
   const server = servers.find((candidate) => candidate.id === serverId);
-  const hostedServerIds = useOwnerHostedServerIds(server);
   const note = !server
     ? "mobile.server.unavailable"
-    : server.hosted === true || hostedServerIds?.has(server.id)
-      ? "mobile.server.ownerTransfer.hosted"
-      : canTransferOwnership(server.id)
-        ? null
-        : "mobile.server.ownerTransfer.unavailable";
+    : canTransferOwnership(server.id)
+      ? null
+      : "mobile.server.ownerTransfer.unavailable";
   if (!server || note)
     return (
       <SettingsContent>

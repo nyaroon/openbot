@@ -1,5 +1,6 @@
 import type { AccountSession, AvatarColor, AvatarImageInput } from "@openbot/contracts/ipc";
 import { isBoolean, isDynamicRecord, isNumber, isString } from "@openbot/contracts/runtime-values";
+import { parseServerClaim, type ServerClaim } from "@openbot/contracts/server-install";
 import { currentText } from "@openbot/ui/text";
 
 export interface WebAccountCalls {
@@ -9,6 +10,7 @@ export interface WebAccountCalls {
   setChatColor: (color: AvatarColor | null) => Promise<void>;
   listSessions: () => Promise<AccountSession[]>;
   revokeSession: (sessionId: string) => Promise<void>;
+  createServerClaim: () => Promise<ServerClaim>;
 }
 
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -70,6 +72,13 @@ export function createWebAccountCalls(
       if (!isDynamicRecord(value) || !Array.isArray(value.sessions)) throw new Error(errorMessage(null));
       return value.sessions.map(decodeSession);
     },
+    async createServerClaim() {
+      const claim = parseServerClaim(
+        await (await request("v2/server-claims", { method: "POST", body: "{}" })).json().catch(() => null),
+      );
+      if (!claim) throw new Error(errorMessage(null));
+      return claim;
+    },
     async revokeSession(sessionId) {
       await request(`v1/me/sessions/${encodeURIComponent(sessionId)}`, { method: "DELETE", body: "{}" });
     },
@@ -90,8 +99,7 @@ function decodeSession(value: unknown): AccountSession {
     (value.kind !== "desktop" && value.kind !== "mobile") ||
     !isBoolean(value.current) ||
     !isNumber(value.connectedAt) ||
-    !isNumber(value.lastActiveAt) ||
-    (value.hostedServer !== undefined && !isBoolean(value.hostedServer))
+    !isNumber(value.lastActiveAt)
   )
     throw new Error(errorMessage(null));
   return {
@@ -101,6 +109,5 @@ function decodeSession(value: unknown): AccountSession {
     current: value.current,
     connectedAt: value.connectedAt,
     lastActiveAt: value.lastActiveAt,
-    ...(value.hostedServer === undefined ? {} : { hostedServer: value.hostedServer }),
   };
 }

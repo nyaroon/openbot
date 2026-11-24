@@ -4,10 +4,7 @@ import { type QueryScope, queryKeys } from "@/features/workspace/model/query-key
 
 function userAssignedSkills(skills: InstalledSkill[]): InstalledSkill[] {
   return skills
-    .filter(
-      (skill) =>
-        skill.origin !== "managed" && skill.slug !== "openbot-site-hosting" && skill.skillId !== "openbot-site-hosting",
-    )
+    .filter((skill) => skill.origin !== "managed")
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 

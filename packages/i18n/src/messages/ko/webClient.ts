@@ -32,8 +32,6 @@ export const messages = {
   "webClient.notice.connectComputer": "서버 연결",
   "webClient.connect.description":
     "컴퓨터에서 OpenBot을 실행하면 이 브라우저에서 에이전트와 채팅할 수 있어요. 초대를 받아 서버에 참여할 수도 있어요.",
-  "webClient.connect.descriptionHosted":
-    "호스팅 서버를 만들면 이 브라우저에서 에이전트와 채팅할 수 있어요. 컴퓨터에서 OpenBot을 실행하거나 초대를 받아 서버에 참여할 수도 있어요.",
   "webClient.connect.stepInstall": "컴퓨터에 OpenBot을 설치하고 여세요.",
   "webClient.connect.stepSignIn": "이메일로 로그인하세요.",
   "webClient.connect.stepRemote": "OpenBot에서 서버 설정 > 멤버를 열고 이 서버 게시를 켜세요.",

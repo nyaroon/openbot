@@ -8,8 +8,6 @@ import { DatabaseSync } from "node:sqlite";
 import { sortConversationMessages } from "@openbot/contracts/conversation-order";
 import type { AgentProviderId, AgentSummary, ConversationMessage, ConversationSnapshot } from "@openbot/contracts/ipc";
 import {
-  hostedSiteConversationEventItemType,
-  hostedSiteConversationEventText,
   ROUTINE_QUIET_ANSWER_ITEM_TYPE,
   routineConversationEventItemType,
   routineRunConversationEventItemType,
@@ -322,102 +320,6 @@ describe("OpenBotDatabase", () => {
         .prepare("SELECT COUNT(*) AS count FROM orchestration_command_receipts WHERE command_id = ?")
         .get("broken-command"),
     ).toMatchObject({ count: 0 });
-    database.close();
-  });
-
-  it("keeps a terminal hosted-site outcome pending until its marker command is durable", async () => {
-    const database = await createDatabase();
-    const pending = {
-      agentId: "chief",
-      threadId: "thread-chief",
-      turnId: "turn-1",
-      operationId: "operation-1",
-      action: "publish" as const,
-      status: "succeeded" as const,
-      details: {
-        siteId: "site-1",
-        title: "Launch page",
-        hostname: "launch-page-23456789ab.openbot.site",
-        url: "https://launch-page-23456789ab.openbot.site",
-      },
-      markerCommandId: "hosted-site-event:chief:operation-1:succeeded",
-      createdAt: "2026-09-01T12:00:00.000Z",
-    };
-
-    database.recordPendingHostedSiteTerminalEvent(pending);
-    database.recordPendingHostedSiteTerminalEvent(pending);
-    expect(database.pendingHostedSiteTerminalEvents()).toEqual([pending]);
-    expect(
-      database.connection
-        .prepare(
-          "SELECT aggregate_type, aggregate_id FROM orchestration_events WHERE event_type = 'hosted-site.terminal-pending'",
-        )
-        .get(),
-    ).toEqual({ aggregate_type: "hosted-site-terminal", aggregate_id: pending.agentId });
-
-    database.dispatch(
-      pending.markerCommandId,
-      [
-        {
-          aggregateType: "thread",
-          aggregateId: pending.threadId,
-          eventType: "hosted-site.publish-succeeded",
-          payload: {},
-        },
-      ],
-      () => ({ recorded: true }),
-    );
-    expect(database.pendingHostedSiteTerminalEvents()).toEqual([]);
-    database.deletePendingHostedSiteTerminalEvent(pending.agentId, pending.operationId, pending.status);
-    expect(
-      database.connection
-        .prepare("SELECT COUNT(*) AS count FROM orchestration_events WHERE event_type = 'hosted-site.terminal-pending'")
-        .get(),
-    ).toMatchObject({ count: 0 });
-    expect(
-      database.connection
-        .prepare(
-          "SELECT COUNT(*) AS count FROM orchestration_command_receipts WHERE command_id LIKE 'hosted-site-terminal-pending:%'",
-        )
-        .get(),
-    ).toMatchObject({ count: 0 });
-    database.close();
-  });
-
-  it("stores only active hosted-site operations for restart reconciliation", async () => {
-    const database = await createDatabase();
-    const agent = testAgent();
-    database.replaceAgents("agents-running-sites", [agent], "agents.imported");
-    if (!agent.threadId) throw new Error("The test agent needs a thread.");
-    const threadId = agent.threadId;
-    const details = {
-      siteId: "site-1",
-      title: "Launch page",
-      hostname: "launch-page-23456789ab.openbot.site",
-      url: "https://launch-page-23456789ab.openbot.site",
-    };
-    const recordActive = (operationId: string, createdAt: string) => {
-      database.recordActiveHostedSiteConversationEvent({
-        agentId: agent.id,
-        threadId,
-        turnId: `turn-${operationId}`,
-        createdAt,
-        event: { action: "replace", status: "running", operationId, ...details },
-      });
-    };
-
-    recordActive("operation-complete", "2026-09-01T12:00:00.000Z");
-    database.deleteActiveHostedSiteConversationEvent(agent.id, "operation-complete");
-    recordActive("operation-running", "2026-09-01T12:00:02.000Z");
-
-    expect(database.activeHostedSiteConversationEvents()).toEqual([
-      expect.objectContaining({
-        agentId: agent.id,
-        threadId: agent.threadId,
-        turnId: "turn-operation-running",
-        event: expect.objectContaining({ operationId: "operation-running", status: "running" }),
-      }),
-    ]);
     database.close();
   });
 
@@ -939,20 +841,6 @@ describe("OpenBotDatabase", () => {
       status: "completed" as const,
       itemType: routineRunConversationEventItemType("running", "routine-1", "run-1"),
     });
-    const hostedSiteEvent = (id: string, createdAt: string) => ({
-      id,
-      author: "system" as const,
-      source: "system" as const,
-      text: hostedSiteConversationEventText({
-        siteId: null,
-        title: "Launch page",
-        hostname: null,
-        url: null,
-      }),
-      createdAt,
-      status: "completed" as const,
-      itemType: hostedSiteConversationEventItemType("publish", "running", "operation-1"),
-    });
     database.persistConversation(
       {
         agentId: agent.id,
@@ -978,7 +866,6 @@ describe("OpenBotDatabase", () => {
           routineEvent("routine-event-2", "2026-08-29T10:03:00.000Z"),
           routineRunEvent("routine-run-event-1", "2026-08-29T10:04:00.000Z"),
           routineEvent("routine-event-3", "2026-08-29T10:05:00.000Z"),
-          hostedSiteEvent("hosted-site-event-1", "2026-08-29T10:06:00.000Z"),
           {
             id: "quiet-answer-1",
             author: "assistant",
@@ -995,7 +882,6 @@ describe("OpenBotDatabase", () => {
     const latest = database.readConversationPage(agent.id, agent.threadId, { type: "latest" }, 1, {
       excludeRoutineEvents: true,
       excludeRoutineRunEvents: true,
-      excludeHostedSiteEvents: true,
       excludeRoutineQuietAnswers: true,
     });
     expect(latest.messages.map((message) => message.id)).toEqual(["reply-new"]);
@@ -1010,7 +896,6 @@ describe("OpenBotDatabase", () => {
       {
         excludeRoutineEvents: true,
         excludeRoutineRunEvents: true,
-        excludeHostedSiteEvents: true,
         excludeRoutineQuietAnswers: true,
       },
     );
@@ -2304,7 +2189,7 @@ describe("OpenBotDatabase", () => {
     retried.close();
   });
 
-  it("rewrites agent ids without losing a thread, its messages, or its hosted-site history", async () => {
+  it("rewrites agent ids without losing a thread or its messages", async () => {
     const root = await mkdtemp(join(tmpdir(), "openbot-db-ids-v13-"));
     roots.push(root);
     const database = new OpenBotDatabase(root);
@@ -2342,22 +2227,6 @@ describe("OpenBotDatabase", () => {
         .prepare("SELECT json_extract(message_json, '$.text') AS text FROM projection_thread_messages")
         .get(),
     ).toEqual({ text: `Wrote ${workspace}/index.html` });
-    expect(
-      migrated.connection
-        .prepare(
-          "SELECT aggregate_id, command_id FROM orchestration_events WHERE event_type = 'hosted-site.terminal-pending'",
-        )
-        .get(),
-    ).toEqual({
-      aggregate_id: agentId,
-      command_id: `hosted-site-terminal-pending:${agentId}:operation-1:succeeded`,
-    });
-    expect(migrated.pendingHostedSiteTerminalEvents()).toEqual([
-      expect.objectContaining({
-        agentId,
-        markerCommandId: `hosted-site-event:${agentId}:operation-1:succeeded`,
-      }),
-    ]);
     expect(
       migrated.connection
         .prepare("SELECT json_extract(agent_json, '$.avatarSeed') AS seed FROM projection_agents")
@@ -3761,17 +3630,6 @@ describe("OpenBotDatabase", () => {
         return null;
       },
     );
-    database.recordPendingHostedSiteTerminalEvent({
-      agentId: agent.id,
-      threadId: "openbot-thread-chief",
-      turnId: "turn-1",
-      operationId: "operation-1",
-      action: "publish",
-      status: "succeeded",
-      details: { siteId: "site-1", title: "Site", hostname: null, url: null },
-      markerCommandId: `hosted-site-event:${agent.id}:operation-1:succeeded`,
-      createdAt,
-    });
 
     database.hardDeleteAgent("agents:delete", agent.id, agent.threadId, []);
 
@@ -3782,7 +3640,6 @@ describe("OpenBotDatabase", () => {
     expect(database.connection.prepare("SELECT COUNT(*) AS count FROM projection_agent_routines").get()).toMatchObject({
       count: 0,
     });
-    expect(database.pendingHostedSiteTerminalEvents()).toEqual([]);
     expect(
       database.connection
         .prepare(
@@ -4043,23 +3900,6 @@ function seedLegacyAgent(database: DatabaseSync, legacyId: string, workspacePath
     },
     reactions: [{ emoji: "\u{1F44D}", actor: { kind: "bot", botId: legacyId } }],
   });
-  const pendingJson = JSON.stringify({
-    agentId: legacyId,
-    threadId,
-    turnId: "turn-1",
-    operationId: "operation-1",
-    action: "publish",
-    status: "succeeded",
-    details: {
-      siteId: "site-1",
-      title: "Launch page",
-      hostname: "launch-page-23456789ab.openbot.site",
-      url: "https://launch-page-23456789ab.openbot.site",
-    },
-    markerCommandId: `hosted-site-event:${legacyId}:operation-1:succeeded`,
-    createdAt: "2026-09-01T12:00:00.000Z",
-  });
-
   const memories = [`remember ${legacyId} deploys`, `remember ${legacyId.replace(/^bot-/u, "agent-")} deploys`];
 
   const insert = database.prepare(
@@ -4089,13 +3929,6 @@ function seedLegacyAgent(database: DatabaseSync, legacyId: string, workspacePath
        VALUES (?, 'message-1', NULL, 'agent', 'completed', NULL, '2026-09-01T12:00:00.000Z', 0, ?, 1)`,
     )
     .run(threadId, messageJson);
-  database
-    .prepare(
-      `INSERT INTO orchestration_events
-         (event_id, command_id, aggregate_type, aggregate_id, event_type, occurred_at, payload_json)
-       VALUES (?, ?, 'hosted-site-terminal', ?, 'hosted-site.terminal-pending', '2026-09-01T12:00:00.000Z', ?)`,
-    )
-    .run(`event-${legacyId}`, `hosted-site-terminal-pending:${legacyId}:operation-1:succeeded`, legacyId, pendingJson);
   database
     .prepare(
       `INSERT INTO orchestration_events

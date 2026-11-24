@@ -2,11 +2,6 @@ import { defineMessages } from "../../../message";
 
 export const messages = defineMessages("error.billing", {
   "error.billing.lifecycleFailed": "The server plan could not be changed. Refresh Billing and try again.",
-  "error.billing.confirmMismatch": "Type the server name to delete it.",
-  "error.billing.restartBusy": "The server cannot restart now. Try again in a minute.",
-  "error.billing.restartUnavailable": "This server cannot restart from here. Contact support.",
-  "error.billing.planRequired": "The plan of this server ended. Renew it to start the server.",
-  "error.billing.planSoldOut": "This plan is sold out. Choose another plan.",
   "error.billing.storageUnavailable": "This storage is not available for this server.",
   "error.billing.storagePaymentFailed": "The payment for the storage failed. Update the payment method and try again.",
   "error.billing.licenseExists": "This account already has a license. Change its users instead.",

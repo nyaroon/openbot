@@ -46,7 +46,6 @@ export interface RemoteTeamHost {
   membershipId: string;
   role: "owner" | "admin" | "member";
   memberLimit?: number;
-  hosted?: boolean;
   restartAvailable?: boolean;
   storageGb?: number;
   keyChangedAt?: number;
@@ -189,7 +188,6 @@ export class RemoteTeamDirectoryClient {
             if (!isDynamicRecord(candidate) || !isString(candidate.devicePublicKey) || !candidate.devicePublicKey)
               return [];
             const memberLimit = candidate.memberLimit;
-            const hosted = candidate.hosted;
             const restartAvailable = candidate.restartAvailable;
             const storageGb = candidate.storageGb;
             if (
@@ -225,7 +223,6 @@ export class RemoteTeamDirectoryClient {
                 membershipId: candidate.membershipId,
                 role: candidate.role,
                 ...(memberLimit === undefined ? {} : { memberLimit }),
-                ...(isBoolean(hosted) ? { hosted } : {}),
                 ...(isBoolean(restartAvailable) ? { restartAvailable } : {}),
                 ...(isNumber(storageGb) && Number.isSafeInteger(storageGb) && storageGb >= 1 ? { storageGb } : {}),
                 ...(keyChangedAt === null ? {} : { keyChangedAt }),

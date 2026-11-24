@@ -20,7 +20,6 @@ export const messages = {
     "OpenBot не смог связаться со службой аккаунтов. Проверьте подключение и повторите попытку.",
   "error.auth.serviceTimeout": "Служба аккаунтов не ответила вовремя. Повторите попытку.",
   "error.auth.serviceStatus": "Служба аккаунтов вернула ошибку ({status}). Повторите попытку позже.",
-  "error.auth.invalidHostedServer": "Служба аккаунтов вернула некорректный облачный сервер.",
   "error.auth.invalidServerClaim": "Служба аккаунтов вернула некорректный код сервера.",
   "error.auth.codeNotSent": "OpenBot не смог отправить код входа.",
   "error.auth.deliveryTimeout":

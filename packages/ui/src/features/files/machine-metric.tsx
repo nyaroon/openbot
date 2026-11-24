@@ -18,7 +18,7 @@ export const MACHINE_METRIC_ICONS: Record<MachineMetric, (props: { class: string
 
 export function useMachineMetricDetail() {
   const { t, format } = useText();
-  return (metrics: MachineMetrics, metric: MachineMetric, hostedPlan = false): string => {
+  return (metrics: MachineMetrics, metric: MachineMetric): string => {
     if (metric === "cpu") {
       const cores = metrics.cpuMillicores / 1000;
       return t("files.machine.cores", { count: cores, cores: format.number(cores, { maximumFractionDigits: 2 }) });
@@ -26,7 +26,7 @@ export function useMachineMetricDetail() {
     if (metric === "disk") {
       const { diskUsedBytes: used, diskFreeBytes: free, diskTotalBytes: total } = metrics;
       if (used === null || free === null || total === null) return t("files.machine.unknown");
-      const size = hostedPlan ? format.fileSize : format.diskSize;
+      const size = format.diskSize;
       return t("files.machine.diskDetail", { used: size(used), total: size(total), free: size(free) });
     }
     const { memoryTotalBytes: total, memoryAvailableBytes: free } = metrics;

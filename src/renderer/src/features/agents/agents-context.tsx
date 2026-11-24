@@ -75,8 +75,7 @@ const Agents = createSimpleContext({
       return (
         server?.kind === "remote" &&
         (server.state === "offline" || server.state === "connecting" || server.state === "online") &&
-        server.issue == null &&
-        server.hostedSleep !== "sleeping"
+        server.issue == null
       );
     });
     const [settingsRequest, setSettingsRequest] = createSignal<AgentSettingsRequest | null>(null);

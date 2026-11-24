@@ -43,7 +43,7 @@ Then set `image: ghcr.io/nightly-labs/openbot:0.76.1` in `compose.yaml`, or use
 the container for somebody else can use `openbot login --claim` instead (see
 [server claims](self-hosted-server.md#sign-in-with-a-server-claim)). After the sign-in, the
 server shows in the server list of that account. Then connect a provider from the app, as on a
-[hosted server](hosted-servers.md#providers).
+hosted server.
 
 To connect the phone app, show a Mobile Connect code in the terminal and scan it with the app:
 
@@ -192,7 +192,7 @@ prints a warning and the rest of the setup stays done. When LXCFS runs, `openbot
 `lxcfs.yaml`: the container then reads its own CPU limit in `/proc/cpuinfo`, and its memory limit in
 `/proc/meminfo` and `/proc/swaps`. On cgroup v2, LXCFS 5.0 does not limit the CPU lines of
 `/proc/stat`, which Node's `os.cpus()` counts, so OpenBot limits the Node programs of agents itself
-(see [agent processes](hosted-servers.md#memory)). `nproc`, Python's `os.cpu_count()` and other
+(see agent processes). `nproc`, Python's `os.cpu_count()` and other
 programs that read the CPU affinity or `/sys/devices/system/cpu/online` still see the CPUs of the
 host. That file is not mounted: LXCFS lists CPUs 0 to limit-1 in it, but a process still runs on any
 CPU of the host, and the Gemini CLI then exits with SIGILL. Without LXCFS, an instance still starts
@@ -389,7 +389,7 @@ the backup. When it has less, copy the old data to another disk, delete it from
 When OpenBot cannot start, for example after a failed start of a new image, it stops its start loop
 and runs its safe mode: each member's app shows why the server does not start and which version it
 runs. The safe mode opens no database. After one hour it exits, and the restart policy starts the
-container again. A newer image is the fix. See [hosted servers](hosted-servers.md#start-loop).
+container again. A newer image is the fix. See hosted servers.
 
 OpenBot does not update itself in a container. A new image replaces it. An instance of
 `docker/instances` can ask the host for that from the app, see
@@ -440,7 +440,7 @@ a compatible release, not an image-tag rollback of the live volume.
 
 ## Memory
 
-The container uses the memory guards of a hosted server (see [Memory](hosted-servers.md#memory)).
+The container uses the memory guards of a hosted server (see Memory).
 When free memory is low, new turns wait in the queue and start again when memory is available. A
 message from a person starts first. The browser opens no new tab and unloads idle pages sooner.
 
@@ -457,7 +457,7 @@ Main has an OOM score adjustment of 0 in the container, and each process that it
 So when the container is out of memory, the kernel is more likely to stop a provider CLI, an MCP
 server or an agent tool than OpenBot. Agent processes also run at nice 10, and at the `critical` level
 main stops leftover agent processes, such as the workers of a build whose parent was stopped. See
-[agent processes](hosted-servers.md#memory).
+agent processes.
 
 ## Environment
 

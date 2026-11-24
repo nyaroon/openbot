@@ -7,7 +7,6 @@ struct ShareDirectory: Decodable {
     let id: String
     let name: String
     let publicKey: String
-    let hosted: Bool
   }
 
   struct Agent: Decodable, Identifiable {

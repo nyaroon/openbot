@@ -38,11 +38,6 @@ describe("development Auth API LAN access", () => {
       "/v2/remote/owner-transfers/transfer-1/decline",
       "/v1/agent-templates/AbCdEfGhIjKlMnOpQrSt_-",
       "/v1/agent-templates/AbCdEfGhIjKlMnOpQrSt_-/avatar",
-      "/v2/hosting/plans",
-      "/v2/hosting/servers/",
-      "/v2/hosting/servers/server-1/checkout",
-      "/v2/hosting/servers/server-1/wake",
-      "/v2/hosting/servers/server-1/restart",
     ]) {
       expect(developmentNetworkRequestAllowed("192.168.1.20", path)).toBe(true);
     }
@@ -83,9 +78,6 @@ describe("development Auth API LAN access", () => {
       expect(developmentNetworkRequestAllowed("192.168.1.20", path)).toBe(false);
     }
     expect(developmentNetworkRequestAllowed("192.168.1.20", "/v2/remote/sessions/session-1/other")).toBe(false);
-    expect(developmentNetworkRequestAllowed("192.168.1.20", "/v2/hosting/servers/server-1/activity")).toBe(false);
-    expect(developmentNetworkRequestAllowed("192.168.1.20", "/v2/hosting/servers/server-1")).toBe(false);
-    expect(developmentNetworkRequestAllowed("192.168.1.20", "/v2/hosting/servers/server-1/restart/other")).toBe(false);
   });
 
   it("exposes the public Marketplace catalog to the phone and keeps account reads on loopback", () => {

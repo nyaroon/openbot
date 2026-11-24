@@ -36,7 +36,6 @@ import {
 } from "electron";
 import { localTimezone } from "../backend/agent/routine-tools";
 import { replaceInvalidLinuxSystemLanguages } from "../backend/browser-policy";
-import { setDiskRestoreProbe } from "../backend/disk-restore";
 import { runCauseEffect } from "../backend/effect-boundary";
 import { LATEST_SCHEMA_VERSION, NewerDatabaseError } from "../backend/openbot-database-schema";
 import { perfTime } from "../backend/perf-probe-hooks";
@@ -67,8 +66,6 @@ import { tintDevelopmentIcon } from "./development-worktree-icon";
 import { stopStuckExitAfterLimit } from "./exit-watchdog";
 import { filePreviewPages } from "./file-preview-pages";
 import { hostAllowsTenantLaunch } from "./host-update-coordinator";
-import { hostedDiskRestoreProbe, takeHostedServerEnvironment } from "./hosted-server-bootstrap";
-import { takeHostingDeveloperKey } from "./hosted-server-service";
 import { accountIpcHandlers } from "./ipc/account-handlers";
 import { acpRegistryIpcHandlers } from "./ipc/acp-registry-handlers";
 import { agentAdminIpcHandlers } from "./ipc/agent-admin-handlers";
@@ -97,8 +94,6 @@ import { dynamicIslandIpcHandlers } from "./ipc/dynamic-island-handlers";
 import { eventsIpcHandlers } from "./ipc/events-handlers";
 import { githubConnectorIpcHandlers } from "./ipc/github-connector-handlers";
 import { hostAdminIpcHandlers } from "./ipc/host-admin-handlers";
-import { hostedServerIpcHandlers } from "./ipc/hosted-server-handlers";
-import { hostedSiteIpcHandlers } from "./ipc/hosted-site-handlers";
 import { instanceTransferIpcHandlers } from "./ipc/instance-transfer-handlers";
 import { licenseIpcHandlers } from "./ipc/license-handlers";
 import { linkAccountIpcHandlers } from "./ipc/link-account-handlers";
@@ -164,7 +159,7 @@ import { RoutineWake } from "./routine-wake";
 import { RunMarker, type UncleanExitProperties } from "./run-marker";
 import { memberAuditName } from "./server-audit-store";
 import { takeServerModeEnvironment } from "./server-mode";
-import { type ServerSafeMode, safeModeMarkerDirectory, startServerSafeMode } from "./server-safe-mode";
+import { type ServerSafeMode, startServerSafeMode } from "./server-safe-mode";
 import {
   START_LOOP_EXIT_CODE,
   type StartHaltReason,
@@ -268,22 +263,18 @@ const developmentRemoteRole =
 const developmentTestClientEnabled = !app.isPackaged && process.env.OPENBOT_DEV_TEST_CLIENT_ENABLED === "1";
 removeClaudeCodeSessionEnvironment(process.env);
 removeOrcaPaneEnvironment(process.env);
-const hostedServer = takeHostedServerEnvironment(process.env, app.isPackaged, process.platform);
-if (hostedServer) setDiskRestoreProbe(hostedDiskRestoreProbe());
-const hostingDeveloperKey = takeHostingDeveloperKey(process.env, app.isPackaged);
 const serverMode = takeServerModeEnvironment(process.env, app.isPackaged, process.platform);
 const localServerChildEnvironment = takeLocalServerChildEnvironment(process.env, commandLineUserDataDirectory);
-const localServerChild = serverMode || hostedServer ? null : localServerChildEnvironment;
+const localServerChild = serverMode ? null : localServerChildEnvironment;
 const forcedStartFailure = takeForcedStartFailure(process.env, app.isPackaged);
-const serverStartGuard =
-  serverMode !== null || hostedServer !== null || takeServerStartGuardTest(process.env, app.isPackaged);
+const serverStartGuard = serverMode !== null || takeServerStartGuardTest(process.env, app.isPackaged);
 const localServerControl = localServerChild
   ? openLocalServerControl(process.platform, (cause) =>
       logger.error("The local server has no control pipe from the desktop app:", toLogValue(cause)),
     )
   : null;
-if (serverMode || hostedServer || localServerChild) hideExceptionErrorBox();
-if (serverMode || hostedServer || localServerChild) keepWindowsHidden();
+if (serverMode || localServerChild) hideExceptionErrorBox();
+if (serverMode || localServerChild) keepWindowsHidden();
 if (localServerChild && process.platform === "darwin") app.dock?.hide();
 const inviteLinkOptions = {
   allowLocalDevelopmentApiUrl: developmentRemoteRole !== null,
@@ -316,14 +307,14 @@ if (commandLineUserDataDirectory) {
 }
 app.setName("OpenBot");
 const systemTimezone =
-  serverMode || hostedServer || localServerChild
+  serverMode || localServerChild
     ? applyServerTimezone(join(app.getPath("userData"), SERVER_TIMEZONE_PREFERENCE_FILE), process.env)
     : localTimezone;
 app.enableSandbox();
 if (process.platform === "win32") app.setAppUserModelId("app.openbot.desktop");
 if (
   app.isPackaged &&
-  !(serverMode || hostedServer || localServerChildEnvironment) &&
+  !(serverMode || localServerChildEnvironment) &&
   (await Effect.runPromise(
     restartOutsideWindowsPackage(
       process.env,
@@ -336,7 +327,7 @@ if (
 const startedOnXWayland = takeXWaylandRestartMarker(process.env, process.argv);
 if (
   app.isPackaged &&
-  !(serverMode || hostedServer || localServerChildEnvironment) &&
+  !(serverMode || localServerChildEnvironment) &&
   ((await Effect.runPromise(restartOnXWaylandForAboveApps(process.env, app.getPath("userData")))) ||
     (await Effect.runPromise(
       restartOnXWaylandForSoftwareRendering(
@@ -350,7 +341,7 @@ if (
 if (
   process.platform === "darwin" &&
   app.isPackaged &&
-  !(serverMode || hostedServer || localServerChildEnvironment) &&
+  !(serverMode || localServerChildEnvironment) &&
   Effect.runSync(
     shipItInstallInProgress({
       userDataPath: app.getPath("userData"),
@@ -370,7 +361,7 @@ if (hasSingleInstanceLock) {
       userDataPath: app.getPath("userData"),
       crashDumpsPath: app.getPath("crashDumps"),
       appVersion: app.getVersion(),
-      server: hostedServer !== null || serverMode !== null,
+      server: serverMode !== null,
       now: Date.now(),
       bootedAt: Date.now() - uptime() * 1_000,
     }));
@@ -414,7 +405,7 @@ if (hasSingleInstanceLock) {
 configureLinuxGpu({
   userDataPath: app.getPath("userData"),
   ownsInstance: hasSingleInstanceLock,
-  server: hostedServer !== null || serverMode !== null,
+  server: serverMode !== null,
 });
 const appVariant = readAppVariant(process.env.OPENBOT_APP_VARIANT, app.isPackaged);
 const appIconPath = resolveAppIconPath({
@@ -767,9 +758,9 @@ function registerIpcHandlers({
   host,
   remoteDesktop,
   remoteServers,
+  serverClaims,
   centralAuth,
   skills,
-  hostedSites,
   githubConnector,
   linkAccount,
   onePasswordConnector,
@@ -778,7 +769,6 @@ function registerIpcHandlers({
   vault,
   billing,
   license,
-  hostedServers,
   localServers,
   routineFeed,
   events,
@@ -907,12 +897,6 @@ function registerIpcHandlers({
       translate: language.translate,
     }),
     ...agentInstructionsIpcHandlers({ files: agentInstructions, remoteServers }),
-    ...hostedSiteIpcHandlers({
-      hostedSites,
-      remoteServers,
-      getMainWindow: getDialogParent,
-      translate: language.translate,
-    }),
     ...githubConnectorIpcHandlers({ githubConnector, remoteServers, openExternal: openLink }),
     ...linkAccountIpcHandlers({ linkAccount }),
     ...onePasswordConnectorIpcHandlers({ onePasswordConnector, remoteServers }),
@@ -923,7 +907,6 @@ function registerIpcHandlers({
     ...licenseIpcHandlers({ license }),
     ...routineFeedIpcHandlers({ routineFeed }),
     ...eventsIpcHandlers({ events, remoteServers }),
-    ...hostedServerIpcHandlers({ hostedServers }),
     ...localServerIpcHandlers({ localServers }),
     ...customProviderIpcHandlers(customProviderChanges),
     ...customAgentIpcHandlers({ changes: customAgentChanges, remoteServers }),
@@ -974,6 +957,7 @@ function registerIpcHandlers({
       ownerTransfers: centralAuth,
       remoteDesktop,
       remoteServers,
+      serverClaims,
       takePendingInvite: () => takePendingDeepLink("invite")?.url ?? null,
     }),
     ...pluginIpcHandlers({
@@ -1142,18 +1126,15 @@ function haltServerStart(reason: StartHaltReason): Omit<StartHaltRecord, "versio
 
 async function enterServerSafeMode(halt: Omit<StartHaltRecord, "version">): Promise<void> {
   if (shutdownStarted) return;
-  const markerDirectory = safeModeMarkerDirectory(process.env, process.platform);
   try {
-    serverSafeMode = await runCauseEffect(
-      startServerSafeMode({ userDataPath: app.getPath("userData"), reason: halt, markerDirectory }),
-    );
+    serverSafeMode = await runCauseEffect(startServerSafeMode({ userDataPath: app.getPath("userData"), reason: halt }));
     if (shutdownStarted) await Effect.runPromise(serverSafeMode.stop);
   } catch (error) {
     logger.warn("The safe mode did not start. OpenBot quits.", toLogValue(error));
     app.quit();
     return;
   }
-  if (markerDirectory === null) setTimeout(() => app.quit(), SERVER_SAFE_MODE_LIFETIME_MS);
+  setTimeout(() => app.quit(), SERVER_SAFE_MODE_LIFETIME_MS);
 }
 
 async function recoverFromStartLoop(): Promise<
@@ -1451,7 +1432,7 @@ if (!hasSingleInstanceLock) {
         app.quit();
         return;
       }
-      if (!localServerChild && !serverMode && !hostedServer) await presentApplication();
+      if (!localServerChild && !serverMode) await presentApplication();
       const recovery = await recoverFromStartLoop();
       if (recovery === "quit") {
         quitFor("quit");
@@ -1483,9 +1464,7 @@ if (!hasSingleInstanceLock) {
         analyticsCaptureUrl,
         developmentRemoteRole,
         developmentTestClientEnabled,
-        hostedServer,
         serverMode,
-        hostingDeveloperKey,
         localServerChild,
         localServerControl,
         systemTimezone,
@@ -1506,7 +1485,7 @@ if (!hasSingleInstanceLock) {
       services = built;
       performance.mark("openbot:services-built");
       placeWindowButtons(BrowserWindow.getAllWindows());
-      if (app.isPackaged && !serverMode && !hostedServer && !localServerChild) {
+      if (app.isPackaged && !serverMode && !localServerChild) {
         teardown.push(0, "app archive watch", watchAppArchive(process.resourcesPath, built.language.translate));
       }
       const appliedAccount = built.appliedAccount;
@@ -1693,7 +1672,7 @@ if (!hasSingleInstanceLock) {
           );
         }
       };
-      const publishesBeforeRenderer = Boolean(built.serverMode || hostedServer);
+      const publishesBeforeRenderer = Boolean(built.serverMode);
       if (publishesBeforeRenderer) publishOnLaunch();
       void requestDesktopNotificationPermission(built.notificationPreference, language.translate).catch((error) =>
         logger.warn("Unable to ask for notification permission:", toLogValue(error)),
@@ -1905,7 +1884,7 @@ if (!hasSingleInstanceLock) {
           });
         return;
       }
-      if (!serverMode && !hostedServer && !localServerChild) {
+      if (!serverMode && !localServerChild) {
         const locale = services?.language.locale ?? resolveLocale("system", app.getLocale());
         const translate = services?.language.translate ?? translateFor(locale);
         if (error instanceof NewerDatabaseError) {

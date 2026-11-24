@@ -82,7 +82,6 @@ export class HostReleaseService {
     if (this.#options.platform === "linux") {
       if (this.#options.updateStatus().phase !== "unsupported") return "self-update";
       if (this.#options.installationMode === "container") return "container";
-      if (this.#options.environment.OPENBOT_HOSTED_SERVER === "1") return "hosted";
       if (this.#options.installationMode === "self") return "system";
     }
     return this.#options.updateStatus().phase === "unsupported" ? "manual" : "self-update";

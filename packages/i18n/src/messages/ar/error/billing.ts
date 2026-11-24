@@ -3,11 +3,6 @@ import type { messages as source } from "../../en/error/billing";
 
 export const messages = {
   "error.billing.lifecycleFailed": "تعذّر تغيير خطة الخادم. حدّث صفحة الفوترة وأعد المحاولة.",
-  "error.billing.confirmMismatch": "اكتب اسم الخادم لحذفه.",
-  "error.billing.restartBusy": "لا يمكن إعادة تشغيل الخادم الآن. أعد المحاولة بعد دقيقة.",
-  "error.billing.restartUnavailable": "لا يمكن إعادة تشغيل هذا الخادم من هنا. تواصل مع الدعم.",
-  "error.billing.planRequired": "انتهت خطة هذا الخادم. جدّدها لتشغيل الخادم.",
-  "error.billing.planSoldOut": "نفدت هذه الخطة. اختر خطة أخرى.",
   "error.billing.storageUnavailable": "هذه السعة التخزينية غير متاحة لهذا الخادم.",
   "error.billing.storagePaymentFailed": "أخفق الدفع مقابل السعة التخزينية. حدّث طريقة الدفع وأعد المحاولة.",
   "error.billing.licenseExists": "لهذا الحساب ترخيص بالفعل. غيّر مستخدميه بدلًا من ذلك.",

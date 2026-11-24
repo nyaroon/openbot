@@ -131,7 +131,6 @@ try {
         readOptions: {
           excludeRoutineEvents: true,
           excludeRoutineRunEvents: true,
-          excludeHostedSiteEvents: true,
           excludeRoutineQuietAnswers: true,
         },
       },

@@ -766,8 +766,7 @@
       .routine-planner-empty,
       .routine-planner-error,
       .marketplace-nav,
-      .skills-marketplace-body,
-      .hosted-pricing-scroll
+      .skills-marketplace-body
     ) {
     pointer-events: auto;
   }

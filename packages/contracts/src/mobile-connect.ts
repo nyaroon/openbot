@@ -58,7 +58,6 @@ export interface AccountSession {
   current: boolean;
   connectedAt: number;
   lastActiveAt: number;
-  hostedServer?: boolean;
 }
 
 export interface MobileConnectPayload {

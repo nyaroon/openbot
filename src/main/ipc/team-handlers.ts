@@ -9,6 +9,7 @@ import type { HostService } from "../host-service";
 import type { LocalServers } from "../local-servers/local-servers";
 import type { RemoteDesktopManager } from "../remote-desktop-manager";
 import type { RemoteServerManager } from "../remote-server-manager";
+import type { ServerClaimDesktopService } from "../server-claim-service";
 import { agentRequest } from "./agent-inputs";
 import { handler, type IpcGroupHandlers, payloadHandler } from "./define-ipc-group";
 import { routeToServer } from "./route-to-server";
@@ -42,6 +43,7 @@ interface TeamIpcDependencies {
   ownerTransfers: Pick<CentralAuthManager, "pendingOwnerTransfer" | "startOwnerTransfer" | "cancelOwnerTransfer">;
   remoteDesktop: RemoteDesktopManager;
   remoteServers: RemoteServerManager;
+  serverClaims: ServerClaimDesktopService;
   takePendingInvite: () => string | null;
 }
 
@@ -51,6 +53,7 @@ export function teamIpcHandlers({
   ownerTransfers,
   remoteDesktop,
   remoteServers,
+  serverClaims,
   takePendingInvite,
 }: TeamIpcDependencies): Pick<IpcGroupHandlers, "servers" | "host" | "remoteDesktop"> {
   const ownerTransferUnsupported = (): never => {
@@ -94,6 +97,7 @@ export function teamIpcHandlers({
           ),
         ),
       ),
+      createInstallClaim: handler(() => runCauseEffect(serverClaims.createServerClaim())),
       remove: payloadHandler(stringPayload("serverId"), (serverId) => runCauseEffect(remoteServers.remove(serverId))),
       getPresence: handler(() =>
         routeToServer(remoteServers.activeServerId, {

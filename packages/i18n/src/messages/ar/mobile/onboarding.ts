@@ -12,8 +12,6 @@ export const messages = {
   "mobile.onboarding.server.body": "يعمل الوكلاء على خادم. اختر طريقة لربط خادم.",
   "mobile.onboarding.server.computer": "حاسوبي",
   "mobile.onboarding.server.computerBody": "استخدم OpenBot على حاسوبك كخادم.",
-  "mobile.onboarding.server.cloud": "خادم سحابي",
-  "mobile.onboarding.server.cloudBody": "استخدم خادمًا يشغّله OpenBot لك.",
   "mobile.onboarding.server.invitation": "دعوة",
   "mobile.onboarding.server.invitationBody": "انضم إلى خادم شاركه شخص معك.",
   "mobile.onboarding.server.computerTitle": "اربط حاسوبك",

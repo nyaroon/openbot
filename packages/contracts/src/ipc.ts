@@ -71,7 +71,6 @@ export * from "./ipc-host-signal-home";
 export * from "./ipc-host-timezone";
 export * from "./ipc-host-turn-limits";
 export * from "./ipc-host-update";
-export * from "./ipc-hosted-sites";
 export * from "./ipc-instance-transfer";
 export * from "./ipc-library-folders";
 export * from "./ipc-link-account";

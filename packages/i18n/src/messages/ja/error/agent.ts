@@ -182,8 +182,6 @@ export const messages = {
     "過去 1 時間に、ローカルスクリプトがこのエージェントのルーティンを {limit} 回実行しました。後でもう一度お試しください。",
   "error.agent.workspaceOnlyMacOnly":
     "このプロバイダーの「ワークスペースのみ」は macOS でのみ利用できます。エージェントの設定で「フルアクセス」を選んでください。",
-  "error.agent.lowMemory":
-    "このサーバーはメモリーが不足しています。メッセージはキューで待機し、メモリーが空くと開始します。より大きいプランにすると、サーバーのメモリーが増えます。",
   "error.agent.lowMemoryServer":
     "このサーバーはメモリーが不足しています。メッセージはキューで待機し、メモリーが空くと開始します。",
   "error.agent.workspaceOnlyToolMissing":

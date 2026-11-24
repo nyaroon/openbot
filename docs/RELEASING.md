@@ -83,47 +83,14 @@ The release workflow checks anonymous access to the version, `v<version>` and `l
 including both Linux architectures. A failure leaves the GitHub Release and pushed images in
 place. Correct the package settings, then run the failed job again.
 
-## Hosted-server snapshots
+## Production deployment
 
-After GitHub publication, `Publish boat server snapshot` builds the Linux x64 release into a boat
-named snapshot (`openbot-server-production-<version>` with dots replaced by hyphens), then selects
-it for new production servers. It uses the tagged hosting scripts,
-the published `SHA256SUMS-linux.txt`, and `https://api.openbot.run`. The builder checks the AppImage
-checksum and installed version and requires an empty host profile before saving the snapshot.
-Existing servers and the test Worker do not change.
+Before the first release, configure the `cloudflare-production` GitHub Environment:
 
-Before the first release with this job, configure the `cloudflare-production` GitHub Environment:
-
-- Add `BOAT_TEMPLATE_API_KEY`, a separate boat key with sandbox, file, command and named snapshot
-  access. Keep the limited `BOAT_API_KEY` on the Worker.
 - Keep `CLOUDFLARE_PRODUCTION_DEPLOY_TOKEN` and the `CLOUDFLARE_ACCOUNT_ID` variable used by deployment.
 - Permit the tag pattern `v*.*.*` in addition to the `main` branch. The release job runs on a tag.
 
-`release:preflight` checks these settings. The hosted job and production Worker deployment share
-one concurrency group. The job checks GitHub's latest stable release before building and again
-before selection. It writes only the Worker's `HOSTED_SERVER_TEMPLATE` secret. Normal CI and local
-production deployments preserve it; the old GitHub variable is ignored. `hosting:setup` now sets
-up billing and webhooks only and no longer accepts `--template`.
-
-A failed hosted job leaves the GitHub Release published and the previous template selected.
-Run the failed job again after correcting the cause. A ready snapshot is reused; a save in progress
-is polled; a failed snapshot requires operator inspection. The builder never replaces an existing
-snapshot. It stops at 10 snapshots even if boat permits paid storage above that count.
-
-Before the build, the job removes production snapshots of older releases. It keeps the 2 newest
-ready ones, so 3 releases remain with the new one; the newest of them stays selected until the new
-release replaces it. A failed snapshot of an older release is removed too. It keeps a snapshot that
-is saving or has an unknown status, any snapshot newer than the release, and each
-`provider_template` of a production server that is not deleted and has no sandbox yet, because a
-create retry sends its first request again. The job reads these from the production D1
-database and stops if it cannot. Servers already made from a removed snapshot keep running. Names
-without the `openbot-server-production-` prefix are never removed; confirm that neither Worker nor
-any pending create needs one before removing it by hand.
-
-A successful job reports the selected version in its Actions summary. Verify the first rollout by
-creating a temporary production server and checking its initial installed version. Record the
-result under `.openbot-build/`; remove only that temporary server after the check. This remote check
-is separate from local checks and requires production access.
+`release:preflight` checks these settings.
 
 ## Windows signing
 
@@ -545,8 +512,7 @@ It notifies only that role, not `@everyone` or `@here`. Run
 `bun run release:preflight` stop when the file is not for the release version, has fewer than 3 or
 more than 5 highlights, has a highlight that is empty or has a placeholder, a line break or a
 mention, or makes a message longer than 2000 characters. They also stop when the
-`DISCORD_RELEASE_ROLE_ID` repository variable is not set or is not a Discord role ID. After the GitHub Release, the Docker image and the
-boat snapshot are published, the `discord-announce` job posts the message as OpenBot through the
+`DISCORD_RELEASE_ROLE_ID` repository variable is not set or is not a Discord role ID. After the GitHub Release, the Docker image is published, the `discord-announce` job posts the message as OpenBot through the
 channel webhook in the `DISCORD_RELEASE_WEBHOOK_URL` secret of the `release` environment. The job
 fails, and posts nothing, when `DISCORD_RELEASE_ROLE_ID` is not set. A failed post does not undo the
 release: re-run the job. A re-run after a successful post posts the message again.

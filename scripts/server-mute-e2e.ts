@@ -15,6 +15,7 @@ import { runCauseEffect } from "../src/backend/effect-boundary";
 import { MailboxStore } from "../src/backend/mailbox-store";
 import { OpenBotDatabase } from "../src/backend/openbot-database";
 import { SidebarLayoutStore } from "../src/backend/sidebar-layout-store";
+import { ServerClaimDesktopService } from "../src/main/server-claim-service";
 import type { TeamApiBrowser } from "../src/main/team-api/dependencies";
 
 const OUT = resolve(import.meta.dirname, "../.openbot-build/server-mute-e2e");
@@ -278,6 +279,7 @@ try {
       ownerTransfers: { pendingOwnerTransfer: unused, startOwnerTransfer: unused, cancelOwnerTransfer: unused },
       remoteDesktop: new RemoteDesktopManager(manager),
       remoteServers: manager,
+      serverClaims: Object.create(ServerClaimDesktopService.prototype),
       takePendingInvite: () => null,
     }).servers.setMuted(channel);
   };

@@ -105,42 +105,6 @@ export function billingReturnText(t: AppTranslate) {
   };
 }
 
-const EMAIL_MARKER = "";
-
-export function reportSiteText(t: AppTranslate) {
-  const [writeToBefore = "", writeToAfter = ""] = t("sitePage.report.writeTo", { email: EMAIL_MARKER }).split(
-    EMAIL_MARKER,
-  );
-  return {
-    pageTitle: t("sitePage.report.pageTitle"),
-    title: t("sitePage.report.title"),
-    intro: t("sitePage.report.intro"),
-    hostnameLabel: t("sitePage.report.hostnameLabel"),
-    hostnameMissing: t("sitePage.report.hostnameMissing"),
-    reasonLabel: t("sitePage.report.reasonLabel"),
-    reasons: {
-      phishing: t("sitePage.report.reason.phishing"),
-      malware: t("sitePage.report.reason.malware"),
-      abuse: t("sitePage.report.reason.abuse"),
-      copyright: t("sitePage.report.reason.copyright"),
-      other: t("sitePage.report.reason.other"),
-    },
-    detailsLabel: t("sitePage.report.detailsLabel"),
-    optional: t("sitePage.report.optional"),
-    detailsPlaceholder: t("sitePage.report.detailsPlaceholder"),
-    send: t("sitePage.report.send"),
-    sending: t("sitePage.report.sending"),
-    tooMany: t("sitePage.report.tooMany"),
-    sendFailed: t("sitePage.report.sendFailed"),
-    writeTo: { before: writeToBefore, after: writeToAfter },
-    sentTitle: t("sitePage.report.sentTitle"),
-    sentBody: t("sitePage.report.sentBody"),
-    home: t("sitePage.report.home"),
-  };
-}
-
-export type ReportSiteText = ReturnType<typeof reportSiteText>;
-
 function pageErrorText(t: AppTranslate) {
   return {
     title: t("sitePage.error.title"),

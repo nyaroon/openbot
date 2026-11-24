@@ -137,7 +137,7 @@ create a site, but it can replace one, and the extra sites end at their expiry. 
 
 A row in the D1 table `server_site_limits` (`0048`) replaces the plan's site limit for one server, such
 as an enterprise customer's, from 1 to 1000. It has the rules of `server_member_limits` (see
-[hosted servers](../hosted-servers.md)): the row names the owner account and applies only while that
+hosted servers): the row names the owner account and applies only while that
 account owns the server, it stays when the owner registers the host again, and it stops when the
 account is deleted. The unlinked bucket has no custom limit. No route writes the row; add, change or
 delete it by hand (`openbot-auth-test` for the test Worker):
@@ -1035,7 +1035,7 @@ main process, the web client and the mobile app each give it their own focus sig
 The host keeps the focus period of each session apart from `#sessionUse`, so a focused desktop does
 not stop the phone's push notifications. A ping moves `lastClientUseAt` only for 30 minutes after the
 later of the last user action of its session and the start of its focus period. The route is in `PASSIVE_ROUTES`, so the generic client use path
-does not count it. See [hosted servers](../hosted-servers.md) step 5.
+does not count it. See hosted servers step 5.
 
 ### Computer activity
 
@@ -1639,7 +1639,7 @@ creates them and the Customer Portal settings.
   `openbot_user_id` and `openbot_server_id` (`BILLING_METADATA`). The billing service calls the
   `onSubscriptionSynced` hook after each subscription sync; the hosting side uses it to provision,
   stop and resume servers, so billing does not know about boat. See
-  [hosted servers](../hosted-servers.md#lifecycle). The webhook links a new Stripe customer to the
+  hosted servers. The webhook links a new Stripe customer to the
   account from `openbot_user_id`. It never moves a known
   customer to another account, and it skips a subscription that names no account.
 - Desktop Settings → Billing and the web Billing dialog render `@openbot/ui/features/billing`: one
@@ -1647,7 +1647,7 @@ creates them and the Customer Portal settings.
   Hosted plans support cancellation that keeps data, Keep server, and explicit deletion now or
   after the paid period. A stored deletion date and subscription ID drive the cron; a fresh
   terminal Stripe state and a per-server operation lease guard deletion. See
-  [server deletion](../hosted-servers.md#billing-and-server-deletion). The price is the list price of the Stripe Price in the subscription's currency (from
+  server deletion. The price is the list price of the Stripe Price in the subscription's currency (from
   `currency_options` when that is not the Price's base currency), before discounts and tax. The
   webhook stores it with the subscription. The
   account button opens the Customer Portal for the payment method and invoices.
@@ -1675,14 +1675,14 @@ creates them and the Customer Portal settings.
     `openbot_vat_treatment`, so that the next invoice of a plan that runs gets the new VAT. Checkout,
     the license split and `scripts/stripe-vat-migrate.ts` write that metadata. A plan from before VAT
     has none and keeps its tax. The buyer declares the new country with no proof, so each subscription
-    whose VAT treatment changes writes a log line and sends a [pool alert](../hosted-servers.md#pool-alerts)
+    whose VAT treatment changes writes a log line and sends a pool alert
     with the customer, the subscription and the two countries.
   - A customer with no country (a client from before this step) gets a Checkout with Stripe Tax
     (`automatic_tax`, tax ID collection) and no VAT metadata, as before. With the Worker setting
     `BILLING_COUNTRY_REQUIRED=true` it gets 409 `billing_country_required` and must update. Production
     sets it in `wrangler.jsonc` since desktop 0.72.0; run `scripts/stripe-vat-migrate.ts` once more
     after the deploy, for plans that older clients bought with Stripe Tax before it. Checkout requires the billing address; when its country differs from the saved
-    one, the webhook writes a log line and sends a [pool alert](../hosted-servers.md#pool-alerts)
+    one, the webhook writes a log line and sends a pool alert
     with the Checkout session ID and the two countries.
   - Consumers in other EU countries pay Polish VAT only below the EU limit of EUR 10,000 a year.
     `BillingOss` (`apps/auth-api/src/server/billing-oss.ts`) keeps the net euro amount of each paid
@@ -1925,19 +1925,7 @@ grace. This counter contains no user data and is never sent to the host. Health 
 readiness remain false until agent initialization succeeds.
 See [multi-tenant hosting](../multi-tenant-hosting.md) for installation, permissions, and acceptance.
 
-## Hosted servers
-
-A hosted server is one [boat](https://boat.dev) sandbox for one account. It runs the Linux
-OpenBot build under Xvfb and is a normal Remote host after its first start. The account Worker
-owns the sandbox lifecycle: it creates, resumes and deletes sandboxes, and D1 keeps the desired
-and observed state. A server reports each minute while it is in use, and the Worker stops it after
-15 minutes with no report. boat also stops each sandbox at the end of a 2-hour lease that activity
-extends. When boat stops a server in use, the Worker resumes it, and clients ask the Worker to
-start a stopped server when a connection fails. No message
-waits in the Worker while a server is stopped; the client keeps it and connects again. The Worker's boat key cannot read files or run commands in a
-sandbox. On a hosted server only, main reads the memory of the machine, and the backend holds new
-turns while it is low and limits the turns that run at the same time. See
-[hosted servers](../hosted-servers.md) for the flow, the configuration, the memory guards and the template.
+## Self-hosted servers
 
 A self-hosted server uses the same Linux build, scripts and units on the owner's own computer, with
 `/opt/OpenBot/hosted/mode` set to `self`. It has no claim: main starts in server mode

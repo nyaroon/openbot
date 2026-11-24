@@ -48,7 +48,7 @@ export function centralAuthApiUrl(): string {
   );
 }
 
-export function createCentralAuthManager(options: { confirmSessionAtStart: boolean }): CentralAuthManager {
+export function createCentralAuthManager(): CentralAuthManager {
   const apiUrl = centralAuthApiUrl();
   return new CentralAuthManager({
     apiUrl,
@@ -57,6 +57,5 @@ export function createCentralAuthManager(options: { confirmSessionAtStart: boole
     fetch: accountServiceFetch,
     ...safeStorageCipher("error.app.macSecureStorageUnavailable"),
     keyringChanged: () => secretStorage().madeKeyFile(),
-    confirmSessionAtStart: options.confirmSessionAtStart,
   });
 }

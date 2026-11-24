@@ -1,8 +1,7 @@
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import { Typography } from "heroui-native";
 import Bell from "lucide-react-native/icons/bell";
 import Bot from "lucide-react-native/icons/bot";
-import CreditCard from "lucide-react-native/icons/credit-card";
 import Info from "lucide-react-native/icons/info";
 import Languages from "lucide-react-native/icons/languages";
 import Layers2 from "lucide-react-native/icons/layers-2";
@@ -15,29 +14,21 @@ import Shield from "lucide-react-native/icons/shield";
 import SquareMenu from "lucide-react-native/icons/square-menu";
 import Vibrate from "lucide-react-native/icons/vibrate";
 import WandSparkles from "lucide-react-native/icons/wand-sparkles";
-import { useCallback } from "react";
 import { mobileUserName } from "@/features/auth/api/mobile-user-name";
 import { useMobileSession } from "@/features/auth/context/mobile-session-context";
 import { SettingsContent, SettingsRow, SettingsSection } from "@/features/settings/components/settings-content";
 import { RowIcon } from "@/features/settings/components/settings-row-icon";
 import { agentDefaultsServers } from "@/features/settings/model/agent-defaults";
-import { useBillingState } from "@/features/settings/model/billing";
 import { shortcutsSupported } from "@/features/shortcuts/shortcuts-native";
 import { useMobileWorkspaceSelector } from "@/features/workspace/context/mobile-workspace-context";
 import { ProfileAvatar } from "@/shared/components/profile-avatar";
-import { useRefreshedMobileFeature } from "@/shared/lib/mobile-features";
 import { useText } from "@/shared/lib/text";
 
 export function SettingsScreen() {
   const { session } = useMobileSession();
-  const { t, format } = useText();
+  const { t } = useText();
   const managesAgents = useMobileWorkspaceSelector((workspace) => agentDefaultsServers(workspace).length > 0);
   const displayName = session ? mobileUserName(session.user) : t("mobile.settings.home.profile");
-  const apiUrl = session?.apiUrl ?? "";
-  const cloudServersOn = useRefreshedMobileFeature(apiUrl, "cloudServers");
-  const billing = useBillingState(cloudServersOn);
-  const showsBilling = cloudServersOn && billing.data?.available !== false;
-  const planCount = billing.data?.servers.length;
   return (
     <SettingsContent>
       <SettingsSection>
@@ -56,25 +47,6 @@ export function SettingsScreen() {
           <Typography.Paragraph>{displayName}</Typography.Paragraph>
         </SettingsRow>
       </SettingsSection>
-      {showsBilling || session ? (
-        <SettingsSection title={t("mobile.settings.home.account")}>
-          {showsBilling ? (
-            <SettingsRow
-              leading={<RowIcon icon={CreditCard} />}
-              onPress={() => router.push("/settings/billing")}
-              supportingText={
-                planCount === undefined
-                  ? undefined
-                  : planCount === 0
-                    ? t("mobile.settings.billing.noPlans")
-                    : t("mobile.settings.billing.planCount", { count: planCount })
-              }
-            >
-              <Typography.Paragraph>{t("mobile.settings.billing.title")}</Typography.Paragraph>
-            </SettingsRow>
-          ) : null}
-        </SettingsSection>
-      ) : null}
       <SettingsSection title={t("mobile.settings.home.preferences")}>
         <SettingsRow leading={<RowIcon icon={Palette} />} onPress={() => router.push("/settings/appearance")}>
           <Typography.Paragraph>{t("mobile.settings.appearance.title")}</Typography.Paragraph>

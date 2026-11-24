@@ -17,7 +17,6 @@ export const messages = {
   "error.auth.serviceUnreachable": "تعذّر على OpenBot الوصول إلى خدمة الحساب. تحقّق من اتصالك، ثم أعد المحاولة.",
   "error.auth.serviceTimeout": "لم تستجب خدمة الحساب في الوقت المحدد. أعد المحاولة.",
   "error.auth.serviceStatus": "أعادت خدمة الحساب خطأً ({status}). أعد المحاولة لاحقًا.",
-  "error.auth.invalidHostedServer": "أعادت خدمة الحساب خادمًا مستضافًا غير صالح.",
   "error.auth.invalidServerClaim": "أعادت خدمة الحساب رمز خادم غير صالح.",
   "error.auth.codeNotSent": "تعذّر على OpenBot إرسال رمز تسجيل الدخول.",
   "error.auth.deliveryTimeout":

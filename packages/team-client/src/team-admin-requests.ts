@@ -3,7 +3,6 @@ import {
   type DownloadableProviderId,
   isAgentProviderRef,
 } from "@openbot/contracts/agent-providers";
-import { parseHostedSiteList } from "@openbot/contracts/hosted-sites";
 import {
   type AccountUsage,
   type AddAgentFolderInput,
@@ -138,7 +137,6 @@ import {
   type HostAgentMemoryLimit,
   type HostBrowsingMemory,
   type HostDiscordAccessInput,
-  type HostedSiteList,
   type HostGitHubConnectorStatus,
   type HostMemoryReview,
   type HostMessagingConnectInput,
@@ -349,7 +347,6 @@ import { HOST_SIGNAL_HOME_ROUTES } from "@openbot/contracts/team-protocol/host-s
 import { HOST_TIMEZONE_ROUTES } from "@openbot/contracts/team-protocol/host-timezone-v1";
 import { HOST_UPDATE_ROUTES } from "@openbot/contracts/team-protocol/host-update-v1";
 import { HOST_VOICE_MODEL_ROUTES } from "@openbot/contracts/team-protocol/host-voice-model-v1";
-import { HOSTED_SITES_ROUTES } from "@openbot/contracts/team-protocol/hosted-sites-v1";
 import {
   decodeLiveVoiceAccount,
   LIVE_VOICE_ACCOUNT_ROUTES,
@@ -1354,20 +1351,6 @@ export function stopHostBackgroundProcess(
   id: string,
 ): Effect.Effect<void, TeamAdminRequestError> {
   return adminCall(() => request("POST", BACKGROUND_PROCESSES_ROUTES.stop, ignoreResponse, { id }));
-}
-
-function decodeHostedSiteList(value: unknown): HostedSiteList {
-  const list = parseHostedSiteList(value);
-  if (!list) throw new Error("The host returned an invalid site list.");
-  return list;
-}
-
-export function listHostedSites(request: TeamApiRequest): Effect.Effect<HostedSiteList, TeamAdminRequestError> {
-  return adminCall(() => request("POST", HOSTED_SITES_ROUTES.list, decodeHostedSiteList, {}));
-}
-
-export function deleteHostedSite(request: TeamApiRequest, siteId: string): Effect.Effect<void, TeamAdminRequestError> {
-  return adminCall(() => request("POST", HOSTED_SITES_ROUTES.remove, ignoreResponse, { siteId }));
 }
 
 export type ProviderCodeLoginRoutes =

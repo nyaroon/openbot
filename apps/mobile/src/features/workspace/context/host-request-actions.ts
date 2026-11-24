@@ -24,7 +24,6 @@ import {
   decodeInstalledSkills,
   decodeLibraryFoldersSnapshot,
   decodeMachineMetrics,
-  decodeStorageDisk,
   decodeStorageUsage,
   type HiddenAgent,
   isAgentMemory,
@@ -154,7 +153,6 @@ import { HOST_SIGNAL_HOME_CAPABILITY } from "@openbot/contracts/team-protocol/ho
 import { HOST_TIMEZONE_CAPABILITY } from "@openbot/contracts/team-protocol/host-timezone-v1";
 import { HOST_UPDATE_CAPABILITY } from "@openbot/contracts/team-protocol/host-update-v1";
 import { HOST_VOICE_MODEL_CAPABILITY } from "@openbot/contracts/team-protocol/host-voice-model-v1";
-import { HOSTED_SITES_CAPABILITY } from "@openbot/contracts/team-protocol/hosted-sites-v1";
 import { INSTANCE_TRANSFER_CAPABILITY } from "@openbot/contracts/team-protocol/instance-transfer-v1";
 import {
   LIBRARY_FOLDERS_CAPABILITY,
@@ -195,11 +193,6 @@ import {
 import { SIGN_IN_RELAY_CAPABILITY } from "@openbot/contracts/team-protocol/sign-in-relay-v1";
 import { SKILL_LEARNING_CAPABILITY } from "@openbot/contracts/team-protocol/skill-learning-v1";
 import { SKILLS_ADMIN_CAPABILITY } from "@openbot/contracts/team-protocol/skills-admin-v1";
-import { STORAGE_DISK_CAPABILITY, STORAGE_DISK_ROUTES } from "@openbot/contracts/team-protocol/storage-disk-v1";
-import {
-  STORAGE_USER_FILES_CAPABILITY,
-  STORAGE_USER_FILES_ROUTES,
-} from "@openbot/contracts/team-protocol/storage-user-files-v1";
 import { STORAGE_ROUTES } from "@openbot/contracts/team-protocol/storage-v1";
 import { USAGE_CREDITS_CAPABILITY } from "@openbot/contracts/team-protocol/usage-credits-v1";
 import type { TeamProtocolV1Capability } from "@openbot/contracts/team-protocol/v1";
@@ -250,7 +243,6 @@ import {
   deleteEventRoutine,
   deleteHostBrowserProfile,
   deleteHostBrowserProxy,
-  deleteHostedSite,
   deleteHostVaultItem,
   deleteSharedTable,
   excludeAgentFolder,
@@ -284,7 +276,6 @@ import {
   listHiddenAgents,
   listHostBrowserProfiles,
   listHostBrowserProxies,
-  listHostedSites,
   listHostVault,
   listHostVaultCodes,
   listMcpServers,
@@ -491,7 +482,6 @@ type HostRequestActions = Pick<
   | "loadServerStorage"
   | "loadLibraryFolders"
   | "changeLibraryFolders"
-  | "loadServerDisk"
   | "loadMachineMetrics"
   | "clearServerStorage"
   | "loadAgentAdminSettings"
@@ -626,8 +616,6 @@ type HostRequestActions = Pick<
   | "setServerUpdateSettings"
   | "loadServerRelease"
   | "checkServerRelease"
-  | "loadHostedSites"
-  | "deleteHostedSite"
   | "providerAdmin"
   | "listMcpServers"
   | "saveMcpServer"
@@ -898,8 +886,6 @@ export function createHostRequestActions({
   const updateAdmin = (serverId: string) => updateApi(serverId, "admin");
   const releaseApi = (serverId: string) =>
     capabilityApi(serverId, HOST_RELEASE_CAPABILITY, "mobile.server.update.unavailable");
-  const sitesApi = (serverId: string) =>
-    capabilityApi(serverId, HOSTED_SITES_CAPABILITY, "mobile.server.sites.unsupported");
   const mcpAdmin = (serverId: string) =>
     capabilityApi(serverId, MCP_SERVERS_CAPABILITY, "mobile.server.mcp.unsupported");
   function memoryRequest(serverId: string): AgentMemoriesRequest<TeamRequestError> {
@@ -1121,8 +1107,6 @@ export function createHostRequestActions({
       runTeamRequest(setHostUpdateSettings(updateAdmin(serverId), settings)),
     loadServerRelease: async (serverId) => runTeamRequest(getHostReleaseStatus(releaseApi(serverId))),
     checkServerRelease: async (serverId) => runTeamRequest(checkHostRelease(releaseApi(serverId))),
-    loadHostedSites: async (serverId) => runTeamRequest(listHostedSites(sitesApi(serverId))),
-    deleteHostedSite: async (siteId, serverId) => runTeamRequest(deleteHostedSite(sitesApi(serverId), siteId)),
     providerAdmin: (serverId) =>
       createProviderAdmin(
         capabilityApi(serverId, PROVIDERS_ADMIN_CAPABILITY, "mobile.server.providers.unsupported"),
@@ -1437,13 +1421,6 @@ export function createHostRequestActions({
         decodeTeamProtocolV2Json(action),
         serverId,
       );
-    },
-    loadServerDisk: async (serverId) => {
-      if (has(serverId, STORAGE_USER_FILES_CAPABILITY))
-        return request("POST", STORAGE_USER_FILES_ROUTES.disk, decodeStorageDisk, {}, serverId);
-      if (has(serverId, STORAGE_DISK_CAPABILITY))
-        return request("POST", STORAGE_DISK_ROUTES.disk, decodeStorageDisk, {}, serverId);
-      return null;
     },
     loadMachineMetrics: async (serverId) => {
       requireCapability(capabilities, serverId, MACHINE_RESOURCES_CAPABILITY, "mobile.server.machine.unsupported");

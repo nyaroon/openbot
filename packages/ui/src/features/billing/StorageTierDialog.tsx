@@ -77,13 +77,13 @@ export function StorageTierDialog(props: StorageTierDialogProps) {
         <Dialog.Overlay>
           <Dialog.Content
             as="section"
-            class="hosted-upsell-modal storage-tier-modal"
+            class="storage-tier-modal"
             onOpenAutoFocus={(event) => {
               event.preventDefault();
               primary?.focus({ preventScroll: true });
             }}
           >
-            <Dialog.Title as="h2" class="hosted-upsell-modal-title">
+            <Dialog.Title as="h2" class="storage-tier-modal-title">
               {props.mode === "offer"
                 ? t("server.upgrade.title")
                 : t("billing.storage.title", { server: props.serverName })}
@@ -106,7 +106,7 @@ export function StorageTierDialog(props: StorageTierDialogProps) {
               )}
             </Show>
             <Show when={props.mode === "offer"}>
-              <Dialog.Description as="p" class="hosted-upsell-modal-description">
+              <Dialog.Description as="p" class="storage-tier-modal-description">
                 {t("server.upgrade.description", { server: props.serverName })}
               </Dialog.Description>
             </Show>
@@ -149,7 +149,7 @@ export function StorageTierDialog(props: StorageTierDialogProps) {
                 </p>
               )}
             </Show>
-            <footer class="hosted-upsell-modal-actions">
+            <footer class="storage-tier-modal-actions">
               <Button variant="ghost" disabled={props.pending} onClick={() => props.onClose()}>
                 {props.mode === "offer" ? t("server.upsell.notNow") : t("common.cancel")}
               </Button>

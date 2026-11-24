@@ -171,9 +171,6 @@ export const messages = {
   "error.team.machineResourcesUnsupported": "Deze verbinding ondersteunt geen machinegebruik.",
   "error.team.machineAlertMemberInvalid":
     "Alleen een eigenaar of beheerder van deze server kan machinealarmen krijgen.",
-  "error.team.hostedSitesUnsupported": "Deze verbinding ondersteunt geen sites.",
-  "error.team.hostedSitesUnregistered": "Deze server is niet geregistreerd bij OpenBot, dus hij heeft geen sites.",
-  "error.team.hostedSiteNotFound": "Site niet gevonden.",
   "error.team.markUnreadUnsupported": "Deze client ondersteunt het markeren van gesprekken als ongelezen niet.",
   "error.team.inviteServiceUnavailable": "De uitnodigingsservice is niet beschikbaar.",
   "error.team.logoNotFound": "Serverlogo niet gevonden.",

@@ -7,7 +7,6 @@ import {
   apiError,
   json,
   remoteControlPlaneErrorResponse,
-  requestAdoptUnlinkedHostedSites,
   requestRemoteControlPlane,
   requestUser,
 } from "../../../../server/request-auth";
@@ -41,9 +40,6 @@ export const Route = createFileRoute("/v2/remote/hosts/register")({
               machineToken: body.machineToken,
               automatic: body.automatic,
             });
-            yield* requestAdoptUnlinkedHostedSites(user.id, registered.hostId).pipe(
-              Effect.catch(() => Effect.sync(() => console.warn("hosted sites: unlinked site adoption failed"))),
-            );
             return json(registered, 201);
           }),
           remoteControlPlaneErrorResponse,

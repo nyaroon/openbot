@@ -51,7 +51,6 @@ import { takeWebAppStart, WEB_APP_BILLING_PARAM, type WebAppStart } from "./web-
 import { syncWebChatBackground } from "./web-chat-background";
 import type { WebRuntimeFactory } from "./web-client-context";
 import { extensionReturnUrl, forgetExtensionConnect, takeExtensionConnect } from "./web-extension-connect";
-import { takeHostingReturn } from "./web-hosted-servers";
 import { createWebLanguagePreference } from "./web-language-preference";
 
 export { loadSavedLanguage } from "./web-language-preference";
@@ -202,12 +201,8 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
     },
   );
   const initialBillingReturn = takeBillingReturn();
-  const initialHostingReturn = takeHostingReturn();
   const [billingReturn, setBillingReturn] = createSignal(initialBillingReturn !== null);
-  const [hostingReturn, setHostingReturn] = createSignal(initialHostingReturn);
-  let billingReturnEvent: BillingReturn | null =
-    initialBillingReturn ??
-    (initialHostingReturn ? { outcome: initialHostingReturn.paid ? "completed" : "cancelled", kind: "plan" } : null);
+  let billingReturnEvent: BillingReturn | null = initialBillingReturn;
   const addressHadLink =
     agentTemplateId() !== null ||
     inviteUrl() !== null ||
@@ -215,8 +210,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
     marketplaceListing() !== null ||
     startLink() !== null ||
     extensionConnect !== null ||
-    initialBillingReturn !== null ||
-    initialHostingReturn !== null;
+    initialBillingReturn !== null;
   const [workspace, setWorkspace] = createSignal<typeof WebWorkspace>();
   async function showAccount(account: CentralAuthUser) {
     const view = await loadWorkspace();
@@ -608,8 +602,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
                       onStartConsumed={() => setStartLink(null)}
                       billingReturn={billingReturn()}
                       onBillingReturnConsumed={() => setBillingReturn(false)}
-                      hostingReturn={hostingReturn()}
-                      onHostingReturnConsumed={() => setHostingReturn(null)}
                       language={languagePreference.language()}
                       onChangeLanguage={languagePreference.setLanguage}
                       appearance={appearancePreference.appearance()}

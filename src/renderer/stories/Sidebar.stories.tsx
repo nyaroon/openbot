@@ -332,7 +332,6 @@ export const StorageLow: Story = {
         serverName="Acme HQ"
         freeBytes={1.1 * GB}
         totalBytes={12 * GB}
-        hostedPlan
         onFreeUpSpace={fn()}
         onDismiss={fn()}
       />
@@ -349,7 +348,6 @@ export const StorageFull: Story = {
         serverName="Acme HQ"
         freeBytes={0.14 * GB}
         totalBytes={12 * GB}
-        hostedPlan
         onFreeUpSpace={fn()}
         onDismiss={fn()}
       />

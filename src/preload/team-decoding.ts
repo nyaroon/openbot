@@ -5,8 +5,6 @@ import {
   type DirectConversationSnapshot,
   type DirectMessage,
   type DirectThreadSummary,
-  type HostedServerIssue,
-  type HostedServerStart,
   type HostStatus,
   type InvitePreview,
   type InviteSummary,
@@ -277,11 +275,7 @@ function server(summary: DynamicRecord): ServerSummary {
     connectionSequence,
     capabilitiesPending,
     hostRestart,
-    hostedSleep,
-    hostedIssue,
-    hostedStart,
     memberLimit,
-    hosted,
     restartAvailable,
     storageGb,
     paymentRequired,
@@ -297,7 +291,6 @@ function server(summary: DynamicRecord): ServerSummary {
   if (memberLimit !== undefined && !(isNumber(memberLimit) && Number.isSafeInteger(memberLimit) && memberLimit >= 1)) {
     throw new Error("Invalid memberLimit.");
   }
-  if (hosted !== undefined && !isBoolean(hosted)) throw new Error("Invalid hosted.");
   if (restartAvailable !== undefined && !isBoolean(restartAvailable)) throw new Error("Invalid restartAvailable.");
   if (storageGb !== undefined && !(isNumber(storageGb) && Number.isSafeInteger(storageGb) && storageGb >= 1)) {
     throw new Error("Invalid storageGb.");
@@ -336,13 +329,7 @@ function server(summary: DynamicRecord): ServerSummary {
     ...(connectionSequence === undefined ? {} : { connectionSequence }),
     ...(capabilitiesPending === undefined ? {} : { capabilitiesPending }),
     ...(hostRestart === undefined ? {} : { hostRestart: hostRestart === null ? null : serverHostRestart(hostRestart) }),
-    ...(hostedSleep === undefined
-      ? {}
-      : { hostedSleep: hostedSleep === "sleeping" || hostedSleep === "waking" ? hostedSleep : null }),
-    ...(hostedIssue === undefined ? {} : { hostedIssue: decodeHostedIssue(hostedIssue) }),
-    ...(hostedStart === undefined ? {} : { hostedStart: decodeHostedStart(hostedStart) }),
     ...(memberLimit === undefined ? {} : { memberLimit }),
-    ...(hosted === undefined ? {} : { hosted }),
     ...(restartAvailable === undefined ? {} : { restartAvailable }),
     ...(storageGb === undefined ? {} : { storageGb }),
     ...(paymentRequired === undefined ? {} : { paymentRequired }),
@@ -488,18 +475,4 @@ function remoteDesktopDisplay(display: DynamicRecord): RemoteDesktopDisplay {
 function teamRole(value: unknown): TeamRole {
   if (!isOneOf(TEAM_ROLES, value)) throw new Error("Invalid role.");
   return value;
-}
-
-function decodeHostedIssue(value: unknown): HostedServerIssue | null {
-  if (value === null || value === "plan_ended" || value === "wake_failed" || value === "start_timeout") return value;
-  throw new Error("Invalid hostedIssue.");
-}
-
-function decodeHostedStart(value: unknown): HostedServerStart | null {
-  if (value === null) return null;
-  const start = decodeRecord(value, "hosted start");
-  const { step } = start;
-  if (step !== "machine" && step !== "restore" && step !== "openbot" && step !== "provider_limit")
-    throw new Error("Invalid hostedStart.");
-  return { step, startedAt: requiredNumber(start, "startedAt") };
 }

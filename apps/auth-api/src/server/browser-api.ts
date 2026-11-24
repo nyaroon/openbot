@@ -1,7 +1,6 @@
 import { isAvatarMimeType } from "@openbot/contracts/avatar-images";
 import { parseBillingPortalRequest, parseBillingStorageRequest } from "@openbot/contracts/billing";
 import { parseBillingDetailsRequest } from "@openbot/contracts/billing-details";
-import { parseHostedServerLifecycleInput } from "@openbot/contracts/hosted-servers";
 import {
   LICENSE_UNAVAILABLE_STATE,
   parseLicenseCheckoutRequest,
@@ -23,9 +22,6 @@ import type { CustomServerOffers } from "./custom-server-offers";
 import { runApiResponse } from "./effect-runtime";
 import { ExtensionSignInError, type ExtensionSignInService } from "./extension-sign-in";
 import type { readHostLogo } from "./host-logo";
-import type { HostedServerService } from "./hosted-server-service";
-import { HostedSiteInputError, requireIdempotencyKey } from "./hosted-site-contract";
-import type { HostedSiteService } from "./hosted-site-service";
 import { readJsonObject } from "./json-body";
 import { startOwnerTransfer } from "./owner-transfer";
 import { type RemoteControlPlane, RemoteControlPlaneError } from "./remote-control-plane";
@@ -77,10 +73,6 @@ export interface BrowserApiServices {
   >;
   extensionSignIn: () => ExtensionSignInService;
   hostLogo: (hostId: string, version: string) => ReturnType<typeof readHostLogo>;
-  hosting: () => Pick<
-    HostedServerService,
-    "list" | "plans" | "create" | "checkout" | "delete" | "wake" | "restart" | "status" | "lifecycle"
-  >;
   customServerOffers: () => CustomServerOffers;
   inviteEmailDelivery: () => TeamInviteEmailDelivery | null;
   ownerTransferEmailDelivery: () => OwnerTransferEmailDelivery | null;
@@ -91,7 +83,6 @@ export interface BrowserApiServices {
     "getState" | "createPortal" | "buyStorage" | "getBillingDetails" | "setBillingDetails" | "license"
   > | null;
   avatarBucket: () => R2Bucket;
-  hostedSites: () => Pick<HostedSiteService, "list" | "delete">;
   sourceIp: (request: Request) => string;
   errorResponse: (error: unknown) => Response;
 }
@@ -268,10 +259,6 @@ const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function*
   }
   const account = yield* handleAccount(request, path, token, user, services);
   if (account) return account;
-  const hosting = yield* handleHosting(request, path, user, services);
-  if (hosting) return hosting;
-  const hostedSites = yield* handleHostedSites(request, path, user, services);
-  if (hostedSites) return hostedSites;
   const ownerTransfer = yield* handleOwnerTransfer(request, path, user, services);
   if (ownerTransfer) return ownerTransfer;
   const administration = yield* handleAdministration(request, path, user, services);
@@ -420,80 +407,6 @@ const handleBilling = Effect.fn("BrowserApi.handleBilling")(function* (
   }
   return null;
 }, refuseWith(BillingError));
-
-const handleHosting = Effect.fn("BrowserApi.handleHosting")(function* (
-  request: Request,
-  path: string,
-  user: AuthUser,
-  services: BrowserApiServices,
-) {
-  const returnTo = { target: "web", origin: new URL(request.url).origin } as const;
-  if (path === "v2/hosting/plans" && request.method === "GET") return json(yield* services.hosting().plans(user));
-  if (path === "v2/hosting/servers") {
-    if (request.method === "GET") return json(yield* services.hosting().list(user));
-    if (request.method !== "POST") return null;
-    const body = yield* readJsonObject(request);
-    const promotionCode = parsePromotionCode(body.promotionCode);
-    return json(
-      yield* services.hosting().create(
-        user,
-        {
-          name: body.name,
-          plan: body.plan,
-          interval: body.interval,
-          currency: body.currency,
-          entryPoint: body.entryPoint,
-          license: body.license,
-          earlyStart: body.earlyStart,
-        },
-        request.headers.get("Idempotency-Key"),
-        promotionCode ? { ...returnTo, promotionCode } : returnTo,
-      ),
-      201,
-    );
-  }
-  const [, encodedServerId, action] =
-    /^v2\/hosting\/servers\/([^/]+)(?:\/(wake|restart|checkout|status|lifecycle))?$/u.exec(path) ?? [];
-  if (encodedServerId === undefined) return null;
-  const serverId = decodeURIComponent(encodedServerId);
-  if (action === "lifecycle" && request.method === "POST") {
-    const body = yield* readJsonObject(request);
-    const input = parseHostedServerLifecycleInput({ ...body, serverId });
-    if (!input) return json({ error: "invalid_request", message: sourceText("error.billing.invalidRequest") }, 400);
-    yield* services.hosting().lifecycle(user, serverId, input);
-    return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
-  }
-  if (action === "wake" && request.method === "POST") return json(yield* services.hosting().wake(user, serverId));
-  if (action === "restart" && request.method === "POST") return json(yield* services.hosting().restart(user, serverId));
-  if (action === "status" && request.method === "GET") return json(yield* services.hosting().status(user, serverId));
-  if (action === "checkout" && request.method === "POST") {
-    const promotionCode = parsePromotionCode((yield* readJsonObject(request)).promotionCode);
-    return json(
-      yield* services.hosting().checkout(user, serverId, promotionCode ? { ...returnTo, promotionCode } : returnTo),
-    );
-  }
-  if (action === undefined && request.method === "DELETE") {
-    const body = yield* readJsonObject(request);
-    yield* services.hosting().delete(user, serverId, body.confirmName);
-    return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
-  }
-  return null;
-});
-
-const handleHostedSites = Effect.fn("BrowserApi.handleHostedSites")(function* (
-  request: Request,
-  path: string,
-  user: AuthUser,
-  services: BrowserApiServices,
-) {
-  if (path === "v1/sites" && request.method === "GET")
-    return json(yield* services.hostedSites().list({ kind: "account", userId: user.id }));
-  const [, encodedSiteId] = /^v1\/sites\/([^/]+)$/u.exec(path) ?? [];
-  if (encodedSiteId === undefined || request.method !== "DELETE") return null;
-  const key = requireIdempotencyKey(request);
-  yield* services.hostedSites().delete({ kind: "account", userId: user.id }, decodeURIComponent(encodedSiteId), key);
-  return json({ deleted: true });
-}, refuseWith(HostedSiteInputError));
 
 const handleOwnerTransfer = Effect.fn("BrowserApi.handleOwnerTransfer")(function* (
   request: Request,

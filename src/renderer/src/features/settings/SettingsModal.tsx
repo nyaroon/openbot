@@ -6,7 +6,6 @@ import type {
   BillingDesktopApi,
   CentralAuthUser,
   DynamicIslandGeometry,
-  HostedServersDesktopApi,
   LicenseDesktopApi,
   MobileConnectedDevice,
   MobileConnectLink,
@@ -41,7 +40,6 @@ import type { MobileInstallRequest } from "@openbot/ui/features/settings/Setting
 import { SettingsMobileConnectTab } from "@openbot/ui/features/settings/SettingsMobileConnectTab";
 import { SettingsProfileTab } from "@openbot/ui/features/settings/SettingsProfileTab";
 import { SettingsUpdatesTab } from "@openbot/ui/features/settings/SettingsUpdatesTab";
-import { createSettingsHostedServersStore } from "@openbot/ui/features/settings/stores/hosted-servers-store";
 import { createSettingsMobileConnectStore } from "@openbot/ui/features/settings/stores/mobile-connect-store";
 import { createSettingsProfileStore } from "@openbot/ui/features/settings/stores/profile-store";
 import { createSettingsUpdatesStore } from "@openbot/ui/features/settings/stores/updates-store";
@@ -104,12 +102,9 @@ export interface SettingsModalProps {
   billingApi?: BillingDesktopApi;
   licenseApi?: LicenseDesktopApi | undefined;
   onContactUs?: (() => void) | undefined;
-  hostedServersApi?: HostedServersDesktopApi | undefined;
-  onAddHostedServer?: (() => void) | undefined;
   codexLiveAccess?: CodexLiveAccess | undefined;
   liveVoiceAccount?: LiveVoiceAccountChoice | undefined;
   onConnectCodex?: (() => void) | undefined;
-  hostedServerDeleteRequest?: { serverId: string; nonce: number } | null;
   mobileInstallRequest?: MobileInstallRequest | null;
   onMobileInstallRequestHandled?: (() => void) | undefined;
   onTestNotification?: () => void | Promise<void>;
@@ -122,9 +117,7 @@ export interface SettingsModalProps {
 
 export function SettingsModal(props: SettingsModalProps) {
   const i18n = useI18n();
-  const [activeTab, setActiveTab] = createSignal<SettingsTab>(
-    untrack(() => (props.initialTab === "hosted-servers" ? "billing" : props.initialTab)) ?? "general",
-  );
+  const [activeTab, setActiveTab] = createSignal<SettingsTab>(untrack(() => props.initialTab) ?? "general");
   let modalElement: HTMLElement | undefined;
   const profile = createSettingsProfileStore(props, () => activeTab() === "profile");
   const profileActivity = createProfileActivityStore(
@@ -142,28 +135,14 @@ export function SettingsModal(props: SettingsModalProps) {
     () => props.open && activeTab() === "billing",
     trackLicenseEvent,
   );
-  const hostedServers = createSettingsHostedServersStore(props, () => activeTab() === "billing");
   const voice = createSettingsVoiceStore(() => props.open && activeTab() === "voice");
   const notificationLevels = createNotificationLevelsStore({
     visible: () => props.open && activeTab() === "notifications",
     servers: () => props.servers ?? [],
   });
-  let handledHostedServerDeleteNonce = 0;
-  createEffect(
-    () => (props.open ? props.hostedServerDeleteRequest : null),
-    (request) => {
-      if (!request || request.nonce === handledHostedServerDeleteNonce) return;
-      handledHostedServerDeleteNonce = request.nonce;
-      hostedServers.requestDeleteById(request.serverId);
-    },
-  );
-
   const dynamicIslandShown = () => dynamicIslandSettingsShown(props.appInfo?.platform, props.chatWindow === true);
   createEffect(
-    () => {
-      const tab = props.open ? props.openTab : undefined;
-      return tab === "hosted-servers" ? "billing" : tab;
-    },
+    () => (props.open ? props.openTab : undefined),
     (tab) => {
       if (!tab) return;
       setActiveTab(tab);
@@ -398,8 +377,6 @@ export function SettingsModal(props: SettingsModalProps) {
           <BillingPanel
             store={billing}
             available={Boolean(props.billingApi)}
-            hostedServers={hostedServers}
-            onAddServer={hostedServers.state.available ? props.onAddHostedServer : undefined}
             license={
               <LicenseSection
                 store={license}

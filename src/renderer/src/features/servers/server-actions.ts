@@ -6,16 +6,10 @@ import { useText } from "@openbot/ui/text";
 import { actionToast } from "../../action-toast";
 import { usePlatform } from "../../platform";
 import { useSettings } from "../settings/settings-context";
-import { openServerPlanCheckout } from "./ServerPlanReminder";
 import { serverSupportsCapability } from "./server-capabilities";
 import { useServerSelection } from "./server-selection";
 import { useServerSettings } from "./server-settings";
 import { useServers } from "./servers-context";
-import { serversPort } from "./servers-port";
-
-export function renewServerPlan(serverId: string): Promise<void> {
-  return openServerPlanCheckout((id) => serversPort().hostedServers.openCheckout(id), serverId);
-}
 
 export function useServerActions() {
   const platform = usePlatform();
@@ -24,20 +18,14 @@ export function useServerActions() {
     servers,
     setServerMuted,
     setJoinServerOpen,
-    setAddServerOpen,
     setCreateLocalServerOpen,
     setInstallServerOpen,
-    hostedServersAvailable,
-    hostedServerIds,
-    hostedServersLoaded,
-    planDeletesAt,
-    refreshHostedServersAvailable,
     localServerHidden,
     setLocalServerHidden,
   } = useServers();
   const { selectServer } = useServerSelection();
   const { openServerSettings, requestLeaveServer, requestRestartServer } = useServerSettings();
-  const { openHostedServerDelete, openNotificationLevels } = useSettings();
+  const { openNotificationLevels } = useSettings();
 
   function remoteServers(): ServerSummary[] {
     return servers().filter((server) => server.kind === "remote");
@@ -68,22 +56,12 @@ export function useServerActions() {
 
   function add(): void {
     if (platform.landingPreview) return;
-    if (hostedServersAvailable()) setAddServerOpen(true, "server_rail");
-    else setJoinServerOpen(true);
-    void refreshHostedServersAvailable();
+    setJoinServerOpen(true);
   }
 
   const createLocal = platform.landingPreview ? undefined : () => setCreateLocalServerOpen(true);
 
-  function addMenuCreateLocal(): (() => void) | undefined {
-    return hostedServersAvailable() ? undefined : createLocal;
-  }
-
   const installServer = platform.landingPreview ? undefined : () => setInstallServerOpen(true);
-
-  function addMenuInstallServer(): (() => void) | undefined {
-    return hostedServersAvailable() ? undefined : installServer;
-  }
 
   async function hideLocal(serverId: string): Promise<void> {
     const other = remoteServers().find((server) => server.state === "online") ?? remoteServers()[0];
@@ -114,20 +92,17 @@ export function useServerActions() {
     onOpenSettings: openServerSettings,
     onLeave: requestLeaveServer,
     onRemove: requestLeaveServer,
-    canRemove: (serverId) => hostedServersLoaded() && !hostedServerIds().has(serverId) && !onThisComputer(serverId),
-    onDelete: (serverId, trigger) =>
-      onThisComputer(serverId) ? requestLeaveServer(serverId, trigger) : openHostedServerDelete(serverId, trigger),
-    canDelete: (serverId) => hostedServerIds().has(serverId) || onThisComputer(serverId),
+    canRemove: (serverId) => !onThisComputer(serverId),
+    onDelete: requestLeaveServer,
+    canDelete: onThisComputer,
     onRestart: requestRestartServer,
     canRestart: (serverId) => {
-      if (hostedServerIds().has(serverId) || onThisComputer(serverId)) return true;
+      if (onThisComputer(serverId)) return true;
       const server = servers().find((candidate) => candidate.id === serverId);
       return server?.state === "online" && serverSupportsCapability(server, "host-restart-v1");
     },
     onHide: (serverId) => void hideLocal(serverId),
     canHide: () => remoteServers().length > 0,
-    planDeletesAt,
-    onRenewPlan: renewServerPlan,
   } satisfies ServerActionCallbacks;
 
   return {
@@ -135,10 +110,7 @@ export function useServerActions() {
     select,
     add,
     createLocal,
-    addMenuCreateLocal,
     installServer,
-    addMenuInstallServer,
-    addCreatesServer: hostedServersAvailable,
     hiddenLocal,
     callbacks,
   };

@@ -75,7 +75,6 @@ import type {
   HostAnalytics,
   HostAnalyticsInput,
   HostBrowsingMemory,
-  HostedSiteList,
   HostGitHubConnectorStatus,
   HostMemoryReview,
   HostMessagingConnectInput,
@@ -156,7 +155,6 @@ import type {
   SidebarPin,
   SignInRelayStatus,
   StartWhatsAppLinkInput,
-  StorageDisk,
   StorageUsage,
   UninstallSkillInput,
   UpdateAgentAdminSettingsInput,
@@ -387,7 +385,6 @@ export interface MobileWorkspaceContextValue {
   removeServer: (serverId: string) => Promise<void>;
   refreshServers: () => Promise<void>;
   refreshServer: (serverId: string) => Promise<void>;
-  hostedServerStarting: (serverId: string) => void;
   knownServerChecks: (serverId: string) => ServerChecks | null;
   canEditServerIdentity: (serverId: string) => boolean;
   canEditServerAppearance: (serverId: string) => boolean;
@@ -551,10 +548,6 @@ export interface MobileWorkspaceContextValue {
   setServerUpdateSettings: (settings: HostUpdateSettingsChange, serverId: string) => Promise<HostUpdateStatus>;
   loadServerRelease: (serverId: string) => Promise<HostReleaseStatus>;
   checkServerRelease: (serverId: string) => Promise<HostReleaseStatus>;
-  canViewHostedSites: (serverId: string) => boolean;
-  canDeleteHostedSites: (serverId: string) => boolean;
-  loadHostedSites: (serverId: string) => Promise<HostedSiteList>;
-  deleteHostedSite: (siteId: string, serverId: string) => Promise<void>;
   canManageProviders: (serverId: string) => boolean;
   providerAdmin: (serverId: string) => ProviderAdmin;
   canManageMcpServers: (serverId: string) => boolean;
@@ -635,7 +628,6 @@ export interface MobileWorkspaceContextValue {
   loadServerStorage: (serverId: string, force?: boolean) => Promise<StorageUsage>;
   loadLibraryFolders: (serverId: string) => Promise<LibraryFoldersSnapshot>;
   changeLibraryFolders: (action: LibraryFolderAction, serverId: string) => Promise<LibraryFoldersSnapshot>;
-  loadServerDisk: (serverId: string) => Promise<StorageDisk | null>;
   clearServerStorage: (category: ClearableStorageCategory, serverId: string) => Promise<void>;
   loadAgentAdminSettings: (agentId: string, serverId: string) => Promise<AgentAdminSettings | null>;
   updateAgentAdminSettings: (input: UpdateAgentAdminSettingsInput, serverId: string) => Promise<AgentAdminSettings>;
@@ -900,8 +892,6 @@ type ServerCheckKey =
   | "canManageBrowserProxies"
   | "serverUpdateAccess"
   | "canReadServerRelease"
-  | "canViewHostedSites"
-  | "canDeleteHostedSites"
   | "canManageProviders"
   | "canManageMcpServers"
   | "canRelayMcpSignIn"

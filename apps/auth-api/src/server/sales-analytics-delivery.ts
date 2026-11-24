@@ -1,4 +1,3 @@
-import { HOSTED_SERVER_ENTRY_POINTS } from "@openbot/contracts/hosted-servers";
 import { isDynamicRecord, isOneOf } from "@openbot/contracts/runtime-values";
 import { Effect, Schema } from "effect";
 import {
@@ -69,7 +68,6 @@ const SALES_ANALYTICS_EVENT_PROPERTIES = {
     "plan",
     "users",
     "direction",
-    "entry_point",
     "interval",
     "currency",
     "amount",
@@ -474,7 +472,6 @@ function eventPropertyValuesAreValid(properties: SalesAnalyticsProperties): bool
     if (key === "users") return false;
     if (key === "product" && !isOneOf(BILLING_PRODUCTS, value)) return false;
     if (key === "direction" && !isOneOf(PLAN_CHANGE_DIRECTIONS, value)) return false;
-    if (key === "entry_point" && !isOneOf(HOSTED_SERVER_ENTRY_POINTS, value)) return false;
     if (key === "action" && !isOneOf(BILLING_ACTIONS, value)) return false;
     if (key === "plan" && !isOneOf(BILLING_PLANS, value)) return false;
     if (key === "interval" && !isOneOf(BILLING_INTERVALS, value)) return false;

@@ -55,7 +55,6 @@ import { HOST_SIGNAL_HOME_CAPABILITY } from "@openbot/contracts/team-protocol/ho
 import { HOST_TIMEZONE_CAPABILITY } from "@openbot/contracts/team-protocol/host-timezone-v1";
 import { HOST_UPDATE_CAPABILITY } from "@openbot/contracts/team-protocol/host-update-v1";
 import { HOST_VOICE_MODEL_CAPABILITY } from "@openbot/contracts/team-protocol/host-voice-model-v1";
-import { HOSTED_SITES_CAPABILITY } from "@openbot/contracts/team-protocol/hosted-sites-v1";
 import { INSTANCE_TRANSFER_CAPABILITY } from "@openbot/contracts/team-protocol/instance-transfer-v1";
 import { LIVE_ACTIVITY_PUSH_CAPABILITY } from "@openbot/contracts/team-protocol/live-activity-push-v1";
 import { LIVE_VOICE_EVENT } from "@openbot/contracts/team-protocol/live-voice-v1";
@@ -118,7 +117,6 @@ import {
 import { verifyEd25519Base64Url } from "@openbot/team-client/ed25519";
 import { feedbackApproval } from "@openbot/team-client/feedback-approval";
 import { createFocusUsePing } from "@openbot/team-client/focus-use";
-import { createHostedServerWake, WAKE_RECONNECT_DELAY_MS } from "@openbot/team-client/hosted-server-wake";
 import type {
   RemoteDownloadWatch,
   RemoteFileUpload,
@@ -1384,19 +1382,6 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
     else connections.current.delete(hostId);
     if (handle && quietStarts.current.delete(hostId)) handle.quietStart();
   }, []);
-  const wakeHostedServer = useMemo(
-    () =>
-      createHostedServerWake((hostId) =>
-        Effect.tryPromise((signal) =>
-          fetch(new URL(`/v2/hosting/servers/${encodeURIComponent(hostId)}/wake`, session.apiUrl).toString(), {
-            method: "POST",
-            headers: { Authorization: `Bearer ${session.sessionToken}` },
-            signal,
-          }),
-        ),
-      ),
-    [session.apiUrl, session.sessionToken],
-  );
   const foregroundRef = useRef(foreground);
   foregroundRef.current = foreground;
   const sendApproval = useCallback(
@@ -1428,8 +1413,6 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
   const handleServerUnavailable = useCallback((hostId: string) => {
     if (hostId === activeServerIdRef.current) setHold(null);
   }, []);
-  const wakeReconnect = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  useEffect(() => () => clearTimeout(wakeReconnect.current), []);
   const limitFirstConnection = useCallback((hostId: string) => {
     if (
       !foregroundRef.current ||
@@ -1465,21 +1448,6 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
       timers.clear();
     };
   }, [foreground, limitFirstConnection]);
-  const hostedServerStarting = useCallback((hostId: string) => {
-    clearTimeout(wakeReconnect.current);
-    wakeReconnect.current = setTimeout(() => connections.current.get(hostId)?.refresh(), WAKE_RECONNECT_DELAY_MS);
-  }, []);
-  const wakeSelectedServer = useCallback(
-    (hostId: string) => {
-      if (!foregroundRef.current || hostId !== activeServerIdRef.current) return;
-      void runTeamEffect(wakeHostedServer(hostId)).then((waking) => {
-        if (!waking || hostId !== activeServerIdRef.current) return;
-        hostedServerStarting(hostId);
-      });
-    },
-    [wakeHostedServer, hostedServerStarting],
-  );
-  const wakeAttempts = useRef(new Map<string, number>());
   const [recoveryCountdowns] = useState(createRecoveryCountdowns);
   const handleConnectionStatus = useCallback(
     (hostId: string, status: RemoteRecoveryStatus, failure: RemoteConnectionFailure | null, resuming: boolean) => {
@@ -1498,21 +1466,9 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
       else if (!resuming && status.phase !== "connecting")
         connectionWaits.settle(hostId, new Error(sourceText("error.remote.selectedServerOffline")));
       if (status.phase === "online" && hostId === activeServerIdRef.current) setHold(null);
-      if (status.phase === "online") wakeAttempts.current.delete(hostId);
-      if (status.phase !== "waiting" && status.phase !== "cooldown") return;
-      if (!foregroundRef.current) return;
-      if (wakeAttempts.current.get(hostId) === status.attempt) return;
-      wakeAttempts.current.set(hostId, status.attempt);
-      wakeSelectedServer(hostId);
     },
-    [recoveryCountdowns, wakeSelectedServer, connectionWaits, limitFirstConnection, backgroundRefreshStatus],
+    [recoveryCountdowns, connectionWaits, limitFirstConnection, backgroundRefreshStatus],
   );
-  useEffect(() => {
-    if (!foreground || !activeServerId) return;
-    if (serversRef.current.find((server) => server.id === activeServerId)?.state === "offline") {
-      wakeSelectedServer(activeServerId);
-    }
-  }, [foreground, activeServerId, wakeSelectedServer]);
   const focusUse = useMemo(
     () =>
       createFocusUsePing(
@@ -1565,7 +1521,7 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (!startupFallback.current) return;
     const active = servers.find((server) => server.id === activeServerId);
-    if (active?.state === "online" || active?.hosted === true) {
+    if (active?.state === "online") {
       startupFallback.current = false;
       return;
     }
@@ -1977,7 +1933,6 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
         connections.current.get(serverId)?.refresh();
         await refreshHosts();
       },
-      hostedServerStarting,
       updateServerIdentity: async (serverId, input) => {
         const server = serversRef.current.find((candidate) => candidate.id === serverId);
         if (!server || !canAdministerServer(server.role))
@@ -2433,7 +2388,6 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
     conversationStore,
     liveState,
     sendApproval,
-    hostedServerStarting,
     forgetServer,
     loadConversation,
     loadConversationAround,
@@ -2495,7 +2449,7 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
           administers(serverId, HOST_KEY_ROTATION_CAPABILITY),
         canTransferOwnership: (serverId) => {
           const server = servers.find((candidate) => candidate.id === serverId);
-          return server?.role === "owner" && server.hosted !== true && administers(serverId, OWNER_TRANSFER_CAPABILITY);
+          return server?.role === "owner" && administers(serverId, OWNER_TRANSFER_CAPABILITY);
         },
         canCreateLocalServers: (serverId) =>
           servers.find((candidate) => candidate.id === serverId)?.role === "owner" &&
@@ -2566,10 +2520,6 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
             : null;
         },
         canReadServerRelease: (serverId) => hasCapability(capabilities, serverId, HOST_RELEASE_CAPABILITY),
-        canViewHostedSites: (serverId) =>
-          servers.some((server) => server.id === serverId && online(server)) &&
-          hasCapability(capabilities, serverId, HOSTED_SITES_CAPABILITY),
-        canDeleteHostedSites: (serverId) => administers(serverId, HOSTED_SITES_CAPABILITY),
         canManageProviders: (serverId) => administers(serverId, PROVIDERS_ADMIN_CAPABILITY),
         canManageMcpServers: managesMcp,
         canRelayMcpSignIn: (serverId) =>

@@ -6,7 +6,6 @@ import type { CollectionArticle, ContentCollection } from "./content-collection"
 import { OPENBOT_LINKS } from "./landing-links";
 import { MARKETPLACE_APPS_ROUTE } from "./marketplace-routes";
 import { SITE_PLUGINS, type SitePlugin } from "./plugins";
-import { PRICING_ROUTE } from "./pricing-page";
 import type { SiteLinkId, SiteResourceId } from "./site-text";
 import { TEAMS_ROUTE } from "./teams-page";
 
@@ -83,10 +82,7 @@ export const SITE_NAVIGATION_SECTIONS: readonly SiteNavigationSection[] = [
 
 export interface SiteNavigationLink {
   id: SiteLinkId;
-  to: typeof TEAMS_ROUTE | typeof PRICING_ROUTE;
+  to: typeof TEAMS_ROUTE;
 }
 
-export const SITE_NAVIGATION_LINKS: readonly SiteNavigationLink[] = [
-  { id: "teams", to: TEAMS_ROUTE },
-  { id: "pricing", to: PRICING_ROUTE },
-];
+export const SITE_NAVIGATION_LINKS: readonly SiteNavigationLink[] = [{ id: "teams", to: TEAMS_ROUTE }];

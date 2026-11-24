@@ -83,9 +83,6 @@ const config: KnipConfig = {
     "apps/browser-extension": {
       entry: ["src/x-content.ts"],
     },
-    "apps/site-router": {
-      project: ["src/**/*.ts"],
-    },
     "apps/mobile-updates": {
       entry: ["scripts/*.ts"],
       project: ["src/**/*.ts", "scripts/**/*.ts"],

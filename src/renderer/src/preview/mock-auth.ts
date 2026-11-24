@@ -50,7 +50,6 @@ export function createMockAuth(options: MockAuthOptions, { emit }: MockRuntime) 
       current: false,
       connectedAt: Date.now() - 259_200_000,
       lastActiveAt: Date.now() - 300_000,
-      hostedServer: true,
     },
     {
       sessionId: "11111111-1111-4111-8111-111111111111",

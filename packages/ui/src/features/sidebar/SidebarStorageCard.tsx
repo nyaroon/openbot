@@ -10,7 +10,6 @@ export interface SidebarStorageCardProps {
   freeBytes: number;
   totalBytes: number;
   thisComputer?: boolean;
-  hostedPlan?: boolean;
   onFreeUpSpace: () => void;
   onDismiss: () => void;
 }
@@ -21,7 +20,7 @@ export function SidebarStorageCard(props: SidebarStorageCardProps) {
   const usedBytes = () => Math.max(0, props.totalBytes - props.freeBytes);
   const ratio = () => (props.totalBytes > 0 ? usedBytes() / props.totalBytes : 0);
   const percent = () => format.percent(Math.floor(ratio() * 100) / 100);
-  const size = (bytes: number) => (props.hostedPlan ? format.fileSize(bytes) : format.diskSize(bytes));
+  const size = (bytes: number) => format.diskSize(bytes);
   const body = () => {
     const used = size(usedBytes());
     const total = size(props.totalBytes);

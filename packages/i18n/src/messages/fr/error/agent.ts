@@ -184,8 +184,6 @@ export const messages = {
     "Des scripts locaux ont exécuté les routines de cet agent {limit} fois au cours de la dernière heure. Réessayez plus tard.",
   "error.agent.workspaceOnlyMacOnly":
     "« Espace de travail uniquement » n’est disponible pour ce fournisseur que sur macOS. Choisissez « Accès complet » dans les réglages de l’agent.",
-  "error.agent.lowMemory":
-    "Ce serveur manque de mémoire. Votre message attend dans la file et démarre quand la mémoire est libre. Une offre supérieure donne plus de mémoire au serveur.",
   "error.agent.lowMemoryServer":
     "Ce serveur manque de mémoire. Votre message attend dans la file et démarre quand la mémoire est libre.",
   "error.agent.workspaceOnlyToolMissing":

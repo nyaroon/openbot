@@ -91,7 +91,6 @@ export function ShareExtensionSync({
         id: server.id,
         name: server.name,
         publicKey: server.publicKey,
-        hosted: server.hosted === true,
       })),
       agents: offeredAgents,
       lastTarget,

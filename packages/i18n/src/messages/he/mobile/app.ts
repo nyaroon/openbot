@@ -28,8 +28,6 @@ export const messages = {
   "mobile.app.route.editMessage": "עריכת הודעה",
   "mobile.app.route.serverOptions": "אפשרויות שרת",
   "mobile.app.route.members": "חברים",
-  "mobile.app.route.hostedServerPlans": "שרת בענן",
-  "mobile.app.route.hostedServerSetup": "הגדרה",
   "mobile.app.route.schedule": "לוח זמנים",
   "mobile.app.route.workflows": "תהליכי עבודה",
   "mobile.app.route.workflow": "תהליך עבודה",

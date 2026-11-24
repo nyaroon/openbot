@@ -40,7 +40,6 @@ const REMOTE_EVENT_RECONNECT_JITTER = 0.2;
 const REMOTE_HOST_OFFLINE_RETRY_MS = 5 * 60_000;
 const REMOTE_HOST_OFFLINE_UNFOCUSED_RETRY_MS = 15 * 60_000;
 const REMOTE_HOST_RECENTLY_ONLINE_MS = 10 * 60_000;
-const HOSTED_SERVER_START_RETRY_MS = 5_000;
 const REMOTE_EVENT_HEALTHY_MS = 30_000;
 const REMOTE_EVENT_PAYLOAD_LIMIT = 1024 * 1024;
 const REMOTE_EVENT_INITIAL_BUFFER_LIMIT = 1_000;
@@ -128,7 +127,6 @@ export class RemoteEventStream {
   readonly #seenOnlineAt = new Map<string, number>();
   readonly #transportConnectedAt = new Map<string, number>();
   readonly #transportDrops = new Map<string, number>();
-  readonly #startingHosts = new Set<string>();
   #appFocused = true;
   #enabled = false;
 
@@ -255,20 +253,6 @@ export class RemoteEventStream {
     if (reconnectTimer) clearTimeout(reconnectTimer);
     this.#reconnectTimers.delete(serverId);
     this.#offlineHosts.delete(serverId);
-    this.#startingHosts.delete(serverId);
-  }
-
-  setHostStarting(serverId: string, starting: boolean): void {
-    if (!starting) {
-      this.#startingHosts.delete(serverId);
-      return;
-    }
-    this.#startingHosts.add(serverId);
-    this.#offlineHosts.delete(serverId);
-    const reconnectTimer = this.#reconnectTimers.get(serverId);
-    if (reconnectTimer) clearTimeout(reconnectTimer);
-    this.#reconnectTimers.delete(serverId);
-    this.scheduleReconnect(serverId);
   }
 
   isHostOffline(serverId: string): boolean {
@@ -354,7 +338,6 @@ export class RemoteEventStream {
     this.#seenOnlineAt.delete(serverId);
     this.#transportConnectedAt.delete(serverId);
     this.#transportDrops.delete(serverId);
-    this.#startingHosts.delete(serverId);
     this.#authenticationPaused.delete(serverId);
     this.#sockets.delete(serverId);
   }
@@ -431,9 +414,10 @@ export class RemoteEventStream {
       ? offlineDelay
       : Math.min(REMOTE_EVENT_RECONNECT_MAX_MS, REMOTE_EVENT_RECONNECT_BASE_MS * 2 ** (attempt - 1));
     const jitter = exponentialDelay * REMOTE_EVENT_RECONNECT_JITTER * (Math.random() * 2 - 1);
-    const delay = this.#startingHosts.has(serverId)
-      ? HOSTED_SERVER_START_RETRY_MS
-      : Math.min(maximumDelay, Math.max(REMOTE_EVENT_RECONNECT_BASE_MS, Math.round(exponentialDelay + jitter)));
+    const delay = Math.min(
+      maximumDelay,
+      Math.max(REMOTE_EVENT_RECONNECT_BASE_MS, Math.round(exponentialDelay + jitter)),
+    );
     const timer = setTimeout(() => {
       this.#reconnectTimers.delete(serverId);
       this.#offlineHosts.delete(serverId);

@@ -1,7 +1,7 @@
 import { compareReleaseVersions, type ReleaseVersion } from "./release-version";
 import { isBoolean, isDynamicRecord, isString } from "./runtime-values";
 
-export const MOBILE_FEATURES = ["cloudServers", "browser"] as const;
+export const MOBILE_FEATURES = ["browser"] as const;
 
 export type MobileFeature = (typeof MOBILE_FEATURES)[number];
 export type MobileFeaturePlatform = "ios" | "android";
@@ -16,7 +16,7 @@ export type MobileLatestVersions = Record<MobileFeaturePlatform, string>;
 export const MOBILE_FEATURES_PATH = "/v1/mobile/features";
 
 export function mobileFeaturesOff(): MobileFeatureFlags {
-  return { cloudServers: false, browser: false };
+  return { browser: false };
 }
 
 function versionParts(value: string): ReleaseVersion | null {

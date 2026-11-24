@@ -31,12 +31,6 @@ import {
   type SimilarFeedbackIssue,
   withFeedbackPhone,
 } from "@openbot/contracts/feedback";
-import {
-  installServerCommand,
-  parseHostedServerName,
-  type ServerClaim,
-  serverInstallItemType,
-} from "@openbot/contracts/hosted-servers";
 import { ATTACHMENT_LIMITS, INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import type {
   AgentApproval,
@@ -79,6 +73,12 @@ import {
   workspaceAccessEnforced,
 } from "@openbot/contracts/ipc";
 import { isOneOf, isString } from "@openbot/contracts/runtime-values";
+import {
+  installServerCommand,
+  parseServerName,
+  type ServerClaim,
+  serverInstallItemType,
+} from "@openbot/contracts/server-install";
 import { isUiBlockId, normalizeUiBlockSpec } from "@openbot/contracts/ui-blocks";
 import { sourceText } from "@openbot/i18n/source";
 import { createOpenBotLogger, maskIdentifiers, redactText, registerSecretValue, toLogValue } from "@openbot/logging";
@@ -174,8 +174,6 @@ import {
 import type { DrainScheduler } from "./drain-scheduler";
 import type { FeedbackWithdrawal } from "./feedback-withdrawal";
 import { HistoryTools, historyCursorThread, isHistoryBrowse, MAIN_CHAT_TASK_ID } from "./history-tools";
-import type { HostedSiteCoordinator } from "./hosted-site-coordinator";
-import { isHostedSiteMutationTool } from "./hosted-site-events";
 import { type ImageFitter, READ_IMAGE_MAX_FILE_BYTES, readImageToolSchema } from "./image-reader";
 import {
   type AgentLibraryFolders,
@@ -470,7 +468,6 @@ export interface OpenBotToolRouterOptions {
   attachments: AttachmentGateway;
   channels: ChannelService;
   messaging: MessagingThreads;
-  hostedSites: HostedSiteCoordinator;
   routines: RoutineScheduler;
   memories: AgentMemories;
   waits: AgentWaits;
@@ -526,7 +523,6 @@ export class OpenBotToolRouter {
   readonly #attachments: AttachmentGateway;
   readonly #channels: ChannelService;
   readonly #messaging: MessagingThreads;
-  readonly #hostedSites: HostedSiteCoordinator;
   readonly #routines: RoutineScheduler;
   readonly #memories: AgentMemories;
   readonly #waits: AgentWaits;
@@ -596,7 +592,6 @@ export class OpenBotToolRouter {
     this.#attachments = options.attachments;
     this.#channels = options.channels;
     this.#messaging = options.messaging;
-    this.#hostedSites = options.hostedSites;
     this.#routines = options.routines;
     this.#memories = options.memories;
     this.#waits = options.waits;
@@ -961,15 +956,6 @@ export class OpenBotToolRouter {
             }
             if (toolRequest.params.tool === "acknowledge_request") {
               this.#acknowledgeRequest(client, toolRequest, toolRequest.params);
-              return;
-            }
-            if (isHostedSiteMutationTool(toolRequest.params.tool)) {
-              yield* this.#attention.surfaceHostedSiteApproval(
-                client,
-                toolRequest,
-                toolRequest.params,
-                toolRequest.params.tool,
-              );
               return;
             }
             if (toolRequest.params.tool === "capture_screen" || toolRequest.params.tool === "list_capture_sources") {
@@ -1676,7 +1662,7 @@ export class OpenBotToolRouter {
     senderAgentId: string,
   ): Effect.fn.Return<OpenBotToolResponse, ToolOperationFailed> {
     const args = serverInstallCommandToolSchema.parse(params.arguments ?? {}, { reportInput: true });
-    const name = parseHostedServerName(args.name);
+    const name = parseServerName(args.name);
     if (!name) return openBotToolFailure("Use a server name of 6 to 32 characters, with letters or digits.");
     const claims = this.#serverClaims;
     if (!claims)
@@ -2051,12 +2037,6 @@ export class OpenBotToolRouter {
     if (params.tool === "read_image") {
       return yield* this.#readImage(senderAgentId, params);
     }
-
-    if (params.tool === "list_sites") {
-      return openBotToolResult(yield* this.#hostedSites.listSites());
-    }
-
-    if (isHostedSiteMutationTool(params.tool)) throw new Error("Hosted site changes require user approval.");
 
     if (params.tool === "attach_files_to_response") {
       const args = params.arguments;

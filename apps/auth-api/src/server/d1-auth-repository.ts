@@ -984,23 +984,19 @@ export class D1AuthRepository implements AuthRepository {
       const result = yield* storeCall(() =>
         database
           .prepare(`
-      SELECT a.id AS sessionId, COALESCE(m.device_name, h.name, 'Desktop') AS name,
+      SELECT a.id AS sessionId, COALESCE(m.device_name, 'Desktop') AS name,
         CASE WHEN m.session_id IS NULL THEN 'desktop' ELSE 'mobile' END AS kind,
-        a.token_hash = ? AS is_current, a.created_at AS connectedAt, a.last_used_at AS lastActiveAt,
-        h.server_id IS NOT NULL AS is_hosted_server
+        a.token_hash = ? AS is_current, a.created_at AS connectedAt, a.last_used_at AS lastActiveAt
       FROM auth_sessions a LEFT JOIN mobile_auth_sessions m ON m.session_id = a.id
-      LEFT JOIN hosted_servers h
-        ON h.owner_user_id = a.user_id AND h.auth_session_id = a.id AND h.desired_state != 'deleted'
       WHERE a.user_id = ? AND a.revoked_at IS NULL AND a.expires_at > ?
       ORDER BY a.last_used_at DESC, a.created_at DESC
     `)
           .bind(tokenHash, userId, now)
-          .all<Omit<AccountSession, "current" | "hostedServer"> & { is_current: number; is_hosted_server: number }>(),
+          .all<Omit<AccountSession, "current"> & { is_current: number }>(),
       );
-      return result.results.map(({ is_current, is_hosted_server, ...session }) => ({
+      return result.results.map(({ is_current, ...session }) => ({
         ...session,
         current: is_current === 1,
-        ...(is_hosted_server === 1 ? { hostedServer: true } : {}),
       }));
     },
     (operation) => operation.pipe(Effect.provide(this.#layer)),

@@ -7,11 +7,8 @@ import {
   ServerPanelLoadNotice,
   serverWorkspacePhase,
 } from "@openbot/ui/features/servers/ServerConnectionNotice";
-import { createServerPaywall } from "@openbot/ui/features/servers/ServerPaywall";
-import { serverPlanBlocks, serverPlanScreenShown } from "@openbot/ui/features/servers/ServerPlanEnd";
 import { useText } from "@openbot/ui/text";
 import { createEffect, createMemo, createSignal, Show } from "solid-js";
-import { appPort } from "./app-port";
 import { useAccountUsagePolling } from "./features/account/account-usage-polling";
 import { AgentDockHost, useAgentDockPlacement } from "./features/agent-dock/AgentDockHost";
 import { useAgents } from "./features/agents/agents-context";
@@ -28,15 +25,12 @@ import { serverHasStorage } from "./features/files/storage-usage";
 import { WorkspaceServerOnboarding } from "./features/onboarding/WorkspaceServerOnboarding";
 import { useRemoteDesktop } from "./features/remote-desktop/remote-desktop-context";
 import { createRoutineTimezonePrompt, desktopRoutineZoneTargets } from "./features/schedule/routine-timezone-prompt";
-import { createHostedUpsellOffline } from "./features/servers/hosted-server-upsell-controller";
 import { createRemoteSyncMarks } from "./features/servers/remote-sync-marks";
-import { renewServerPlan } from "./features/servers/server-actions";
 import { serverCanAdminister } from "./features/servers/server-capabilities";
 import { createServerConnectionToast } from "./features/servers/server-connection-toast";
 import { useServerScope } from "./features/servers/server-scope";
 import { followsServerUpdate, ServerUpdateDialogHost } from "./features/servers/server-update-flow";
 import { useServers } from "./features/servers/servers-context";
-import { serversPort } from "./features/servers/servers-port";
 import { WorkspaceServerRail } from "./features/servers/WorkspaceServerRail";
 import { useSettings } from "./features/settings/settings-context";
 import { WorkspaceSidebar } from "./features/sidebar/WorkspaceSidebar";
@@ -62,7 +56,7 @@ export function WorkspaceShell(props: {
 }) {
   const platform = usePlatform();
   const chatWindow = platform.chatWindow !== null;
-  const { sourceText, t, errorMessage } = useText();
+  const { sourceText, t } = useText();
   const scope = useServerScope();
   const settings = useSettings();
   const channels = useChannels();
@@ -80,8 +74,6 @@ export function WorkspaceShell(props: {
     serversLoaded,
     serversLoadFailed,
     refreshServers,
-    refreshHostedServersAvailable,
-    planDeletesAt,
   } = useServers();
   const { remoteDesktopWorkspaceVisible } = useRemoteDesktop();
   const agentDockPlacement = useAgentDockPlacement();
@@ -145,27 +137,14 @@ export function WorkspaceShell(props: {
       if (unsupported) usage.closeUsage();
     },
   );
-  const paywall = createServerPaywall({
-    server: activeServer,
-    subscribe: (request) => serversPort().hostedServers.openCustomCheckout(request),
-    billingDetails: appPort().billing,
-    errorMessage: (error) => errorMessage(error, t("server.paywall.checkoutFailed")),
-  });
-  const fullScreenServer = () => planScreenShown() || paywall.server() !== null;
   const blockedRemoteServer = createMemo(() => {
-    const paywallServer = paywall.server();
-    if (paywallServer) return paywallServer;
     const server = activeServer();
-    if (server?.kind !== "remote" || server.hostedSleep) return null;
-    return server.state === "incompatible" ||
-      serverPlanBlocks(server, planDeletesAt(server.id)) ||
-      (server.issue && server.issue.code !== "network_unavailable")
+    if (server?.kind !== "remote") return null;
+    return server.state === "incompatible" || (server.issue && server.issue.code !== "network_unavailable")
       ? server
       : null;
   });
-  const planScreenShown = () => serverPlanScreenShown(blockedRemoteServer(), planDeletesAt);
   const retryBlockedServer = (serverId: string) => {
-    void refreshHostedServersAvailable();
     return retryServerConnection(serverId);
   };
   const activePeopleEnabled = createMemo(
@@ -179,11 +158,10 @@ export function WorkspaceShell(props: {
     "conversation-ready": () => remote() && activeConversation()?.loaded === true,
   });
   const hostUnavailable = () => remote() && activeServer()?.issue?.reference === "signal/host_unavailable";
-  const offlineUpsell = createHostedUpsellOffline(hostUnavailable);
   const connectionFailure = () => {
     if (activeServer()?.hostRestart?.state === "restarting") return null;
     const issue = activeServer()?.issue;
-    if (issue && hostUnavailable() && activeServer()?.hosted !== true)
+    if (issue && hostUnavailable())
       return {
         message: t("server.connection.computerOffline", { name: activeServer()?.name ?? "" }),
         reference: issue.reference ?? null,
@@ -219,7 +197,7 @@ export function WorkspaceShell(props: {
             id: server.id,
             name: server.name,
             ready: scope.loaded(),
-            quiet: Boolean(server.hostedSleep || server.hostRestart?.state === "restarting" || blockedRemoteServer()),
+            quiet: Boolean(server.hostRestart?.state === "restarting" || blockedRemoteServer()),
           }
         : null;
     });
@@ -228,7 +206,6 @@ export function WorkspaceShell(props: {
     (!serversLoaded() || !scope.connection.synced || (remote() && !scope.loaded())) && !blockedRemoteServer();
   const connectionPhase = () =>
     serverWorkspacePhase({
-      hostedSleep: activeServer()?.hostedSleep,
       updating: activeServer()?.hostRestart?.state === "restarting",
       blocked: serversLoadFailed(),
       waiting: scope.connection.failed,
@@ -277,8 +254,6 @@ export function WorkspaceShell(props: {
       ready={cover ? !fullWindowLoading() : undefined}
       onExited={cover ? () => setLoadingCover(false) : undefined}
       onMountViews={cover ? () => setCoverOpen(true) : undefined}
-      issue={activeServer()?.hostedIssue ?? null}
-      start={activeServer()?.hostedStart ?? null}
       detail={connectionFailure()?.message ?? null}
       reference={connectionFailure()?.reference ?? null}
       updateVersion={activeServer()?.hostRestart?.version ?? null}
@@ -294,8 +269,6 @@ export function WorkspaceShell(props: {
         (activeServer()?.state === "online" && scope.connection.recovery.phase === "connecting")
       }
       onRetry={retry}
-      onManage={() => settings.openAppSettings(null, "hosted-servers")}
-      upsell={offlineUpsell()}
     />
   );
 
@@ -383,17 +356,12 @@ export function WorkspaceShell(props: {
           }
           hidden={remoteDesktopWorkspaceVisible()}
           blockedServer={blockedRemoteServer()}
-          paywall={paywall}
           onRetryServer={retryBlockedServer}
-          planDeletesAt={planDeletesAt}
-          onRenewPlan={renewServerPlan}
           windowPage={windowPage.page()}
           left={
             <Show when={!chatWindow}>
               <WorkspaceServerRail />
-              <Show when={!fullScreenServer()}>
-                <WorkspaceSidebar peopleEnabled={activePeopleEnabled()} />
-              </Show>
+              <WorkspaceSidebar peopleEnabled={activePeopleEnabled()} />
             </Show>
           }
           page={<WindowPageView />}

@@ -10,7 +10,7 @@ const snapshot = fields({
   currentVersion: string(64),
   latestVersion: nullable(string(64)),
   phase: oneOf("idle", "checking", "available", "up-to-date", "error", "unavailable"),
-  method: oneOf("self-update", "host-manager", "hosted", "system", "container", "manual", "unavailable"),
+  method: oneOf("self-update", "host-manager", "system", "container", "manual", "unavailable"),
 });
 
 export const HOST_RELEASE_CODECS: ReadonlyMap<string, OptionalRouteCodec> = new Map([

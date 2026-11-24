@@ -1,5 +1,5 @@
 import { AppLogo } from "@openbot/brand";
-import { installServerCommand, type ServerClaim } from "@openbot/contracts/hosted-servers";
+import { installServerCommand, type ServerClaim } from "@openbot/contracts/server-install";
 import { Button, Check, CircleAlert, Copy, Dialog, Heading, IconButton, LoaderCircle, Text, X } from "@openbot/ui";
 import { createSignal, Match, onCleanup, onSettled, Show, Switch } from "solid-js";
 import { useText } from "../../text";

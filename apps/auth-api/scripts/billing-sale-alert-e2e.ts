@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { Effect } from "effect";
 import { BillingSales, type BillingSalesSynced } from "../src/server/billing-sales";
-import { createHostedPoolAlert } from "../src/server/hosted-pool-alert";
+import { createOperatorAlert } from "../src/server/operator-alert";
 import type { StripeEvent } from "../src/server/stripe-client";
 import { sqliteD1 } from "./sqlite-d1";
 
@@ -48,7 +48,7 @@ async function eachPaidInvoiceSendsOneMessage() {
     return new Response(null, { status: 503 });
   };
   const options = { database: sqliteD1(database), clientId: "client", clientSecret: "secret", fetch, now: () => NOW };
-  const sales = new BillingSales({ ...options, saleAlert: createHostedPoolAlert(ALERT_URL, fetch) });
+  const sales = new BillingSales({ ...options, saleAlert: createOperatorAlert(ALERT_URL, fetch) });
   const run = (work: Effect.Effect<void, unknown>) => Effect.runPromise(work);
   const pending = () =>
     Number(

@@ -349,6 +349,5 @@ export type ExternalDestination =
   | "instagram-post"
   | "tiktok-post"
   | "grok-bot-export"
-  | "hosted-server-contact"
   | "download"
   | "mac-screen-recording";

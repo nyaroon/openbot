@@ -15,8 +15,6 @@ const MOBILE_LAN_PATHS = new Set([
   "/v2/remote/invites/preview",
   "/v2/remote/invites/accept",
   "/v2/remote/owner-transfers/",
-  "/v2/hosting/plans",
-  "/v2/hosting/servers/",
 ]);
 
 function publicCatalogRead(segments: string[]): boolean {
@@ -48,15 +46,6 @@ export function developmentNetworkRequestAllowed(remoteAddress: string | undefin
     segments[1] === "agent-templates" &&
     segments[2] &&
     segments[2] !== "mine"
-  )
-    return true;
-  if (
-    segments.length === 5 &&
-    segments[0] === "v2" &&
-    segments[1] === "hosting" &&
-    segments[2] === "servers" &&
-    segments[3] &&
-    (segments[4] === "checkout" || segments[4] === "wake" || segments[4] === "restart")
   )
     return true;
   if (

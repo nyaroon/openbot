@@ -78,13 +78,12 @@ const stored = Buffer.from(JSON.stringify({ version: 2, sessionToken: SESSION_TO
 const logLines: string[] = [];
 const stopLog = teeLogLines(["central-auth"], (line) => logLines.push(line));
 
-function manager(options: { decrypt?: () => string; encrypt?: () => Buffer; confirmSessionAtStart?: boolean } = {}) {
+function manager(options: { decrypt?: () => string; encrypt?: () => Buffer } = {}) {
   return new CentralAuthManager({
     apiUrl: `http://127.0.0.1:${address && typeof address === "object" ? address.port : 0}`,
     storagePath,
     encrypt: options.encrypt ?? ((value) => Buffer.from(value)),
     decrypt: options.decrypt ?? ((value) => value.toString()),
-    ...(options.confirmSessionAtStart === undefined ? {} : { confirmSessionAtStart: options.confirmSessionAtStart }),
   });
 }
 
@@ -144,17 +143,6 @@ try {
   slowService.open();
   await runCauseEffect(offline.dispose());
   assert.equal(offline.getState().status, "signed_in");
-
-  const hostedService = holdMe();
-  const hosted = manager({ confirmSessionAtStart: true });
-  const hostedStart = runCauseEffect(hosted.initialize());
-  await hostedService.asked;
-  results.hostedBeforeAnswer = hosted.getState().status;
-  assert.equal(results.hostedBeforeAnswer, "loading");
-  hostedService.open();
-  results.hostedAfterAnswer = (await hostedStart).status;
-  await runCauseEffect(hosted.dispose());
-  assert.equal(results.hostedAfterAnswer, "signed_in");
 
   meRevoked = true;
   const revoked = manager();

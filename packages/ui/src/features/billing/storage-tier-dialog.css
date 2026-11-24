@@ -60,6 +60,38 @@
   font-size: var(--openbot-text-sm);
 }
 
-.storage-tier-modal .hosted-upsell-modal-actions {
+.storage-tier-modal {
+  width: min(420px, 100%);
+  display: grid;
+  gap: var(--openbot-space-2);
+  padding: var(--openbot-space-6);
+  border: 1px solid var(--openbot-border);
+  border-radius: var(--openbot-radius-modal);
+  outline: 0;
+  color: var(--openbot-text-primary);
+  background: var(--openbot-bg-sidebar);
+}
+
+.storage-tier-modal .storage-tier-modal-title {
+  margin: 0;
+  font-size: var(--openbot-text-lg);
+  font-weight: var(--openbot-weight-semibold);
+  line-height: var(--openbot-leading-lg);
+  text-wrap: balance;
+}
+
+.storage-tier-modal .storage-tier-modal-description {
+  margin: 0;
+  color: var(--openbot-text-secondary);
+  font-size: var(--openbot-text-sm);
+  line-height: var(--openbot-leading-sm);
+  text-wrap: pretty;
+}
+
+.storage-tier-modal .storage-tier-modal-actions {
+  display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--openbot-space-2);
+  margin-top: var(--openbot-space-3);
 }

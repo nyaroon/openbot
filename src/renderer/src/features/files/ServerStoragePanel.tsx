@@ -1,10 +1,4 @@
-import { hostedPlanDisk } from "@openbot/contracts/hosted-servers";
-import {
-  LOCAL_SERVER_ID,
-  type RemovableRuntimes,
-  type StorageDisk,
-  type TeamMemberSummary,
-} from "@openbot/contracts/ipc";
+import { LOCAL_SERVER_ID, type RemovableRuntimes, type TeamMemberSummary } from "@openbot/contracts/ipc";
 import { MachineResources } from "@openbot/ui/features/files/MachineResources";
 import { StorageOverview } from "@openbot/ui/features/files/StorageOverview";
 import { BackgroundProcessesSection } from "@openbot/ui/features/settings/BackgroundProcessesSection";
@@ -27,7 +21,6 @@ export interface ServerStorageOptions {
 export function ServerStoragePanel(
   props: ServerStorageOptions & {
     serverId: string;
-    storageGb?: number | null;
   },
 ) {
   const calls = () => props.calls ?? filesPort();
@@ -79,33 +72,6 @@ export function ServerStoragePanel(
     }
   }
 
-  const [disk, setDisk] = createSignal<{ scan: unknown; disk: StorageDisk } | null>(null);
-  createEffect(
-    () => [storage.state.usage, props.storageGb, calls().storage.getDisk] as const,
-    ([scan, storageGb, getDisk]) => {
-      if (!scan || !storageGb || !getDisk) return;
-      let current = true;
-      getDisk(props.serverId)
-        .then((answer) => {
-          if (current) setDisk(answer ? { scan, disk: answer } : null);
-        })
-        .catch(() => {
-          if (current) setDisk(null);
-        });
-      return () => {
-        current = false;
-      };
-    },
-  );
-  const freeBytes = () => {
-    const scan = storage.state.usage;
-    const read = disk();
-    if (!scan) return null;
-    return props.storageGb && read?.scan === scan
-      ? hostedPlanDisk(read.disk, props.storageGb).freeBytes
-      : scan.freeBytes;
-  };
-
   const usage = () => storage.state.usage;
 
   return (
@@ -115,8 +81,7 @@ export function ServerStoragePanel(
       error={storage.error()}
       scannedAt={usage()?.scannedAt ?? null}
       breakdown={usage()?.breakdown ?? []}
-      freeBytes={freeBytes()}
-      hostedPlan={Boolean(props.storageGb)}
+      freeBytes={usage()?.freeBytes ?? null}
       agents={agents() ?? []}
       agentUsage={usage()?.agents ?? []}
       conversations={usage()?.conversations ?? []}

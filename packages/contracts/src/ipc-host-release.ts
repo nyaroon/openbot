@@ -4,7 +4,6 @@ export const HOST_RELEASE_PHASES = ["idle", "checking", "available", "up-to-date
 export const HOST_RELEASE_METHODS = [
   "self-update",
   "host-manager",
-  "hosted",
   "system",
   "container",
   "manual",

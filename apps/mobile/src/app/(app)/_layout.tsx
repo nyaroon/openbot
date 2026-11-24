@@ -373,7 +373,6 @@ function AuthenticatedStack() {
       <Stack.Screen name="thread-rename" listeners={refocusNameField} options={formSheet([0.85])} />
       <Stack.Screen name="new-task" options={formSheet([0.85])} />
       <Stack.Screen name="add-server" options={formSheet([0.85])} />
-      <Stack.Screen name="hosted-server" options={formSheet([0.85])} />
       <Stack.Screen name="hidden-chats" options={formSheet([0.85])} />
       <Stack.Screen name="deleted-chats" options={formSheet([0.85])} />
       <Stack.Screen name="server-settings" options={formSheet([0.85])} />

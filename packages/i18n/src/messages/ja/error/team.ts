@@ -159,9 +159,6 @@ export const messages = {
   "error.team.machineResourcesUnsupported": "この接続ではマシンの使用状況を利用できません。",
   "error.team.machineAlertMemberInvalid":
     "マシンのアラートを受け取れるのは、このサーバーのオーナーまたは管理者のみです。",
-  "error.team.hostedSitesUnsupported": "この接続ではサイトを利用できません。",
-  "error.team.hostedSitesUnregistered": "このサーバーは OpenBot に登録されていないため、サイトがありません。",
-  "error.team.hostedSiteNotFound": "サイトが見つかりません。",
   "error.team.markUnreadUnsupported": "このクライアントは会話を未読にする操作に対応していません。",
   "error.team.inviteServiceUnavailable": "招待サービスを利用できません。",
   "error.team.logoNotFound": "サーバーのロゴが見つかりません。",

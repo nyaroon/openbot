@@ -1,4 +1,3 @@
-import { parseHostedServerName } from "@openbot/contracts/hosted-servers";
 import { INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import type {
   AvatarImageInput,
@@ -10,18 +9,14 @@ import type {
   TeamPresenceMember,
   UpdateTeamMemberInput,
 } from "@openbot/contracts/ipc";
+import { parseServerName } from "@openbot/contracts/server-install";
 import { currentText } from "@openbot/ui/text";
 import { createEffect, createMemo, createSignal, flush, onCleanup } from "solid-js";
 import { desktopAnalytics } from "../../analytics";
 import { createSimpleContext } from "../../simple-context";
 import { useAuth } from "../account/account-context";
 import type { ServerSettingsSection } from "./ServerSettingsModal";
-import {
-  serverCanAdminister,
-  serverRoleCanAdminister,
-  serverRotatesHostKey,
-  serverSupportsCapability,
-} from "./server-capabilities";
+import { serverCanAdminister, serverRoleCanAdminister, serverRotatesHostKey } from "./server-capabilities";
 import { useServers } from "./servers-context";
 import { serverAdminPort, serversPort } from "./servers-port";
 
@@ -35,7 +30,7 @@ function generatedServerName(user: CentralAuthUser | null): string {
   let name = t("server.settings.generatedName", { name: person });
   for (let length = characters.length - 1; name.length > INPUT_LIMITS.serverName && length > 0; length--)
     name = t("server.settings.generatedName", { name: characters.slice(0, length).join("") });
-  return parseHostedServerName(name) ?? FALLBACK_SERVER_NAME;
+  return parseServerName(name) ?? FALLBACK_SERVER_NAME;
 }
 
 const ServerSettings = createSimpleContext({
@@ -404,9 +399,7 @@ const ServerSettings = createSimpleContext({
       const server = restartConfirmServer();
       if (!server) throw new Error(currentText().t("server.settings.unavailable"));
       if (server.thisComputer) await serversPort().localServers.restart(server.id);
-      else if (server.hosted !== true && serverSupportsCapability(server, "host-restart-v1"))
-        await serversPort().hostAdmin.restartHost(server.id);
-      else await serversPort().hostedServers.restart(server.id);
+      else await serversPort().hostAdmin.restartHost(server.id);
     }
 
     async function removeMembership(server: ServerSummary): Promise<void> {

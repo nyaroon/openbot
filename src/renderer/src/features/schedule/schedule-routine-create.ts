@@ -13,7 +13,6 @@ import {
   eventRoutinesPort,
   type RoutinesPort,
 } from "../conversation/routines-port";
-import { hostedUpsellRoutineCreated } from "../servers/hosted-server-upsell-controller";
 import { serverRoleCanAdminister, serverSupportsCapability } from "../servers/server-capabilities";
 
 function desktopAgentRoutinesApi(serverId: string): AgentRoutinesApi {
@@ -79,7 +78,6 @@ export function scheduleRoutineCreate(
           ...(port.runIn && routine.runIn ? { runIn: routine.runIn } : {}),
         });
         trackRoutineAction(analytics, "create", tracked, startedAt, "succeeded");
-        hostedUpsellRoutineCreated({ id: result.routine.id, name: result.routine.name, agentId: null });
         const place = result.routine.runIn ?? routine.runIn ?? "chat";
         if (port.runIn && place !== (routine.runIn ?? "chat")) placeFailed();
         saved();

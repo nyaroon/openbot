@@ -44,7 +44,6 @@ const probeServer = createServer((request, response) => {
   if (path === "/api/health/ready") return reply("accounts", '{"status":"ready"}');
   if (path === "/signal/health/ready") return reply("connections", '{"status":"ready"}');
   if (path === "/signal/health/turn") return reply("connections", '{"status":"ready"}');
-  if (path === "/api/health/hosting") return reply("hosted", '{"status":"ok"}');
   if (path === "/api/v1/skills?limit=1") return reply("marketplace", '{"skills":[]}');
   if (/^\/github\/nightly-labs\/openbot\/releases\/latest\/download\/latest(-mac|-linux)?\.yml$/.test(path)) {
     return reply("updates", "version: 0.42.0\n");
@@ -142,7 +141,7 @@ const ISSUES = [
     state: "closed",
     state_reason: "not_planned",
     closed_at: "2026-10-14T10:10:00Z",
-    body: form({ Kind: "Incident", Services: "Hosted servers", Impact: "Major outage", Update: "Down" }),
+    body: form({ Kind: "Incident", Services: "App updates", Impact: "Major outage", Update: "Down" }),
   }),
   issue({
     number: 105,
@@ -159,7 +158,7 @@ const ISSUES = [
     closed_at: "2026-10-11T08:05:00Z",
     body: form({
       Kind: "Incident",
-      Services: "Connections, Hosted servers",
+      Services: "Connections, App updates",
       Impact: "Partial outage",
       Update: "Some connections fail.",
     }),
@@ -390,7 +389,7 @@ const NOTIFY_STATE = resolve(WORK, "notify.json");
 const NOTIFY_SUMMARY = resolve(WORK, "notify-summary.md");
 const notifyOutput: string[] = [];
 
-const SERVICE_LIST = ["accounts", "connections", "hosted", "updates", "marketplace"];
+const SERVICE_LIST = ["accounts", "connections", "updates", "marketplace"];
 const statusFile = (checkedAt: string, down: string[], incidents: readonly ReturnType<typeof incident>[]) => ({
   version: 1,
   checkedAt,
@@ -446,7 +445,7 @@ const signIn = incident({
   id: 203,
   title: "Sign-in fails",
   impact: "major",
-  components: ["accounts", "hosted"],
+  components: ["accounts", "updates"],
   startedAt: "2026-10-16T12:01:00Z",
   updates: [
     { at: "2026-10-16T12:01:00Z", stage: "investigating", body: "Sign-in fails for <some> users & @everyone." },
@@ -607,7 +606,7 @@ assert.deepEqual(
     id: 203,
     services: [
       { id: "accounts", name: "Accounts and sign-in" },
-      { id: "hosted", name: "Hosted servers" },
+      { id: "updates", name: "App updates" },
     ],
     update: "investigating",
   },
@@ -630,7 +629,7 @@ const discord = JSON.parse(got.filter((item) => item.subscription === "discord")
 assert.deepEqual(discord.allowed_mentions, { parse: [] }, "A Discord message can notify @everyone.");
 assert.match(
   discord.content,
-  /^\*\*New incident: Sign-in fails\*\*\nMajor outage: Accounts and sign-in, Hosted servers\n/,
+  /^\*\*New incident: Sign-in fails\*\*\nMajor outage: Accounts and sign-in, App updates\n/,
 );
 const deliveryIds = got.map((item) => item.headers["x-openbot-delivery-id"]);
 assert.equal(new Set(deliveryIds).size, deliveryIds.length, "Two deliveries have the same ID.");

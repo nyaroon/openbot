@@ -35,7 +35,6 @@
     "required": [
       "EMAIL_SMTP_PASSWORD",
       "SKILLS_ADMIN_TOKEN",
-      "SITE_REPORT_HASH_SECRET",
       "REMOTE_TICKET_PRIVATE_JWK",
       "REMOTE_TICKET_PUBLIC_JWKS",
       "REMOTE_AUTH_WEBHOOK_SECRET"
@@ -58,8 +57,6 @@
     "REMOTE_AUTH_WEBHOOK_URL": "https://signal.openbot.run/internal/auth-events",
     "REMOTE_AUTH_WEBHOOK_URLS": "https://signal1.openbot.run/internal/auth-events,https://signal2.openbot.run/internal/auth-events,https://signal-us.openbot.run/internal/auth-events,https://signal-au.openbot.run/internal/auth-events,https://signal-sg.openbot.run/internal/auth-events",
     "SIGNAL_ENTRY_ZONE_ID": "bac5e044ba951c390229f0e93673ebd3",
-    "HOSTED_SERVERS_ENABLED": "true",
-    "HOSTED_SERVERS_ALLOWED_USER_IDS": "*",
     "LICENSE_TRIAL_END": "2026-12-01T00:00:00Z",
     "BILLING_COUNTRY_REQUIRED": "true",
     "GITHUB_APP_CLIENT_ID": "Iv23lik5pzHz70cb0RUL",
@@ -97,11 +94,6 @@
       "binding": "SKILLS",
       "bucket_name": "openbot-skills",
       "preview_bucket_name": "openbot-skills-test"
-    },
-    {
-      "binding": "SITES",
-      "bucket_name": "openbot-sites",
-      "preview_bucket_name": "openbot-sites-test"
     }
   ],
   "ratelimits": [
@@ -119,11 +111,6 @@
       "name": "MARKETPLACE_UPLOAD_RATE_LIMITER",
       "namespace_id": "2026082703",
       "simple": { "limit": 5, "period": 60 }
-    },
-    {
-      "name": "SITE_REPORT_RATE_LIMITER",
-      "namespace_id": "2026083101",
-      "simple": { "limit": 10, "period": 60 }
     },
     {
       "name": "GITHUB_TOKEN_RATE_LIMITER",
@@ -162,8 +149,6 @@
         "EMAIL_REPLY_TO": "hello@openbot.run",
         "EMAIL_LICENSE_REPLY_TO": "licenses@openbot.run",
         "EMAIL_LICENSE_FROM": "",
-        "SITE_PUBLISH_ENABLED": "false",
-        "SITE_COOKIE_ISOLATION_READY": "false",
         "REMOTE_TICKET_KEY_ID": "openbot-remote-1",
         "REMOTE_SIGNAL_URL": "ws://127.0.0.1:8081/v1/signal",
         "REMOTE_SIGNAL_HOMES": "",
@@ -187,10 +172,6 @@
         {
           "binding": "SKILLS",
           "bucket_name": "openbot-skills-test"
-        },
-        {
-          "binding": "SITES",
-          "bucket_name": "openbot-sites-test"
         }
       ],
       "ratelimits": [
@@ -208,11 +189,6 @@
           "name": "MARKETPLACE_UPLOAD_RATE_LIMITER",
           "namespace_id": "2026082706",
           "simple": { "limit": 5, "period": 60 }
-        },
-        {
-          "name": "SITE_REPORT_RATE_LIMITER",
-          "namespace_id": "2026083102",
-          "simple": { "limit": 10, "period": 60 }
         },
         {
           "name": "GITHUB_TOKEN_RATE_LIMITER",
@@ -243,7 +219,6 @@
         "required": [
           "EMAIL_SMTP_PASSWORD",
           "SKILLS_ADMIN_TOKEN",
-          "SITE_REPORT_HASH_SECRET",
           "REMOTE_TICKET_PRIVATE_JWK",
           "REMOTE_TICKET_PUBLIC_JWKS",
           "REMOTE_AUTH_WEBHOOK_SECRET"
@@ -258,15 +233,12 @@
         "EMAIL_REPLY_TO": "hello@openbot.run",
         "EMAIL_LICENSE_REPLY_TO": "licenses@openbot.run",
         "EMAIL_LICENSE_FROM": "",
-        "SITE_PUBLISH_ENABLED": "false",
-        "SITE_COOKIE_ISOLATION_READY": "false",
         "REMOTE_TICKET_KEY_ID": "openbot-remote-1",
         "REMOTE_SIGNAL_URL": "wss://signal.openbot.run/v1/signal",
         "REMOTE_SIGNAL_HOMES": "",
         "REMOTE_AUTH_WEBHOOK_URL": "https://signal.openbot.run/internal/auth-events",
         "REMOTE_AUTH_WEBHOOK_URLS": "",
         "SIGNAL_ENTRY_ZONE_ID": "",
-        "HOSTED_SERVERS_ENABLED": "true",
         "GITHUB_APP_CLIENT_ID": "Iv23lik5pzHz70cb0RUL",
         "APNS_TEAM_ID": "8A47NKRZSJ",
         "APNS_TOPIC": "run.openbot.mobile"
@@ -287,10 +259,6 @@
         {
           "binding": "SKILLS",
           "bucket_name": "openbot-skills-test"
-        },
-        {
-          "binding": "SITES",
-          "bucket_name": "openbot-sites-test"
         }
       ],
       "ratelimits": [
@@ -308,11 +276,6 @@
           "name": "MARKETPLACE_UPLOAD_RATE_LIMITER",
           "namespace_id": "2026082709",
           "simple": { "limit": 5, "period": 60 }
-        },
-        {
-          "name": "SITE_REPORT_RATE_LIMITER",
-          "namespace_id": "2026083103",
-          "simple": { "limit": 10, "period": 60 }
         },
         {
           "name": "GITHUB_TOKEN_RATE_LIMITER",

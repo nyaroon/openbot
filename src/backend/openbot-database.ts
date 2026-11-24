@@ -9,7 +9,6 @@ import type {
   ConversationPageAnchor,
   ConversationSearchPage,
   ConversationSnapshot,
-  HostedSiteConversationEventStatus,
   MessagePinner,
   SentMessageStats,
 } from "@openbot/contracts/ipc";
@@ -20,11 +19,6 @@ import { type ConversationMarkerExclusions, ConversationQueries } from "./databa
 import { ConversationWriter } from "./database/conversation-writer";
 import { DatabaseCore, type DatabaseCoreOptions, type OrchestrationEventInput } from "./database/database-core";
 import { deletedThreadMessageIds, threadMessageIds } from "./database/deleted-thread-messages";
-import {
-  type ActiveHostedSiteConversationEvent,
-  HostedSiteEventLog,
-  type PendingHostedSiteTerminalEvent,
-} from "./database/hosted-site-event-log";
 import {
   MailboxProjection,
   type MailboxProjectionChanges,
@@ -57,10 +51,6 @@ import { ThreadReplay } from "./database/thread-replay";
 import { type StoredThreadSummary, ThreadSummaries } from "./database/thread-summaries";
 
 export type { OrchestrationEventInput } from "./database/database-core";
-export type {
-  ActiveHostedSiteConversationEvent,
-  PendingHostedSiteTerminalEvent,
-} from "./database/hosted-site-event-log";
 export type {
   ProviderHistoryCompactionBatch,
   ProviderHistoryImportState,
@@ -95,7 +85,6 @@ export class OpenBotDatabase {
   readonly #roster: AgentRoster;
   readonly #conversationWrites: ConversationWriter;
   readonly #replay: ThreadReplay;
-  readonly #hostedSiteEvents: HostedSiteEventLog;
   readonly #mailbox: MailboxProjection;
   readonly #sessions: ProviderSessions;
   readonly #agentHistory: AgentHistoryQueries;
@@ -113,7 +102,6 @@ export class OpenBotDatabase {
     this.#roster = new AgentRoster({ core: this.#core });
     this.#conversationWrites = new ConversationWriter({ core: this.#core, roster: this.#roster });
     this.#replay = new ThreadReplay({ core: this.#core, conversations: this.#conversations });
-    this.#hostedSiteEvents = new HostedSiteEventLog({ core: this.#core });
     this.#mailbox = new MailboxProjection({ core: this.#core });
     this.#agentHistory = new AgentHistoryQueries(this.#core);
     this.#sessions = new ProviderSessions({ core: this.#core });
@@ -156,34 +144,6 @@ export class OpenBotDatabase {
 
   backupLegacyFile(path: string) {
     return this.#core.backupLegacyFile(path);
-  }
-
-  recordPendingHostedSiteTerminalEvent(event: PendingHostedSiteTerminalEvent): void {
-    this.#hostedSiteEvents.recordPendingHostedSiteTerminalEvent(event);
-  }
-
-  pendingHostedSiteTerminalEvents(): PendingHostedSiteTerminalEvent[] {
-    return this.#hostedSiteEvents.pendingHostedSiteTerminalEvents();
-  }
-
-  deletePendingHostedSiteTerminalEvent(
-    agentId: string,
-    operationId: string,
-    status: Exclude<HostedSiteConversationEventStatus, "running">,
-  ): void {
-    this.#hostedSiteEvents.deletePendingHostedSiteTerminalEvent(agentId, operationId, status);
-  }
-
-  recordActiveHostedSiteConversationEvent(event: ActiveHostedSiteConversationEvent): void {
-    this.#hostedSiteEvents.recordActiveHostedSiteConversationEvent(event);
-  }
-
-  deleteActiveHostedSiteConversationEvent(agentId: string, operationId: string): void {
-    this.#hostedSiteEvents.deleteActiveHostedSiteConversationEvent(agentId, operationId);
-  }
-
-  activeHostedSiteConversationEvents(): ActiveHostedSiteConversationEvent[] {
-    return this.#hostedSiteEvents.activeHostedSiteConversationEvents();
   }
 
   listAgents(): AgentSummary[] {

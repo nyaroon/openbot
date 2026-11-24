@@ -21,7 +21,6 @@ export const messages = {
     "OpenBot kan de accountservice niet bereiken. Controleer je verbinding en probeer het opnieuw.",
   "error.auth.serviceTimeout": "De accountservice reageerde niet op tijd. Probeer het opnieuw.",
   "error.auth.serviceStatus": "De accountservice gaf een fout ({status}). Probeer het later opnieuw.",
-  "error.auth.invalidHostedServer": "De accountservice gaf een ongeldige gehoste server terug.",
   "error.auth.invalidServerClaim": "De accountservice gaf een ongeldige servercode terug.",
   "error.auth.codeNotSent": "OpenBot kon de inlogcode niet versturen.",
   "error.auth.deliveryTimeout":

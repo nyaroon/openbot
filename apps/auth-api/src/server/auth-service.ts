@@ -592,14 +592,6 @@ export class AuthService {
     (operation) => operation.pipe(Effect.mapError(authFailure), Effect.provide(this.#layer)),
   ).bind(this);
 
-  readonly enforceHostedServerClaimRateLimit = Effect.fn("AuthService.enforceHostedServerClaimRateLimit")(
-    function* (this: AuthService, sourceIp: string): Effect.fn.Return<void, AuthWorkflowFailure, AuthDependencies> {
-      const dependencies = yield* AuthDependencies;
-      yield* this.#enforceRateLimit(`hosted-claim:ip:${normalizeSourceIp(sourceIp)}`, 30, dependencies.now());
-    },
-    (operation) => operation.pipe(Effect.mapError(authFailure), Effect.provide(this.#layer)),
-  ).bind(this);
-
   readonly createServerClaim = Effect.fn("AuthService.createServerClaim")(
     function* (
       this: AuthService,

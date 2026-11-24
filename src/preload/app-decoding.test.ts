@@ -27,10 +27,8 @@ import {
   decodeCustomAgentResult,
   decodeCustomAgents,
   decodeCustomAgentUsage,
-  decodeCustomServerCheckoutResult,
   decodeDetectedModelServers,
   decodeDiscoverModelsResult,
-  decodeHostedServer,
   decodeInstalledFonts,
   decodeMobileConnectedDevices,
   decodeMobileConnectTicket,
@@ -114,8 +112,6 @@ const voiceServer = {
 };
 
 const valid: [string, (value: unknown) => unknown, unknown][] = [
-  ["an opened custom server checkout", decodeCustomServerCheckoutResult, { opened: true }],
-  ["a custom server checkout with no link", decodeCustomServerCheckoutResult, { opened: false }],
   [
     "app behavior with a quit guard",
     decodeAppBehaviorPreference,
@@ -386,8 +382,6 @@ const valid: [string, (value: unknown) => unknown, unknown][] = [
 ];
 
 const malformed: [string, (value: unknown) => unknown, unknown][] = [
-  ["a custom server checkout without a result", decodeCustomServerCheckoutResult, {}],
-  ["a custom server checkout with a text result", decodeCustomServerCheckoutResult, { opened: "yes" }],
   [
     "an unknown quit guard",
     decodeAppBehaviorPreference,
@@ -661,19 +655,6 @@ describe("pending Marketplace listing", () => {
 });
 
 describe("server storage", () => {
-  const server = {
-    deletionScheduledAt: null,
-    serverId: "server-1",
-    name: "Server",
-    size: "small",
-    plan: "starter",
-    interval: "month",
-    currency: "eur",
-    state: "running",
-    error: null,
-    createdAt: "2026-11-11T12:00:00.000Z",
-    updatedAt: "2026-11-11T12:00:00.000Z",
-  };
   const plan = {
     subscriptionId: "sub_1",
     serverId: "server-1",
@@ -692,13 +673,11 @@ describe("server storage", () => {
     servers: [storageGb === undefined ? plan : { ...plan, storageGb }],
   });
 
-  it("keeps the storage of a hosted server and of a plan", () => {
-    expect(decodeHostedServer({ ...server, storageGb: 25 })).toEqual({ ...server, storageGb: 25 });
+  it("keeps the storage of a plan", () => {
     expect(decodeBillingState(state(25))).toEqual(state(25));
   });
 
-  it("keeps a server and a plan from an account server that sends no storage", () => {
-    expect(decodeHostedServer(server)).toEqual(server);
+  it("keeps a plan from an account server that sends no storage", () => {
     expect(decodeBillingState(state())).toEqual(state());
   });
 
@@ -710,7 +689,6 @@ describe("server storage", () => {
     ["null", null],
     ["a number that is not safe", 2 ** 60],
   ])("leaves out a storage that is %s", (_name, storageGb) => {
-    expect(decodeHostedServer({ ...server, storageGb })).toEqual(server);
     expect(decodeBillingState(state(storageGb))).toEqual(state());
   });
 });

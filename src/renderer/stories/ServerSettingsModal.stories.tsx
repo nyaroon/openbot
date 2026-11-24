@@ -25,7 +25,6 @@ import { ServerSettingsModal, type ServerSettingsModalProps } from "../src/featu
 import {
   STORY_AGENT_SUMMARIES,
   STORY_HOST_STATUS,
-  STORY_HOSTED_SITES,
   STORY_PRESENCE,
   STORY_SERVER_AUDIT_ENTRIES,
 } from "../src/preview/fixtures";
@@ -172,19 +171,6 @@ export const RemoteMember: Story = {
     server: { ...remoteServer, role: "member" },
     hostStatus: null,
     invites: [],
-  },
-};
-
-export const Sites: Story = {
-  args: {
-    initialSection: "sites",
-    hostedSites: {
-      api: {
-        list: async () => ({ sites: STORY_HOSTED_SITES.map((site) => ({ ...site })), limit: 3, used: 2 }),
-        delete: fn(async () => undefined),
-      },
-      onOpenSite: fn(),
-    },
   },
 };
 
@@ -442,14 +428,6 @@ export const BrowserProfilesEmpty: Story = {
   render: (args) => <ServerSettingsStory settings={{ ...args, browserProfiles: storyBrowserProfiles([]) }} />,
 };
 
-export const SitesForMember: Story = {
-  args: {
-    ...Sites.args,
-    server: { ...remoteServer, role: "member" },
-    hostStatus: null,
-  },
-};
-
 const STORY_HOST_UPDATE: HostUpdateStatus = {
   phase: "available",
   currentVersion: "0.23.0",
@@ -539,7 +517,7 @@ export const HostedReleaseAvailable: Story = {
     <ServerSettingsStory
       settings={args}
       hostUpdate={{ ...STORY_HOST_UPDATE, currentVersion: "0.25.2", phase: "unsupported", availableVersion: null }}
-      hostRelease={{ currentVersion: "0.25.2", latestVersion: "0.26.0", phase: "available", method: "hosted" }}
+      hostRelease={{ currentVersion: "0.25.2", latestVersion: "0.26.0", phase: "available", method: "self-update" }}
     />
   ),
 };

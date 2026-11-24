@@ -31,8 +31,6 @@ interface ShareSendRequest {
   sessionToken: string;
   hostId: string;
   hostPublicKey: string;
-  /** A hosted server can sleep. The page then asks it to start and waits for it. */
-  hosted: boolean;
   agentId: string;
   text: string;
   files: { name: string; mimeType: string }[];
@@ -69,8 +67,7 @@ declare global {
 }
 
 /**
- * How long the connection and the uploads can take before the extension offers the app. A hosted
- * server can take this long to start. The message request has its own wait, so it is never cut.
+ * How long the connection and the uploads can take before the extension offers the app. The message request has its own wait, so it is never cut.
  */
 const PREPARE_DEADLINE_MS = 90_000;
 const MESSAGE_TIMEOUT_MS = 30_000;
@@ -178,7 +175,6 @@ async function send(request: ShareSendRequest): Promise<void> {
     fetch: nativeFetch,
     verifyHostKeySignature: verifyEd25519Base64Url,
   });
-  let wakeRequested = false;
   const actions: { current: RemoteTeamPeerActions } = {
     current: {
       getBootstrap: (hostId, clientPublicKey, existingSessionId) =>
@@ -187,20 +183,11 @@ async function send(request: ShareSendRequest): Promise<void> {
       // session on the host. To end it would end the app's session too: the host then has no phone
       // for notifications and Live Activities until the app opens again. So the page never ends it.
       endSession: async () => undefined,
-      onConnectionUpdate: async (update) => {
-        // Signal holds the attempt while a hosted server is offline. A start request wakes it, as the app does.
-        if (!update.hostOffline || !request.hosted || wakeRequested) return;
-        wakeRequested = true;
-        const wake = new URL(`/v2/hosting/servers/${encodeURIComponent(request.hostId)}/wake`, request.apiUrl);
-        await nativeFetch(wake, {
-          method: "POST",
-          headers: { authorization: `Bearer ${request.sessionToken}` },
-        }).catch(() => undefined);
-      },
+      onConnectionUpdate: async () => undefined,
       onTeamEvent: async () => undefined,
     },
   };
-  const peer = createRemoteTeamPeer(actions, { waitForHost: request.hosted });
+  const peer = createRemoteTeamPeer(actions);
   let commands = 0;
   const teamRequest = async (
     stage: string,

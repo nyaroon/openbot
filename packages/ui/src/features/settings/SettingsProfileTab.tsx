@@ -73,7 +73,6 @@ export function SettingsProfileTab(props: SettingsProfileTabProps) {
   };
   const sessionTime = (timestamp: number) => format.date(timestamp, SESSION_TIME_FORMAT);
   const sessionKind = (session: AccountSession) => {
-    if (session.hostedServer) return t("settings.profile.sessions.kind.hostedServer");
     return session.kind === "desktop"
       ? t("settings.profile.sessions.kind.desktop")
       : t("settings.profile.sessions.kind.mobile");
@@ -194,9 +193,6 @@ export function SettingsProfileTab(props: SettingsProfileTabProps) {
                         lastActive: sessionTime(session.lastActiveAt),
                       })}
                     </ItemDescription>
-                    <Show when={session.hostedServer && !session.current}>
-                      <ItemDescription>{t("settings.profile.sessions.hostedServerNote")}</ItemDescription>
-                    </Show>
                   </ItemContent>
                   <ItemActions>
                     <Show when={!session.current} fallback={<Badge>{t("settings.profile.sessions.thisDevice")}</Badge>}>

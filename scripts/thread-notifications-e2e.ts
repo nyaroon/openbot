@@ -73,7 +73,6 @@ const logger = createOpenBotLogger("thread-notifications-e2e");
 const readOptions = {
   excludeRoutineEvents: true,
   excludeRoutineRunEvents: true,
-  excludeHostedSiteEvents: true,
   excludeRoutineQuietAnswers: true,
 };
 

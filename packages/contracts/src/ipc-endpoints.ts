@@ -5,16 +5,6 @@ import type { AppLanguagePreference, SetAppLanguagePreferenceInput } from "./app
 import type { AppLogoColorPreference, SetAppLogoColorPreferenceInput } from "./app-logo-color";
 import type { BillingPortalRequest, BillingState, BillingStorageRequest } from "./billing";
 import type { BillingDetails, BillingDetailsRequest } from "./billing-details";
-import type { CustomServerCheckoutRequest, CustomServerCheckoutResult } from "./custom-server-plans";
-import type {
-  CreateHostedServerInput,
-  DeleteHostedServerInput,
-  HostedServerCatalog,
-  HostedServerLifecycleInput,
-  HostedServerList,
-  HostedServerSummary,
-  ServerClaim,
-} from "./hosted-servers";
 import type {
   AcpRegistryEntry,
   AcpRegistryInstallation,
@@ -382,13 +372,6 @@ import type { HostSignalHomeSettings } from "./ipc-host-signal-home";
 import type { HostTimezoneSettings } from "./ipc-host-timezone";
 import type { HostTurnLimits, HostTurnLimitsInput } from "./ipc-host-turn-limits";
 import type {
-  DeleteHostedSiteInput,
-  HostedSiteList,
-  HostedSiteSummary,
-  PublishHostedSiteInput,
-  ReplaceHostedSiteInput,
-} from "./ipc-hosted-sites";
-import type {
   ApplyInstanceTransferInput,
   CopyInstanceAgentsInput,
   ExportInstanceInput,
@@ -680,6 +663,7 @@ import type {
 import type { MarketplaceListingLink } from "./marketplace-links";
 import type { AccountSession, MobileConnectedDevice, MobileConnectLink, MobileConnectTicket } from "./mobile-connect";
 import type { AcceptedOwnerTransfer, OwnerTransfer } from "./owner-transfer";
+import type { ServerClaim } from "./server-install";
 import type { AgentActiveQueues } from "./team-protocol/agent-active-queues-v1";
 
 declare const payloadType: unique symbol;
@@ -1369,13 +1353,6 @@ export const IPC_ENDPOINTS = {
     ),
     hostDisconnect: scopedQuery<OnePasswordConnectorStatus, "required">()("onepassword-connector:host-disconnect"),
   },
-  hostedSites: {
-    list: scopedQuery<HostedSiteList, "required">()("hosted-sites:list"),
-    chooseDirectory: request<undefined, string | null>()("hosted-sites:choose-directory"),
-    publish: request<PublishHostedSiteInput, HostedSiteSummary>()("hosted-sites:publish"),
-    replace: request<ReplaceHostedSiteInput, HostedSiteSummary>()("hosted-sites:replace"),
-    delete: scopedRequest<DeleteHostedSiteInput, void, "required">()("hosted-sites:delete"),
-  },
   routineFeed: {
     get: request<undefined, RoutineFeed>()("routine-feed:get"),
     create: request<undefined, RoutineFeed>()("routine-feed:create"),
@@ -1394,20 +1371,6 @@ export const IPC_ENDPOINTS = {
     setUsers: request<LicenseUsersRequest, LicenseState>()("license:set-users"),
     changePlan: request<LicensePlanRequest, LicenseState>()("license:change-plan"),
     setRenewal: request<LicenseRenewalRequest, LicenseState>()("license:set-renewal"),
-  },
-  hostedServers: {
-    list: request<undefined, HostedServerList>()("hosted-servers:list"),
-    plans: request<undefined, HostedServerCatalog>()("hosted-servers:plans"),
-    create: request<CreateHostedServerInput, HostedServerSummary>()("hosted-servers:create"),
-    openCheckout: request<string, HostedServerSummary>()("hosted-servers:open-checkout"),
-    openCustomCheckout: request<CustomServerCheckoutRequest, CustomServerCheckoutResult>()(
-      "hosted-servers:open-custom-checkout",
-    ),
-    delete: request<DeleteHostedServerInput, void>()("hosted-servers:delete"),
-    lifecycle: request<HostedServerLifecycleInput, void>()("hosted-servers:lifecycle"),
-    wake: request<string, HostedServerSummary>()("hosted-servers:wake"),
-    restart: request<string, HostedServerSummary>()("hosted-servers:restart"),
-    createServerClaim: request<undefined, ServerClaim>()("hosted-servers:create-server-claim"),
   },
   localServers: {
     create: request<string, ServerSummary>()("local-servers:create"),
@@ -1795,6 +1758,7 @@ export const IPC_ENDPOINTS = {
     takePendingInvite: request<undefined, string | null>()("servers:take-pending-invite"),
     login: request<LoginServerInput, ServerSummary>()("servers:login"),
     retryConnection: request<string, ServerSummary>()("servers:retry-connection"),
+    createInstallClaim: request<undefined, ServerClaim>()("servers:create-install-claim"),
     remove: request<string, void>()("servers:remove"),
     getPresence: request<undefined, TeamPresenceSnapshot>()("servers:get-presence"),
     getPresenceFor: request<string, TeamPresenceSnapshot>()("servers:get-presence-for"),
@@ -2049,14 +2013,12 @@ export const IPC_GROUP_PATHS = {
   passwordManagers: "passwordManagers",
   linkAccount: "linkAccount",
   vault: "vault",
-  hostedSites: "hostedSites",
   routineFeed: "routineFeed",
   workflows: "workflows",
   crm: "crm",
   routineResults: "routineResults",
   billing: "billing",
   license: "license",
-  hostedServers: "hostedServers",
   localServers: "localServers",
   marketplaceAgents: "marketplaceAgents",
   agentTemplates: "agentTemplates",

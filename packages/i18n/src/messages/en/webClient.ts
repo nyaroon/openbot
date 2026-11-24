@@ -36,8 +36,6 @@ export const messages = defineMessages("webClient", {
   "webClient.notice.connectComputer": "Connect a server",
   "webClient.connect.description":
     "Run OpenBot on your computer to chat with your agents from this browser. You can also join a server with an invitation.",
-  "webClient.connect.descriptionHosted":
-    "Create a hosted server to chat with your agents from this browser. You can also run OpenBot on your computer, or join a server with an invitation.",
   "webClient.connect.stepInstall": "Install and open OpenBot on your computer.",
   "webClient.connect.stepSignIn": "Sign in with your email.",
   "webClient.connect.stepRemote": "In OpenBot, open Server settings > Members and turn on Publish this server.",

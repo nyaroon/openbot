@@ -1,16 +1,13 @@
-import { existsSync } from "node:fs";
-import { rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { join } from "node:path";
 import type { ServerSafeModeReason } from "@openbot/contracts/team-protocol/server-safe-mode-v1";
 import { sourceText } from "@openbot/i18n/source";
-import { createOpenBotLogger, toLogValue } from "@openbot/logging";
+import { createOpenBotLogger } from "@openbot/logging";
 import { Effect, Exit, Schema, Scope } from "effect";
 import { app, session } from "electron";
 import { createCentralAuthManager } from "./account-service-access";
 import { isFinalClientError } from "./central-auth-manager";
 import { readSignalHomeChoice, SIGNAL_HOME_PREFERENCE_FILE } from "./host-signal-home";
-import { HOSTED_RUNTIME_DIRECTORY, HOSTED_UPDATE_TRIGGER } from "./hosted-update-adapter";
 import { listenLoopback } from "./listen-loopback";
 import { toRemoteWorkflowError } from "./remote-service-effects";
 import { configureApplicationProtocol } from "./session-configuration";
@@ -21,8 +18,6 @@ import { TeamWebRtcHostGateway } from "./team-webrtc-host-gateway";
 
 const logger = createOpenBotLogger("server-safe-mode");
 
-const SERVER_SAFE_MODE_MARKER = "server-safe-mode";
-
 class ServerSafeModeUnavailable extends Schema.TaggedError<ServerSafeModeUnavailable>()("ServerSafeModeUnavailable", {
   cause: Schema.Defect(),
 }) {}
@@ -30,16 +25,10 @@ class ServerSafeModeUnavailable extends Schema.TaggedError<ServerSafeModeUnavail
 export interface ServerSafeModeOptions {
   userDataPath: string;
   reason: ServerSafeModeReason;
-  markerDirectory: string | null;
 }
 
 export interface ServerSafeMode {
   readonly stop: Effect.Effect<void>;
-}
-
-export function safeModeMarkerDirectory(environment: NodeJS.ProcessEnv, platform: NodeJS.Platform): string | null {
-  if (platform !== "linux" || environment.XDG_RUNTIME_DIR?.trim() !== HOSTED_RUNTIME_DIRECTORY) return null;
-  return existsSync(HOSTED_UPDATE_TRIGGER) ? HOSTED_RUNTIME_DIRECTORY : null;
 }
 
 const unavailable = (cause: unknown) => new ServerSafeModeUnavailable({ cause });
@@ -79,7 +68,7 @@ const open = Effect.fn("ServerSafeMode.open")(function* (options: ServerSafeMode
   );
 
   const centralAuth = yield* Effect.acquireRelease(
-    Effect.sync(() => createCentralAuthManager({ confirmSessionAtStart: false })),
+    Effect.sync(() => createCentralAuthManager()),
     (manager) => manager.dispose().pipe(Effect.ignore),
   );
   yield* centralAuth.initialize().pipe(Effect.mapError(unavailable));
@@ -127,16 +116,5 @@ const open = Effect.fn("ServerSafeMode.open")(function* (options: ServerSafeMode
     .start({ hostId: identity.serverId, signalUrl: bootstrap.signalUrl, ticket: bootstrap.ticket, localApiPort })
     .pipe(Effect.mapError(unavailable));
 
-  const markerDirectory = options.markerDirectory;
-  if (markerDirectory !== null) {
-    const marker = join(markerDirectory, SERVER_SAFE_MODE_MARKER);
-    yield* Effect.acquireRelease(
-      Effect.tryPromise({ try: () => writeFile(marker, "", { mode: 0o600 }), catch: unavailable }),
-      () =>
-        Effect.tryPromise(() => rm(marker, { force: true })).pipe(
-          Effect.catch((error) => Effect.sync(() => logger.warn("The safe mode marker stays.", toLogValue(error)))),
-        ),
-    );
-  }
   logger.info(`Safe mode is on (${options.reason.reason}). Members can read the reason.`);
 });

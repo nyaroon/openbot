@@ -26,7 +26,6 @@ import {
 } from "./landing-links";
 import { MARKETPLACE_TAB_ROUTES } from "./marketplace-routes";
 import { MOBILE_APPS } from "./mobile-apps";
-import { PRICING_ROUTE } from "./pricing-page";
 import { PRIVACY_POLICY_ROUTE } from "./privacy-policy";
 import { localizedPagePath, TRANSLATED_SITE_LOCALES } from "./site-paths";
 import { TEAMS_ROUTE } from "./teams-page";
@@ -75,7 +74,6 @@ type LandingPlacement =
   | "download_section"
   | "teams_section"
   | "teams_page"
-  | "pricing_page"
   | "download_page"
   | "footer"
   | "content_index"
@@ -89,7 +87,6 @@ const LANDING_PLACEMENTS = [
   "download_section",
   "teams_section",
   "teams_page",
-  "pricing_page",
   "download_page",
   "footer",
   "content_index",
@@ -105,7 +102,6 @@ type LandingDestination =
   | "guides"
   | "contact"
   | "teams"
-  | "pricing"
   | "x"
   | "threads"
   | "linkedin"
@@ -134,7 +130,6 @@ export type LandingScreenPath =
   | "/contact"
   | "/billing/return"
   | typeof TEAMS_ROUTE
-  | typeof PRICING_ROUTE
   | typeof BRAND_ROUTE
   | typeof PRIVACY_POLICY_ROUTE
   | typeof TERMS_ROUTE
@@ -151,7 +146,6 @@ const FIXED_SCREEN_PATHS = [
   "/join",
   "/contact",
   TEAMS_ROUTE,
-  PRICING_ROUTE,
   BRAND_ROUTE,
   PRIVACY_POLICY_ROUTE,
   TERMS_ROUTE,
@@ -223,11 +217,9 @@ const LINK_DESTINATIONS = new Map<string, LandingDestination>([
   [OPENBOT_LINKS.guides, "guides"],
   [OPENBOT_LINKS.contact, "contact"],
   [TEAMS_ROUTE, "teams"],
-  [PRICING_ROUTE, "pricing"],
   ...TRANSLATED_SITE_LOCALES.flatMap((locale) => [
     [localizedPagePath(locale, "/contact"), "contact"] as const,
     [localizedPagePath(locale, "/teams"), "teams"] as const,
-    [localizedPagePath(locale, "/pricing"), "pricing"] as const,
   ]),
   [OPENBOT_LINKS.x, "x"],
   [OPENBOT_LINKS.threads, "threads"],
@@ -618,7 +610,6 @@ function landingPlacement(link: HTMLAnchorElement): LandingPlacement {
   if (link.closest(".landing-header")) return "header";
   if (link.closest(".post-more")) return "content_related";
   if (link.closest(".teams-main")) return "teams_page";
-  if (link.closest(".pricing-page main")) return "pricing_page";
   if (link.closest(".landing-hero")) return "hero";
   if (link.closest(".landing-download")) return "download_section";
   if (link.closest(".landing-teams")) return "teams_section";

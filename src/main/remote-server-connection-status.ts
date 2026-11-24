@@ -16,9 +16,6 @@ export interface RemoteServerConnectionStatus {
   connectionSequence: number;
   capabilitiesPending: boolean;
   hostRestart: ServerSummary["hostRestart"];
-  hostedSleep: ServerSummary["hostedSleep"];
-  hostedIssue: ServerSummary["hostedIssue"];
-  hostedStart: ServerSummary["hostedStart"];
 }
 
 export interface RemoteConnectionOutcome {

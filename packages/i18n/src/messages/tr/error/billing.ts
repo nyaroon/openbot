@@ -3,11 +3,6 @@ import type { messages as source } from "../../en/error/billing";
 
 export const messages = {
   "error.billing.lifecycleFailed": "Sunucu planı değiştirilemedi. Faturalandırma'yı yenileyin ve tekrar deneyin.",
-  "error.billing.confirmMismatch": "Silmek için sunucu adını yazın.",
-  "error.billing.restartBusy": "Sunucu şu anda yeniden başlatılamıyor. Bir dakika sonra tekrar deneyin.",
-  "error.billing.restartUnavailable": "Bu sunucu buradan yeniden başlatılamıyor. Destek ekibine ulaşın.",
-  "error.billing.planRequired": "Bu sunucunun planı sona erdi. Sunucuyu başlatmak için planı yenileyin.",
-  "error.billing.planSoldOut": "Bu plan tükendi. Başka bir plan seçin.",
   "error.billing.storageUnavailable": "Bu depolama alanı bu sunucu için kullanılamaz.",
   "error.billing.storagePaymentFailed":
     "Depolama alanının ödemesi başarısız oldu. Ödeme yöntemini güncelleyip tekrar deneyin.",

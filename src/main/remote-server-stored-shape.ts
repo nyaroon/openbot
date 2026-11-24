@@ -28,7 +28,6 @@ export interface StoredRemoteServer {
   role: TeamRole;
   transport?: "webrtc-v2";
   memberLimit?: number;
-  hosted?: boolean;
   restartAvailable?: boolean;
   storageGb?: number;
   paymentRequired?: true;
@@ -198,7 +197,6 @@ function readStoredRemoteServer(value: unknown): StoredRemoteServer | null {
     role: value.role,
     ...(value.transport === undefined ? {} : { transport: value.transport }),
     ...(isPositiveInteger(value.memberLimit) ? { memberLimit: value.memberLimit } : {}),
-    ...(isBoolean(value.hosted) ? { hosted: value.hosted } : {}),
     ...(isBoolean(value.restartAvailable) ? { restartAvailable: value.restartAvailable } : {}),
     ...(isPositiveInteger(value.storageGb) ? { storageGb: value.storageGb } : {}),
     ...optionalCustomServerPayment(value),

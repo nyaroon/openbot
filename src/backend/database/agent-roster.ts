@@ -161,20 +161,6 @@ export class AgentRoster {
              WHERE aggregate_type IN ('agent-routine', 'routine-run') AND aggregate_id IN (${placeholders})`,
           ).run(...routineIds);
         }
-        db.prepare(
-          `DELETE FROM orchestration_command_receipts WHERE command_id IN (
-             SELECT DISTINCT command_id FROM orchestration_events
-             WHERE aggregate_type = 'hosted-site-terminal'
-               AND event_type = 'hosted-site.terminal-pending'
-               AND COALESCE(json_extract(payload_json, '$.agentId'), json_extract(payload_json, '$.botId')) = ?
-           )`,
-        ).run(agentId);
-        db.prepare(
-          `DELETE FROM orchestration_events
-           WHERE aggregate_type = 'hosted-site-terminal'
-             AND event_type = 'hosted-site.terminal-pending'
-             AND COALESCE(json_extract(payload_json, '$.agentId'), json_extract(payload_json, '$.botId')) = ?`,
-        ).run(agentId);
         const sensitiveFilter = threadId
           ? `(aggregate_id = ? OR aggregate_id = ? OR
               (aggregate_type = 'agents' AND aggregate_id = 'agents' AND sequence < ?))`

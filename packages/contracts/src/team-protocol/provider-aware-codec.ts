@@ -45,7 +45,6 @@ export const TEAM_PROTOCOL_ProviderAware_CAPABILITIES = [
   "browser-control",
   "conversation-pagination",
   "direct-messages",
-  "hosted-site-event-markers",
   "remote-desktop",
   "routine-event-markers",
   "routine-run-event-markers",

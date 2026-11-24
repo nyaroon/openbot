@@ -29,8 +29,6 @@ import type {
   DraftAttachment,
   DuplicateAgentResult,
   ExportInstanceInput,
-  HostedServerIssue,
-  HostedServerStartStep,
   InstanceTransferPreview,
   InvitePreview,
   InviteSummary,
@@ -115,19 +113,11 @@ import { decodeTeamProtocolV1CurrentHttpResponse } from "@openbot/contracts/team
 import { sourceText } from "@openbot/i18n/source";
 import { createFocusUsePing } from "@openbot/team-client/focus-use";
 import { followHostKeyHandovers } from "@openbot/team-client/host-key-handover";
-import {
-  HOSTED_HOST_READY_LIMIT_MS,
-  HOSTED_START_FAILED_READS,
-  HOSTED_START_POLL_MS,
-  hostedStartStep,
-  WAKE_RECONNECT_STATES,
-} from "@openbot/team-client/hosted-server-wake";
 import { retryOperationIds } from "@openbot/team-client/retry-operation-id";
 import { Deferred, Effect, Exit, Layer, Result, Scope, Semaphore } from "effect";
 import type { CentralAuthOperationError } from "./central-auth-effects";
 import { ComputerActivityReport } from "./computer-activity-report";
 import { contentDispositionFileName } from "./content-disposition";
-import type { HostedServerDesktopService } from "./hosted-server-service";
 import type { PreferenceFileFailure } from "./preference-file";
 import {
   decodeAgentNotificationLevelsFromHost,
@@ -238,7 +228,6 @@ interface RemoteServerManagerOptions {
   appVersion?: string;
   webrtcTransport?: TeamWebRtcClientTransport;
   getLocalHostId?: () => string | null;
-  hostedServers?: HostedServerWakeHooks;
   connectTrace?: RemoteConnectTrace;
   accountReady?: Effect.Effect<unknown, RemoteWorkflowError>;
   localNotificationLevels?: LocalNotificationLevels;
@@ -260,12 +249,6 @@ export interface LocalNotificationLevels {
     input: SetAgentNotificationLevelInput,
   ): Effect.Effect<AgentNotificationLevelsSnapshot, PreferenceFileFailure>;
   subscribe(listener: () => void): () => void;
-}
-
-export interface HostedServerWakeHooks {
-  unavailable: OmitThisParameter<HostedServerDesktopService["unavailableHost"]>;
-  wake: OmitThisParameter<HostedServerDesktopService["wake"]>;
-  status: OmitThisParameter<HostedServerDesktopService["status"]>;
 }
 
 export interface DevelopmentRemoteServerConnection {
@@ -317,14 +300,6 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
   #thisComputerServers: ReadonlySet<string> = new Set();
   #registeredThisComputerServers: ReadonlySet<string> = new Set();
   #thisComputerMembersChanged: (serverId: string) => void = () => undefined;
-  readonly #hostedServers: HostedServerWakeHooks | null;
-  readonly #hostedStartAt = new Map<string, number>();
-  readonly #hostedRunningSince = new Map<string, number>();
-  readonly #hostedFailedReads = new Map<string, number>();
-  readonly #hostedWakePending = new Set<string>();
-  readonly #hostedStartRevision = new Map<string, number>();
-  readonly #hostedStartTimers = new Map<string, ReturnType<typeof setTimeout>>();
-  readonly #hostedStartExpired = new Set<string>();
   #appFocused = true;
   readonly #focusUse = createFocusUsePing((serverId) =>
     this.#background(this.request(serverId, FOCUS_USE_ROUTES.ping, acceptEmpty, { method: "POST", body: {} })),
@@ -361,7 +336,6 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
     };
     this.#webrtcTransport = options.webrtcTransport ?? null;
     this.#getLocalHostId = options.getLocalHostId ?? (() => null);
-    this.#hostedServers = options.hostedServers ?? null;
     this.#connectTrace = options.connectTrace ?? null;
     this.#accountReady = options.accountReady ?? Effect.void;
     this.#localLevels = options.localNotificationLevels ?? null;
@@ -467,11 +441,6 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
       this.#events.transportConnected(serverId);
       this.#events.markSeenOnline(serverId);
       this.#hostRestartAway.delete(serverId);
-      const hostedStartAt = this.#hostedStartAt.get(serverId);
-      if (hostedStartAt !== undefined)
-        this.#connectTrace?.hostedStart(serverId, Math.max(0, Date.now() - hostedStartAt));
-      this.#clearHostedStart(serverId);
-      this.#hostedStartExpired.delete(serverId);
       this.#connections.markConnected(serverId);
       const server = this.#store.find(serverId);
       const capabilityRead = server ? this.#connections.startCapabilityRead(serverId) : null;
@@ -533,18 +502,11 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
     });
     this.#webrtcTransport?.on("event", (serverId, event) => this.#handleWebRtcEvent(serverId, event));
     this.#webrtcTransport?.on("error", (serverId, code, message) => {
-      const hostedStarting = this.#awaitsHostedStart(serverId);
       const hostRestarting =
         (code === "host_unavailable" || !this.#webrtcTransport?.isConnected(serverId)) &&
         this.#awaitsHostRestart(serverId);
-      if (code === "host_unavailable" && !hostRestarting && !hostedStarting) {
+      if (code === "host_unavailable" && !hostRestarting) {
         this.#events.markHostOffline(serverId);
-        Effect.runFork(
-          this.#checkHostedServer(
-            serverId,
-            !this.#hostedStartExpired.has(serverId) && this.#appFocused && serverId === this.#store.activeServerId,
-          ),
-        );
       }
       if (!this.#connections.reportTransportError(serverId, code, message)) this.#events.scheduleReconnect(serverId);
       if (code === "session_revoked") this.emit("directoryInvalidated");
@@ -898,11 +860,7 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
     );
     this.#emitChanged();
     yield* this.startEventConnections();
-    if (this.#connections.hostedSleepFor(serverId) === "sleeping") yield* this.#wakeHostedServer(serverId);
-    else {
-      if (this.#events.isHostOffline(serverId)) yield* this.#checkHostedServer(serverId, true);
-      yield* this.#events.retryNow(serverId);
-    }
+    yield* this.#events.retryNow(serverId);
     return this.list();
   });
 
@@ -1326,14 +1284,6 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
       const transport = this.#webrtcTransport;
 
       const server = yield* remoteDecode(() => this.#store.require(serverId));
-      if (
-        this.#connections.hostedSleepFor(serverId) === "sleeping" ||
-        this.#connections.statusFor(serverId).hostedIssue
-      ) {
-        this.#clearHostedStart(serverId);
-        this.#hostedStartExpired.delete(serverId);
-        yield* this.#wakeHostedServer(serverId);
-      }
       const blockedState = this.#connections.hasIssue(serverId)
         ? (this.#connections.stateFor(serverId) ?? "error")
         : "error";
@@ -1403,200 +1353,7 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
     (operation) => this.#owned(operation),
   ).bind(this);
 
-  hostedServerStarting(serverId: string, server?: Parameters<typeof hostedStartStep>[0]): void {
-    if (this.#stopping || !this.#store.has(serverId) || this.#connections.stateFor(serverId) === "online") return;
-    this.#hostedStartRevision.set(serverId, (this.#hostedStartRevision.get(serverId) ?? 0) + 1);
-    if (this.#connections.statusFor(serverId).hostedIssue === "plan_ended") this.#events.resumeReconnect(serverId);
-    this.#hostedStartExpired.delete(serverId);
-    this.#connections.setHostedIssue(serverId, null);
-    if (!this.#hostedStartAt.has(serverId)) {
-      this.#hostedStartAt.set(serverId, Date.now());
-      this.#scheduleHostedStartRead(serverId);
-    }
-    this.#events.setHostStarting(serverId, true);
-    this.#webrtcTransport?.setWaitForHost(serverId, true);
-    const sleepChanged = this.#connections.setHostedSleep(serverId, "waking");
-    const step = (server && hostedStartStep(server)) ?? this.#connections.statusFor(serverId).hostedStart?.step;
-    if (this.#applyHostedStartStep(serverId, step ?? "machine") || sleepChanged) this.#emitChanged();
-  }
-
-  #applyHostedStartStep(serverId: string, step: HostedServerStartStep): boolean {
-    const startedAt = this.#hostedStartAt.get(serverId);
-    if (startedAt === undefined) return false;
-    if (step !== "openbot") this.#hostedRunningSince.delete(serverId);
-    else if (!this.#hostedRunningSince.has(serverId)) this.#hostedRunningSince.set(serverId, Date.now());
-    const runningSince = this.#hostedRunningSince.get(serverId);
-    if (runningSince !== undefined && Date.now() - runningSince >= HOSTED_HOST_READY_LIMIT_MS) {
-      this.#expireHostedStart(serverId);
-      return false;
-    }
-    return this.#connections.setHostedStart(serverId, { step, startedAt });
-  }
-
-  #scheduleHostedStartRead(serverId: string): void {
-    clearTimeout(this.#hostedStartTimers.get(serverId));
-    this.#hostedStartTimers.set(
-      serverId,
-      setTimeout(() => {
-        this.#hostedStartTimers.delete(serverId);
-        Effect.runFork(
-          Effect.forkIn(
-            this.#owned(this.#readHostedStart(serverId)).pipe(Effect.catch(() => Effect.void)),
-            this.#scope,
-          ),
-        );
-      }, HOSTED_START_POLL_MS),
-    );
-  }
-
-  readonly #readHostedStart = Effect.fn("RemoteManager.readHostedStart")(function* (
-    this: RemoteServerManager,
-    serverId: string,
-  ) {
-    const hosted = this.#hostedServers;
-    if (!hosted || this.#stopping || !this.#hostedStartAt.has(serverId)) return;
-    const revision = this.#hostedStartRevision.get(serverId) ?? 0;
-    const status = yield* hosted.status(serverId).pipe(Effect.catch(() => Effect.succeed(null)));
-    if (this.#stopping || !this.#hostedStartAt.has(serverId) || this.#connections.stateFor(serverId) === "online")
-      return;
-    if (!this.#store.has(serverId)) {
-      this.#clearHostedStart(serverId);
-      this.#events.setHostStarting(serverId, false);
-      this.#connections.setHostedSleep(serverId, null);
-      return;
-    }
-    if ((this.#hostedStartRevision.get(serverId) ?? 0) !== revision) {
-      this.#scheduleHostedStartRead(serverId);
-      return;
-    }
-    const failedReads = status ? 0 : (this.#hostedFailedReads.get(serverId) ?? 0) + 1;
-    this.#hostedFailedReads.set(serverId, failedReads);
-    if (failedReads >= HOSTED_START_FAILED_READS) {
-      this.#expireHostedStart(serverId);
-      return;
-    }
-    const step = status && !status.sleeping ? hostedStartStep(status) : null;
-    if (status && !step) {
-      this.#clearHostedStart(serverId);
-      this.#events.setHostStarting(serverId, false);
-      if (status.sleeping) {
-        this.#connections.setHostedSleep(serverId, "sleeping");
-      } else {
-        this.#connections.setHostedSleep(serverId, null);
-        this.#connections.setHostedIssue(serverId, status.error === "plan_ended" ? "plan_ended" : "wake_failed");
-        if (status.error === "plan_ended") this.#events.suspendReconnect(serverId);
-      }
-      this.#emitChanged();
-      return;
-    }
-    if (step === "provider_limit" || status?.state === "stopped")
-      yield* Effect.forkIn(hosted.wake(serverId).pipe(Effect.ignore), this.#scope);
-    if (step && this.#applyHostedStartStep(serverId, step)) this.#emitChanged();
-    if (this.#hostedStartAt.has(serverId)) this.#scheduleHostedStartRead(serverId);
-  });
-
-  #wakeHostedServer(serverId: string): Effect.Effect<void> {
-    const hosted = this.#hostedServers;
-    if (!hosted || this.#stopping || this.#hostedWakePending.has(serverId)) return Effect.void;
-    this.#hostedWakePending.add(serverId);
-    const revision = this.#hostedStartRevision.get(serverId) ?? 0;
-    const failed = (issue: HostedServerIssue = "wake_failed") => {
-      if (
-        this.#stopping ||
-        !this.#store.has(serverId) ||
-        this.#connections.stateFor(serverId) === "online" ||
-        (this.#hostedStartRevision.get(serverId) ?? 0) !== revision
-      )
-        return;
-      this.#clearHostedStart(serverId);
-      this.#connections.setHostedSleep(serverId, null);
-      this.#connections.setHostedIssue(serverId, issue);
-      if (issue === "plan_ended") this.#events.suspendReconnect(serverId);
-      this.#emitChanged();
-    };
-    this.#connections.setHostedSleep(serverId, "waking");
-    this.#emitChanged();
-    return Effect.forkIn(
-      this.#owned(
-        hosted.wake(serverId).pipe(
-          Effect.tap((server) =>
-            Effect.sync(() => {
-              if (WAKE_RECONNECT_STATES.has(server.state)) this.hostedServerStarting(serverId);
-              else failed();
-            }),
-          ),
-          Effect.catch((failure) =>
-            Effect.sync(() =>
-              failed(isDynamicRecord(failure.cause) && failure.cause.status === 402 ? "plan_ended" : "wake_failed"),
-            ),
-          ),
-          Effect.ensuring(Effect.sync(() => this.#hostedWakePending.delete(serverId))),
-        ),
-      ),
-      this.#scope,
-    ).pipe(Effect.asVoid);
-  }
-
-  #checkHostedServer(serverId: string, wake: boolean): Effect.Effect<void> {
-    return Effect.forkIn(
-      this.#owned(this.#checkHostedServerEffect(serverId, wake).pipe(Effect.catch(() => Effect.void))),
-      this.#scope,
-    ).pipe(Effect.asVoid);
-  }
-
-  readonly #checkHostedServerEffect = Effect.fn("RemoteManager.checkHostedServer")(function* (
-    this: RemoteServerManager,
-    serverId: string,
-    wake: boolean,
-  ) {
-    const hosted = this.#hostedServers;
-    if (!hosted) return;
-    const revision = this.#hostedStartRevision.get(serverId) ?? 0;
-    const availability = yield* hosted.unavailable(serverId, wake);
-    if (
-      this.#stopping ||
-      this.#hostedWakePending.has(serverId) ||
-      (this.#hostedStartRevision.get(serverId) ?? 0) !== revision
-    )
-      return;
-    if (availability === "waking" || this.#hostedStartAt.has(serverId) || !this.#store.has(serverId)) return;
-    if (this.#connections.stateFor(serverId) === "online") return;
-    this.#connections.setHostedSleep(serverId, availability === "sleeping" ? "sleeping" : null);
-    if (availability === "ended") {
-      this.#connections.setHostedIssue(serverId, "plan_ended");
-      this.#events.suspendReconnect(serverId);
-    }
-    this.#emitChanged();
-  });
-
-  #awaitsHostedStart(serverId: string): boolean {
-    return this.#hostedStartAt.has(serverId);
-  }
-
-  #clearHostedStart(serverId: string): void {
-    clearTimeout(this.#hostedStartTimers.get(serverId));
-    this.#hostedStartTimers.delete(serverId);
-    this.#hostedStartAt.delete(serverId);
-    this.#hostedRunningSince.delete(serverId);
-    this.#hostedFailedReads.delete(serverId);
-    this.#connections.setHostedStart(serverId, null);
-    this.#webrtcTransport?.setWaitForHost(serverId, false);
-  }
-
-  #expireHostedStart(serverId: string): void {
-    this.#clearHostedStart(serverId);
-    if (!this.#store.has(serverId) || this.#connections.stateFor(serverId) === "online") return;
-    this.#hostedStartExpired.add(serverId);
-    this.#events.setHostStarting(serverId, false);
-    this.#connections.setHostedSleep(serverId, null);
-    this.#connections.setHostedIssue(serverId, "start_timeout");
-    this.#emitChanged();
-  }
-
   #clearServerConnectionState(serverId: string): void {
-    this.#hostedStartRevision.set(serverId, (this.#hostedStartRevision.get(serverId) ?? 0) + 1);
-    this.#clearHostedStart(serverId);
-    this.#hostedStartExpired.delete(serverId);
     this.#events.forget(serverId);
     this.#refresh.forget(serverId);
     this.#connections.forget(serverId);
@@ -2575,7 +2332,6 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
     const done = Deferred.makeUnsafe<void, RemoteWorkflowError>();
     this.#stopping = done;
     return yield* Effect.gen({ self: this }, function* () {
-      for (const serverId of [...this.#hostedStartAt.keys()]) this.#clearHostedStart(serverId);
       this.#focusUse.dispose();
       this.#computerActivity?.dispose();
       yield* this.#events.stop();

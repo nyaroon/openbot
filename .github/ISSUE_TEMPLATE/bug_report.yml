@@ -24,7 +24,6 @@ body:
         - Web client
         - Docker
         - Self-hosted server
-        - Hosted server
     validations:
       required: true
 

@@ -20,15 +20,13 @@ export function WebConnectComputer(props: {
           <Heading as="h2" size="lg" id="web-connect-title">
             {props.failed ? t("webClient.notice.hostsFailed") : t("webClient.notice.connectComputer")}
           </Heading>
-          <Text tone="muted">
-            {props.onCreateServer ? t("webClient.connect.descriptionHosted") : t("webClient.connect.description")}
-          </Text>
+          <Text tone="muted">{t("webClient.connect.description")}</Text>
           <ErrorReference reference={props.failed ? props.reference : null} />
         </header>
 
         <Show when={props.onCreateServer}>
           {(createServer) => (
-            <Button class="web-connect-hosted" onClick={() => createServer()()}>
+            <Button class="web-connect-install" onClick={() => createServer()()}>
               <Server aria-hidden="true" />
               {t("webClient.notice.createServer")}
             </Button>

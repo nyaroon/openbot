@@ -1,4 +1,3 @@
-import { BILLING_PLAN_IDS, storageTierGb, storageTierOf } from "@openbot/contracts/billing";
 import { CUSTOM_SERVER_PAID_STATUSES } from "@openbot/contracts/custom-server-plans";
 import {
   HOST_KEY_HANDOVER_LIMIT,
@@ -9,7 +8,7 @@ import { DEFAULT_TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
 import { isAvatarColor } from "@openbot/contracts/ipc";
 import { isSignalHomeId } from "@openbot/contracts/ipc-host-signal-home";
 import type { MobileConnectHostBinding } from "@openbot/contracts/mobile-connect";
-import { type DynamicRecord, isDynamicRecord, isOneOf, isString } from "@openbot/contracts/runtime-values";
+import { type DynamicRecord, isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import type { RemoteAuthEvent } from "@openbot/contracts/signal-protocol/auth-events";
 import {
   DISCORD_ROUTE_AUDIENCE,
@@ -88,9 +87,8 @@ const OWNER_TRANSFER_TTL_MS = 7 * 24 * 60 * 60 * 1_000;
 const OWNER_TRANSFER_COLUMNS = `t.transfer_id, t.host_id, h.name AS host_name, t.from_user_id, u.email AS from_email,
   u.name AS from_name, t.to_email, t.created_at, t.expires_at`;
 const CUSTOM_SERVER_PAID_SQL = CUSTOM_SERVER_PAID_STATUSES.map((status) => `'${status}'`).join(", ");
-const BILLED_SERVER_SQL = `(EXISTS(SELECT 1 FROM hosted_servers WHERE server_id = ?)
-  OR EXISTS(SELECT 1 FROM custom_server_offers WHERE host_id = ?
-    AND (subscription_status IN (${CUSTOM_SERVER_PAID_SQL}) OR (checkout_session_id IS NOT NULL AND updated_at > ?))))`;
+const BILLED_SERVER_SQL = `EXISTS(SELECT 1 FROM custom_server_offers WHERE host_id = ?
+  AND (subscription_status IN (${CUSTOM_SERVER_PAID_SQL}) OR (checkout_session_id IS NOT NULL AND updated_at > ?)))`;
 const OWNER_TRANSFER_FROM = `FROM remote_owner_transfers t
   JOIN remote_hosts h ON h.host_id = t.host_id
   JOIN users u ON u.id = t.from_user_id`;
@@ -131,8 +129,8 @@ function ownerTransferRecord(row: OwnerTransferRow): OwnerTransferRecord {
   };
 }
 
-function billedServerBinds(hostId: string, now: number): [string, string, number] {
-  return [hostId, hostId, now - CHECKOUT_LIFETIME_SECONDS * 1_000];
+function billedServerBinds(hostId: string, now: number): [string, number] {
+  return [hostId, now - CHECKOUT_LIFETIME_SECONDS * 1_000];
 }
 
 function ownerTransferHosted(): RemoteControlPlaneError {
@@ -191,10 +189,6 @@ function removedAtAfterChange(change: { revoke: boolean; leave: boolean; activat
 }
 
 export type { RemoteMemberRole };
-
-function hostedStorage(plan: string | null, storageTier: number | null): { storageGb: number } | Record<string, never> {
-  return isOneOf(BILLING_PLAN_IDS, plan) ? { storageGb: storageTierGb(plan, storageTierOf(storageTier)) } : {};
-}
 
 export class RemoteControlPlaneError extends Schema.TaggedError<RemoteControlPlaneError>()("RemoteControlPlaneError", {
   status: Schema.Number,
@@ -662,7 +656,6 @@ export class RemoteControlPlane {
         if (!ownerMembership)
           return yield* new RemoteControlPlaneError(409, "host_removed", sourceText("error.remote.hostRemoved"));
       }
-      yield* this.#requireHostReservation(hostId, user.id);
       const now = dependencies.now();
       const devicePublicKey = input.devicePublicKey ?? null;
       const providedMachineToken = input.machineToken;
@@ -803,7 +796,6 @@ export class RemoteControlPlane {
       if (host.owner_user_id !== user.id) {
         return yield* new RemoteControlPlaneError(403, "host_owner_mismatch", "This host belongs to another account.");
       }
-      yield* this.#requireHostReservation(hostId, user.id);
       const statement = new TextEncoder().encode(hostKeyHandoverStatement(handover));
       const signed = yield* Effect.all([
         verifyEd25519(handover.previousPublicKey, handover.previousSignature, statement),
@@ -890,12 +882,6 @@ export class RemoteControlPlane {
           .prepare(
             `SELECT h.host_id, h.name, h.logo_key, h.appearance_shape, h.appearance_color, h.device_public_key,
            h.auth_epoch, m.membership_id, m.role,
-           (SELECT s.plan FROM hosted_servers s WHERE s.server_id = h.host_id
-             AND s.desired_state NOT IN ('deleted', 'stopped')) AS hosted_plan,
-           (SELECT s.operator_host FROM hosted_servers s WHERE s.server_id = h.host_id
-             AND s.desired_state NOT IN ('deleted', 'stopped')) AS operator_host,
-           (SELECT s.storage_tier FROM hosted_servers s WHERE s.server_id = h.host_id
-             AND s.desired_state NOT IN ('deleted', 'stopped')) AS hosted_storage_tier,
            ${CUSTOM_SERVER_OFFER_COLUMNS}
          FROM remote_memberships m
          JOIN remote_hosts h ON h.host_id = m.host_id
@@ -915,9 +901,6 @@ export class RemoteControlPlane {
               auth_epoch: number;
               membership_id: string;
               role: RemoteMemberRole;
-              hosted_plan: string | null;
-              operator_host: string | null;
-              hosted_storage_tier: number | null;
             } & CustomServerOfferRow
           >(),
       );
@@ -942,9 +925,6 @@ export class RemoteControlPlane {
               membershipId: row.membership_id,
               role: row.role,
               memberLimit: license ? Math.min(limit, license.users) : limit,
-              hosted: row.hosted_plan !== null,
-              ...(row.operator_host === null ? {} : { restartAvailable: false }),
-              ...hostedStorage(row.hosted_plan, row.hosted_storage_tier),
               ...customServerPayment(row, row.role),
             };
           }),
@@ -1836,8 +1816,6 @@ export class RemoteControlPlane {
             )
             .bind(now, hostId, fromUserId, ...applied.binds),
           ownerColumn("server_member_limits", "server_id", "owner_user_id"),
-          ownerColumn("server_site_limits", "server_id", "owner_user_id"),
-          ownerColumn("hosted_sites", "server_id", "user_id"),
           accountRoute("slack_workspace_routes"),
           accountRoute("discord_guild_routes"),
           accountRoute("telegram_chat_routes"),
@@ -2394,9 +2372,6 @@ export class RemoteControlPlane {
             )
             .bind(now, hostId, ownerUserId),
           this.#authEpochEventStatement(hostId, now, ownerUserId),
-          dependencies.database
-            .prepare("UPDATE hosted_sites SET server_id = NULL WHERE server_id = ? AND user_id = ?")
-            .bind(hostId, ownerUserId),
           dependencies.database
             .prepare(
               "UPDATE webhook_routes SET revoked_at = ? WHERE host_id = ? AND account_id = ? AND revoked_at IS NULL",
@@ -3343,7 +3318,6 @@ export class RemoteControlPlane {
     const plan = yield* getServerEntitlement(dependencies.database, hostId, dependencies.now()).pipe(
       Effect.mapError((error) => (error instanceof RemoteControlPlaneError ? error : new RemoteOperationError({}))),
     );
-    if (plan?.hosted) return { limit: plan.memberLimit, fromLicense: false };
     if (license?.entitled && license.users > (plan?.memberLimit ?? 0))
       return { limit: license.users, fromLicense: true };
     return { limit: plan?.memberLimit ?? DEFAULT_TEAM_MEMBER_LIMIT, fromLicense: false };
@@ -3425,23 +3399,6 @@ export class RemoteControlPlane {
         .first<{ signal_home: string | null }>(),
     );
     return configuredSignalHome(signal, raced?.signal_home ?? null) ?? chosen;
-  });
-
-  readonly #requireHostReservation = Effect.fn("RemoteControlPlane.requireHostReservation")(function* (
-    this: RemoteControlPlane,
-    hostId: string,
-    userId: string,
-  ): Effect.fn.Return<void, RemoteFailure, RemoteDependencies> {
-    const dependencies = yield* RemoteDependencies;
-    const reservation = yield* remoteCall(() =>
-      dependencies.database
-        .prepare("SELECT owner_user_id, desired_state FROM hosted_servers WHERE server_id = ? LIMIT 1")
-        .bind(hostId)
-        .first<{ owner_user_id: string; desired_state: string }>(),
-    );
-    if (reservation && (reservation.owner_user_id !== userId || reservation.desired_state === "deleted")) {
-      return yield* new RemoteControlPlaneError(403, "host_owner_mismatch", "This host belongs to another account.");
-    }
   });
 
   readonly #keyHandoversByHost = Effect.fn("RemoteControlPlane.keyHandoversByHost")(function* (

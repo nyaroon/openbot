@@ -8,7 +8,6 @@ const LOCAL_IDENTITY_KEYS = [
   "REMOTE_TICKET_PRIVATE_JWK",
   "REMOTE_TICKET_PUBLIC_JWKS",
   "REMOTE_AUTH_WEBHOOK_SECRET",
-  "SITE_REPORT_HASH_SECRET",
   "SKILLS_ADMIN_TOKEN",
 ] as const;
 
@@ -106,22 +105,14 @@ export async function loadTestDeploymentEnvironment(
   requireDevelopmentValues(result, [
     "EMAIL_SMTP_PASSWORD",
     "SKILLS_ADMIN_TOKEN",
-    "SITE_REPORT_HASH_SECRET",
     "REMOTE_TICKET_PRIVATE_JWK",
     "REMOTE_TICKET_PUBLIC_JWKS",
     "REMOTE_AUTH_WEBHOOK_SECRET",
     "STRIPE_SECRET_KEY",
     "STRIPE_WEBHOOK_SECRET",
-    "BOAT_API_KEY",
-    "BOAT_WEBHOOK_SECRET",
-    "HOSTED_SERVERS_DEVELOPER_KEY",
-    "HOSTED_SERVERS_TEST_ALLOW_LIST",
   ]);
   if (!/^(sk|rk)_test_/u.test(result.STRIPE_SECRET_KEY ?? "")) {
     throw new Error("Test deployment requires a Stripe test key.");
-  }
-  if (result.HOSTED_SERVERS_TEST_ALLOW_LIST?.split(",").some((value) => value.trim() === "*")) {
-    throw new Error("Test deployment requires an explicit hosted-server allow list.");
   }
   for (const names of [
     ["SLACK_CLIENT_ID", "SLACK_CLIENT_SECRET", "SLACK_STATE_SECRET"],
@@ -141,7 +132,7 @@ export function requireDevelopmentValues(environment: NodeJS.ProcessEnv, names: 
 }
 
 const ACCOUNT_SETTINGS =
-  /^(?:STRIPE_|BOAT_|HOSTED_SERVERS_|HOSTED_SERVER_TEMPLATE$|EMAIL_|SITE_REPORT_HASH_SECRET$|SKILLS_ADMIN_TOKEN$|APNS_|FCM_|GITHUB_APP_|GITHUB_WEBHOOK_SECRET$|SLACK_|DISCORD_|TELEGRAM_|REMOTE_TICKET_|REMOTE_AUTH_WEBHOOK_SECRET$|OPENPANEL_)/u;
+  /^(?:STRIPE_|EMAIL_|SKILLS_ADMIN_TOKEN$|APNS_|FCM_|GITHUB_APP_|GITHUB_WEBHOOK_SECRET$|SLACK_|DISCORD_|TELEGRAM_|REMOTE_TICKET_|REMOTE_AUTH_WEBHOOK_SECRET$|OPENPANEL_)/u;
 const SIGNAL_SETTINGS = new Set([
   "REMOTE_TICKET_PUBLIC_JWKS",
   "REMOTE_TICKET_PUBLIC_KEYS",

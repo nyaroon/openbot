@@ -150,7 +150,6 @@ interface HostServiceOptions {
   liveVoice?: ForwardedApiOptions["liveVoice"];
   voiceTranscription?: ForwardedApiOptions["voiceTranscription"];
   clientBrowser?: ForwardedApiOptions["clientBrowser"];
-  hostedSites?: ForwardedApiOptions["hostedSites"];
   events?: ForwardedApiOptions["events"];
   agentImport?: ForwardedApiOptions["agentImport"];
   hermesImport?: ForwardedApiOptions["hermesImport"];
@@ -491,7 +490,6 @@ export class HostService extends EventEmitter<HostEvents> {
       ...(options.liveVoice === undefined ? {} : { liveVoice: options.liveVoice }),
       ...(options.voiceTranscription === undefined ? {} : { voiceTranscription: options.voiceTranscription }),
       ...(options.clientBrowser === undefined ? {} : { clientBrowser: options.clientBrowser }),
-      ...(options.hostedSites === undefined ? {} : { hostedSites: options.hostedSites }),
       ...(options.events === undefined ? {} : { events: options.events }),
       ...(options.agentImport === undefined ? {} : { agentImport: options.agentImport }),
       ...(options.hermesImport === undefined ? {} : { hermesImport: options.hermesImport }),

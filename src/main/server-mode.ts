@@ -2,9 +2,9 @@ import { chmod, lstat, unlink } from "node:fs/promises";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import type { Socket } from "node:net";
 import { dirname, isAbsolute, join } from "node:path";
-import { parseHostedServerName } from "@openbot/contracts/hosted-servers";
 import { INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import type { CentralAuthState } from "@openbot/contracts/ipc";
+import { parseServerName } from "@openbot/contracts/server-install";
 import { sourceText } from "@openbot/i18n/source";
 import { Deferred, Effect } from "effect";
 import QRCode from "qrcode";
@@ -34,7 +34,6 @@ export function takeServerModeEnvironment(
   platform: NodeJS.Platform,
 ): ServerModeEnvironment | null {
   if (!isPackaged || platform !== "linux" || environment.OPENBOT_SERVER !== "1") return null;
-  if (environment.OPENBOT_HOSTED_SERVER === "1") return null;
   const runtimeDirectory = environment.XDG_RUNTIME_DIR?.trim() ?? "";
   if (!isAbsolute(runtimeDirectory)) return null;
   return {
@@ -301,7 +300,7 @@ export class ServerMode {
   ): Effect.fn.Return<Answer, RemoteWorkflowError> {
     const normalized = email.trim();
     if (!normalized.includes("@") || normalized.length > MAX_EMAIL_LENGTH) return failure(400, "invalid_email");
-    if (name !== null && !parseHostedServerName(name)) return nameFailure(name);
+    if (name !== null && !parseServerName(name)) return nameFailure(name);
     if (this.#options.centralAuth.getState().status === "signed_in") return failure(409, "signed_in");
     const state = yield* this.#options.centralAuth
       .requestEmailCode(normalized)
@@ -329,7 +328,7 @@ export class ServerMode {
     if (!challenge.trim() || !code.trim()) return failure(400, "invalid_request");
     if (this.#options.centralAuth.getState().status === "signed_in") return failure(409, "signed_in");
     if (name !== null) {
-      const serverName = parseHostedServerName(name);
+      const serverName = parseServerName(name);
       if (!serverName) return nameFailure(name);
       this.#pendingName = serverName;
     }
@@ -348,7 +347,7 @@ export class ServerMode {
     if (!claim.trim()) return failure(400, "invalid_request");
     let serverName: string | null = null;
     if (name !== null) {
-      serverName = parseHostedServerName(name);
+      serverName = parseServerName(name);
       if (!serverName) return nameFailure(name);
     }
     const { centralAuth } = this.#options;
@@ -383,7 +382,7 @@ export class ServerMode {
     this: ServerMode,
     name: string,
   ): Effect.fn.Return<Answer, RemoteWorkflowError> {
-    const serverName = parseHostedServerName(name);
+    const serverName = parseServerName(name);
     if (!serverName) return nameFailure(name);
     const { host } = this.#options;
     if (host.getStatus().configured) {

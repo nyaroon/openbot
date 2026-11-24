@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 
-export const SERVICE_IDS = ["accounts", "connections", "hosted", "updates", "marketplace"] as const;
+export const SERVICE_IDS = ["accounts", "connections", "updates", "marketplace"] as const;
 export const ServiceId = Schema.Literals(SERVICE_IDS);
 export type ServiceId = typeof ServiceId.Type;
 
@@ -17,7 +17,6 @@ export const SERVICES: readonly ServiceInfo[] = [
     name: "Connections",
     description: "Phones, browsers and teammates that connect to your computer",
   },
-  { id: "hosted", name: "Hosted servers", description: "Cloud servers that OpenBot runs for you" },
   { id: "updates", name: "App updates", description: "Desktop update downloads" },
   { id: "marketplace", name: "Marketplace", description: "Agents, skills and plugins" },
 ];
@@ -98,7 +97,6 @@ export const StateFile = Schema.Struct({
   services: Schema.Struct({
     accounts: ServiceState,
     connections: ServiceState,
-    hosted: ServiceState,
     updates: ServiceState,
     marketplace: ServiceState,
   }),

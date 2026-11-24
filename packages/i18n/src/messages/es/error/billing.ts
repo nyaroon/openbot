@@ -4,11 +4,6 @@ import type { messages as source } from "../../en/error/billing";
 export const messages = {
   "error.billing.lifecycleFailed":
     "No se pudo cambiar el plan del servidor. Actualiza Facturación e inténtalo de nuevo.",
-  "error.billing.confirmMismatch": "Escribe el nombre del servidor para eliminarlo.",
-  "error.billing.restartBusy": "El servidor no puede reiniciarse ahora. Inténtalo de nuevo en un minuto.",
-  "error.billing.restartUnavailable": "Este servidor no puede reiniciarse desde aquí. Contacta con soporte.",
-  "error.billing.planRequired": "El plan de este servidor terminó. Renuévalo para iniciar el servidor.",
-  "error.billing.planSoldOut": "Este plan está agotado. Elige otro plan.",
   "error.billing.storageUnavailable": "Este almacenamiento no está disponible para este servidor.",
   "error.billing.storagePaymentFailed":
     "El pago del almacenamiento falló. Actualiza el método de pago e inténtalo de nuevo.",
