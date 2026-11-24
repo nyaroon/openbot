@@ -1,5 +1,8 @@
 import {
   EMPTY_UNIVERSAL_VAULT,
+  type UniversalResourceKind,
+  type UniversalSkillAgents,
+  type UniversalTargets,
   type UniversalVaultDesktopApi,
   type UniversalVaultState,
   type UniversalVaultUnshareScope,
@@ -36,7 +39,29 @@ export function createUniversalVaultStore(api: () => UniversalVaultDesktopApi = 
     syncNow: async () => show(await api().syncNow()),
     setItem: async (id: string, kind: VaultItemKind, universal: boolean, scope?: UniversalVaultUnshareScope) =>
       show(await api().setUniversal({ id, kind, universal, ...(scope === undefined ? {} : { scope }) })),
+    setResource: async (kind: UniversalResourceKind, localId: string, universal: boolean, agentId?: string) =>
+      show(await api().setResource({ kind, localId, universal, ...(agentId === undefined ? {} : { agentId }) })),
+    setTargets: async (id: string, targets: UniversalTargets, agents?: UniversalSkillAgents) =>
+      show(await api().setTargets({ id, targets, ...(agents === undefined ? {} : { agents }) })),
+    renameComputer: async (name: string) => show(await api().renameComputer({ name })),
+    removeComputer: async (id: string) => show(await api().removeComputer({ id })),
+    removeVault: async () => show(await api().removeUniversalVault()),
   };
 }
 
 export type UniversalVaultStore = ReturnType<typeof createUniversalVaultStore>;
+
+let shared: UniversalVaultStore | undefined;
+
+export function sharedUniversalVault(): UniversalVaultStore {
+  if (shared) return shared;
+  const store = createUniversalVaultStore();
+  shared = store;
+  try {
+    store.subscribe();
+    store.refresh().catch(() => undefined);
+  } catch {
+    return store;
+  }
+  return store;
+}

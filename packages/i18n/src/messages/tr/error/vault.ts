@@ -10,4 +10,6 @@ export const messages = {
   "error.vault.universalExists": "Bu hesapta zaten bir evrensel kasa var. Parola ifadesiyle kilidini açın.",
   "error.vault.universalChanged": "Parola ifadesi başka bir bilgisayarda değiştirildi. Yeniden deneyin.",
   "error.vault.universalUnavailable": "Evrensel kasa bu bilgisayarda okunamadı.",
+  "error.vault.universalSkillUnsupported":
+    "Bu beceri paylaşılamaz. Yerleşik ve ana klasördeki beceriler bu bilgisayarda kalır.",
 } as const satisfies PartialTranslation<typeof source>;

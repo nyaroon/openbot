@@ -10,4 +10,6 @@ export const messages = {
   "error.vault.universalExists": "Questo account ha già una cassaforte universale. Sbloccala con la sua passphrase.",
   "error.vault.universalChanged": "La passphrase è cambiata su un altro computer. Riprova.",
   "error.vault.universalUnavailable": "Impossibile leggere la cassaforte universale su questo computer.",
+  "error.vault.universalSkillUnsupported":
+    "Questa skill non può essere condivisa. Le skill integrate e quelle della cartella home restano su questo computer.",
 } as const satisfies PartialTranslation<typeof source>;

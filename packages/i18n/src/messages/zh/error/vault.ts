@@ -25,4 +25,5 @@ export const messages = {
   "error.vault.universalExists": "此账户已有通用保险库。请使用其口令解锁。",
   "error.vault.universalChanged": "口令已在另一台电脑上更改。请重试。",
   "error.vault.universalUnavailable": "无法在此电脑上读取通用保险库。",
+  "error.vault.universalSkillUnsupported": "无法共享此技能。内置技能和主目录中的技能会保留在这台电脑上。",
 } as const satisfies PartialTranslation<typeof source>;

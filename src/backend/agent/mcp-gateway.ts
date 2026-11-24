@@ -88,7 +88,10 @@ export interface McpGatewayOptions {
   hooks: McpGatewayHooks;
 }
 
+export type McpGatewayChange = { type: "save"; config: McpServerConfig } | { type: "remove"; id: string };
+
 export class McpGateway {
+  readonly #changeListeners = new Set<(change: McpGatewayChange) => void>();
   readonly #servers: McpServerStore;
   readonly #computerUseMcpServer: () => McpServerConfig | null;
   readonly #githubConnector: GitHubConnectorSource | null;
@@ -216,6 +219,17 @@ export class McpGateway {
       .pipe(Effect.map((token) => (token ? { url: config.url, headers: config.headers, token } : null)));
   }
 
+  onChange(listener: (change: McpGatewayChange) => void): () => void {
+    this.#changeListeners.add(listener);
+    return () => {
+      this.#changeListeners.delete(listener);
+    };
+  }
+
+  #announce(change: McpGatewayChange): void {
+    for (const listener of this.#changeListeners) listener(change);
+  }
+
   record(configs: readonly McpServerConfig[]): McpServerConfig[] {
     return this.#handoff.record(configs);
   }
@@ -226,10 +240,11 @@ export class McpGateway {
 
   readonly save = Effect.fn("McpGateway.save")(function* (this: McpGateway, input: SaveMcpServerInput) {
     const added = !this.#servers.list().some((config) => config.id === input.config.id);
-    yield* Effect.try({
+    const stored = yield* Effect.try({
       try: () => this.#servers.save(input.config),
       catch: (cause) => new McpGatewayFailed({ cause }),
     });
+    this.#announce({ type: "save", config: stored });
     return yield* this.changed(added ? "after-background-work" : "now");
   }, Effect.uninterruptible);
 
@@ -240,6 +255,7 @@ export class McpGateway {
       catch: (cause) => new McpGatewayFailed({ cause }),
     });
     this.#providerFailedStarts.delete(input.mcpServerId);
+    this.#announce({ type: "remove", id: input.mcpServerId });
     const list = yield* this.changed("now");
     const removedResource = removed?.transport === "http" ? mcpOAuthAccountKey(removed.url) : null;
     if (

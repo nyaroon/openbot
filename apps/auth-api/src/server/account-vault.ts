@@ -8,7 +8,7 @@ export const VAULT_PAGE_DEFAULT = 200;
 export const VAULT_PAGE_MAX = 500;
 export const VAULT_TOMBSTONE_RETENTION_MS = 90 * 24 * 60 * 60_000;
 
-const KINDS = ["login", "card", "contact", "apiKey"] as const;
+const KINDS = ["login", "card", "contact", "apiKey", "device", "mcp", "skill"] as const;
 const ITEM_ID = /^[A-Za-z0-9_-]{1,64}$/u;
 const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/u;
 const SALT_BYTES_MIN = 16;
@@ -83,7 +83,7 @@ export class AccountVaultError extends Error {
   }
 }
 
-class AccountVaultStorageError extends Error {}
+export class AccountVaultStorageError extends Error {}
 
 interface MetaRow {
   kdf: string;
@@ -213,7 +213,7 @@ function entryFromRow(row: ItemRow): VaultItemEntry {
   };
 }
 
-const notSetUp = () => new AccountVaultError(404, "vault_not_set_up", "The universal vault is not set up.");
+export const notSetUp = () => new AccountVaultError(404, "vault_not_set_up", "The universal vault is not set up.");
 
 const vaultExists = () => new AccountVaultError(409, "vault_exists", "The universal vault already exists.");
 

@@ -24,10 +24,18 @@ const logger = createOpenBotLogger("local-skill-library");
 
 export class LocalSkillLibrary {
   readonly #writes = Semaphore.makeUnsafe(1);
+  readonly #listeners = new Set<() => void>();
   constructor(
     readonly root: string,
     private readonly agents: () => AgentSummary[],
   ) {}
+
+  onChange(listener: () => void): () => void {
+    this.#listeners.add(listener);
+    return () => {
+      this.#listeners.delete(listener);
+    };
+  }
 
   list(): Effect.Effect<MarketplaceSkillDetail[], LocalSkillFailure> {
     return this.listWithUnreadable().pipe(Effect.map(({ skills }) => skills));
@@ -296,7 +304,17 @@ export class LocalSkillLibrary {
   }
 
   private serialize<A>(operation: Effect.Effect<A, LocalSkillFailure>): Effect.Effect<A, LocalSkillFailure> {
-    return this.#writes.withPermit(Effect.uninterruptible(operation));
+    return this.#writes.withPermit(
+      Effect.uninterruptible(
+        operation.pipe(
+          Effect.tap(() =>
+            Effect.sync(() => {
+              for (const listener of this.#listeners) listener();
+            }),
+          ),
+        ),
+      ),
+    );
   }
 }
 

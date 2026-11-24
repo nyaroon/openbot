@@ -11,6 +11,7 @@ import {
   Text,
   Trash2,
 } from "@openbot/ui";
+import { UniversalResourceControl } from "@openbot/ui/features/vault/UniversalResourceControl";
 import { useText } from "@openbot/ui/text";
 import type { JSX } from "@solidjs/web";
 import { createMemo, createStore, For, onCleanup, Show, untrack } from "solid-js";
@@ -630,6 +631,21 @@ export function McpServerForm(props: McpServerFormProps) {
                 )}
               </Show>
             </>
+          )}
+        </Show>
+        <Show when={props.id}>
+          {(id) => (
+            <Show when={props.tools.universal}>
+              {(universal) => (
+                <UniversalResourceControl
+                  vault={universal().state.vault}
+                  kind="mcp"
+                  localId={id()}
+                  onSet={(on) => universal().setResource("mcp", id(), on)}
+                  onTargets={universal().setTargets}
+                />
+              )}
+            </Show>
           )}
         </Show>
         <Show when={state.draft.transport === "stdio" ? props.tools.toolRuntimeNote() : null}>

@@ -76,6 +76,7 @@ import type { AgentSkillCalls } from "../../skills-port";
 import type { ConnectorRegistry } from "../connectors/connector-registry";
 import type { McpServerSignIn, McpServerTools } from "../servers/mcp-server-tools";
 import { mcpSignInRecord } from "../servers/mcp-servers";
+import { sharedUniversalVault } from "../vault/stores/universal-vault-store";
 import { desktopMarketplaceCalls, type MarketplaceCalls, type MarketplaceSignInRelay } from "./marketplace-calls";
 import { createPluginAppConfig } from "./marketplace-plugin-catalog";
 import { localizedPlugin } from "./marketplace-plugin-text";
@@ -1227,6 +1228,7 @@ export function createMarketplaceController(
     },
     signInRequest: mcpSignInRequest,
     endSignInRequest: () => props.onMcpSignInRequestHandled?.(),
+    universal: props.pluginHostName ? undefined : sharedUniversalVault(),
   };
 
   const mcpSignIn: McpServerSignIn = {

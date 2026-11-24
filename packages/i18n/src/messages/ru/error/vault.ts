@@ -11,4 +11,6 @@ export const messages = {
     "У этой учётной записи уже есть универсальное хранилище. Разблокируйте его его парольной фразой.",
   "error.vault.universalChanged": "Парольная фраза была изменена на другом компьютере. Повторите попытку.",
   "error.vault.universalUnavailable": "Не удалось прочитать универсальное хранилище на этом компьютере.",
+  "error.vault.universalSkillUnsupported":
+    "Этот навык нельзя передать. Встроенные навыки и навыки из домашней папки остаются на этом компьютере.",
 } as const satisfies PartialTranslation<typeof source>;

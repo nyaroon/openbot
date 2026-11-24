@@ -25,11 +25,13 @@ import {
 import { createScrollFades } from "@openbot/ui/components/createScrollFades";
 import { SkillGlyph } from "@openbot/ui/features/conversation/SkillGlyph";
 import { SkillLibraryToolbar } from "@openbot/ui/features/conversation/SkillLibraryToolbar";
+import { UniversalResourceControl } from "@openbot/ui/features/vault/UniversalResourceControl";
 import { useText } from "@openbot/ui/text";
 import { createEffect, createMemo, createSignal, For, onSettled, Show, untrack } from "solid-js";
 import { desktopAnalytics } from "../../analytics";
 import { SkillPreview } from "../../components/SkillPreview";
 import { type AgentSkillCalls, agentSkillCalls, type SkillCatalogCalls, skillsPort } from "../../skills-port";
+import { sharedUniversalVault } from "../vault/stores/universal-vault-store";
 import { LocalSkillsLibrary } from "./LocalSkillsLibrary";
 
 export type AgentSkillsMode = "mutable" | "host" | "readonly" | "hidden";
@@ -584,6 +586,26 @@ export function AgentSkillsModal(props: AgentSkillsModalProps) {
                                   data-page-id="2"
                                   onScroll={scrollFades.measure}
                                 >
+                                  <Show
+                                    when={
+                                      localLibrary() &&
+                                      skill().origin !== "managed" &&
+                                      !skill().skillId.startsWith("home:")
+                                    }
+                                  >
+                                    <UniversalResourceControl
+                                      vault={sharedUniversalVault().state.vault}
+                                      kind="skill"
+                                      localId={skill().skillId}
+                                      slug={skill().slug}
+                                      onSet={(on) =>
+                                        sharedUniversalVault().setResource("skill", skill().skillId, on, props.agentId)
+                                      }
+                                      onTargets={(id, targets, agents) =>
+                                        sharedUniversalVault().setTargets(id, targets, agents)
+                                      }
+                                    />
+                                  </Show>
                                   <Show when={isFolderSkill(skill())}>
                                     <Show when={skill().problem}>
                                       {(problem) => <p class="agent-memory-error">{sourceText(problem())}</p>}

@@ -16,6 +16,10 @@ export function createMockUniversalVault(): OpenBotDesktopApi["universalVault"] 
     forgetOnThisDevice: async () => change({ status: "locked" }),
     syncNow: async () => change({ lastSyncAt: Date.now() }),
     setUniversal: async () => state,
+    setResource: async () => state,
+    setTargets: async () => state,
+    renameComputer: async () => state,
+    removeComputer: async () => state,
     removeUniversalVault: async () => change({ status: "notSetUp", lastSyncAt: null }),
     onChanged: (listener) => {
       listeners.add(listener);

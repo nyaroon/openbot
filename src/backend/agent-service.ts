@@ -235,7 +235,12 @@ import { InstructionsChanges } from "./agent/instructions-changes";
 import type { AgentLibraryFolders } from "./agent/library-folder-tools";
 import { LiveVoice, type LiveVoiceOwner, type LiveVoiceRelayed, type LiveVoiceReply } from "./agent/live-voice";
 import { MailboxSync } from "./agent/mailbox-sync";
-import { type GitHubConnectorSource, McpGateway, type TestMcpServerOptions } from "./agent/mcp-gateway";
+import {
+  type GitHubConnectorSource,
+  McpGateway,
+  type McpGatewayChange,
+  type TestMcpServerOptions,
+} from "./agent/mcp-gateway";
 import { agentFallbackMcpServers, type MarketplaceAppServer, mcpServersFromGateway } from "./agent/mcp-tools";
 import { MemoryHold } from "./agent/memory-hold";
 import { MEMORY_REVIEW_MESSAGES, MemoryReview } from "./agent/memory-review";
@@ -2604,6 +2609,10 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
 
   listMcpServers(): McpServerConfig[] {
     return this.#mcp.list();
+  }
+
+  onMcpServerChange(listener: (change: McpGatewayChange) => void): () => void {
+    return this.#mcp.onChange(listener);
   }
 
   saveMcpServer(input: SaveMcpServerInput): Effect.Effect<McpServerConfig[], AgentLifecycleFailed> {

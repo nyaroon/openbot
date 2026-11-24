@@ -592,7 +592,11 @@ import type {
 } from "./ipc-team-host";
 import type {
   UniversalVaultChangePassphraseInput,
+  UniversalVaultRemoveComputerInput,
+  UniversalVaultRenameComputerInput,
   UniversalVaultSetItemInput,
+  UniversalVaultSetResourceInput,
+  UniversalVaultSetTargetsInput,
   UniversalVaultSetUpInput,
   UniversalVaultState,
 } from "./ipc-universal-vault";
@@ -1329,6 +1333,14 @@ export const IPC_ENDPOINTS = {
     syncNow: request<undefined, UniversalVaultState>()("universal-vault:sync-now"),
     setUniversal: request<UniversalVaultSetItemInput, UniversalVaultState>()("universal-vault:set-item"),
     removeUniversalVault: request<undefined, UniversalVaultState>()("universal-vault:remove"),
+    setResource: request<UniversalVaultSetResourceInput, UniversalVaultState>()("universal-vault:set-resource"),
+    setTargets: request<UniversalVaultSetTargetsInput, UniversalVaultState>()("universal-vault:set-targets"),
+    renameComputer: request<UniversalVaultRenameComputerInput, UniversalVaultState>()(
+      "universal-vault:rename-computer",
+    ),
+    removeComputer: request<UniversalVaultRemoveComputerInput, UniversalVaultState>()(
+      "universal-vault:remove-computer",
+    ),
     changed: event<UniversalVaultState>()("universal-vault:changed"),
   },
   vault: {

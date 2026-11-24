@@ -68,6 +68,9 @@ export function ServerVaultPanel(props: ServerVaultOptions & { menuMount: HTMLEl
       onChangePassphrase: universal.changePassphrase,
       onForget: universal.forget,
       onSyncNow: universal.syncNow,
+      onRemoveVault: universal.removeVault,
+      onRenameComputer: universal.renameComputer,
+      onRemoveComputer: universal.removeComputer,
       onSetItem: universal.setItem,
     };
   };

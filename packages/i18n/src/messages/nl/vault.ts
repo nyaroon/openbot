@@ -173,4 +173,30 @@ export const messages = {
   "vault.universal.unshareHereHint": "Andere computers blijven het synchroniseren.",
   "vault.universal.deleteNote": "Dit universele item wordt op al je computers verwijderd.",
   "vault.universal.conflictCopy": "(conflictkopie)",
+  "vault.universal.needsSetup": "Stel eerst de universele kluis in en ontgrendel die.",
+  "vault.universal.computers": "Computers",
+  "vault.universal.allComputers": "Alle computers",
+  "vault.universal.thisComputer": "Deze computer",
+  "vault.universal.skillAgents": "Installeren voor alle agents",
+  "vault.universal.computersTitle": "Je computers",
+  "vault.universal.computersHint":
+    "Geef deze computer een andere naam of verwijder computers die je niet meer gebruikt.",
+  "vault.universal.computerName": "Naam van deze computer",
+  "vault.universal.renameComputer": "Hernoemen",
+  "vault.universal.removeComputer": "Verwijderen",
+  "vault.universal.lastSeen": "Laatst gezien: {when}",
+  "vault.universal.counts": "Items {items} · MCP-servers {mcp} · Vaardigheden {skills} · Computers {computers}",
+  "vault.universal.failed": {
+    one: "{count} item kon niet worden gesynchroniseerd",
+    other: "{count} items konden niet worden gesynchroniseerd",
+  },
+  "vault.universal.conflicts": {
+    one: "{count} vaardigheid is overgeslagen omdat die op deze computer is gewijzigd",
+    other: "{count} vaardigheden zijn overgeslagen omdat ze op deze computer zijn gewijzigd",
+  },
+  "vault.universal.removeVault": "Universele kluis verwijderen",
+  "vault.universal.removeVaultTitle": "Universele kluis verwijderen?",
+  "vault.universal.removeVaultBody":
+    "Hiermee worden alle gesynchroniseerde items, MCP-servers, vaardigheden en computers uit je account verwijderd. De lokale kopieën op elke computer blijven bestaan.",
+  "vault.universal.removeVaultConfirm": "Overal verwijderen",
 } as const satisfies PartialTranslation<typeof source>;

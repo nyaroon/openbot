@@ -13,8 +13,9 @@ const COST_MIN = 2 ** 15;
 const COST_MAX = 2 ** 20;
 const KEY_AAD = "openbot-universal-vault:v1:key:";
 const ITEM_AAD = "openbot-universal-vault:v1:item:";
+const BLOB_AAD = "openbot-universal-vault:v1:blob:";
 
-export type UniversalItemKind = "login" | "card" | "contact" | "apiKey";
+export type UniversalItemKind = "login" | "card" | "contact" | "apiKey" | "device" | "mcp" | "skill";
 
 export interface UniversalKdf {
   name: "scrypt";
@@ -208,5 +209,23 @@ export function decryptUniversalItem(
     return value;
   } catch {
     throw new UniversalVaultDataError("The item could not be decrypted.");
+  }
+}
+
+function blobAad(userId: string, blobId: string): string {
+  return `${BLOB_AAD}${userId}:${blobId}`;
+}
+
+export function encryptUniversalBlob(dek: Buffer, userId: string, blobId: string, bytes: Uint8Array): Buffer {
+  const { nonce, sealed } = seal(dek, blobAad(userId, blobId), Buffer.from(bytes));
+  return Buffer.concat([nonce, sealed]);
+}
+
+export function decryptUniversalBlob(dek: Buffer, userId: string, blobId: string, blob: Uint8Array): Buffer {
+  const bytes = Buffer.from(blob);
+  try {
+    return open(dek, blobAad(userId, blobId), bytes.subarray(0, NONCE_BYTES), bytes.subarray(NONCE_BYTES));
+  } catch {
+    throw new UniversalVaultDataError("The blob could not be decrypted.");
   }
 }

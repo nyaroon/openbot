@@ -14,6 +14,7 @@ import {
   Switch,
   Text,
 } from "@openbot/ui";
+import { UniversalResourceControl } from "@openbot/ui/features/vault/UniversalResourceControl";
 import { useText } from "@openbot/ui/text";
 import { createEffect, createMemo, createStore, Show } from "solid-js";
 import { McpRelaySignIn } from "./McpRelaySignIn";
@@ -262,6 +263,17 @@ export function McpServerControls(props: { tools: McpServerTools; id: string }) 
               </ItemActions>
             </Item>
           </ItemGroup>
+          <Show when={props.tools.universal}>
+            {(universal) => (
+              <UniversalResourceControl
+                vault={universal().state.vault}
+                kind="mcp"
+                localId={props.id}
+                onSet={(on) => universal().setResource("mcp", props.id, on)}
+                onTargets={universal().setTargets}
+              />
+            )}
+          </Show>
           <Show when={state.error}>
             <Text class="server-mcp-runtime-note" variant="caption" tone="danger" role="alert">
               {state.error}

@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { readdir, readFile, rm } from "node:fs/promises";
 import { homedir, hostname, tmpdir } from "node:os";
@@ -444,6 +444,8 @@ import { TeamWebRtcClientTransport } from "./team-webrtc-client-transport";
 import type { TeardownRegistry } from "./teardown-registry";
 import { THEME_PALETTE_DIRECTORY } from "./theme-palette-files";
 import { TraceFile } from "./trace-file";
+import { mcpSyncPort, skillSyncPort } from "./universal-resource-ports";
+import { UniversalResources } from "./universal-resources";
 import { UniversalVaultService } from "./universal-vault-service";
 import {
   macShipItDirectory,
@@ -547,6 +549,7 @@ const BITWARDEN_CONNECTOR_FILE = "openbot-bitwarden-connector-v1.json";
 const PROTONPASS_CONNECTOR_FILE = "openbot-protonpass-connector-v1.json";
 const VAULT_FILE = "openbot-vault-v1.json";
 const UNIVERSAL_VAULT_KEY_FILE = "openbot-universal-vault-key-v1.json";
+const UNIVERSAL_RESOURCES_FILE = "openbot-universal-resources-v1.json";
 const HERMES_IMPORT_LINKS_FILE = "openbot-hermes-imports-v1.json";
 
 const PACKAGED_BUNDLE_IDENTIFIER = "app.openbot.desktop";
@@ -2599,6 +2602,9 @@ export async function createApplicationServices({
   });
   approvalAutomation.subscribe(() => service.notifyAgentsChanged());
   const marketplaceAuth = localServerChild ? localServerMarketplace : centralAuth;
+  const localSkillLibrary = new LocalSkillLibrary(join(app.getPath("userData"), "local-skills"), () =>
+    service.listAgents(),
+  );
   const skills = new SkillMarketplaceService(
     marketplaceAuth,
     () => service.listAgents(),
@@ -2606,9 +2612,20 @@ export async function createApplicationServices({
       service
         .refreshAgentRuntime(agentId)
         .pipe(Effect.ensuring(Effect.sync(() => service.notifySkillsChanged(agentId)))),
-    new LocalSkillLibrary(join(app.getPath("userData"), "local-skills"), () => service.listAgents()),
+    localSkillLibrary,
     githubSkillSource((url, init) => fetch(url, init)),
   );
+  const universalResources = new UniversalResources({
+    path: join(app.getPath("userData"), UNIVERSAL_RESOURCES_FILE),
+    mcp: mcpSyncPort(service),
+    skills: skillSyncPort(skills, localSkillLibrary, () => service.listAgents()),
+    hostname,
+    platform: process.platform,
+    now: Date.now,
+    newId: randomUUID,
+  });
+  await Effect.runPromise(universalResources.load());
+  universalVault.attachResources(universalResources);
   const marketplaceAgents = new AgentMarketplaceService(marketplaceAuth, service, skills);
   const agentTemplates = new AgentTemplateService(centralAuth, service, {
     listTemplateSkills: (agentId) => skills.listTemplateSkills(agentId),

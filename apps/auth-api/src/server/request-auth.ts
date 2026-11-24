@@ -5,6 +5,7 @@ import { Effect } from "effect";
 import { type AccountAnalytics, createAccountAnalytics } from "./account-analytics";
 import { AccountAttribution } from "./account-attribution";
 import { AccountVault, AccountVaultError } from "./account-vault";
+import { AccountVaultBlobs } from "./account-vault-blobs";
 import { adminTokenMatches } from "./admin-token";
 import { AgentMarketplace, AgentMarketplaceError } from "./agent-marketplace";
 import { AgentTemplates } from "./agent-templates";
@@ -393,6 +394,11 @@ export function discordAppErrorResponse(error: unknown): Response {
 
 export function requestAccountVault(): AccountVault {
   return new AccountVault(requireWorkerBindings(env).DB);
+}
+
+export function requestAccountVaultBlobs(): AccountVaultBlobs {
+  const bindings = requireWorkerBindings(env);
+  return new AccountVaultBlobs(bindings.DB, bindings.SKILLS);
 }
 
 export function accountVaultErrorResponse(error: unknown): Response {

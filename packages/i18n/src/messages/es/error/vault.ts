@@ -10,4 +10,6 @@ export const messages = {
   "error.vault.universalExists": "Esta cuenta ya tiene una bóveda universal. Desbloquéala con su frase de contraseña.",
   "error.vault.universalChanged": "La frase de contraseña cambió en otro equipo. Inténtalo de nuevo.",
   "error.vault.universalUnavailable": "No se pudo leer la bóveda universal en este equipo.",
+  "error.vault.universalSkillUnsupported":
+    "Esta habilidad no se puede compartir. Las habilidades integradas y las de la carpeta personal se quedan en este ordenador.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -11,4 +11,6 @@ export const messages = {
     "Dieses Konto hat bereits einen Universellen Tresor. Entsperre ihn mit seiner Passphrase.",
   "error.vault.universalChanged": "Die Passphrase wurde auf einem anderen Computer geändert. Versuche es erneut.",
   "error.vault.universalUnavailable": "Der Universelle Tresor konnte auf diesem Computer nicht gelesen werden.",
+  "error.vault.universalSkillUnsupported":
+    "Diese Fähigkeit kann nicht geteilt werden. Integrierte Fähigkeiten und Fähigkeiten aus dem Home-Ordner bleiben auf diesem Computer.",
 } as const satisfies PartialTranslation<typeof source>;

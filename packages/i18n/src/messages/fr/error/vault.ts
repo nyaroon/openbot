@@ -10,4 +10,6 @@ export const messages = {
   "error.vault.universalExists": "Ce compte possède déjà un coffre universel. Déverrouillez-le avec sa phrase secrète.",
   "error.vault.universalChanged": "La phrase secrète a changé sur un autre ordinateur. Réessayez.",
   "error.vault.universalUnavailable": "Le coffre universel n’a pas pu être lu sur cet ordinateur.",
+  "error.vault.universalSkillUnsupported":
+    "Cette compétence ne peut pas être partagée. Les compétences intégrées et celles du dossier personnel restent sur cet ordinateur.",
 } as const satisfies PartialTranslation<typeof source>;

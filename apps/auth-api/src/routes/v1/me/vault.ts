@@ -8,6 +8,7 @@ import {
   apiError,
   json,
   requestAccountVault,
+  requestAccountVaultBlobs,
   requestUser,
 } from "../../../server/request-auth";
 
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/v1/me/vault")({
           Effect.gen(function* () {
             const user = yield* requestUser(request);
             if (!user) return apiError(401, "unauthorized", "Sign in is required.");
+            yield* requestAccountVaultBlobs().removeAll(user.id);
             return json(yield* requestAccountVault().deleteAll(user.id));
           }),
           accountVaultErrorResponse,

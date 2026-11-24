@@ -184,6 +184,7 @@ import { Route as V1MarketplaceAgentsAgentIdCardRouteImport } from './routes/v1/
 import { Route as V1MarketplaceAgentsAgentIdInstallRouteImport } from './routes/v1/marketplace/agents/$agentId/install'
 import { Route as V1MarketplaceAgentsAgentIdListingRouteImport } from './routes/v1/marketplace/agents/$agentId/listing'
 import { Route as V1MarketplaceAgentsAdminSubmissionsRouteImport } from './routes/v1/marketplace/agents/admin/submissions'
+import { Route as V1MeVaultBlobsBlobIdRouteImport } from './routes/v1/me/vault/blobs/$blobId'
 import { Route as V1MeVaultItemsItemIdRouteImport } from './routes/v1/me/vault/items/$itemId'
 import { Route as V1SkillsSkillIdVersionsVersionIdRouteImport } from './routes/v1/skills/$skillId/versions/$versionId'
 import { Route as V1SkillsAdminCardsVersionIdRouteImport } from './routes/v1/skills/admin/cards/$versionId'
@@ -1122,6 +1123,11 @@ const V1MarketplaceAgentsAdminSubmissionsRoute =
     path: '/v1/marketplace/agents/admin/submissions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const V1MeVaultBlobsBlobIdRoute = V1MeVaultBlobsBlobIdRouteImport.update({
+  id: '/blobs/$blobId',
+  path: '/blobs/$blobId',
+  getParentRoute: () => V1MeVaultRoute,
+} as any)
 const V1MeVaultItemsItemIdRoute = V1MeVaultItemsItemIdRouteImport.update({
   id: '/$itemId',
   path: '/$itemId',
@@ -1528,6 +1534,7 @@ export interface FileRoutesByFullPath {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
+  '/v1/me/vault/blobs/$blobId': typeof V1MeVaultBlobsBlobIdRoute
   '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
@@ -1741,6 +1748,7 @@ export interface FileRoutesByTo {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
+  '/v1/me/vault/blobs/$blobId': typeof V1MeVaultBlobsBlobIdRoute
   '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
@@ -1958,6 +1966,7 @@ export interface FileRoutesById {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
+  '/v1/me/vault/blobs/$blobId': typeof V1MeVaultBlobsBlobIdRoute
   '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
@@ -2173,6 +2182,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
+    | '/v1/me/vault/blobs/$blobId'
     | '/v1/me/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
@@ -2386,6 +2396,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
+    | '/v1/me/vault/blobs/$blobId'
     | '/v1/me/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
@@ -2602,6 +2613,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
+    | '/v1/me/vault/blobs/$blobId'
     | '/v1/me/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
@@ -4018,6 +4030,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1MarketplaceAgentsAdminSubmissionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/v1/me/vault/blobs/$blobId': {
+      id: '/v1/me/vault/blobs/$blobId'
+      path: '/blobs/$blobId'
+      fullPath: '/v1/me/vault/blobs/$blobId'
+      preLoaderRoute: typeof V1MeVaultBlobsBlobIdRouteImport
+      parentRoute: typeof V1MeVaultRoute
+    }
     '/v1/me/vault/items/$itemId': {
       id: '/v1/me/vault/items/$itemId'
       path: '/$itemId'
@@ -4437,10 +4456,12 @@ const V1MeVaultItemsRouteWithChildren = V1MeVaultItemsRoute._addFileChildren(
 
 interface V1MeVaultRouteChildren {
   V1MeVaultItemsRoute: typeof V1MeVaultItemsRouteWithChildren
+  V1MeVaultBlobsBlobIdRoute: typeof V1MeVaultBlobsBlobIdRoute
 }
 
 const V1MeVaultRouteChildren: V1MeVaultRouteChildren = {
   V1MeVaultItemsRoute: V1MeVaultItemsRouteWithChildren,
+  V1MeVaultBlobsBlobIdRoute: V1MeVaultBlobsBlobIdRoute,
 }
 
 const V1MeVaultRouteWithChildren = V1MeVaultRoute._addFileChildren(

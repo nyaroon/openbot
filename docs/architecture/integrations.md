@@ -904,3 +904,42 @@ the device in a file that is bound to the account and encrypted with the OS keys
 - Unshare: "all devices" keeps every computer's copy and records an `unshared` tombstone. "This
   device" only stops syncing here. Deleting a Universal item records a `deleted` tombstone and removes
   it everywhere.
+
+### MCP servers, skills and computers
+
+The same vault, key, routes, revisions, tombstones and sync loop also carry MCP servers and skills.
+The item kinds `device`, `mcp` and `skill` are encrypted like any other item
+(`apps/auth-api/migrations/0072_account_vault_resources.sql` adds
+`account_vault_blobs`). Desktop code is `src/main/universal-resources.ts`,
+`universal-resource-model.ts` and `universal-resource-ports.ts`. Its state, including the
+universal id to local id mappings, is a plain JSON file (`openbot-universal-resources-v1.json`) that
+holds no secrets.
+
+- Computers: each install has a random `deviceId` and an editable name, which defaults to the OS
+  hostname. It publishes itself as a `device` item (`deviceId`, `name`, `platform`, `lastSeenAt`),
+  refreshed at most once a day. Any computer can rename itself or remove a stale one, which writes a
+  tombstone.
+- Targets: `mcp` and `skill` plaintext carries `targets`, either `{ mode: "all" }` or
+  `{ mode: "only", deviceIds }`. An item is on for a computer when the mode is `all` or the computer is
+  listed. Any computer can edit the targets of any computer. A skill also carries
+  `agents: "all" | "none"` for the install on arrival.
+- MCP sync: name, transport, command, args, env, envPassthrough, url, headers and targets. A
+  gateway hook (`McpGateway.onChange`) covers every write path: the desktop UI, team routes, the agent
+  tool and plugin installs. A pulled item upserts the local server. An unmapped server with the same
+  name is adopted, so no duplicate appears. Off or removed disables the local server and drops the
+  mapping. Unsharing keeps it as it is.
+- Skill sync: a skill from the marketplace syncs as a reference (`skillId`, `slug`, `name`) and is
+  installed through the normal marketplace install. A local, custom or learned skill is zipped with
+  the existing packaging code (10 MiB, 200 files), encrypted with AES-256-GCM under the data key and
+  uploaded as a blob. The skill item stores the blob id, the SHA-256 of the zip and its size. A new
+  revision uploads a new blob and deletes the old one. Where a skill is on, it goes into the local
+  skill library and is installed for the agents the item names. Where it is off or removed, only the
+  copies this feature installed are uninstalled. A skill with the same slug that was changed on the
+  computer is never overwritten. It is skipped and counted as a conflict.
+- Blob routes: `PUT`/`GET`/`DELETE /v1/me/vault/blobs/:blobId`, stored in R2 under
+  `account-vault/<userId>/<blobId>`. A blob is at most 12 MiB, and an account holds at most 100 blobs
+  and 300 MiB. The blob AAD is `openbot-universal-vault:v1:blob:<userId>:<blobId>`. Removing the vault
+  deletes its blobs.
+- Never synced: OAuth tokens and client registrations (an HTTP server with sign-in still needs one
+  sign-in on each computer), working directories, positions, local ids, the enabled state, and the
+  agent scope of a skill. Built-in, managed and home-folder skills stay on their computer.

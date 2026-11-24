@@ -1,5 +1,6 @@
 import type { McpSignInPageSource, McpSignInRelaySource } from "@openbot/ui/features/settings/McpSignInPage";
 import { useText } from "@openbot/ui/text";
+import type { UniversalVaultStore } from "../vault/stores/universal-vault-store";
 import type { McpPanelSignInApp } from "./McpSignInAppSection";
 import {
   isMcpSignInCancelled,
@@ -23,6 +24,7 @@ export interface McpServerTools {
   signIn: () => McpServerSignIn | undefined;
   signInRequest: () => string | null;
   endSignInRequest: () => void;
+  universal?: UniversalVaultStore | undefined;
 }
 
 export interface McpServerSignIn {

@@ -429,11 +429,14 @@ export function VaultPanel(props: VaultPanelProps) {
   const empty = () => props.state.items.length === 0;
   const editingUniversal = () => {
     const universal = props.universal;
-    const item = ui.editing?.item;
-    if (!universal || !item) return undefined;
+    if (!universal || !ui.editing) return undefined;
+    const item = ui.editing.item;
+    const disabled = universal.state.status !== "unlocked";
+    if (!item) return { checked: false, disabled, onToggle: () => undefined };
     const checked = props.state.items.some((current) => current.id === item.id && current.universal === true);
     return {
       checked,
+      disabled,
       onToggle: (value: boolean) => {
         if (value) void run(() => universal.onSetItem(item.id, item.kind, true));
         else
@@ -720,7 +723,13 @@ export function VaultPanel(props: VaultPanelProps) {
             savedCode={editingCode()}
             universal={editingUniversal()}
             onCopyCode={copyCode}
-            onSave={(input) => props.onSave(input)}
+            onSave={async (input, share) => {
+              const known = new Set(props.state.items.map((current) => current.id));
+              await props.onSave(input);
+              if (!share || !props.universal) return;
+              const created = props.state.items.find((current) => !known.has(current.id));
+              if (created) await props.universal.onSetItem(created.id, created.kind, true);
+            }}
             onReveal={props.onReveal}
             onClose={closeDialogs}
           />
@@ -1122,9 +1131,9 @@ function ItemDialog(props: {
   twoStep?: boolean | undefined;
   agents?: readonly VaultAgentChoice[] | undefined;
   savedCode?: LiveTwoStepCode | undefined;
-  universal?: { checked: boolean; onToggle: (value: boolean) => void } | undefined;
+  universal?: { checked: boolean; disabled: boolean; onToggle: (value: boolean) => void } | undefined;
   onCopyCode?: ((code: string) => void) | undefined;
-  onSave: (input: VaultSaveInput) => Promise<void>;
+  onSave: (input: VaultSaveInput, share?: boolean) => Promise<void>;
   onReveal: (request: VaultSecretRequest) => Promise<string>;
   onClose: () => void;
 }) {
@@ -1135,6 +1144,7 @@ function ItemDialog(props: {
   const [saving, setSaving] = createSignal(false);
   const [failure, setFailure] = createSignal<UserErrorDetails | null>(null);
   const [scope, setScope] = createSignal<VaultAgentScope>(untrack(() => props.item?.agents ?? null));
+  const [share, setShare] = createSignal(false);
   const set = <T extends Draft>(current: T, patch: Partial<T>) => setDraft((): Draft => ({ ...current, ...patch }));
   const loginDraft = () => {
     const current = draft();
@@ -1215,7 +1225,10 @@ function ItemDialog(props: {
     setSaving(true);
     setFailure(null);
     try {
-      await props.onSave(saveInput(draft(), props.item?.id ?? null, props.agents ? scope() : undefined));
+      await props.onSave(
+        saveInput(draft(), props.item?.id ?? null, props.agents ? scope() : undefined),
+        props.item === null && share(),
+      );
       props.onClose();
     } catch (error) {
       setFailure(errorDetails(error, t("vault.failed")));
@@ -1546,17 +1559,22 @@ function ItemDialog(props: {
                     )}
                   </Match>
                 </Switch>
-                <Show when={props.universal && props.item}>
+                <Show when={props.universal}>
                   <label class="vault-universal-toggle" for="vault-universal-toggle">
                     <Checkbox
                       id="vault-universal-toggle"
-                      checked={props.universal?.checked ?? false}
-                      onChange={(event) => props.universal?.onToggle(event.currentTarget.checked)}
+                      checked={props.item ? (props.universal?.checked ?? false) : share()}
+                      disabled={props.universal?.disabled ?? false}
+                      onChange={(event) =>
+                        props.item
+                          ? props.universal?.onToggle(event.currentTarget.checked)
+                          : setShare(event.currentTarget.checked)
+                      }
                     />
                     <span>
                       {t("vault.universal.toggle")}
                       <Text variant="caption" tone="muted">
-                        {t("vault.universal.toggleHint")}
+                        {props.universal?.disabled ? t("vault.universal.needsSetup") : t("vault.universal.toggleHint")}
                       </Text>
                     </span>
                   </label>

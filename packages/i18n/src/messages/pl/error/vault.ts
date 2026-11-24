@@ -10,4 +10,6 @@ export const messages = {
   "error.vault.universalExists": "To konto ma już uniwersalny sejf. Odblokuj go jego frazą dostępu.",
   "error.vault.universalChanged": "Fraza dostępu została zmieniona na innym komputerze. Spróbuj ponownie.",
   "error.vault.universalUnavailable": "Nie udało się odczytać uniwersalnego sejfu na tym komputerze.",
+  "error.vault.universalSkillUnsupported":
+    "Tej umiejętności nie można udostępnić. Wbudowane umiejętności i te z folderu domowego zostają na tym komputerze.",
 } as const satisfies PartialTranslation<typeof source>;

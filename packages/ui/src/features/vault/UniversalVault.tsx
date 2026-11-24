@@ -1,6 +1,7 @@
 import type { UniversalVaultState, UniversalVaultUnshareScope, VaultItemKind } from "@openbot/contracts/ipc";
 import {
   Button,
+  ConfirmDialog,
   Dialog,
   Field,
   Input,
@@ -12,7 +13,7 @@ import {
   ItemTitle,
   Text,
 } from "@openbot/ui";
-import { createSignal, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { useText } from "../../text";
 
 export interface UniversalVaultProps {
@@ -22,6 +23,9 @@ export interface UniversalVaultProps {
   onChangePassphrase: (current: string, next: string) => Promise<void>;
   onForget: () => Promise<void>;
   onSyncNow: () => Promise<void>;
+  onRemoveVault?: (() => Promise<void>) | undefined;
+  onRenameComputer?: ((name: string) => Promise<void>) | undefined;
+  onRemoveComputer?: ((id: string) => Promise<void>) | undefined;
 }
 
 export interface UniversalVaultPanelProps extends UniversalVaultProps {
@@ -36,6 +40,8 @@ export function UniversalVault(props: UniversalVaultProps) {
   const [changing, setChanging] = createSignal(false);
   const [working, setWorking] = createSignal(false);
   const [failure, setFailure] = createSignal<string | null>(null);
+  const [removing, setRemoving] = createSignal(false);
+  const [draftName, setDraftName] = createSignal<string | null>(null);
 
   async function run(action: () => Promise<void>): Promise<boolean> {
     setWorking(true);
@@ -62,6 +68,19 @@ export function UniversalVault(props: UniversalVaultProps) {
     if (props.state.pending > 0) return t("vault.universal.pending", { count: props.state.pending });
     return props.state.lastSyncAt === null ? t("vault.universal.neverSynced") : t("vault.universal.upToDate");
   };
+
+  const items = () => {
+    const { login, card, contact, apiKey } = props.state.counts;
+    return login + card + contact + apiKey;
+  };
+  const lastSeen = (at: number) => t("vault.universal.lastSeen", { when: new Date(at).toLocaleDateString() });
+
+  async function rename(): Promise<void> {
+    const name = draftName()?.trim();
+    const action = props.onRenameComputer;
+    if (!name || !action) return;
+    if (await run(() => action(name))) setDraftName(null);
+  }
 
   async function submitPassphrase(action: (value: string) => Promise<void>): Promise<void> {
     const value = passphrase();
@@ -174,8 +193,97 @@ export function UniversalVault(props: UniversalVaultProps) {
               </div>
             </form>
           </Show>
+          <div class="vault-universal-computers">
+            <Text variant="caption" tone="muted">
+              {t("vault.universal.counts", {
+                items: items(),
+                mcp: props.state.counts.mcp,
+                skills: props.state.counts.skill,
+                computers: props.state.counts.device,
+              })}
+            </Text>
+            <Show when={props.state.failed > 0}>
+              <Text variant="caption" tone="danger">
+                {t("vault.universal.failed", { count: props.state.failed })}
+              </Text>
+            </Show>
+            <Show when={props.state.conflicts > 0}>
+              <Text variant="caption" tone="danger">
+                {t("vault.universal.conflicts", { count: props.state.conflicts })}
+              </Text>
+            </Show>
+            <Show when={props.state.computers.length > 0}>
+              <Text variant="caption" tone="muted" class="vault-group-label">
+                {t("vault.universal.computersTitle")}
+              </Text>
+              <Text variant="caption" tone="muted">
+                {t("vault.universal.computersHint")}
+              </Text>
+              <For each={props.state.computers}>
+                {(computer) => (
+                  <div class="vault-universal-computer">
+                    <Show
+                      when={computer.current && props.onRenameComputer}
+                      fallback={
+                        <span class="vault-truncate">
+                          {computer.name}
+                          <Text variant="caption" tone="muted">
+                            {lastSeen(computer.lastSeenAt)}
+                          </Text>
+                        </span>
+                      }
+                    >
+                      <Input
+                        aria-label={t("vault.universal.computerName")}
+                        value={draftName() ?? computer.name}
+                        onValueChange={setDraftName}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={working() || !draftName()?.trim() || draftName() === computer.name}
+                        onClick={() => void rename()}
+                      >
+                        {t("vault.universal.renameComputer")}
+                      </Button>
+                    </Show>
+                    <Show when={!computer.current && props.onRemoveComputer}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={working()}
+                        onClick={() => void run(() => props.onRemoveComputer?.(computer.id) ?? Promise.resolve())}
+                      >
+                        {t("vault.universal.removeComputer")}
+                      </Button>
+                    </Show>
+                  </div>
+                )}
+              </For>
+            </Show>
+          </div>
+        </Show>
+        <Show when={(props.state.status === "unlocked" || props.state.status === "locked") && props.onRemoveVault}>
+          <div class="vault-universal-actions">
+            <Button type="button" size="sm" variant="ghost" disabled={working()} onClick={() => setRemoving(true)}>
+              {t("vault.universal.removeVault")}
+            </Button>
+          </div>
         </Show>
       </ItemGroup>
+      <ConfirmDialog
+        open={removing()}
+        title={t("vault.universal.removeVaultTitle")}
+        description={t("vault.universal.removeVaultBody")}
+        confirmLabel={t("vault.universal.removeVaultConfirm")}
+        onCancel={() => setRemoving(false)}
+        onConfirm={async () => {
+          const action = props.onRemoveVault;
+          if (action && (await run(action))) setRemoving(false);
+        }}
+      />
       <Show when={failure()}>
         {(message) => (
           <Text tone="danger" variant="caption" role="alert">

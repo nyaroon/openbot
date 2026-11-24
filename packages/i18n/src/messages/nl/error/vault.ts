@@ -26,4 +26,6 @@ export const messages = {
   "error.vault.universalExists": "Dit account heeft al een universele kluis. Ontgrendel hem met zijn wachtwoordzin.",
   "error.vault.universalChanged": "De wachtwoordzin is op een andere computer gewijzigd. Probeer het opnieuw.",
   "error.vault.universalUnavailable": "De universele kluis kon op deze computer niet worden gelezen.",
+  "error.vault.universalSkillUnsupported":
+    "Deze vaardigheid kan niet worden gedeeld. Ingebouwde vaardigheden en vaardigheden uit de thuismap blijven op deze computer.",
 } as const satisfies PartialTranslation<typeof source>;

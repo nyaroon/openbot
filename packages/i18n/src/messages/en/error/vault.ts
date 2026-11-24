@@ -31,4 +31,6 @@ export const messages = defineMessages("error.vault", {
   "error.vault.universalExists": "This account has a Universal vault already. Unlock it with its passphrase.",
   "error.vault.universalChanged": "The passphrase changed on another computer. Try again.",
   "error.vault.universalUnavailable": "The Universal vault could not be read on this computer.",
+  "error.vault.universalSkillUnsupported":
+    "This skill cannot be shared. Built-in and home folder skills stay on this computer.",
 });

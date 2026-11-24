@@ -11,4 +11,6 @@ export const messages = {
     "このアカウントにはすでにユニバーサル保管庫があります。パスフレーズでロックを解除してください。",
   "error.vault.universalChanged": "パスフレーズがほかのコンピューターで変更されました。もう一度お試しください。",
   "error.vault.universalUnavailable": "このコンピューターでユニバーサル保管庫を読み取れませんでした。",
+  "error.vault.universalSkillUnsupported":
+    "このスキルは共有できません。組み込みスキルとホームフォルダーのスキルはこのコンピューターに残ります。",
 } as const satisfies PartialTranslation<typeof source>;

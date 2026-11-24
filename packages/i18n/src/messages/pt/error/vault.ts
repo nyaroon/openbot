@@ -10,4 +10,6 @@ export const messages = {
   "error.vault.universalExists": "Esta conta já tem um cofre universal. Desbloqueie-o com a frase secreta dele.",
   "error.vault.universalChanged": "A frase secreta foi alterada em outro computador. Tente novamente.",
   "error.vault.universalUnavailable": "Não foi possível ler o cofre universal neste computador.",
+  "error.vault.universalSkillUnsupported":
+    "Esta habilidade não pode ser compartilhada. Habilidades integradas e da pasta pessoal ficam neste computador.",
 } as const satisfies PartialTranslation<typeof source>;

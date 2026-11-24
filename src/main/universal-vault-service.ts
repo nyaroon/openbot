@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto";
-import type {
-  UniversalVaultIssue,
-  UniversalVaultState,
-  UniversalVaultStatus,
-  UniversalVaultUnshareScope,
-  VaultItemKind,
+import {
+  emptyUniversalCounts,
+  type UniversalVaultIssue,
+  type UniversalVaultSetResourceInput,
+  type UniversalVaultSetTargetsInput,
+  type UniversalVaultState,
+  type UniversalVaultStatus,
+  type UniversalVaultUnshareScope,
+  type VaultItemKind,
 } from "@openbot/contracts/ipc";
 import { type DynamicRecord, isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import { sourceText } from "@openbot/i18n/source";
@@ -14,12 +17,16 @@ import type { CentralAuthOperationError } from "./central-auth-effects";
 import { authApiErrorCode, type CentralAuthManager, isFinalClientError } from "./central-auth-manager";
 import { EncryptedRecordStore } from "./password-managers/encrypted-record-store";
 import type { SecretCipher } from "./provider-credential-store";
+import type { RemoteUpdate, ResourceTransport, UniversalResources } from "./universal-resources";
 import {
   createUniversalVaultKey,
+  decryptUniversalBlob,
   decryptUniversalItem,
+  encryptUniversalBlob,
   encryptUniversalItem,
   readUniversalKeyMaterial,
   rewrapUniversalVaultKey,
+  type UniversalItemKind,
   type UniversalKeyMaterial,
   UniversalVaultWrongPassphraseError,
   unwrapUniversalVaultKey,
@@ -49,6 +56,8 @@ const WRONG_PASSPHRASE_DELAY_MS = 1_000;
 const PAGE_LIMIT = 200;
 const MAX_ROUNDS = 3;
 const REQUEST_TIMEOUT_MS = 30_000;
+const BLOB_TIMEOUT_MS = 120_000;
+const ITEM_KINDS: readonly UniversalItemKind[] = ["login", "card", "contact", "apiKey", "device", "mcp", "skill"];
 
 const keyFileSchema = Schema.Struct({
   account: Schema.String,
@@ -68,7 +77,7 @@ interface RemoteMeta {
 
 interface RemoteEntry {
   id: string;
-  kind: VaultItemKind;
+  kind: UniversalItemKind;
   revision: number;
   ciphertext: string | null;
   unshared: boolean;
@@ -115,9 +124,8 @@ function decodeEntry(value: unknown): RemoteEntry {
     !(value.ciphertext === null || isString(value.ciphertext))
   )
     throw new Error("Invalid vault response.");
-  const kind = value.kind;
-  if (kind !== "login" && kind !== "card" && kind !== "contact" && kind !== "apiKey")
-    throw new Error("Invalid vault response.");
+  const kind = ITEM_KINDS.find((candidate) => candidate === value.kind);
+  if (!kind) throw new Error("Invalid vault response.");
   return {
     id: value.id,
     kind,
@@ -148,12 +156,20 @@ function decodeIgnored(_value: unknown): null {
   return null;
 }
 
+function isVaultEntry(entry: RemoteEntry): entry is RemoteEntry & { kind: VaultItemKind } {
+  return entry.kind === "login" || entry.kind === "card" || entry.kind === "contact" || entry.kind === "apiKey";
+}
+
+function isResourceEntry(entry: RemoteEntry): entry is RemoteEntry & { kind: "device" | "mcp" | "skill" } {
+  return entry.kind === "device" || entry.kind === "mcp" || entry.kind === "skill";
+}
+
 function kindRank(tagged: TaggedItem): 0 | 1 {
   return tagged.kind === "contact" ? 0 : 1;
 }
 
 export interface UniversalVaultServiceOptions {
-  auth: Pick<CentralAuthManager, "requestAuthorized" | "getState" | "on" | "off">;
+  auth: Pick<CentralAuthManager, "requestAuthorized" | "downloadAuthorized" | "getState" | "on" | "off">;
   vault: VaultService;
   keyPath: string;
   cipher: SecretCipher;
@@ -167,6 +183,7 @@ export class UniversalVaultService {
   readonly #conflictSuffix: () => string;
   readonly #queue = Semaphore.makeUnsafe(1);
   readonly #listeners = new Set<(state: UniversalVaultState) => void>();
+  #resources: UniversalResources | null = null;
   #userId: string | null = null;
   #dek: Buffer | null = null;
   #epoch: number | null = null;
@@ -194,14 +211,42 @@ export class UniversalVaultService {
     });
   }
 
+  attachResources(resources: UniversalResources): void {
+    this.#resources = resources;
+    resources.start(() => {
+      this.#emit();
+      this.#schedulePush();
+    });
+  }
+
   state(): UniversalVaultState {
     const record = this.#vault.universalRecord();
+    const live = this.#status === "unlocked" || this.#status === "locked";
+    const view = this.#resources?.view() ?? null;
+    const counts = emptyUniversalCounts();
+    if (record && live) {
+      counts.login = record.logins.filter((item) => item.universal !== undefined).length;
+      counts.card = record.cards.filter((item) => item.universal !== undefined).length;
+      counts.contact = record.contacts.filter((item) => item.universal !== undefined).length;
+      counts.apiKey = record.apiKeys.filter((item) => item.universal !== undefined).length;
+    }
+    if (view && live) {
+      counts.mcp = view.counts.mcp;
+      counts.skill = view.counts.skill;
+      counts.device = view.counts.device;
+    }
     return {
       status: this.#status,
       busy: this.#busy,
-      pending: record ? pendingCount(record) : 0,
+      pending: (record ? pendingCount(record) : 0) + (view && live ? view.pending : 0),
       lastSyncAt: this.#lastSyncAt,
       issue: this.#issue,
+      failed: view && live ? view.failed : 0,
+      conflicts: view && live ? view.conflicts : 0,
+      counts,
+      deviceId: view?.deviceId ?? "",
+      computers: view && live ? view.computers : [],
+      resources: view && live ? view.resources : [],
     };
   }
 
@@ -223,6 +268,7 @@ export class UniversalVaultService {
 
   dispose(): void {
     this.#disposed = true;
+    this.#resources?.dispose();
     for (const stop of this.#unsubscribe) stop();
     this.#unsubscribe = [];
     this.#stopTimers();
@@ -323,6 +369,55 @@ export class UniversalVaultService {
     return this.state();
   });
 
+  readonly setResource = Effect.fn("UniversalVault.setResource")(function* (
+    this: UniversalVaultService,
+    input: UniversalVaultSetResourceInput,
+  ) {
+    const resources = yield* this.#requireResources();
+    yield* resources.setResource(input).pipe(Effect.mapError((cause) => this.#wrap(cause)));
+    this.#emit();
+    this.#schedulePush();
+    return this.state();
+  });
+
+  readonly setTargets = Effect.fn("UniversalVault.setTargets")(function* (
+    this: UniversalVaultService,
+    input: UniversalVaultSetTargetsInput,
+  ) {
+    const resources = yield* this.#requireResources();
+    const dek = this.#dek;
+    const userId = this.#userId;
+    const transport = dek && userId ? this.#transport(dek, userId) : null;
+    yield* resources
+      .setTargets(input.id, input.targets, input.agents, transport)
+      .pipe(Effect.mapError((cause) => this.#wrap(cause)));
+    this.#emit();
+    this.#schedulePush();
+    return this.state();
+  });
+
+  readonly renameComputer = Effect.fn("UniversalVault.renameComputer")(function* (
+    this: UniversalVaultService,
+    name: string,
+  ) {
+    const resources = yield* this.#requireResources();
+    yield* resources.renameComputer(name);
+    this.#emit();
+    this.#schedulePush();
+    return this.state();
+  });
+
+  readonly removeComputer = Effect.fn("UniversalVault.removeComputer")(function* (
+    this: UniversalVaultService,
+    id: string,
+  ) {
+    const resources = yield* this.#requireResources();
+    yield* resources.removeComputer(id);
+    this.#emit();
+    this.#schedulePush();
+    return this.state();
+  });
+
   readonly removeUniversalVault = Effect.fn("UniversalVault.remove")(function* (this: UniversalVaultService) {
     yield* this.#requireUser();
     yield* this.#call("/v1/me/vault", "DELETE", undefined, decodeIgnored).pipe(
@@ -340,6 +435,74 @@ export class UniversalVaultService {
 
   #requireUser(): Effect.Effect<string, PasswordVaultError> {
     return this.#userId ? Effect.succeed(this.#userId) : Effect.fail(universalError("error.vault.universalSignIn"));
+  }
+
+  #requireResources(): Effect.Effect<UniversalResources, PasswordVaultError> {
+    return Effect.gen({ self: this }, function* () {
+      yield* this.#requireUser();
+      if (this.#status === "locked") return yield* universalError("error.vault.universalLocked");
+      if (this.#status !== "unlocked") return yield* universalError("error.vault.universalNotSetUp");
+      const resources = this.#resources;
+      if (!resources) return yield* universalError("error.vault.universalUnavailable");
+      return resources;
+    });
+  }
+
+  #wrap(cause: unknown): PasswordVaultError {
+    return cause instanceof PasswordVaultError
+      ? cause
+      : new PasswordVaultError({
+          cause: cause instanceof Error ? cause : new Error(sourceText("error.vault.universalUnavailable")),
+        });
+  }
+
+  #transport(dek: Buffer, userId: string): ResourceTransport<UniversalFailure> {
+    const sealed = <T>(work: () => T): Effect.Effect<T, PasswordVaultError> =>
+      Effect.try({ try: work, catch: (cause) => this.#wrap(cause) });
+    const itemPath = (id: string) => `/v1/me/vault/items/${encodeURIComponent(id)}`;
+    const blobPath = (id: string) => `/v1/me/vault/blobs/${encodeURIComponent(id)}`;
+    return {
+      putItem: (id, kind, plain, baseRevision): Effect.Effect<number, UniversalFailure> =>
+        sealed(() => encryptUniversalItem(dek, userId, id, kind, plain)).pipe(
+          Effect.flatMap((ciphertext) =>
+            this.#call(itemPath(id), "PUT", { kind, ciphertext, baseRevision }, decodeRevision),
+          ),
+          Effect.map(({ revision }) => revision),
+        ),
+      removeItem: (id, revision, mode): Effect.Effect<void, UniversalFailure> =>
+        this.#call(itemPath(id), "DELETE", { baseRevision: revision, mode }, decodeIgnored).pipe(Effect.asVoid),
+      uploadBlob: (blobId, bytes): Effect.Effect<void, UniversalFailure> =>
+        sealed(() => new Uint8Array(encryptUniversalBlob(dek, userId, blobId, Buffer.from(bytes)))).pipe(
+          Effect.flatMap((body) =>
+            this.#auth.requestAuthorized(
+              blobPath(blobId),
+              { method: "PUT", headers: { "Content-Type": "application/octet-stream" }, body },
+              decodeIgnored,
+              BLOB_TIMEOUT_MS,
+            ),
+          ),
+          Effect.asVoid,
+        ),
+      downloadBlob: (blobId): Effect.Effect<Uint8Array, UniversalFailure> =>
+        this.#auth
+          .downloadAuthorized(blobPath(blobId), BLOB_TIMEOUT_MS)
+          .pipe(
+            Effect.flatMap((bytes) =>
+              sealed(() => new Uint8Array(decryptUniversalBlob(dek, userId, blobId, Buffer.from(bytes)))),
+            ),
+          ),
+      deleteBlob: (blobId): Effect.Effect<void, UniversalFailure> =>
+        this.#call(blobPath(blobId), "DELETE", undefined, decodeIgnored).pipe(Effect.asVoid),
+      classify: (failure) => {
+        if (failure instanceof PasswordVaultError) return "final";
+        const code = authApiErrorCode(failure.cause);
+        if (code === "vault_item_conflict") return "conflict";
+        if (code === "vault_item_limit" || code === "vault_blob_limit") return "limit";
+        if (code === "vault_item_not_found" || code === "vault_blob_not_found") return "notFound";
+        if (code === "vault_not_set_up") return "retry";
+        return isFinalClientError(failure.cause) ? "final" : "retry";
+      },
+    };
   }
 
   #emit(): void {
@@ -458,7 +621,9 @@ export class UniversalVaultService {
     this.#dek = null;
     this.#epoch = null;
     this.#cursor = 0;
-    return this.#keys.clear().pipe(Effect.ignore);
+    return this.#keys
+      .clear()
+      .pipe(Effect.ignore, Effect.andThen(this.#resources ? this.#resources.reset() : Effect.void));
   }
 
   #follow(force = true): Effect.Effect<void> {
@@ -477,6 +642,7 @@ export class UniversalVaultService {
         return;
       }
       if (this.#userId !== userId) {
+        if (this.#resources) yield* this.#resources.bind(userId);
         this.#stopTimers();
         this.#dek?.fill(0);
         this.#dek = null;
@@ -611,7 +777,7 @@ export class UniversalVaultService {
           this.#status = "locked";
           return "locked" as const;
         }
-        const decoded = page.items.map((entry) => {
+        const decoded = page.items.filter(isVaultEntry).map((entry) => {
           if (entry.ciphertext === null) return { entry, tagged: null, failed: false };
           try {
             const plain: DynamicRecord = decryptUniversalItem(dek, userId, entry.id, entry.kind, entry.ciphertext);
@@ -632,6 +798,20 @@ export class UniversalVaultService {
               }, record),
             ),
           );
+        const resources = this.#resources;
+        const updates = page.items.filter(isResourceEntry).map((entry): RemoteUpdate => {
+          const base = { id: entry.id, kind: entry.kind, revision: entry.revision };
+          if (entry.ciphertext === null)
+            return { ...base, plain: null, removal: entry.unshared ? "unshared" : "deleted", failed: false };
+          try {
+            const plain: DynamicRecord = decryptUniversalItem(dek, userId, entry.id, entry.kind, entry.ciphertext);
+            return { ...base, plain, removal: null, failed: false };
+          } catch {
+            return { ...base, plain: null, removal: null, failed: true };
+          }
+        });
+        if (resources && updates.length > 0 && (yield* resources.applyRemote(updates, this.#transport(dek, userId))))
+          outcome = "data";
         this.#cursor = page.next;
         yield* this.#persistKey();
         if (!page.more) return outcome;
@@ -645,6 +825,8 @@ export class UniversalVaultService {
       const userId = this.#userId;
       const record = this.#vault.universalRecord();
       if (!dek || !userId || !record) return { conflict: false, issue: "ok" as const };
+      const resources = this.#resources;
+      const transport = this.#transport(dek, userId);
       let conflict = false;
       let issue: "ok" | "limit" | "data" = "ok";
       const pending = pendingTagged(record).sort((left, right) => kindRank(left) - kindRank(right));
@@ -704,6 +886,13 @@ export class UniversalVaultService {
           continue;
         }
         return yield* Effect.fail(sent.failure);
+      }
+      if (resources) {
+        yield* resources.retry(transport);
+        yield* resources.scan();
+        const sent = yield* resources.push(transport);
+        if (sent.conflict) conflict = true;
+        if (sent.issue === "limit" || (sent.issue === "data" && issue === "ok")) issue = sent.issue;
       }
       return { conflict, issue };
     });

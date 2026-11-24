@@ -12,7 +12,7 @@ CREATE TABLE account_vaults (
 CREATE TABLE account_vault_items (
   user_id TEXT NOT NULL REFERENCES account_vaults(user_id) ON DELETE CASCADE,
   item_id TEXT NOT NULL CHECK (length(item_id) BETWEEN 1 AND 64),
-  kind TEXT NOT NULL CHECK (kind IN ('login', 'card', 'contact', 'apiKey')),
+  kind TEXT NOT NULL CHECK (kind IN ('login', 'card', 'contact', 'apiKey', 'device', 'mcp', 'skill')),
   revision INTEGER NOT NULL CHECK (revision >= 1),
   ciphertext TEXT CHECK (ciphertext IS NULL OR length(ciphertext) <= 98304),
   removal TEXT CHECK (removal IS NULL OR removal IN ('deleted', 'unshared')),

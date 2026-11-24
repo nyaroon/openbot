@@ -29,4 +29,6 @@ export const messages = {
   "error.vault.universalExists": "לחשבון הזה כבר יש כספת אוניברסלית. בטלו את נעילתה באמצעות ביטוי הסיסמה שלה.",
   "error.vault.universalChanged": "ביטוי הסיסמה שונה במחשב אחר. נסו שוב.",
   "error.vault.universalUnavailable": "לא ניתן היה לקרוא את הכספת האוניברסלית במחשב הזה.",
+  "error.vault.universalSkillUnsupported":
+    "אי אפשר לשתף את המיומנות הזו. מיומנויות מובנות ומיומנויות מתיקיית הבית נשארות במחשב הזה.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -29,4 +29,6 @@ export const messages = {
   "error.vault.universalExists": "لدى هذا الحساب خزنة عامة بالفعل. افتح قفلها بعبارة المرور الخاصة بها.",
   "error.vault.universalChanged": "تم تغيير عبارة المرور على كمبيوتر آخر. حاول مرة أخرى.",
   "error.vault.universalUnavailable": "تعذّرت قراءة الخزنة العامة على هذا الكمبيوتر.",
+  "error.vault.universalSkillUnsupported":
+    "لا يمكن مشاركة هذه المهارة. تبقى المهارات المدمجة ومهارات المجلد الرئيسي على هذا الجهاز.",
 } as const satisfies PartialTranslation<typeof source>;
