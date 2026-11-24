@@ -361,13 +361,7 @@ import { createWebAgentImportCalls } from "./web-agent-import";
 import { createWebAgentThreads } from "./web-agent-threads";
 import { createWebAttachmentMedia } from "./web-attachment-media";
 import { openWebLink } from "./web-attachments";
-import {
-  createWebBillingCalls,
-  createWebCreditsCalls,
-  createWebLicenseCalls,
-  createWebReferralCalls,
-  type WebAppStart,
-} from "./web-billing";
+import { createWebBillingCalls, createWebCreditsCalls, createWebLicenseCalls, type WebAppStart } from "./web-billing";
 import { webBitwardenConnectorPort } from "./web-bitwarden-connector";
 import { createWebChannelsPort } from "./web-channels-runtime";
 import { createWebChatHistory, type WebChatHistoryEntry } from "./web-chat-history";
@@ -1441,7 +1435,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
   const billing = createBillingStore(() => billingCalls, billingOpen);
   const licenseCalls = createWebLicenseCalls(props.accountFetch);
   const license = createLicenseStore(() => licenseCalls, billingOpen, trackLicenseEvent);
-  const referralCalls = createWebReferralCalls(props.accountFetch);
   const creditsCalls = createWebCreditsCalls(props.accountFetch);
   const credits = createCreditsStore(
     () => creditsCalls,
@@ -3457,7 +3450,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
                         appearance={props.appearance}
                         onChangeAppearance={props.onChangeAppearance}
                         onOpenBilling={() => setBillingOpen(true)}
-                        referral={referralCalls}
                         onSignOut={signOut}
                         notifications={notificationSettings}
                         notificationFocusRequest={notificationFocusRequest()}

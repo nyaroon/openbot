@@ -19,7 +19,6 @@ interface EmailFieldProps {
   editable: boolean;
   visible: boolean;
   reduced: boolean;
-  kind?: "email" | "invite";
 }
 
 export function EmailField({
@@ -34,9 +33,7 @@ export function EmailField({
   editable,
   visible,
   reduced,
-  kind = "email",
 }: EmailFieldProps) {
-  const email = kind === "email";
   const colors = useSignInColors();
   const [focused, setFocused] = useState(false);
   const shake = useShake(rejection, reduced);
@@ -75,15 +72,15 @@ export function EmailField({
           placeholder={placeholder}
           placeholderTextColor={colors.muted}
           accessibilityLabel={label}
-          keyboardType={email ? "phone-pad" : "url"}
+          keyboardType="phone-pad"
           autoCapitalize="none"
-          autoComplete={email ? "tel" : "off"}
-          textContentType={email ? "telephoneNumber" : "none"}
+          autoComplete="tel"
+          textContentType="telephoneNumber"
           autoCorrect={false}
           spellCheck={false}
           returnKeyType="send"
           submitBehavior="submit"
-          maxLength={email ? INPUT_LIMITS.email : INPUT_LIMITS.inviteUrl}
+          maxLength={INPUT_LIMITS.email}
           {...selectionColorProps(colors.brand)}
           className="flex-1 px-4 font-sans text-[17px]"
           style={{ color: colors.text }}

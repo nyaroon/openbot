@@ -11,7 +11,6 @@ const MOBILE_LAN_PATHS = new Set([
   "/v1/me/credits/",
   "/v1/me/credits/activity",
   "/v1/me/credits/transfer",
-  "/v1/me/referrals",
   "/v1/mobile/features",
   "/v1/mobile/changelog",
   "/v2/remote/hosts/",

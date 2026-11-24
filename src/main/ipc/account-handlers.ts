@@ -27,9 +27,7 @@ export function accountIpcHandlers({
         runCauseEffect(centralAuth.requestEmailCode(email)),
       ),
       verifyEmailCode: payloadHandler(parseEmailCodeVerification, (verification) =>
-        runCauseEffect(
-          centralAuth.verifyEmailCode(verification.challengeId, verification.code, verification.referralCode),
-        ),
+        runCauseEffect(centralAuth.verifyEmailCode(verification.challengeId, verification.code)),
       ),
       updateName: payloadHandler(parseProfileName, (name) => runCauseEffect(centralAuth.updateName(name))),
       updateAvatar: payloadHandler(parseAvatarImage, (parsed) => runCauseEffect(centralAuth.updateAvatar(parsed))),

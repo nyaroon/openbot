@@ -42,7 +42,6 @@ export const queryKeys = {
   billing: (...scope: [QueryScope] | []) => ["billing", ...(scope[0] ?? [])],
   credits: (...scope: [QueryScope] | []) => ["credits", ...(scope[0] ?? [])],
   creditActivity: (...scope: [QueryScope] | []) => ["credit-activity", ...(scope[0] ?? [])],
-  referrals: (...scope: [QueryScope] | []) => ["referrals", ...(scope[0] ?? [])],
   ownerHostedServerIds: (scope: QueryScope) => ["owner-hosted-server-ids", ...scope],
   agentTemplate: (apiUrl: string | null, templateId: string | null) => ["agent-template", apiUrl, templateId],
   marketplace: (apiUrl: string | null, ...parts: (string | null)[]) => ["marketplace", apiUrl, ...parts],

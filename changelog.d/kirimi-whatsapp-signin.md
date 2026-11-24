@@ -5,3 +5,4 @@
 ### Removed
 
 - Company sign-in (single sign-on and SCIM) is removed.
+- The invite-a-friend referral programme is removed: invite links, referral credit, the Invite friends settings tab and the referral landing page.

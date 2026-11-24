@@ -3,7 +3,6 @@ import { Typography } from "heroui-native";
 import Bell from "lucide-react-native/icons/bell";
 import Bot from "lucide-react-native/icons/bot";
 import CreditCard from "lucide-react-native/icons/credit-card";
-import Gift from "lucide-react-native/icons/gift";
 import Info from "lucide-react-native/icons/info";
 import Languages from "lucide-react-native/icons/languages";
 import Layers2 from "lucide-react-native/icons/layers-2";
@@ -93,11 +92,6 @@ export function SettingsScreen() {
               value={credits.data?.available ? format.number(credits.data.balance) : undefined}
             >
               <Typography.Paragraph>{t("mobile.settings.credits.title")}</Typography.Paragraph>
-            </SettingsRow>
-          ) : null}
-          {session ? (
-            <SettingsRow leading={<RowIcon icon={Gift} />} onPress={() => router.push("/settings/invite")}>
-              <Typography.Paragraph>{t("mobile.settings.invite.title")}</Typography.Paragraph>
             </SettingsRow>
           ) : null}
         </SettingsSection>

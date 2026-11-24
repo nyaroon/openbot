@@ -1774,7 +1774,6 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
       this: CentralAuthManager,
       challengeId: string,
       code: string,
-      referralCode?: string,
     ): Effect.fn.Return<CentralAuthState, CentralAuthOperationError, CentralAuthTransport> {
       const challenge = this.#state.status === "code_sent" ? this.#state : null;
       if (challenge) {
@@ -1788,7 +1787,7 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ challengeId, code, ...(referralCode ? { referralCode } : {}) }),
+            body: JSON.stringify({ challengeId, code }),
           },
           decodeSessionResponse,
         );

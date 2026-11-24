@@ -95,7 +95,6 @@ import {
   QUIT_GUARDS,
   RENDERER_TIMING_LIMITS,
 } from "@openbot/contracts/ipc";
-import { isReferralCode } from "@openbot/contracts/referral";
 import {
   type DynamicRecord,
   isBoolean,
@@ -459,7 +458,6 @@ export function parseEmailCodeVerification(input: unknown): VerifyEmailCodeInput
   return {
     challengeId: requireString(input.challengeId, "challengeId", INPUT_LIMITS.identifier),
     code: requireString(input.code, "code", 32),
-    ...(isReferralCode(input.referralCode) ? { referralCode: input.referralCode } : {}),
   };
 }
 

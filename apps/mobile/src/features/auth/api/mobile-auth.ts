@@ -164,11 +164,7 @@ export async function startMobileEmailSignIn(email: string, requestId: string): 
   };
 }
 
-export function verifyMobileEmailCode(
-  challengeId: string,
-  code: string,
-  referralCode?: string,
-): Promise<MobileSession> {
+export function verifyMobileEmailCode(challengeId: string, code: string): Promise<MobileSession> {
   return exclusiveSignIn(async () => {
     const normalized = normalizeOneTimeCode(code);
     if (!normalized) {
@@ -188,7 +184,6 @@ export function verifyMobileEmailCode(
       deviceId: device.id,
       deviceName: device.name,
       platform: device.platform,
-      ...(referralCode ? { referralCode } : {}),
     });
     if (!response.ok) throw mobileEmailError(response, body, "mobile.auth.email.error.verifyFailed");
     const session = decodeMobileSession(body, apiUrl, "email");

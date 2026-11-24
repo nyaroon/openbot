@@ -10,7 +10,6 @@ import {
 } from "@openbot/contracts/marketplace-links";
 import { readWhatsAppSignIn } from "@openbot/contracts/phone-identity";
 import { pluginSlugFromWebAppSearch, WEB_APP_PLUGIN_PARAM } from "@openbot/contracts/plugin-links";
-import { forgetReferralCode, readReferralCode } from "@openbot/contracts/referral";
 import { isBoolean, isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import { formatLocale, resolveLocale } from "@openbot/i18n";
 import { sourceText } from "@openbot/i18n/source";
@@ -263,7 +262,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
     path: string,
     body?:
       | { email: string }
-      | { challengeId: string | null; code: string; firstTouch?: FirstTouch; referralCode?: string }
+      | { challengeId: string | null; code: string; firstTouch?: FirstTouch }
       | Record<string, never>,
     send?: { idempotencyKey?: string; signal: AbortSignal },
   ) {
@@ -456,16 +455,14 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       };
     });
   }
-  async function verify(challengeId: string, code: string, referralCode?: string) {
+  async function verify(challengeId: string, code: string) {
     const firstTouch = readFirstTouch(() => window.localStorage, Date.now());
     const value = await signInRequest("email/verify", {
       challengeId,
       code,
       ...(firstTouch ? { firstTouch } : {}),
-      ...(referralCode ? { referralCode } : {}),
     });
     if (value === null) return;
-    forgetReferralCode(() => window.localStorage);
     const account = accountFrom(value);
     sessionGeneration += 1;
     sessionEnded = false;
@@ -553,8 +550,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
                     onRequestEmailCode={start}
                     onVerifyEmailCode={verify}
                     onOpenWhatsApp={(url) => window.open(url, "_blank", "noopener,noreferrer")}
-                    inviteField
-                    initialInviteCode={readReferralCode(() => window.localStorage, Date.now()) ?? undefined}
                     revealed={!loadingShown()}
                     onReset={async () => {
                       clearSession();

@@ -32,7 +32,6 @@ export interface AppPort {
   hostedSites: OpenBotDesktopApi["hostedSites"];
   billing: OpenBotDesktopApi["billing"];
   credits: OpenBotDesktopApi["credits"];
-  referral: OpenBotDesktopApi["referral"];
   license: OpenBotDesktopApi["license"];
   auth: Pick<
     OpenBotDesktopApi["auth"],

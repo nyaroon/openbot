@@ -5,3 +5,4 @@
 ### Removed
 
 - Company sign-in (single sign-on and SCIM) is removed.
+- The invite-a-friend referral programme is removed, including the Invite friends screen and the invite code field at sign-in.

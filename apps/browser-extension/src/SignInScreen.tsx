@@ -13,7 +13,7 @@ interface SignInScreenProps {
   login: CentralAuthState;
   onRetry: () => Promise<void>;
   onRequestEmailCode: (email: string) => Promise<void>;
-  onVerifyEmailCode: (challengeId: string, code: string, referralCode?: string) => Promise<void>;
+  onVerifyEmailCode: (challengeId: string, code: string) => Promise<void>;
   onReset: () => Promise<void>;
   onSignedIn: (session: ExtensionSession) => Promise<void>;
 }
@@ -56,7 +56,6 @@ export function SignInScreen(props: SignInScreenProps) {
           onVerifyEmailCode={props.onVerifyEmailCode}
           onReset={props.onReset}
           onOpenWhatsApp={openWhatsApp}
-          inviteField
         />
       }
     >

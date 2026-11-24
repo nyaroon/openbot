@@ -147,8 +147,6 @@ export interface LicenseServiceOptions {
   countryRequired?: boolean;
   now: () => number;
   ensureCustomer: (user: { id: string; email: string }) => Effect.Effect<string, BillingError | BillingOperationError>;
-  referralCoupon?: (userId: string) => Effect.Effect<string | null, BillingError | BillingOperationError>;
-  keptReferralCoupon?: (subscriptionId: string) => Effect.Effect<string | null, BillingError | BillingOperationError>;
   analytics?: AccountAnalytics;
   sales?: BillingSales | null;
   onLicenseChanged?: (userId: string) => Effect.Effect<void, RemoteFailure>;
@@ -165,8 +163,6 @@ export class LicenseService {
   readonly #layer: Layer.Layer<LicenseDependencies>;
   readonly #secretKey: string;
   readonly #ensureCustomer: LicenseServiceOptions["ensureCustomer"];
-  readonly #referralCoupon: NonNullable<LicenseServiceOptions["referralCoupon"]> | null;
-  readonly #keptReferralCoupon: NonNullable<LicenseServiceOptions["keptReferralCoupon"]> | null;
   readonly #analytics: AccountAnalytics;
   readonly #sales: BillingSales | null;
   readonly #trialEnd: number | null;
@@ -182,8 +178,6 @@ export class LicenseService {
     this.#countryRequired = options.countryRequired ?? false;
     this.#now = options.now;
     this.#ensureCustomer = options.ensureCustomer;
-    this.#referralCoupon = options.referralCoupon ?? null;
-    this.#keptReferralCoupon = options.keptReferralCoupon ?? null;
     this.#analytics = options.analytics ?? NO_ACCOUNT_ANALYTICS;
     this.#sales = options.sales ?? null;
     this.#onLicenseChanged = options.onLicenseChanged ?? null;
@@ -287,7 +281,6 @@ export class LicenseService {
         return yield* new BillingError(409, "license_currency", sourceText("error.billing.licenseCurrency"));
       const customerId = yield* this.#ensureCustomer(user);
       const tax = yield* checkoutTax(dependencies.stripe, customerId, this.#countryRequired);
-      const referralCouponId = this.#referralCoupon ? yield* this.#referralCoupon(user.id) : null;
       const returnUrl = licenseReturnUrl(origin, target);
       const trialEnd = this.trialEnd();
       const session = yield* this.#stripeCall(() =>
@@ -301,7 +294,6 @@ export class LicenseService {
           metadata: licenseMetadata(plan),
           ...(trialEnd === null ? {} : { trialEndSeconds: Math.floor(trialEnd / 1_000) }),
           ...(promotionCode ? { promotionCode } : {}),
-          ...(referralCouponId ? { referralCouponId } : {}),
           successUrl: returnUrl,
           cancelUrl: `${returnUrl}${returnUrl.includes("?") ? "&" : "?"}cancelled=1`,
           nowSeconds: Math.floor(dependencies.now() / 1_000),
@@ -552,10 +544,6 @@ export class LicenseService {
       const made = listed.find(
         (candidate) => candidate.metadata[LICENSE_METADATA.orderSubscription] === subscription.id,
       );
-      const keptCouponId =
-        made || (subscription.discounts ?? []).length === 0 || !this.#keptReferralCoupon
-          ? null
-          : yield* this.#keptReferralCoupon(subscription.id);
       const license =
         made ??
         (yield* this.#stripeCall(() =>
@@ -571,7 +559,6 @@ export class LicenseService {
                 automaticTax: subscription.automatic_tax?.enabled === true,
                 taxRateIds: (subscription.default_tax_rates ?? []).map((rate) => rate.id),
                 paymentMethodId: subscriptionPaymentMethodId(subscription),
-                ...(keptCouponId ? { couponId: keptCouponId } : {}),
                 metadata: {
                   [BILLING_METADATA.userId]: ownerId,
                   ...licenseMetadata(licensePlanFromPrice(price)),

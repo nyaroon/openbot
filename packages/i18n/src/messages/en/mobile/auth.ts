@@ -39,7 +39,6 @@ export const messages = defineMessages("mobile.auth", {
     "Use your WhatsApp number to sign in or create an account. We’ll send you a one-time code.",
   "mobile.auth.email.label": "WhatsApp number",
   "mobile.auth.email.placeholder": "+62 812 3456 7890",
-  "mobile.auth.email.inviteCode": "Invite link or code (optional)",
   "mobile.auth.email.send": "Send code",
   "mobile.auth.email.sending": "Sending code…",
   "mobile.auth.email.tryAgainIn": "Try again in {time}",
@@ -62,7 +61,6 @@ export const messages = defineMessages("mobile.auth", {
   "mobile.auth.email.whatsappOpen": "Open WhatsApp",
   "mobile.auth.email.whatsappSent": "I sent the message",
   "mobile.auth.email.error.invalidEmail": "Enter a valid WhatsApp number with the country code.",
-  "mobile.auth.email.error.inviteCode": "Enter an invite link or an 8-character invite code.",
   "mobile.auth.email.error.wait": "Wait before you request another code.",
   "mobile.auth.email.error.deliveryUnconfirmed":
     "OpenBot could not confirm that the code was sent. Check delivery before you send another code.",

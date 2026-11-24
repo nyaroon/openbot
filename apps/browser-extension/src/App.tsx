@@ -104,9 +104,9 @@ export function App() {
     }
   }
 
-  async function verify(challengeId: string, code: string, referralCode?: string) {
+  async function verify(challengeId: string, code: string) {
     try {
-      const next = await verifyEmailCode(challengeId, code, referralCode);
+      const next = await verifyEmailCode(challengeId, code);
       await saveSession(next);
       setSession(next);
     } catch (error) {

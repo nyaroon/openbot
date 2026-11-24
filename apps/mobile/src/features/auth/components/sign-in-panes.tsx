@@ -343,7 +343,6 @@ export function EmailPane({
         ? t("mobile.auth.email.tryAgainIn", { time: formatTimer(retryIn) })
         : t("mobile.auth.email.send");
   const labelKey = sending ? "sending" : retryIn > 0 ? "wait" : deliveryUnconfirmed ? "check" : "send";
-  const inviteRejected = signIn.emailIssue?.code === "invalid_invite_code";
   const message = signIn.emailIssue
     ? { key: `email-${signIn.rejection}`, text: signIn.emailIssue.message, color: colors.danger }
     : null;
@@ -366,26 +365,11 @@ export function EmailPane({
           placeholder={t("mobile.auth.email.placeholder")}
           label={t("mobile.auth.email.label")}
           invalid={signIn.emailIssue?.code === "invalid_email"}
-          rejection={inviteRejected ? 0 : signIn.rejection}
+          rejection={signIn.rejection}
           editable={!sending}
           visible
           reduced={reduced}
         />
-        <View className="mt-2">
-          <EmailField
-            kind="invite"
-            value={signIn.invite}
-            onChangeText={signIn.setInvite}
-            onSubmit={signIn.sendCode}
-            placeholder={t("mobile.auth.email.inviteCode")}
-            label={t("mobile.auth.email.inviteCode")}
-            invalid={inviteRejected}
-            rejection={inviteRejected ? signIn.rejection : 0}
-            editable={!sending}
-            visible
-            reduced={reduced}
-          />
-        </View>
         <PaneMessage message={message} spinner={false} reduced={reduced} />
       </PaneItem>
       <PaneItem index={3} motion={motion} className="mt-2">

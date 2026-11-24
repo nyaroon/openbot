@@ -20,7 +20,6 @@ import type { AccountAttribution } from "./account-attribution";
 import { randomToken, sha256 } from "./crypto";
 import type { AuthStoreError } from "./d1-auth-repository";
 import { type IncomingWhatsAppMessage, reverseSignInUrl, signInCodesInText } from "./kirimi-delivery";
-import type { Referrals } from "./referrals";
 import type { RemoteFailure } from "./remote-control-plane";
 import { PERSISTENT_SESSION_EXPIRES_AT } from "./session-policy";
 import {
@@ -57,7 +56,6 @@ interface AuthServiceOptions {
   profileChanged?: (userId: string) => Effect.Effect<void, RemoteFailure>;
   analytics?: AccountAnalytics;
   attribution?: AccountAttribution;
-  referrals?: Referrals;
 }
 
 export interface EmailSignInStart {
@@ -92,7 +90,6 @@ class AuthDependencies extends Context.Service<
     profileChanged: (userId: string) => Effect.Effect<void, RemoteFailure>;
     analytics: AccountAnalytics;
     attribution: AccountAttribution | null;
-    referrals: Referrals | null;
   }
 >()("@openbot/auth-api/AuthDependencies") {}
 
@@ -129,7 +126,6 @@ export class AuthService {
       profileChanged: options.profileChanged ?? (() => Effect.void),
       analytics: options.analytics ?? NO_ACCOUNT_ANALYTICS,
       attribution: options.attribution ?? null,
-      referrals: options.referrals ?? null,
     });
   }
 
@@ -366,7 +362,6 @@ export class AuthService {
         sourceIp: string;
         surface: Exclude<AccountSurface, "mobile">;
         firstTouch?: FirstTouch | null;
-        referralCode?: string | null;
       },
     ): Effect.fn.Return<{ sessionToken: string; user: AuthUser }, AuthWorkflowFailure, AuthDependencies> {
       return yield* this.#verifyEmailChallenge(input);
@@ -382,7 +377,6 @@ export class AuthService {
         code: string;
         sourceIp: string;
         device: MobileAuthDeviceIdentity;
-        referralCode?: string | null;
       },
     ): Effect.fn.Return<{ sessionToken: string; user: AuthUser }, AuthWorkflowFailure, AuthDependencies> {
       const dependencies = yield* AuthDependencies;
@@ -402,7 +396,6 @@ export class AuthService {
       sourceIp: string;
       surface: AccountSurface;
       firstTouch?: FirstTouch | null;
-      referralCode?: string | null;
       device?: MobileAuthDeviceIdentity;
     },
   ): Effect.fn.Return<{ sessionToken: string; user: AuthUser }, AuthWorkflowFailure, AuthDependencies> {
@@ -448,12 +441,6 @@ export class AuthService {
     }
     if (result.status === "verified" && result.created) {
       dependencies.analytics.track(session.user.id, { name: "account_created", surface: input.surface, firstTouch });
-      const { referrals } = dependencies;
-      if (input.referralCode && referrals) {
-        yield* referrals
-          .record(session.user.id, input.referralCode)
-          .pipe(Effect.catch(() => Effect.sync(() => console.warn("Invite link save failed."))));
-      }
     }
     return session;
   });

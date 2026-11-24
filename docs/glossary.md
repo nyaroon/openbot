@@ -41,7 +41,7 @@ table, IPC channel or product string, or when a term in the code disagrees with 
   or for a server, and that an owner moves between the two (`@openbot/contracts/credits`,
   `CreditsState`, `CreditServerWallet`, `credits.*` IPC, `v1/me/credits`, D1 `credit_purchases` and
   `credit_ledger`, Stripe lookup keys `openbot_credits_<n>`). They are not the Stripe customer
-  credit of invite links (`billing-referral.ts`), the usage credits of `usage-credits-v1`, or the media credits of a provider
+  credit, the usage credits of `usage-credits-v1`, or the media credits of a provider
   (`mediaCredits`).
 - **server**: a joined team server (`ServerSummary`, `servers:*`), the local Team API host
   (`HostStatus`, `host:*`, `src/main/team-api-server.ts`), the account API (`apps/auth-api`,

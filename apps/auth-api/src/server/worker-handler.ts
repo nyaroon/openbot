@@ -3,7 +3,6 @@ import { routeRequest as routeHostedSiteRequest } from "../../../site-router/src
 import { createAccountAnalytics } from "./account-analytics";
 import { type AuthRetentionResult, pruneExpiredAuthData } from "./auth-data-retention";
 import { BillingSales } from "./billing-sales";
-import { BillingService } from "./billing-service";
 import { captureBillingSnapshot } from "./billing-snapshots";
 import { canonicalHostRedirect, permanentTrailingSlashRedirect } from "./canonical-redirect";
 import { CreditAudit } from "./credit-audit";
@@ -126,24 +125,13 @@ export function createWorkerHandler(
             ),
             Effect.exit(tickSalesAnalytics(bindings, now)),
             Effect.exit(tickHostedPool(bindings, now)),
-            Effect.exit(tickReferralCredit(bindings)),
             Effect.exit(tickCreditHolds(bindings, now)),
             Effect.exit(tickCreditGrants(bindings, now)),
           ],
           { concurrency: "unbounded" },
         ).pipe(
-          Effect.flatMap(
-            ([retentionExit, deliveryExit, sitesExit, salesExit, poolExit, referralExit, holdsExit, grantsExit]) =>
-              Effect.all([
-                retentionExit,
-                deliveryExit,
-                sitesExit,
-                salesExit,
-                poolExit,
-                referralExit,
-                holdsExit,
-                grantsExit,
-              ]),
+          Effect.flatMap(([retentionExit, deliveryExit, sitesExit, salesExit, poolExit, holdsExit, grantsExit]) =>
+            Effect.all([retentionExit, deliveryExit, sitesExit, salesExit, poolExit, holdsExit, grantsExit]),
           ),
         ),
       );
@@ -189,18 +177,6 @@ const tickSalesAnalytics = Effect.fn("SalesAnalytics.tick")(function* (bindings:
   console.info("Sales analytics delivery completed.", result);
   yield* payments;
   yield* snapshot;
-});
-
-const tickReferralCredit = Effect.fn("ReferralCredit.tick")(function* (bindings: SalesBindings) {
-  const secretKey = bindings.STRIPE_SECRET_KEY?.trim();
-  if (!secretKey) return;
-  const billing = new BillingService({
-    database: bindings.DB,
-    secretKey,
-    webhookSecret: null,
-    fetch: (input, init) => fetch(input, init),
-  });
-  yield* billing.releaseReferralCredit();
 });
 
 type AnalyticsBindings = Pick<WorkerBindings, "DB" | "OPENPANEL_CLIENT_ID" | "OPENPANEL_CLIENT_SECRET">;

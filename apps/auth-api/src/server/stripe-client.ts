@@ -59,7 +59,6 @@ const customerBalanceSchema = Schema.Struct({
   invoice_credit_balance: Schema.optional(Schema.NullOr(Schema.Record(Schema.String, Schema.Number))),
 });
 const balanceTransactionSchema = Schema.Struct({ id: Schema.String });
-const couponSchema = Schema.Struct({ id: Schema.String });
 const taxIdSchema = Schema.Struct({
   id: Schema.String,
   type: Schema.String,
@@ -188,35 +187,6 @@ const chargeListSchema = Schema.Struct({
     }),
   ),
 });
-const subscriptionDiscountsSchema = Schema.Struct({
-  status: Schema.String,
-  discounts: Schema.optional(
-    Schema.NullOr(
-      Schema.Array(
-        Schema.Union([
-          Schema.String,
-          Schema.Struct({
-            id: Schema.String,
-            coupon: Schema.optional(Schema.NullOr(expandable)),
-            source: Schema.optional(
-              Schema.NullOr(Schema.Struct({ coupon: Schema.optional(Schema.NullOr(expandable)) })),
-            ),
-          }),
-        ]),
-      ),
-    ),
-  ),
-});
-type SubscriptionDiscount = Exclude<
-  NonNullable<(typeof subscriptionDiscountsSchema.Type)["discounts"]>[number],
-  string
->;
-
-function discountCouponId(discount: SubscriptionDiscount): string | null {
-  const coupon = discount.source?.coupon ?? discount.coupon;
-  return typeof coupon === "string" ? coupon : (coupon?.id ?? null);
-}
-
 const invoicePaymentListSchema = Schema.Struct({ data: Schema.Array(Schema.Struct({ invoice: expandable })) });
 const invoicePaymentIntentListSchema = Schema.Struct({
   data: Schema.Array(
@@ -503,7 +473,6 @@ export class StripeClient {
       tax: CheckoutTax | null;
       trialEndSeconds?: number;
       promotionCode?: string;
-      referralCouponId?: string;
       successUrl: string;
       cancelUrl: string;
       nowSeconds: number;
@@ -558,13 +527,12 @@ export class StripeClient {
     const promotionCodeId = input.promotionCode
       ? yield* this.#activePromotionCodeId(input.promotionCode).pipe(Effect.orElseSucceed(() => null))
       : null;
-    const fallback = input.referralCouponId ? withDiscount(body, "coupon", input.referralCouponId) : body;
     const session = yield* promotionCodeId
       ? // A code whose restrictions this order does not meet (a first order only, a minimum amount, other
         create(withDiscount(body, "promotion_code", promotionCodeId)).pipe(
-          Effect.catchIf(isRefusedPromotionCode, () => create(fallback)),
+          Effect.catchIf(isRefusedPromotionCode, () => create(body)),
         )
-      : create(fallback);
+      : create(body);
     if (!session.url) return yield* new StripeRequestError(200, "invalid_response", "missing_url");
     return { id: session.id, url: session.url };
   }).bind(this);
@@ -679,7 +647,6 @@ export class StripeClient {
       automaticTax: boolean;
       taxRateIds: readonly string[];
       paymentMethodId: string | null;
-      couponId?: string;
       metadata: Readonly<Record<string, string>>;
     },
     idempotencyKey: string,
@@ -697,7 +664,6 @@ export class StripeClient {
     if (input.automaticTax) body.set("automatic_tax[enabled]", "true");
     for (const [index, id] of input.taxRateIds.entries()) body.set(`default_tax_rates[${index}]`, id);
     if (input.paymentMethodId) body.set("default_payment_method", input.paymentMethodId);
-    if (input.couponId) body.set("discounts[0][coupon]", input.couponId);
     for (const [key, value] of Object.entries(input.metadata)) body.set(`metadata[${key}]`, value);
     return yield* this.#requestEffect("POST", "/v1/subscriptions", body, subscriptionSchema, idempotencyKey);
   }).bind(this);
@@ -853,23 +819,6 @@ export class StripeClient {
     return (yield* this.#requestEffect("POST", path, body, balanceTransactionSchema, idempotencyKey)).id;
   }).bind(this);
 
-  readonly ensureReferralCoupon = Effect.fn("StripeClient.ensureReferralCoupon")(function* (
-    this: StripeClient,
-    input: { id: string; percentOff: number; name: string },
-  ): Effect.fn.Return<string, StripeRequestError | StripeTransportError> {
-    const path = `/v1/coupons/${encodeURIComponent(input.id)}`;
-    const found = yield* Effect.result(this.#requestEffect("GET", path, null, couponSchema));
-    if (Result.isSuccess(found)) return found.success.id;
-    if (!(found.failure instanceof StripeRequestError) || found.failure.status !== 404) return yield* found.failure;
-    const body = new URLSearchParams({
-      id: input.id,
-      percent_off: String(input.percentOff),
-      duration: "forever",
-      name: input.name,
-    });
-    return (yield* this.#requestEffect("POST", "/v1/coupons", body, couponSchema, `openbot-coupon-${input.id}`)).id;
-  }).bind(this);
-
   readonly cardFingerprints = Effect.fn("StripeClient.cardFingerprints")(function* (
     this: StripeClient,
     customerId: string,
@@ -891,49 +840,6 @@ export class StripeClient {
     }
     return fingerprints;
   }).bind(this);
-
-  readonly subscriptionCouponIds = Effect.fn("StripeClient.subscriptionCouponIds")(function* (
-    this: StripeClient,
-    subscriptionId: string,
-  ): Effect.fn.Return<string[], StripeRequestError | StripeTransportError> {
-    const subscription = yield* this.#subscriptionDiscounts(subscriptionId);
-    return (subscription.discounts ?? []).flatMap((discount) => {
-      const couponId = typeof discount === "string" ? null : discountCouponId(discount);
-      return couponId ? [couponId] : [];
-    });
-  }).bind(this);
-
-  readonly removeSubscriptionCoupon = Effect.fn("StripeClient.removeSubscriptionCoupon")(function* (
-    this: StripeClient,
-    subscriptionId: string,
-    couponIds: readonly string[],
-  ): Effect.fn.Return<boolean, StripeRequestError | StripeTransportError> {
-    const subscription = yield* this.#subscriptionDiscounts(subscriptionId);
-    if (subscription.status === "canceled" || subscription.status === "incomplete_expired") return false;
-    const discounts = subscription.discounts ?? [];
-    const keep = discounts
-      .filter((discount) => typeof discount === "string" || !couponIds.includes(discountCouponId(discount) ?? ""))
-      .map((discount) => (typeof discount === "string" ? discount : discount.id));
-    if (keep.length === discounts.length) return false;
-    const body = new URLSearchParams();
-    if (keep.length === 0) body.set("discounts", "");
-    for (const [index, id] of keep.entries()) body.set(`discounts[${index}][discount]`, id);
-    yield* this.#requestEffect(
-      "POST",
-      `/v1/subscriptions/${encodeURIComponent(subscriptionId)}`,
-      body,
-      subscriptionDiscountsSchema,
-    );
-    return true;
-  }).bind(this);
-
-  readonly #subscriptionDiscounts = (subscriptionId: string) =>
-    this.#requestEffect(
-      "GET",
-      `/v1/subscriptions/${encodeURIComponent(subscriptionId)}?${new URLSearchParams({ "expand[]": "discounts" })}`,
-      null,
-      subscriptionDiscountsSchema,
-    );
 
   readonly #requestEffect = Effect.fn("StripeClient.request")(function* <T>(
     this: StripeClient,

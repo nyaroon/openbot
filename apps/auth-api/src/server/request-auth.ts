@@ -49,7 +49,6 @@ import {
   MarketplaceRateLimitError,
 } from "./marketplace-request-policy";
 import { mediaUpstreamsFromBindings } from "./media-upstream-bindings";
-import { Referrals } from "./referrals";
 import {
   deliverPendingRemoteAuthEvents,
   notifyAccountProfileChanged,
@@ -98,7 +97,6 @@ export function requestAuthService(): AuthService {
     profileChanged: (userId) => notifyAccountProfileChanged(bindings, userId, schedule),
     analytics,
     attribution: new AccountAttribution({ database: bindings.DB, analytics }),
-    referrals: new Referrals({ database: bindings.DB }),
   });
 }
 
@@ -149,10 +147,6 @@ export function requestHostedSiteService(): HostedSiteService {
     bindings.SITE_REPORT_HASH_SECRET,
     bindings.SITE_LOCAL_ORIGIN,
   );
-}
-
-export function requestReferrals(): Referrals {
-  return new Referrals({ database: requireWorkerBindings(env).DB });
 }
 
 export function requestCreditMedia(): CreditMediaService {

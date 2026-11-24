@@ -56,7 +56,6 @@ export type GitHubConnectorDesktopApi = GroupApi<IpcEndpoints["githubConnector"]
 export type LinkAccountDesktopApi = GroupApi<IpcEndpoints["linkAccount"]>;
 export type OnePasswordConnectorDesktopApi = GroupApi<IpcEndpoints["onePasswordConnector"]>;
 export type BillingDesktopApi = GroupApi<IpcEndpoints["billing"]>;
-export type ReferralDesktopApi = GroupApi<IpcEndpoints["referral"]>;
 export type CreditsDesktopApi = GroupApi<IpcEndpoints["credits"]>;
 export type LicenseDesktopApi = GroupApi<IpcEndpoints["license"]>;
 export type RoutineFeedDesktopApi = GroupApi<IpcEndpoints["routineFeed"]>;

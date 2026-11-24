@@ -80,11 +80,7 @@ export async function startEmailSignIn(email: string, idempotencyKey: string): P
   };
 }
 
-export async function verifyEmailCode(
-  challengeId: string,
-  code: string,
-  referralCode: string | undefined,
-): Promise<ExtensionSession> {
+export async function verifyEmailCode(challengeId: string, code: string): Promise<ExtensionSession> {
   const { response, body } = await accountRequest("/v1/mobile-auth/email/verify", {
     method: "POST",
     body: {
@@ -93,7 +89,6 @@ export async function verifyEmailCode(
       deviceId: await deviceId(),
       deviceName: DEVICE_NAME,
       platform: "unknown",
-      ...(referralCode ? { referralCode } : {}),
     },
   });
   if (!response.ok) throw new SignInIssue(issueFrom(response, body));

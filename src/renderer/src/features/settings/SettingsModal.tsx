@@ -13,7 +13,6 @@ import type {
   MobileConnectedDevice,
   MobileConnectLink,
   MobileConnectTicket,
-  ReferralDesktopApi,
   RemoteNetworkRoute,
   RemoteNetworkRouteState,
   ServerNotificationLevel,
@@ -37,8 +36,6 @@ import { createLicenseStore } from "@openbot/ui/features/billing/license-store";
 import { CreditActivitySection } from "@openbot/ui/features/credits/CreditActivitySection";
 import { CreditsSection } from "@openbot/ui/features/credits/CreditsSection";
 import { createCreditsStore } from "@openbot/ui/features/credits/credits-store";
-import { ReferralPanel } from "@openbot/ui/features/referral/ReferralPanel";
-import { createReferralStore } from "@openbot/ui/features/referral/referral-store";
 import type { GeneralSettingsValue } from "@openbot/ui/features/settings/app-settings";
 import {
   SettingsDialogShell,
@@ -110,7 +107,6 @@ export interface SettingsModalProps {
   onSignOut?: (() => Promise<void>) | undefined;
   processAvatarFile?: (file: File) => Promise<AvatarImageInput>;
   billingApi?: BillingDesktopApi;
-  referralApi?: ReferralDesktopApi | undefined;
   licenseApi?: LicenseDesktopApi | undefined;
   creditsApi?: CreditsDesktopApi | undefined;
   onCreditsChange?: ((credits: CreditsState) => void) | undefined;
@@ -148,10 +144,6 @@ export function SettingsModal(props: SettingsModalProps) {
   const billing = createBillingStore(
     () => props.billingApi,
     () => props.open && activeTab() === "billing",
-  );
-  const referral = createReferralStore(
-    () => props.referralApi,
-    () => props.open && activeTab() === "referral",
   );
   const license = createLicenseStore(
     () => props.licenseApi,
@@ -221,7 +213,6 @@ export function SettingsModal(props: SettingsModalProps) {
         value === "computer-use" ||
         value === "profile" ||
         value === "billing" ||
-        value === "referral" ||
         value === "mobile-connect" ||
         value === "updates"
       ) {
@@ -442,10 +433,6 @@ export function SettingsModal(props: SettingsModalProps) {
               </Show>
             }
           />
-        </Tabs.Content>
-
-        <Tabs.Content value="referral" class="settings-modal-tab-panel" data-tab="referral">
-          <ReferralPanel store={referral} available={props.referralApi !== undefined} />
         </Tabs.Content>
 
         <Tabs.Content value="mobile-connect" class="settings-modal-tab-panel" data-tab="mobile-connect">

@@ -6,17 +6,15 @@ import {
   normalizeAccountIdentity,
   phoneFromIdentityEmail,
 } from "@openbot/contracts/phone-identity";
-import { referralCodeFromInput } from "@openbot/contracts/referral";
 import { normalizeOneTimeCode } from "@openbot/contracts/validation";
 import type { TranslatedLocale } from "@openbot/i18n";
 import { appLanguageOption } from "@openbot/i18n/languages";
-import { ArrowLeft, Button, Confetti, ErrorReference, Globe2, Input, Lock, RefreshCw } from "@openbot/ui";
+import { ArrowLeft, Button, ErrorReference, Globe2, Input, Lock, RefreshCw } from "@openbot/ui";
 import { errorReference, type UserErrorDetails } from "@openbot/user-errors";
 import type { JSX } from "@solidjs/web";
-import { createEffect, createMemo, createSignal, For, onCleanup, Show, untrack } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, Show, untrack } from "solid-js";
 import { QrCode } from "../../qr-code";
 import { useText } from "../../text";
-import { InviteCorner } from "./InviteCorner";
 import { OtpInput, type OtpInputStatus } from "./OtpInput";
 
 interface AccountLoginProps {
@@ -24,7 +22,7 @@ interface AccountLoginProps {
   state: CentralAuthState;
   onRetry: () => Promise<void>;
   onRequestEmailCode: (email: string) => Promise<void>;
-  onVerifyEmailCode: (challengeId: string, code: string, referralCode?: string) => Promise<void>;
+  onVerifyEmailCode: (challengeId: string, code: string) => Promise<void>;
   onReset: () => Promise<void>;
   /** Opens the WhatsApp link of a reverse sign-in. Without it, only the QR code is shown. */
   onOpenWhatsApp?: (url: string) => void;
@@ -32,8 +30,6 @@ interface AccountLoginProps {
   notice?: JSX.Element;
   language?: TranslatedLocale;
   onChangeLanguage?: () => void;
-  inviteField?: boolean;
-  initialInviteCode?: string | undefined;
   revealed?: boolean;
 }
 
@@ -62,13 +58,6 @@ export function AccountLogin(props: AccountLoginProps) {
   const { t, sourceText } = useText();
   const [email, setEmail] = createSignal("");
   const [code, setCode] = createSignal("");
-  const [inviteCode, setInviteCode] = createSignal(
-    untrack(() => (props.initialInviteCode ? referralCodeFromInput(props.initialInviteCode) : null)),
-  );
-  let sentInviteCode: string | undefined;
-  const [bursts, setBursts] = createSignal<{ origin: Element | undefined }[]>([]);
-  let burstTimer: number | undefined;
-  let screen: HTMLElement | undefined;
   const [presentedEmailError, setPresentedEmailError] = createSignal<string | null>(null);
   const [emailErrorActive, setEmailErrorActive] = createSignal(false);
   const [emailShaking, setEmailShaking] = createSignal(false);
@@ -85,23 +74,6 @@ export function AccountLogin(props: AccountLoginProps) {
   let emailMessageTimer: number | undefined;
 
   onCleanup(clearEmailErrorTimers);
-  onCleanup(() => window.clearTimeout(burstTimer));
-
-  let linkCelebrated = !untrack(() => props.inviteField && inviteCode());
-  createEffect(
-    () => props.revealed ?? true,
-    (revealed) => {
-      if (!revealed || linkCelebrated) return;
-      linkCelebrated = true;
-      celebrate(screen?.querySelector(".account-login-logo") ?? undefined);
-    },
-  );
-
-  function celebrate(origin: Element | undefined): void {
-    setBursts([{ origin }]);
-    window.clearTimeout(burstTimer);
-    burstTimer = window.setTimeout(() => setBursts([]), 2_400);
-  }
 
   const countdownUntil = createMemo(() => {
     const resendAt = props.state.status === "code_sent" ? props.state.resendAvailableAt : 0;
@@ -319,7 +291,6 @@ export function AccountLogin(props: AccountLoginProps) {
     }
     const normalizedEmail = phoneIdentity(email());
     if (!normalizedEmail) return;
-    sentInviteCode = props.inviteField ? (inviteCode() ?? undefined) : undefined;
     const action: PendingAction = emailDeliveryUncertain() ? "check" : "send";
     setEmail(formatAccountIdentity(normalizedEmail));
     setIssueVisible(false);
@@ -346,7 +317,7 @@ export function AccountLogin(props: AccountLoginProps) {
     setLocalError(null);
     setPendingAction("verify");
     try {
-      await props.onVerifyEmailCode(props.state.challengeId, formatCode(normalizedCode), sentInviteCode);
+      await props.onVerifyEmailCode(props.state.challengeId, formatCode(normalizedCode));
     } catch (error) {
       showActionError(error, t("account.login.verifyFailed"), true);
     } finally {
@@ -398,7 +369,7 @@ export function AccountLogin(props: AccountLoginProps) {
   }
 
   return (
-    <main class="account-login-screen" ref={screen}>
+    <main class="account-login-screen">
       <div class="account-login-shell">
         <header class="account-login-brand-lockup">
           <AppLogo variant={props.variant} animation="blink" interactive class="account-login-logo" />
@@ -722,11 +693,7 @@ export function AccountLogin(props: AccountLoginProps) {
         )}
       </Show>
       <footer class="account-login-page-footer" data-shown={emailFormShown() ? "true" : undefined}>
-        <div class="account-login-page-footer-start">
-          <Show when={props.inviteField}>
-            <InviteCorner code={inviteCode()} onChange={setInviteCode} onAdded={celebrate} />
-          </Show>
-        </div>
+        <div class="account-login-page-footer-start" />
         <div class="account-login-legal">
           <p class="account-login-local-data">
             <Lock size={13} aria-hidden="true" />
@@ -735,7 +702,6 @@ export function AccountLogin(props: AccountLoginProps) {
           {props.notice}
         </div>
       </footer>
-      <For each={bursts()}>{(burst) => <Confetti origin={burst.origin} />}</For>
     </main>
   );
 }

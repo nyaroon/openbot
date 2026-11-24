@@ -16,7 +16,6 @@ import {
   parseLicenseUsersRequest,
 } from "@openbot/contracts/license";
 import { parsePromotionCode } from "@openbot/contracts/promotion-code";
-import { isReferralCode } from "@openbot/contracts/referral";
 import { type DynamicRecord, isBoolean, isNumber, isString } from "@openbot/contracts/runtime-values";
 import { sourceText } from "@openbot/i18n/source";
 import { Cause, Effect } from "effect";
@@ -25,7 +24,6 @@ import { type AuthService, AuthServiceError, readAnalyticsAnswer, readChatColor 
 import { AvatarUploadError, readAvatarUpload, removeAccountAvatar, storeAccountAvatar } from "./avatar-storage";
 import { BILLING_UNAVAILABLE_STATE, BillingError, type BillingService } from "./billing-service";
 import { withSuggestedCountry } from "./billing-tax";
-import { inviteLinkOrigin } from "./canonical-redirect";
 import { sha256 } from "./crypto";
 import type { CustomServerOffers } from "./custom-server-offers";
 import { runApiResponse } from "./effect-runtime";
@@ -36,7 +34,6 @@ import { HostedSiteInputError, requireIdempotencyKey } from "./hosted-site-contr
 import type { HostedSiteService } from "./hosted-site-service";
 import { readJsonObject } from "./json-body";
 import { startOwnerTransfer } from "./owner-transfer";
-import { type Referrals, referralPageQuery, referralState } from "./referrals";
 import { type RemoteControlPlane, RemoteControlPlaneError } from "./remote-control-plane";
 import { sendTeamInviteEmail } from "./team-invite-email";
 import type { AuthUser, OwnerTransferEmailDelivery, TeamInviteEmailDelivery } from "./types";
@@ -97,16 +94,8 @@ export interface BrowserApiServices {
   attribution: () => Pick<AccountAttribution, "recordCheckout">;
   billing: () => Pick<
     BillingService,
-    | "getState"
-    | "createPortal"
-    | "buyStorage"
-    | "getBillingDetails"
-    | "setBillingDetails"
-    | "license"
-    | "credits"
-    | "referralCredit"
+    "getState" | "createPortal" | "buyStorage" | "getBillingDetails" | "setBillingDetails" | "license" | "credits"
   > | null;
-  referrals: () => Pick<Referrals, "page">;
   avatarBucket: () => R2Bucket;
   hostedSites: () => Pick<HostedSiteService, "list" | "delete">;
   sourceIp: (request: Request) => string;
@@ -211,7 +200,6 @@ const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function*
       sourceIp: services.sourceIp(request),
       surface: "web",
       firstTouch: requestFirstTouch(body.firstTouch),
-      referralCode: isReferralCode(body.referralCode) ? body.referralCode : null,
     });
     const previous = browserSessionToken(request);
     if (previous) {
@@ -375,19 +363,6 @@ const handleAccount = Effect.fn("BrowserApi.handleAccount")(function* (
     return yield* handleBilling(request, path, user, services);
   if (path === "v1/me/credits" || path.startsWith("v1/me/credits/"))
     return yield* handleCredits(request, path, user, services);
-  if (path === "v1/me/referrals" && request.method === "GET") {
-    const url = new URL(request.url);
-    const billing = services.billing();
-    return json(
-      yield* referralState(
-        services.referrals(),
-        billing ? (userId) => billing.referralCredit(userId) : null,
-        user.id,
-        referralPageQuery(url),
-        inviteLinkOrigin(url),
-      ).pipe(refuseWith(BillingError)),
-    );
-  }
   const [, sessionId] = /^v1\/me\/sessions\/([^/]+)$/u.exec(path) ?? [];
   if (sessionId !== undefined && request.method === "DELETE") {
     yield* services.auth.revokeAccountSession(token, sessionId);

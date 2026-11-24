@@ -5,7 +5,6 @@ import { ADA, CLAUDE_CODE, type LandingFeatureId, type LandingTeamsOfferId, LINU
 import type { LandingQuestion } from "./landing-faq";
 import { OPENBOT_LINKS } from "./landing-links";
 import type { MobilePlatform } from "./mobile-apps";
-import { referralPageText } from "./referral-page-text";
 import { slot, slotted } from "./text-slots";
 
 export interface HeroProviderPart {
@@ -297,7 +296,6 @@ export function landingPageText(t: AppTranslate) {
       apk: t("sitePage.landing.download.apk"),
       intelMac: t("sitePage.marketplace.downloadFor", { platform: "Intel Mac" }),
     },
-    referral: referralPageText(t),
   };
 }
 

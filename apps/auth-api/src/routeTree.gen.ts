@@ -145,7 +145,6 @@ import { Route as V1MeAnalyticsRouteImport } from './routes/v1/me/analytics'
 import { Route as V1MeAvatarRouteImport } from './routes/v1/me/avatar'
 import { Route as V1MeChatColorRouteImport } from './routes/v1/me/chat-color'
 import { Route as V1MeProfileRouteImport } from './routes/v1/me/profile'
-import { Route as V1MeReferralsRouteImport } from './routes/v1/me/referrals'
 import { Route as V1MediaBalanceRouteImport } from './routes/v1/media/balance'
 import { Route as V1MediaModelsRouteImport } from './routes/v1/media/models'
 import { Route as V1MobileAuthDevicesRouteImport } from './routes/v1/mobile-auth/devices'
@@ -964,11 +963,6 @@ const V1MeChatColorRoute = V1MeChatColorRouteImport.update({
 const V1MeProfileRoute = V1MeProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => V1MeRoute,
-} as any)
-const V1MeReferralsRoute = V1MeReferralsRouteImport.update({
-  id: '/referrals',
-  path: '/referrals',
   getParentRoute: () => V1MeRoute,
 } as any)
 const V1MediaBalanceRoute = V1MediaBalanceRouteImport.update({
@@ -1856,7 +1850,6 @@ export interface FileRoutesByFullPath {
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
   '/v1/me/profile': typeof V1MeProfileRoute
-  '/v1/me/referrals': typeof V1MeReferralsRoute
   '/v1/media/balance': typeof V1MediaBalanceRoute
   '/v1/media/models': typeof V1MediaModelsRoute
   '/v1/mobile-auth/devices': typeof V1MobileAuthDevicesRouteWithChildren
@@ -2128,7 +2121,6 @@ export interface FileRoutesByTo {
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
   '/v1/me/profile': typeof V1MeProfileRoute
-  '/v1/me/referrals': typeof V1MeReferralsRoute
   '/v1/media/balance': typeof V1MediaBalanceRoute
   '/v1/media/models': typeof V1MediaModelsRoute
   '/v1/mobile-auth/devices': typeof V1MobileAuthDevicesRouteWithChildren
@@ -2405,7 +2397,6 @@ export interface FileRoutesById {
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
   '/v1/me/profile': typeof V1MeProfileRoute
-  '/v1/me/referrals': typeof V1MeReferralsRoute
   '/v1/media/balance': typeof V1MediaBalanceRoute
   '/v1/media/models': typeof V1MediaModelsRoute
   '/v1/mobile-auth/devices': typeof V1MobileAuthDevicesRouteWithChildren
@@ -2679,7 +2670,6 @@ export interface FileRouteTypes {
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
     | '/v1/me/profile'
-    | '/v1/me/referrals'
     | '/v1/media/balance'
     | '/v1/media/models'
     | '/v1/mobile-auth/devices'
@@ -2951,7 +2941,6 @@ export interface FileRouteTypes {
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
     | '/v1/me/profile'
-    | '/v1/me/referrals'
     | '/v1/media/balance'
     | '/v1/media/models'
     | '/v1/mobile-auth/devices'
@@ -3227,7 +3216,6 @@ export interface FileRouteTypes {
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
     | '/v1/me/profile'
-    | '/v1/me/referrals'
     | '/v1/media/balance'
     | '/v1/media/models'
     | '/v1/mobile-auth/devices'
@@ -4505,13 +4493,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1MeProfileRouteImport
       parentRoute: typeof V1MeRoute
     }
-    '/v1/me/referrals': {
-      id: '/v1/me/referrals'
-      path: '/referrals'
-      fullPath: '/v1/me/referrals'
-      preLoaderRoute: typeof V1MeReferralsRouteImport
-      parentRoute: typeof V1MeRoute
-    }
     '/v1/media/balance': {
       id: '/v1/media/balance'
       path: '/v1/media/balance'
@@ -5647,7 +5628,6 @@ interface V1MeRouteChildren {
   V1MeAvatarRoute: typeof V1MeAvatarRoute
   V1MeChatColorRoute: typeof V1MeChatColorRoute
   V1MeProfileRoute: typeof V1MeProfileRoute
-  V1MeReferralsRoute: typeof V1MeReferralsRoute
   V1MeBillingDetailsRoute: typeof V1MeBillingDetailsRoute
   V1MeBillingPortalRoute: typeof V1MeBillingPortalRoute
   V1MeBillingStorageRoute: typeof V1MeBillingStorageRoute
@@ -5668,7 +5648,6 @@ const V1MeRouteChildren: V1MeRouteChildren = {
   V1MeAvatarRoute: V1MeAvatarRoute,
   V1MeChatColorRoute: V1MeChatColorRoute,
   V1MeProfileRoute: V1MeProfileRoute,
-  V1MeReferralsRoute: V1MeReferralsRoute,
   V1MeBillingDetailsRoute: V1MeBillingDetailsRoute,
   V1MeBillingPortalRoute: V1MeBillingPortalRoute,
   V1MeBillingStorageRoute: V1MeBillingStorageRoute,

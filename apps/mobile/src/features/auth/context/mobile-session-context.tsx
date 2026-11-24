@@ -81,7 +81,6 @@ export function MobileSessionProvider({ children }: PropsWithChildren) {
       queryClient.removeQueries({ queryKey: queryKeys.billing() });
       queryClient.removeQueries({ queryKey: queryKeys.credits() });
       queryClient.removeQueries({ queryKey: queryKeys.creditActivity() });
-      queryClient.removeQueries({ queryKey: queryKeys.referrals() });
       deleteComposerDrafts();
       deleteSideQuestions();
     }
