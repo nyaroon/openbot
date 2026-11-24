@@ -75,10 +75,10 @@ export function EmailField({
           placeholder={placeholder}
           placeholderTextColor={colors.muted}
           accessibilityLabel={label}
-          keyboardType={email ? "email-address" : "url"}
+          keyboardType={email ? "phone-pad" : "url"}
           autoCapitalize="none"
-          autoComplete={email ? "email" : "off"}
-          textContentType={email ? "emailAddress" : "none"}
+          autoComplete={email ? "tel" : "off"}
+          textContentType={email ? "telephoneNumber" : "none"}
           autoCorrect={false}
           spellCheck={false}
           returnKeyType="send"

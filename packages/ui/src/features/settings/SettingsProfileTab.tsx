@@ -1,4 +1,5 @@
 import type { AccountSession, CentralAuthUser, ClientAgentSummary, HostAnalytics } from "@openbot/contracts/ipc";
+import { formatAccountIdentity } from "@openbot/contracts/phone-identity";
 import { type ProfileStats, profileStats } from "@openbot/team-client/profile-stats";
 import {
   Badge,
@@ -59,7 +60,8 @@ export function SettingsProfileTab(props: SettingsProfileTabProps) {
   const [disconnectTarget, setDisconnectTarget] = createSignal<string | null>(null);
   const [editing, setEditing] = createSignal(false);
   const [sharing, setSharing] = createSignal(false);
-  const accountName = () => props.account.name?.trim() || props.account.email.split("@")[0] || props.account.email;
+  const accountName = () =>
+    props.account.name?.trim() || formatAccountIdentity(props.account.email).split("@")[0] || props.account.email;
   const stats = createMemo(() => {
     const activity = props.activity;
     return activity?.report ? profileStats(activity.report, activity.agents) : null;
@@ -139,7 +141,7 @@ export function SettingsProfileTab(props: SettingsProfileTabProps) {
             </ItemContent>
             <ItemActions>
               <Text as="span" class="settings-modal-readonly-value" variant="body">
-                {props.account.email}
+                {formatAccountIdentity(props.account.email)}
               </Text>
               <Show when={props.onSignOut}>
                 {(onSignOut) => (

@@ -516,7 +516,7 @@ export const messages = {
   "settings.profile.teammates.title": "Meest actieve teamgenoten",
   "settings.profile.models.title": "Modelgebruik",
   "settings.profile.account.title": "Account",
-  "settings.profile.email.title": "E-mail",
+  "settings.profile.email.title": "WhatsApp-nummer",
   "settings.profile.email.description": "Gebruikt om in te loggen bij OpenBot.",
   "settings.profile.sessions.title": "Accountsessies",
   "settings.profile.sessions.description":

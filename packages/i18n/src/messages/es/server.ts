@@ -525,15 +525,15 @@ export const messages = {
   "server.members.makeMemberTitle": "¿Convertir a {name} en miembro?",
   "server.members.roleChangeDescription":
     "{name} puede quedar desconectado de este servidor y tendrá que conectarse de nuevo.",
-  "server.invite.invalidEmail": "Introduce una dirección de correo electrónico válida.",
+  "server.invite.invalidEmail": "Introduce un número de WhatsApp válido con el código de país.",
   "server.invite.title": "Invitar personas",
   "server.invite.description":
     "Las invitaciones de un solo uso caducan después de 24 horas. Un enlace permanente nunca caduca y funciona para cualquiera que lo tenga.",
   "server.invite.method": "Método de invitación",
-  "server.invite.email": "Correo",
+  "server.invite.email": "WhatsApp",
   "server.invite.link": "Enlace",
   "server.invite.permaLink": "Enlace fijo",
-  "server.invite.emailAddress": "Dirección de correo electrónico",
+  "server.invite.emailAddress": "Número de WhatsApp",
   "server.invite.linkLabel": "Enlace de invitación",
   "server.invite.linkPlaceholder": "Crea un enlace privado de un solo uso.",
   "server.invite.permanentLink": "Enlace de invitación permanente",

@@ -511,7 +511,7 @@ export const messages = {
   "settings.profile.teammates.title": "En etkin ekip arkadaşları",
   "settings.profile.models.title": "Model kullanımı",
   "settings.profile.account.title": "Hesap",
-  "settings.profile.email.title": "E-posta",
+  "settings.profile.email.title": "WhatsApp numarası",
   "settings.profile.email.description": "OpenBot'ta oturum açmak için kullanılır.",
   "settings.profile.sessions.title": "Hesap oturumları",
   "settings.profile.sessions.description":

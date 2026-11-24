@@ -163,6 +163,7 @@ import {
   type MarketplaceListingLink,
 } from "@openbot/contracts/marketplace-links";
 import { decodeOwnerTransfer, type OwnerTransfer } from "@openbot/contracts/owner-transfer";
+import { readWhatsAppSignIn, type WhatsAppSignIn } from "@openbot/contracts/phone-identity";
 import { isPluginSlug } from "@openbot/contracts/plugin-links";
 import { parseReferralState, type ReferralState } from "@openbot/contracts/referral";
 import {
@@ -347,6 +348,7 @@ export function decodeCentralAuthState(value: unknown): CentralAuthState {
         expiresAt: requiredNumber(state, "expiresAt"),
         resendAvailableAt: requiredNumber(state, "resendAvailableAt"),
         ...(developmentCode === undefined ? {} : { developmentCode }),
+        ...whatsAppSignInField(state.whatsapp),
         ...(issue === undefined ? {} : { issue: decodeCentralAuthIssue(issue) }),
       };
     }
@@ -912,4 +914,9 @@ export function decodeBitwardenConnectorStatus(value: unknown): BitwardenConnect
   )
     throw new Error("Invalid Bitwarden connector response.");
   return { connected: value.connected, connecting: value.connecting, serverUrl: value.serverUrl, error: value.error };
+}
+
+function whatsAppSignInField(value: unknown): { whatsapp?: WhatsAppSignIn } {
+  const whatsapp = readWhatsAppSignIn(value);
+  return whatsapp ? { whatsapp } : {};
 }

@@ -504,7 +504,7 @@ export const messages = defineMessages("settings", {
   "settings.profile.teammates.title": "Most active teammates",
   "settings.profile.models.title": "Model usage",
   "settings.profile.account.title": "Account",
-  "settings.profile.email.title": "Email",
+  "settings.profile.email.title": "WhatsApp number",
   "settings.profile.email.description": "Used to sign in to OpenBot.",
   "settings.profile.sessions.title": "Account sessions",
   "settings.profile.sessions.description":

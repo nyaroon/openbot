@@ -1756,6 +1756,7 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
         expiresAt: result.expiresAt,
         resendAvailableAt: result.resendAt ?? Math.min(result.expiresAt, Date.now() + RESEND_FALLBACK_DELAY_MS),
         ...(result.developmentCode ? { developmentCode: result.developmentCode } : {}),
+        ...(result.whatsapp ? { whatsapp: result.whatsapp } : {}),
       });
     })
       .pipe(

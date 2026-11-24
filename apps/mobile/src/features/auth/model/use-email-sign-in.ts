@@ -1,3 +1,4 @@
+import { normalizeAccountIdentity, phoneFromIdentityEmail } from "@openbot/contracts/phone-identity";
 import { referralCodeFromInput } from "@openbot/contracts/referral";
 import { normalizeEmailAddress } from "@openbot/contracts/validation";
 import { classifyFailure } from "@openbot/telemetry";
@@ -96,7 +97,7 @@ export function useEmailSignIn({
   async function requestCode(kind: "send" | "resend") {
     if (pending) return;
     if (kind === "send" && retryIn > 0) return;
-    const address = normalizeEmailAddress(email);
+    const address = phoneIdentity(email);
     if (!address) {
       setEmailIssue({ message: t("mobile.auth.email.error.invalidEmail"), code: "invalid_email" });
       reject();
@@ -312,3 +313,9 @@ export function useEmailSignIn({
 }
 
 export type EmailSignIn = ReturnType<typeof useEmailSignIn>;
+
+/** The phone identity for a typed WhatsApp number, or null when it is not a phone number. */
+function phoneIdentity(value: string): string | null {
+  const identity = normalizeAccountIdentity(value);
+  return identity && phoneFromIdentityEmail(identity) ? identity : null;
+}

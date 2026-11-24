@@ -510,7 +510,7 @@ export const messages = {
   "settings.profile.teammates.title": "最も活発なチームメイト",
   "settings.profile.models.title": "モデルの使用量",
   "settings.profile.account.title": "アカウント",
-  "settings.profile.email.title": "メールアドレス",
+  "settings.profile.email.title": "WhatsApp 番号",
   "settings.profile.email.description": "OpenBot へのサインインに使います。",
   "settings.profile.sessions.title": "アカウントのセッション",
   "settings.profile.sessions.description":

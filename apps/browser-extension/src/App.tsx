@@ -97,6 +97,7 @@ export function App() {
         expiresAt: challenge.expiresAt,
         resendAvailableAt: challenge.resendAt,
         ...(challenge.developmentCode ? { developmentCode: challenge.developmentCode } : {}),
+        ...(challenge.whatsapp ? { whatsapp: challenge.whatsapp } : {}),
       });
     } catch (error) {
       showIssue(error);

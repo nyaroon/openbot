@@ -306,11 +306,11 @@ export const messages = {
   "mobile.server.members.remove": "Mitglied entfernen",
   "mobile.server.members.invitePeople": "Personen einladen",
   "mobile.server.members.inviteLink": "Einladungslink",
-  "mobile.server.members.email": "E-Mail",
+  "mobile.server.members.email": "WhatsApp",
   "mobile.server.members.permanentLink": "Dauerhafter Link",
   "mobile.server.members.inviteWith": "Einladen per",
   "mobile.server.members.role": "Rolle",
-  "mobile.server.members.invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
+  "mobile.server.members.invalidEmail": "Gib eine gültige WhatsApp-Nummer mit Ländervorwahl ein.",
   "mobile.server.members.send": "Einladung senden",
   "mobile.server.members.create": "Einladungslink erstellen",
   "mobile.server.members.permanentLimit":

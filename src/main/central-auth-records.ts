@@ -8,6 +8,7 @@ import {
   type MobileConnectedDevice,
 } from "@openbot/contracts/ipc";
 import { decodeRecord, requiredString } from "@openbot/contracts/ipc-decoding";
+import { readWhatsAppSignIn, type WhatsAppSignIn } from "@openbot/contracts/phone-identity";
 import { type DynamicRecord, isBoolean, isNumber, isString } from "@openbot/contracts/runtime-values";
 import {
   optionalServerAppearanceField,
@@ -305,11 +306,13 @@ export function decodeEmailChallenge(value: unknown): {
   expiresAt: number;
   resendAt?: number;
   developmentCode?: string;
+  whatsapp?: WhatsAppSignIn;
 } {
   const record = decodeRecord(value, "email challenge");
   if (!isNumber(record.expiresAt)) throw new Error("Invalid email challenge expiration.");
   const developmentCode = record.developmentCode;
   const resendAt = record.resendAt;
+  const whatsapp = readWhatsAppSignIn(record.whatsapp);
   if (developmentCode !== undefined && !isString(developmentCode)) {
     throw new Error("Invalid development code.");
   }
@@ -319,6 +322,7 @@ export function decodeEmailChallenge(value: unknown): {
     expiresAt: record.expiresAt,
     ...(resendAt === undefined ? {} : { resendAt }),
     ...(developmentCode === undefined ? {} : { developmentCode }),
+    ...(whatsapp ? { whatsapp } : {}),
   };
 }
 

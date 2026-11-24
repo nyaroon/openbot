@@ -4,6 +4,7 @@ import type { AgentModelId, AvatarColor } from "./ipc-agent-identity";
 import type { AgentProviderId } from "./ipc-agent-status";
 import { integerInRange, isFiniteNumber, isIdentifier } from "./ipc-bounded-values";
 import { decodeRecord, nullableNumber, requiredBoolean, requiredNumber, requiredString } from "./ipc-decoding";
+import type { WhatsAppSignIn } from "./phone-identity";
 import { isDynamicRecord, isString } from "./runtime-values";
 
 export type DesktopPlatform = "darwin" | "win32" | "linux";
@@ -207,6 +208,7 @@ export type CentralAuthState =
       expiresAt: number;
       resendAvailableAt: number;
       developmentCode?: string;
+      whatsapp?: WhatsAppSignIn;
       issue?: CentralAuthIssue | undefined;
     }
   | { status: "company_sign_in"; email: string; issue?: CentralAuthIssue | undefined }

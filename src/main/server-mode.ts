@@ -310,7 +310,12 @@ export class ServerMode {
     if (state.status === "code_sent" && !state.issue) {
       return {
         status: 200,
-        lines: { challenge: state.challengeId, expires_at: state.expiresAt, resend_at: state.resendAvailableAt },
+        lines: {
+          challenge: state.challengeId,
+          expires_at: state.expiresAt,
+          resend_at: state.resendAvailableAt,
+          ...(state.whatsapp ? { whatsapp_url: state.whatsapp.url, whatsapp_code: state.whatsapp.code } : {}),
+        },
       };
     }
     if (state.status === "company_sign_in") {

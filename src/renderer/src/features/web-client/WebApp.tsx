@@ -9,6 +9,7 @@ import {
   WEB_APP_MARKETPLACE_AGENT_PARAM,
   WEB_APP_MARKETPLACE_SKILL_PARAM,
 } from "@openbot/contracts/marketplace-links";
+import { readWhatsAppSignIn } from "@openbot/contracts/phone-identity";
 import { pluginSlugFromWebAppSearch, WEB_APP_PLUGIN_PARAM } from "@openbot/contracts/plugin-links";
 import { forgetReferralCode, readReferralCode } from "@openbot/contracts/referral";
 import { isBoolean, isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
@@ -475,6 +476,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       throw new Error(text.t("webClient.login.responseInvalid"));
     const challengeId = value.challengeId;
     const resendAt = value.resendAt;
+    const whatsapp = readWhatsAppSignIn(value.whatsapp);
     setState((draft) => {
       draft.resendAt = resendAt;
       draft.login = {
@@ -484,6 +486,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
         expiresAt: typeof value.expiresAt === "number" ? value.expiresAt : Date.now() + 600000,
         resendAvailableAt: resendAt,
         ...(isString(value.developmentCode) ? { developmentCode: value.developmentCode } : {}),
+        ...(whatsapp ? { whatsapp } : {}),
       };
     });
   }
@@ -607,6 +610,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
                     onRetry={checkSession}
                     onRequestEmailCode={start}
                     onVerifyEmailCode={verify}
+                    onOpenWhatsApp={(url) => window.open(url, "_blank", "noopener,noreferrer")}
                     inviteField
                     initialInviteCode={readReferralCode(() => window.localStorage, Date.now()) ?? undefined}
                     revealed={!loadingShown()}

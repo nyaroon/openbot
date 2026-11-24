@@ -156,6 +156,27 @@ export class D1AuthRepository implements AuthRepository {
     (operation) => operation.pipe(Effect.provide(this.#layer)),
   ).bind(this);
 
+  readonly confirmEmailChallengeByCode = Effect.fn("D1AuthRepository.confirmEmailChallengeByCode")(
+    function* (
+      this: D1AuthRepository,
+      input: { email: string; codeHash: string; now: number },
+    ): Effect.fn.Return<boolean, AuthStoreError, AuthDatabase> {
+      const database = yield* AuthDatabase;
+      const result = yield* storeCall(() =>
+        database
+          .prepare(
+            `UPDATE email_login_challenges SET delivery_state = 'sent'
+         WHERE email = ? AND code_hash = ? AND delivery_state = 'pending' AND consumed_at IS NULL
+           AND expires_at > ? AND failed_attempts < max_attempts`,
+          )
+          .bind(input.email, input.codeHash, input.now)
+          .run(),
+      );
+      return result.meta.changes > 0;
+    },
+    (operation) => operation.pipe(Effect.provide(this.#layer)),
+  ).bind(this);
+
   readonly completeEmailChallengeDelivery = Effect.fn("D1AuthRepository.completeEmailChallengeDelivery")(
     function* (
       this: D1AuthRepository,

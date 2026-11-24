@@ -1,10 +1,14 @@
 import type { FirstTouch } from "@openbot/contracts/first-touch";
 import { type AvatarColor, isAvatarColor } from "@openbot/contracts/ipc";
 import type { MobileConnectHostBinding } from "@openbot/contracts/mobile-connect";
+import {
+  normalizeAccountIdentity,
+  phoneFromIdentityEmail,
+  phoneIdentityEmail,
+} from "@openbot/contracts/phone-identity";
 import { type DynamicRecord, isBoolean, isNumber, isString } from "@openbot/contracts/runtime-values";
 import {
   isUuidV4,
-  normalizeEmailAddress,
   normalizeOneTimeCode as normalizeSharedOneTimeCode,
   ONE_TIME_CODE_ALPHABET,
   ONE_TIME_CODE_LENGTH,
@@ -15,6 +19,7 @@ import { type AccountAnalytics, type AccountSurface, NO_ACCOUNT_ANALYTICS } from
 import type { AccountAttribution } from "./account-attribution";
 import { randomToken, sha256 } from "./crypto";
 import type { AuthStoreError } from "./d1-auth-repository";
+import { type IncomingWhatsAppMessage, reverseSignInUrl, signInCodesInText } from "./kirimi-delivery";
 import type { Referrals } from "./referrals";
 import type { RemoteFailure } from "./remote-control-plane";
 import { PERSISTENT_SESSION_EXPIRES_AT } from "./session-policy";
@@ -61,7 +66,14 @@ export interface EmailSignInStart {
   expiresAt: number;
   resendAt: number;
   developmentCode?: string;
+  /**
+   * Reverse sign-in: the person sends `code` from their own WhatsApp by opening `url`. The challenge
+   * can be verified with this code only after that message arrived.
+   */
+  whatsapp?: { url: string; code: string };
 }
+
+export type WhatsAppSignInState = "waiting" | "confirmed" | "expired";
 
 type AuthWorkflowFailure =
   | AuthServiceError
@@ -144,6 +156,9 @@ export class AuthService {
         );
       }
       const email = yield* authValidate(() => normalizeEmail(emailInput));
+      if (dependencies.delivery?.phoneOnly && !phoneFromIdentityEmail(email)) {
+        return yield* new AuthServiceError(400, "invalid_email", "Enter a valid WhatsApp number.");
+      }
       if (yield* dependencies.usesCompanySignIn(email)) {
         return yield* new AuthServiceError(
           409,
@@ -185,9 +200,13 @@ export class AuthService {
         );
       }
 
-      const code = dependencies.exposeDevelopmentCode
-        ? yield* developmentOneTimeCode(challengeId)
-        : generateOneTimeCode();
+      const reverse = dependencies.delivery?.reverse;
+      // A reverse code is derived from the request identifier, so a repeated request shows the same link.
+      const code = reverse
+        ? yield* derivedOneTimeCode("reverse-code", challengeId)
+        : dependencies.exposeDevelopmentCode
+          ? yield* developmentOneTimeCode(challengeId)
+          : generateOneTimeCode();
       const expiresAt = now + CHALLENGE_TTL_MS;
       const codeHash = yield* sha256(normalizeOneTimeCode(code));
       const sourceIpHash = yield* sha256(normalizeSourceIp(sourceIp));
@@ -204,6 +223,15 @@ export class AuthService {
         const existing = yield* dependencies.repository.findEmailChallenge(challengeHash);
         if (!existing) return yield* new AuthOperationError({ message: "Account operation failed." });
         return yield* this.#replayEmailSignIn(existing, email, challengeId, now);
+      }
+      if (reverse) {
+        // Nothing is sent. The challenge stays pending until the incoming-message webhook confirms it.
+        return {
+          challengeId,
+          expiresAt,
+          resendAt: now + RESEND_COOLDOWN_MS,
+          whatsapp: { url: reverseSignInUrl(reverse.number, code), code },
+        };
       }
       const delivery = dependencies.delivery;
       const deliveryResult = yield* Effect.result(
@@ -257,7 +285,8 @@ export class AuthService {
     if (challenge.deliveryState === "failed") {
       return yield* new AuthServiceError(502, "email_delivery_failed", "OpenBot could not send the sign-in code.");
     }
-    if (challenge.deliveryState === "pending") {
+    const reverse = dependencies.delivery?.reverse;
+    if (challenge.deliveryState === "pending" && !reverse) {
       const remainingMs = challenge.createdAt + EMAIL_CODE_DELIVERY_BUDGET_MS - now;
       if (remainingMs > 0) {
         const retryAfterSeconds = Math.max(1, Math.ceil(remainingMs / 1_000));
@@ -283,9 +312,60 @@ export class AuthService {
       challengeId,
       expiresAt: challenge.expiresAt,
       resendAt: challenge.createdAt + RESEND_COOLDOWN_MS,
-      ...(dependencies.exposeDevelopmentCode ? { developmentCode: yield* developmentOneTimeCode(challengeId) } : {}),
+      ...(reverse
+        ? { whatsapp: yield* reverseSignIn(reverse.number, challengeId) }
+        : dependencies.exposeDevelopmentCode
+          ? { developmentCode: yield* developmentOneTimeCode(challengeId) }
+          : {}),
     };
   });
+
+  /** Whether the WhatsApp message of a reverse sign-in arrived. The client polls this. */
+  readonly whatsappSignInState = Effect.fn("AuthService.whatsappSignInState")(
+    function* (
+      this: AuthService,
+      challengeId: string,
+    ): Effect.fn.Return<{ state: WhatsAppSignInState }, AuthWorkflowFailure, AuthDependencies> {
+      const dependencies = yield* AuthDependencies;
+      if (!challengeId || challengeId.length > 128) {
+        return yield* new AuthServiceError(400, "invalid_sign_in_code", "The sign-in code is invalid.");
+      }
+      const challenge = yield* dependencies.repository.findEmailChallenge(yield* sha256(challengeId));
+      if (!challenge || challenge.consumedAt !== null || challenge.expiresAt <= dependencies.now()) {
+        return { state: "expired" };
+      }
+      return { state: challenge.deliveryState === "sent" ? "confirmed" : "waiting" };
+    },
+    (operation) => operation.pipe(Effect.mapError(authFailure), Effect.provide(this.#layer)),
+  ).bind(this);
+
+  /**
+   * Confirms reverse sign-in challenges from incoming WhatsApp messages. A message confirms only a
+   * challenge that was started for the number that sent it.
+   */
+  readonly confirmWhatsAppSignIn = Effect.fn("AuthService.confirmWhatsAppSignIn")(
+    function* (
+      this: AuthService,
+      messages: readonly IncomingWhatsAppMessage[],
+    ): Effect.fn.Return<number, AuthWorkflowFailure, AuthDependencies> {
+      const dependencies = yield* AuthDependencies;
+      if (!dependencies.delivery?.reverse) return 0;
+      let confirmed = 0;
+      for (const message of messages) {
+        const email = phoneIdentityEmail(message.from);
+        for (const code of signInCodesInText(message.text)) {
+          const matched = yield* dependencies.repository.confirmEmailChallengeByCode({
+            email,
+            codeHash: yield* sha256(code),
+            now: dependencies.now(),
+          });
+          if (matched) confirmed += 1;
+        }
+      }
+      return confirmed;
+    },
+    (operation) => operation.pipe(Effect.mapError(authFailure), Effect.provide(this.#layer)),
+  ).bind(this);
 
   readonly verifyEmailCode = Effect.fn("AuthService.verifyEmailCode")(
     function* (
@@ -345,6 +425,18 @@ export class AuthService {
     const idHash = yield* sha256(input.challengeId);
     const normalizedCode = yield* authValidate(() => safeNormalizeCode(input.code));
     const codeHash = yield* sha256(normalizedCode);
+    if (dependencies.delivery?.reverse) {
+      // The client knows a reverse code from the start, so the code alone proves nothing. Only the
+      // message from the WhatsApp number of the person does, and waiting is not a failed attempt.
+      const challenge = yield* dependencies.repository.findEmailChallenge(idHash);
+      if (challenge?.deliveryState === "pending" && challenge.consumedAt === null && challenge.expiresAt > now) {
+        return yield* new AuthServiceError(
+          409,
+          "whatsapp_message_pending",
+          "Send the WhatsApp message to finish signing in.",
+        );
+      }
+    }
     const result = yield* dependencies.repository.verifyEmailChallenge({
       idHash,
       codeHash,
@@ -967,8 +1059,15 @@ function generateOneTimeCode(): string {
   return `${raw.slice(0, 4)}-${raw.slice(4)}`;
 }
 
-const developmentOneTimeCode = Effect.fn("Auth.developmentCode")(function* (challengeId: string) {
-  const digest = yield* sha256(`development-code:${challengeId}`);
+const developmentOneTimeCode = (challengeId: string) => derivedOneTimeCode("development-code", challengeId);
+
+const reverseSignIn = Effect.fn("Auth.reverseSignIn")(function* (number: string, challengeId: string) {
+  const code = yield* derivedOneTimeCode("reverse-code", challengeId);
+  return { url: reverseSignInUrl(number, code), code };
+});
+
+const derivedOneTimeCode = Effect.fn("Auth.derivedCode")(function* (label: string, challengeId: string) {
+  const digest = yield* sha256(`${label}:${challengeId}`);
   const raw = [...digest.slice(0, ONE_TIME_CODE_LENGTH)]
     .map((character) => ONE_TIME_CODE_ALPHABET[character.charCodeAt(0) & 31])
     .join("");
@@ -984,7 +1083,7 @@ function normalizeOneTimeCode(value: string): string {
 }
 
 export function normalizeEmail(value: string): string {
-  const normalized = normalizeEmailAddress(value);
+  const normalized = normalizeAccountIdentity(value);
   if (!normalized) {
     throw new AuthServiceError(400, "invalid_email", "Enter a valid email address.");
   }

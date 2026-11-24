@@ -33,6 +33,12 @@ export interface WorkerBindings {
   EMAIL_FALLBACK?: SendEmail;
   EMAIL_DELIVERY_WEBHOOK_URL?: string;
   EMAIL_DELIVERY_WEBHOOK_SECRET?: string;
+  KIRIMI_USER_CODE?: string;
+  KIRIMI_SECRET?: string;
+  KIRIMI_DEVICE_ID?: string;
+  KIRIMI_API_URL?: string;
+  KIRIMI_WABA_NUMBER?: string;
+  KIRIMI_WEBHOOK_SECRET?: string;
   SKILLS_ADMIN_TOKEN?: string;
   MEDIA_API_URL?: string;
   MEDIA_API_KEY?: string;
@@ -185,6 +191,13 @@ export interface MobileAuthDeviceIdentity {
 }
 
 export interface EmailCodeDelivery {
+  /** Set when codes go out over WhatsApp, so sign-in accepts a phone number only. */
+  phoneOnly?: true;
+  /**
+   * Set for reverse sign-in: nothing is sent. The person sends the code from their own WhatsApp to
+   * this number, and the incoming-message webhook confirms the challenge.
+   */
+  reverse?: { number: string };
   send(message: {
     email: string;
     code: string;
@@ -254,6 +267,12 @@ export interface AuthRepository {
     createdAt: number;
     expiresAt: number;
     maxAttempts: number;
+  }): Effect.Effect<boolean, AuthStoreError>;
+  /** Marks the pending challenge of this identity with this code as delivered. False when none matches. */
+  confirmEmailChallengeByCode(input: {
+    email: string;
+    codeHash: string;
+    now: number;
   }): Effect.Effect<boolean, AuthStoreError>;
   completeEmailChallengeDelivery(
     idHash: string,

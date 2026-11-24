@@ -1,5 +1,13 @@
-import { Cause, Effect, Exit, Option, Result, Schema } from "effect";
+import { Cause, Effect, Exit, Option, Result } from "effect";
 import type { AccountAnalytics, EmailKind, EmailResult } from "./account-analytics";
+import { EmailDeliveryError } from "./email-delivery-error";
+import {
+  createKirimiCodeDelivery,
+  createKirimiReverseCodeDelivery,
+  createKirimiTeamInviteDelivery,
+  readKirimiConfig,
+  readKirimiReverseNumber,
+} from "./kirimi-delivery";
 import {
   AMBIGUOUS_DELIVERY_ERRORS,
   AUTOMATED_EMAIL_HEADERS,
@@ -26,9 +34,7 @@ import type {
   WorkerBindings,
 } from "./types";
 
-export class EmailDeliveryError extends Schema.TaggedError<EmailDeliveryError>()("EmailDeliveryError", {
-  message: Schema.String,
-}) {}
+export { EmailDeliveryError };
 
 export type EmailDeliveryBindings = Pick<
   WorkerBindings,
@@ -44,6 +50,12 @@ export type EmailDeliveryBindings = Pick<
   | "EMAIL_FALLBACK"
   | "EMAIL_DELIVERY_WEBHOOK_URL"
   | "EMAIL_DELIVERY_WEBHOOK_SECRET"
+  | "KIRIMI_USER_CODE"
+  | "KIRIMI_SECRET"
+  | "KIRIMI_DEVICE_ID"
+  | "KIRIMI_API_URL"
+  | "KIRIMI_WABA_NUMBER"
+  | "KIRIMI_WEBHOOK_SECRET"
 >;
 
 interface EmailSenders {
@@ -56,6 +68,10 @@ export function createEmailCodeDelivery(
   bindings: EmailDeliveryBindings,
   analytics: AccountAnalytics,
 ): EmailCodeDelivery | null {
+  const reverseNumber = readKirimiReverseNumber(bindings);
+  if (reverseNumber) return createKirimiReverseCodeDelivery(reverseNumber);
+  const kirimi = readKirimiConfig(bindings);
+  if (kirimi) return createKirimiCodeDelivery(kirimi);
   const senders = readEmailSenders(bindings);
   if (senders) {
     return { send: (message) => deliver(analytics, "sign_in_code", senders, prepareEmailCode(message)) };
@@ -89,6 +105,8 @@ export function createTeamInviteEmailDelivery(
   bindings: EmailDeliveryBindings,
   analytics: AccountAnalytics,
 ): TeamInviteEmailDelivery | null {
+  const kirimi = readKirimiConfig(bindings);
+  if (kirimi) return createKirimiTeamInviteDelivery(kirimi);
   const senders = readEmailSenders(bindings);
   return senders ? { send: (message) => deliver(analytics, "team_invite", senders, prepareTeamInvite(message)) } : null;
 }

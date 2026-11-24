@@ -1,6 +1,10 @@
 import { INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import { PERMANENT_INVITE_EXPIRES_AT_MS } from "@openbot/contracts/invite-links";
-import { normalizeEmailAddress } from "@openbot/contracts/validation";
+import {
+  formatAccountIdentity,
+  normalizeAccountIdentity,
+  phoneFromIdentityEmail,
+} from "@openbot/contracts/phone-identity";
 import { runTeamEffect } from "@openbot/team-client";
 import * as Clipboard from "expo-clipboard";
 import { useLocalSearchParams } from "expo-router";
@@ -79,7 +83,7 @@ export function ServerInviteScreen() {
   const links = pendingInvites?.filter((invite) => !invite.email) ?? [];
   const permanentCount = links.filter((invite) => invite.permanent).length;
   const permanentLimitReached = method === "permanent" && permanentCount >= INPUT_LIMITS.maxPermanentInvites;
-  const normalizedEmail = normalizeEmailAddress(email);
+  const normalizedEmail = phoneIdentity(email);
   const inviteUsed = Boolean(
     created &&
       invites.data?.some((invite) => invite.inviteId === created.inviteId && !invite.permanent && invite.usedAt),
@@ -135,7 +139,7 @@ export function ServerInviteScreen() {
     ? inviteUsed
       ? t("mobile.server.members.inviteUsed")
       : created.email
-        ? t("mobile.server.members.inviteSent", { email: created.email })
+        ? t("mobile.server.members.inviteSent", { email: formatAccountIdentity(created.email) })
         : created.expiresAt >= PERMANENT_INVITE_EXPIRES_AT_MS
           ? t("mobile.server.members.permanentCreated")
           : t("mobile.server.members.oneTimeCreated", { date: format.date(created.expiresAt, EXPIRY_FORMAT) })
@@ -315,4 +319,10 @@ export function ServerInviteScreen() {
       ) : null}
     </SettingsContent>
   );
+}
+
+/** The phone identity for a typed WhatsApp number, or null when it is not a phone number. */
+function phoneIdentity(value: string): string | null {
+  const identity = normalizeAccountIdentity(value);
+  return identity && phoneFromIdentityEmail(identity) ? identity : null;
 }

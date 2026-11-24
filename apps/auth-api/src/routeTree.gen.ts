@@ -185,6 +185,7 @@ import { Route as V1AuthCompanyExchangeRouteImport } from './routes/v1/auth/comp
 import { Route as V1AuthCompanyStartRouteImport } from './routes/v1/auth/company/start'
 import { Route as V1AuthEmailStartRouteImport } from './routes/v1/auth/email/start'
 import { Route as V1AuthEmailVerifyRouteImport } from './routes/v1/auth/email/verify'
+import { Route as V1AuthWhatsappStatusRouteImport } from './routes/v1/auth/whatsapp/status'
 import { Route as V1MarketplaceAgentsIndexRouteImport } from './routes/v1/marketplace/agents/index'
 import { Route as V1MarketplaceAgentsAgentIdRouteImport } from './routes/v1/marketplace/agents/$agentId'
 import { Route as V1MarketplaceAgentsMineRouteImport } from './routes/v1/marketplace/agents/mine'
@@ -230,6 +231,7 @@ import { Route as V2RemoteSlackRouteValidateRouteImport } from './routes/v2/remo
 import { Route as V2RemoteTelegramRouteLinkRouteImport } from './routes/v2/remote/telegram-route/link'
 import { Route as V2RemoteTelegramRouteValidateRouteImport } from './routes/v2/remote/telegram-route/validate'
 import { Route as V2RemoteWebhookRouteValidateRouteImport } from './routes/v2/remote/webhook-route/validate'
+import { Route as V1AuthWhatsappWebhookSecretRouteImport } from './routes/v1/auth/whatsapp/webhook.$secret'
 import { Route as V1MarketplaceAgentsAgentIdAvatarRouteImport } from './routes/v1/marketplace/agents/$agentId/avatar'
 import { Route as V1MarketplaceAgentsAgentIdCardRouteImport } from './routes/v1/marketplace/agents/$agentId/card'
 import { Route as V1MarketplaceAgentsAgentIdInstallRouteImport } from './routes/v1/marketplace/agents/$agentId/install'
@@ -1174,6 +1176,11 @@ const V1AuthEmailVerifyRoute = V1AuthEmailVerifyRouteImport.update({
   path: '/v1/auth/email/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const V1AuthWhatsappStatusRoute = V1AuthWhatsappStatusRouteImport.update({
+  id: '/v1/auth/whatsapp/status',
+  path: '/v1/auth/whatsapp/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const V1MarketplaceAgentsIndexRoute =
   V1MarketplaceAgentsIndexRouteImport.update({
     id: '/v1/marketplace/agents/',
@@ -1410,6 +1417,12 @@ const V2RemoteWebhookRouteValidateRoute =
   V2RemoteWebhookRouteValidateRouteImport.update({
     id: '/v2/remote/webhook-route/validate',
     path: '/v2/remote/webhook-route/validate',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const V1AuthWhatsappWebhookSecretRoute =
+  V1AuthWhatsappWebhookSecretRouteImport.update({
+    id: '/v1/auth/whatsapp/webhook/$secret',
+    path: '/v1/auth/whatsapp/webhook/$secret',
     getParentRoute: () => rootRouteImport,
   } as any)
 const V1MarketplaceAgentsAgentIdAvatarRoute =
@@ -1936,6 +1949,7 @@ export interface FileRoutesByFullPath {
   '/v1/auth/company/start': typeof V1AuthCompanyStartRoute
   '/v1/auth/email/start': typeof V1AuthEmailStartRoute
   '/v1/auth/email/verify': typeof V1AuthEmailVerifyRoute
+  '/v1/auth/whatsapp/status': typeof V1AuthWhatsappStatusRoute
   '/v1/marketplace/agents/$agentId': typeof V1MarketplaceAgentsAgentIdRouteWithChildren
   '/v1/marketplace/agents/mine': typeof V1MarketplaceAgentsMineRoute
   '/v1/me/billing/details': typeof V1MeBillingDetailsRoute
@@ -1982,6 +1996,7 @@ export interface FileRoutesByFullPath {
   '/v2/remote/hosts/': typeof V2RemoteHostsIndexRoute
   '/v2/remote/owner-transfers/': typeof V2RemoteOwnerTransfersIndexRoute
   '/v2/remote/sessions/': typeof V2RemoteSessionsIndexRoute
+  '/v1/auth/whatsapp/webhook/$secret': typeof V1AuthWhatsappWebhookSecretRoute
   '/v1/marketplace/agents/$agentId/avatar': typeof V1MarketplaceAgentsAgentIdAvatarRoute
   '/v1/marketplace/agents/$agentId/card': typeof V1MarketplaceAgentsAgentIdCardRoute
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
@@ -2214,6 +2229,7 @@ export interface FileRoutesByTo {
   '/v1/auth/company/start': typeof V1AuthCompanyStartRoute
   '/v1/auth/email/start': typeof V1AuthEmailStartRoute
   '/v1/auth/email/verify': typeof V1AuthEmailVerifyRoute
+  '/v1/auth/whatsapp/status': typeof V1AuthWhatsappStatusRoute
   '/v1/marketplace/agents/$agentId': typeof V1MarketplaceAgentsAgentIdRouteWithChildren
   '/v1/marketplace/agents/mine': typeof V1MarketplaceAgentsMineRoute
   '/v1/me/billing/details': typeof V1MeBillingDetailsRoute
@@ -2260,6 +2276,7 @@ export interface FileRoutesByTo {
   '/v2/remote/hosts': typeof V2RemoteHostsIndexRoute
   '/v2/remote/owner-transfers': typeof V2RemoteOwnerTransfersIndexRoute
   '/v2/remote/sessions': typeof V2RemoteSessionsIndexRoute
+  '/v1/auth/whatsapp/webhook/$secret': typeof V1AuthWhatsappWebhookSecretRoute
   '/v1/marketplace/agents/$agentId/avatar': typeof V1MarketplaceAgentsAgentIdAvatarRoute
   '/v1/marketplace/agents/$agentId/card': typeof V1MarketplaceAgentsAgentIdCardRoute
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
@@ -2497,6 +2514,7 @@ export interface FileRoutesById {
   '/v1/auth/company/start': typeof V1AuthCompanyStartRoute
   '/v1/auth/email/start': typeof V1AuthEmailStartRoute
   '/v1/auth/email/verify': typeof V1AuthEmailVerifyRoute
+  '/v1/auth/whatsapp/status': typeof V1AuthWhatsappStatusRoute
   '/v1/marketplace/agents/$agentId': typeof V1MarketplaceAgentsAgentIdRouteWithChildren
   '/v1/marketplace/agents/mine': typeof V1MarketplaceAgentsMineRoute
   '/v1/me/billing/details': typeof V1MeBillingDetailsRoute
@@ -2543,6 +2561,7 @@ export interface FileRoutesById {
   '/v2/remote/hosts/': typeof V2RemoteHostsIndexRoute
   '/v2/remote/owner-transfers/': typeof V2RemoteOwnerTransfersIndexRoute
   '/v2/remote/sessions/': typeof V2RemoteSessionsIndexRoute
+  '/v1/auth/whatsapp/webhook/$secret': typeof V1AuthWhatsappWebhookSecretRoute
   '/v1/marketplace/agents/$agentId/avatar': typeof V1MarketplaceAgentsAgentIdAvatarRoute
   '/v1/marketplace/agents/$agentId/card': typeof V1MarketplaceAgentsAgentIdCardRoute
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
@@ -2777,6 +2796,7 @@ export interface FileRouteTypes {
     | '/v1/auth/company/start'
     | '/v1/auth/email/start'
     | '/v1/auth/email/verify'
+    | '/v1/auth/whatsapp/status'
     | '/v1/marketplace/agents/$agentId'
     | '/v1/marketplace/agents/mine'
     | '/v1/me/billing/details'
@@ -2823,6 +2843,7 @@ export interface FileRouteTypes {
     | '/v2/remote/hosts/'
     | '/v2/remote/owner-transfers/'
     | '/v2/remote/sessions/'
+    | '/v1/auth/whatsapp/webhook/$secret'
     | '/v1/marketplace/agents/$agentId/avatar'
     | '/v1/marketplace/agents/$agentId/card'
     | '/v1/marketplace/agents/$agentId/install'
@@ -3055,6 +3076,7 @@ export interface FileRouteTypes {
     | '/v1/auth/company/start'
     | '/v1/auth/email/start'
     | '/v1/auth/email/verify'
+    | '/v1/auth/whatsapp/status'
     | '/v1/marketplace/agents/$agentId'
     | '/v1/marketplace/agents/mine'
     | '/v1/me/billing/details'
@@ -3101,6 +3123,7 @@ export interface FileRouteTypes {
     | '/v2/remote/hosts'
     | '/v2/remote/owner-transfers'
     | '/v2/remote/sessions'
+    | '/v1/auth/whatsapp/webhook/$secret'
     | '/v1/marketplace/agents/$agentId/avatar'
     | '/v1/marketplace/agents/$agentId/card'
     | '/v1/marketplace/agents/$agentId/install'
@@ -3337,6 +3360,7 @@ export interface FileRouteTypes {
     | '/v1/auth/company/start'
     | '/v1/auth/email/start'
     | '/v1/auth/email/verify'
+    | '/v1/auth/whatsapp/status'
     | '/v1/marketplace/agents/$agentId'
     | '/v1/marketplace/agents/mine'
     | '/v1/me/billing/details'
@@ -3383,6 +3407,7 @@ export interface FileRouteTypes {
     | '/v2/remote/hosts/'
     | '/v2/remote/owner-transfers/'
     | '/v2/remote/sessions/'
+    | '/v1/auth/whatsapp/webhook/$secret'
     | '/v1/marketplace/agents/$agentId/avatar'
     | '/v1/marketplace/agents/$agentId/card'
     | '/v1/marketplace/agents/$agentId/install'
@@ -3551,6 +3576,7 @@ export interface RootRouteChildren {
   V1AuthCompanyStartRoute: typeof V1AuthCompanyStartRoute
   V1AuthEmailStartRoute: typeof V1AuthEmailStartRoute
   V1AuthEmailVerifyRoute: typeof V1AuthEmailVerifyRoute
+  V1AuthWhatsappStatusRoute: typeof V1AuthWhatsappStatusRoute
   V1MarketplaceAgentsAgentIdRoute: typeof V1MarketplaceAgentsAgentIdRouteWithChildren
   V1MarketplaceAgentsMineRoute: typeof V1MarketplaceAgentsMineRoute
   V1MobileAuthCompanyExchangeRoute: typeof V1MobileAuthCompanyExchangeRoute
@@ -3579,6 +3605,7 @@ export interface RootRouteChildren {
   V2RemoteHostsIndexRoute: typeof V2RemoteHostsIndexRoute
   V2RemoteOwnerTransfersIndexRoute: typeof V2RemoteOwnerTransfersIndexRoute
   V2RemoteSessionsIndexRoute: typeof V2RemoteSessionsIndexRoute
+  V1AuthWhatsappWebhookSecretRoute: typeof V1AuthWhatsappWebhookSecretRoute
   V1MarketplaceAgentsAdminSubmissionsRoute: typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
   V1SitesAdminSiteIdBlockRoute: typeof V1SitesAdminSiteIdBlockRoute
   V1SitesUploadsUploadIdActivateRoute: typeof V1SitesUploadsUploadIdActivateRoute
@@ -4866,6 +4893,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1AuthEmailVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/v1/auth/whatsapp/status': {
+      id: '/v1/auth/whatsapp/status'
+      path: '/v1/auth/whatsapp/status'
+      fullPath: '/v1/auth/whatsapp/status'
+      preLoaderRoute: typeof V1AuthWhatsappStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/v1/marketplace/agents/': {
       id: '/v1/marketplace/agents/'
       path: '/v1/marketplace/agents'
@@ -5179,6 +5213,13 @@ declare module '@tanstack/solid-router' {
       path: '/v2/remote/webhook-route/validate'
       fullPath: '/v2/remote/webhook-route/validate'
       preLoaderRoute: typeof V2RemoteWebhookRouteValidateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v1/auth/whatsapp/webhook/$secret': {
+      id: '/v1/auth/whatsapp/webhook/$secret'
+      path: '/v1/auth/whatsapp/webhook/$secret'
+      fullPath: '/v1/auth/whatsapp/webhook/$secret'
+      preLoaderRoute: typeof V1AuthWhatsappWebhookSecretRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v1/marketplace/agents/$agentId/avatar': {
@@ -6034,6 +6075,7 @@ const rootRouteChildren: RootRouteChildren = {
   V1AuthCompanyStartRoute: V1AuthCompanyStartRoute,
   V1AuthEmailStartRoute: V1AuthEmailStartRoute,
   V1AuthEmailVerifyRoute: V1AuthEmailVerifyRoute,
+  V1AuthWhatsappStatusRoute: V1AuthWhatsappStatusRoute,
   V1MarketplaceAgentsAgentIdRoute: V1MarketplaceAgentsAgentIdRouteWithChildren,
   V1MarketplaceAgentsMineRoute: V1MarketplaceAgentsMineRoute,
   V1MobileAuthCompanyExchangeRoute: V1MobileAuthCompanyExchangeRoute,
@@ -6062,6 +6104,7 @@ const rootRouteChildren: RootRouteChildren = {
   V2RemoteHostsIndexRoute: V2RemoteHostsIndexRoute,
   V2RemoteOwnerTransfersIndexRoute: V2RemoteOwnerTransfersIndexRoute,
   V2RemoteSessionsIndexRoute: V2RemoteSessionsIndexRoute,
+  V1AuthWhatsappWebhookSecretRoute: V1AuthWhatsappWebhookSecretRoute,
   V1MarketplaceAgentsAdminSubmissionsRoute:
     V1MarketplaceAgentsAdminSubmissionsRouteWithChildren,
   V1SitesAdminSiteIdBlockRoute: V1SitesAdminSiteIdBlockRoute,

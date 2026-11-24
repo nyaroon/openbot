@@ -521,15 +521,15 @@ export const messages = {
   "server.members.makeMemberTitle": "{name} üye yapılsın mı?",
   "server.members.roleChangeDescription":
     "{name} adlı kişinin bu sunucuyla bağlantısı kesilebilir. Bu durumda yeniden bağlanması gerekir.",
-  "server.invite.invalidEmail": "Geçerli bir e-posta adresi girin.",
+  "server.invite.invalidEmail": "Ülke koduyla birlikte geçerli bir WhatsApp numarası girin.",
   "server.invite.title": "Kişileri davet edin",
   "server.invite.description":
     "Tek kullanımlık davetlerin süresi 24 saat sonra dolar. Kalıcı bir bağlantının süresi asla dolmaz ve bu bağlantıya sahip herkes için geçerlidir.",
   "server.invite.method": "Davet yöntemi",
-  "server.invite.email": "E-posta",
+  "server.invite.email": "WhatsApp",
   "server.invite.link": "Davet bağlantısı",
   "server.invite.permaLink": "Kalıcı bağlantı",
-  "server.invite.emailAddress": "E-posta adresi",
+  "server.invite.emailAddress": "WhatsApp numarası",
   "server.invite.linkLabel": "Davet bağlantısı",
   "server.invite.linkPlaceholder": "Özel bir tek seferlik bağlantı oluşturun.",
   "server.invite.permanentLink": "Kalıcı davet bağlantısı",

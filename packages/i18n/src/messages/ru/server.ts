@@ -540,15 +540,15 @@ export const messages = {
   "server.members.makeMemberTitle": "Сделать {name} участником?",
   "server.members.roleChangeDescription":
     "{name} может быть отключён от этого сервера, и тогда нужно будет подключиться снова.",
-  "server.invite.invalidEmail": "Введите корректный адрес почты.",
+  "server.invite.invalidEmail": "Введите действительный номер WhatsApp с кодом страны.",
   "server.invite.title": "Пригласить людей",
   "server.invite.description":
     "Одноразовые приглашения истекают через 24 часа. Постоянная ссылка не истекает и работает для всех, у кого она есть.",
   "server.invite.method": "Способ приглашения",
-  "server.invite.email": "Почта",
+  "server.invite.email": "WhatsApp",
   "server.invite.link": "Ссылка",
   "server.invite.permaLink": "Постоянная ссылка",
-  "server.invite.emailAddress": "Адрес почты",
+  "server.invite.emailAddress": "Номер WhatsApp",
   "server.invite.linkLabel": "Ссылка-приглашение",
   "server.invite.linkPlaceholder": "Создайте закрытую одноразовую ссылку.",
   "server.invite.permanentLink": "Постоянная ссылка-приглашение",

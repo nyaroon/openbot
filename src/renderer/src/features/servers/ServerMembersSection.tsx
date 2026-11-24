@@ -8,6 +8,11 @@ import {
   licenseMonthlyAmount,
   licensePlanOf,
 } from "@openbot/contracts/license";
+import {
+  formatAccountIdentity,
+  normalizeAccountIdentity,
+  phoneFromIdentityEmail,
+} from "@openbot/contracts/phone-identity";
 import { normalizeEmailAddress } from "@openbot/contracts/validation";
 import type { AppTextKey } from "@openbot/i18n";
 import { sourceText } from "@openbot/i18n/source";
@@ -72,7 +77,7 @@ const ROLE_LABELS = {
   admin: "server.role.admin",
   member: "server.role.member",
 } as const satisfies Record<TeamRole, AppTextKey>;
-const EMAIL_PLACEHOLDER = "person@company.com";
+const EMAIL_PLACEHOLDER = "+62 812 3456 7890";
 const INVITE_LIFETIME_MS = 7 * 24 * 60 * 60 * 1_000;
 
 interface InvitePanel {
@@ -213,7 +218,7 @@ export function createServerMembersSection(
       published() &&
       !membersFull() &&
       busy() === null &&
-      (panels.invite.mode !== "email" || normalizeEmailAddress(panels.invite.email) !== null),
+      (panels.invite.mode !== "email" || invitePhoneIdentity(panels.invite.email) !== null),
   );
 
   createEffect(
@@ -283,7 +288,7 @@ export function createServerMembersSection(
   }
 
   async function createInvite(licenseChecked = false): Promise<void> {
-    const email = panels.invite.mode === "email" ? normalizeEmailAddress(panels.invite.email) : null;
+    const email = panels.invite.mode === "email" ? invitePhoneIdentity(panels.invite.email) : null;
     if (panels.invite.mode === "email" && !email) {
       setPanels((state) => {
         state.invite.emailError = t("server.invite.invalidEmail");
@@ -513,7 +518,7 @@ export function createServerMembersSection(
                     <Input
                       ref={(element) => (inviteEmailInput = element)}
                       size="md"
-                      type="email"
+                      type="tel"
                       autocomplete="email"
                       maxlength={INPUT_LIMITS.email}
                       disabled={!published()}
@@ -527,7 +532,7 @@ export function createServerMembersSection(
                       }
                       onBlur={() =>
                         panels.invite.email &&
-                        !normalizeEmailAddress(panels.invite.email) &&
+                        !invitePhoneIdentity(panels.invite.email) &&
                         setPanels((state) => {
                           state.invite.emailError = t("server.invite.invalidEmail");
                         })
@@ -683,7 +688,7 @@ export function createServerMembersSection(
                         ? t("server.invite.accepted")
                         : inviteExpired()
                           ? t("server.invite.expired")
-                          : result().email
+                          : formatAccountIdentity(result().email ?? "")
                             ? t("server.invite.sent")
                             : t("server.invite.linkReady")}
                     </AlertTitle>
@@ -692,7 +697,7 @@ export function createServerMembersSection(
                         ? t("server.invite.acceptedDescription")
                         : inviteExpired()
                           ? t("server.invite.expiredDescription")
-                          : result().email || t("server.invite.linkReadyDescription")}
+                          : formatAccountIdentity(result().email ?? "") || t("server.invite.linkReadyDescription")}
                     </AlertDescription>
                   </AlertContent>
                 </Alert>
@@ -709,7 +714,9 @@ export function createServerMembersSection(
       <Item class="server-settings-member-row" data-disabled={member.disabled ? "" : undefined}>
         <ItemContent>
           <ItemTitle>{teamMemberName(member)}</ItemTitle>
-          <ItemDescription class="server-settings-member-meta">{member.email ?? member.username}</ItemDescription>
+          <ItemDescription class="server-settings-member-meta">
+            {member.email ? formatAccountIdentity(member.email) : member.username}
+          </ItemDescription>
         </ItemContent>
         <ItemActions class="server-settings-member-actions">
           <Show when={member.role !== "owner"} fallback={<Badge variant="primary-light">{t(ROLE_LABELS.owner)}</Badge>}>
@@ -764,7 +771,8 @@ export function createServerMembersSection(
       <Item class="server-settings-invite-row">
         <ItemContent>
           <ItemTitle>
-            {invite.email ?? (invite.permanent ? t("server.invite.permanentLink") : t("server.invite.privateLink"))}
+            {(invite.email ? formatAccountIdentity(invite.email) : null) ??
+              (invite.permanent ? t("server.invite.permanentLink") : t("server.invite.privateLink"))}
           </ItemTitle>
           <ItemDescription>
             {t(ROLE_LABELS[invite.role])} ·{" "}
@@ -1063,4 +1071,10 @@ function MemberActionsMenu(props: {
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
   );
+}
+
+/** The phone identity for a typed WhatsApp number, or null when it is not a phone number. */
+function invitePhoneIdentity(value: string): string | null {
+  const identity = normalizeAccountIdentity(value);
+  return identity && phoneFromIdentityEmail(identity) ? identity : null;
 }

@@ -1,4 +1,5 @@
 import type { TeamPresenceMember } from "@openbot/contracts/ipc";
+import { formatAccountIdentity } from "@openbot/contracts/phone-identity";
 import type { AvatarMotion } from "../../bloub-avatar";
 import { AgentAvatar } from "../agents/AgentAvatar";
 
@@ -22,5 +23,5 @@ export function teamMemberSeed(member: TeamPresenceMember): string {
 }
 
 export function teamMemberName(member: TeamPresenceMember): string {
-  return member.name?.trim() || member.email || member.username;
+  return member.name?.trim() || (member.email ? formatAccountIdentity(member.email) : "") || member.username;
 }

@@ -10,6 +10,12 @@ import {
   parseMobileConnectUrl,
   validateMobileConnectHostBinding,
 } from "@openbot/contracts/mobile-connect";
+import {
+  normalizeAccountIdentity,
+  phoneFromIdentityEmail,
+  readWhatsAppSignIn,
+  type WhatsAppSignIn,
+} from "@openbot/contracts/phone-identity";
 import { type DynamicRecord, isBoolean, isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import { normalizeEmailAddress, normalizeOneTimeCode, validateProfileName } from "@openbot/contracts/validation";
 import type { MobileTextKey } from "@openbot/i18n/mobile";
@@ -125,6 +131,7 @@ export interface MobileEmailChallenge {
   email: string;
   resendAt: number;
   developmentCode?: string;
+  whatsapp?: WhatsAppSignIn;
 }
 
 export class MobileEmailSignInError extends Error {
@@ -139,7 +146,7 @@ export class MobileEmailSignInError extends Error {
 
 export async function startMobileEmailSignIn(email: string, requestId: string): Promise<MobileEmailChallenge> {
   const text = currentText();
-  const address = normalizeEmailAddress(email);
+  const address = phoneIdentity(email);
   if (!address) throw new MobileEmailSignInError(text.t("mobile.auth.email.error.invalidEmail"), "invalid_email");
   const { response, body } = await mobileEmailRequest(
     "/v1/auth/email/start",
@@ -151,11 +158,13 @@ export async function startMobileEmailSignIn(email: string, requestId: string): 
   if (!isDynamicRecord(body) || !isString(body.challengeId) || typeof body.resendAt !== "number") {
     throw new MobileEmailSignInError(text.t("mobile.auth.email.error.sendFailed"), "invalid_response");
   }
+  const whatsapp = readWhatsAppSignIn(body.whatsapp);
   return {
     challengeId: body.challengeId,
     email: address,
     resendAt: body.resendAt,
     ...(isString(body.developmentCode) ? { developmentCode: body.developmentCode } : {}),
+    ...(whatsapp ? { whatsapp } : {}),
   };
 }
 
@@ -808,4 +817,10 @@ function sameUser(left: CentralAuthUser, right: CentralAuthUser): boolean {
 function apiErrorMessage(value: unknown): string | null {
   if (!isDynamicRecord(value) || !isDynamicRecord(value.error) || !isString(value.error.message)) return null;
   return value.error.message.length <= 240 ? value.error.message : null;
+}
+
+/** The phone identity for a typed WhatsApp number, or null when it is not a phone number. */
+function phoneIdentity(value: string): string | null {
+  const identity = normalizeAccountIdentity(value);
+  return identity && phoneFromIdentityEmail(identity) ? identity : null;
 }

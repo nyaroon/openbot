@@ -1,10 +1,11 @@
+import { formatAccountIdentity } from "@openbot/contracts/phone-identity";
 import { ONE_TIME_CODE_LENGTH } from "@openbot/contracts/validation";
 import { Button, Spinner, Typography } from "heroui-native";
 import type { LucideIcon } from "lucide-react-native";
 import ChevronDown from "lucide-react-native/icons/chevron-down";
 import ScanLine from "lucide-react-native/icons/scan-line";
 import { type ReactNode, type Ref, useEffect } from "react";
-import { Pressable, type TextInputInstance, View } from "react-native";
+import { Linking, Pressable, type TextInputInstance, View } from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -480,6 +481,7 @@ export function CodePane({
               }
             : null;
   const busy = signIn.verifying || signIn.verified;
+  const whatsapp = signIn.challenge?.whatsapp;
   return (
     <View onLayout={({ nativeEvent: { layout } }) => onLayout(layout.height)}>
       <PaneItem index={0} motion={motion}>
@@ -489,24 +491,46 @@ export function CodePane({
       </PaneItem>
       <PaneItem index={1} motion={motion} className="mt-2.5">
         <Typography.Paragraph color="muted">
-          {t("mobile.auth.email.codeSent", { email: signIn.challenge?.email ?? signIn.email })}
+          {t(whatsapp ? "mobile.auth.email.whatsappHint" : "mobile.auth.email.codeSent", {
+            email: formatAccountIdentity(signIn.challenge?.email ?? signIn.email),
+          })}
         </Typography.Paragraph>
       </PaneItem>
       <View className="mt-5">
-        <EmailCodeInput
-          ref={codeInput}
-          value={signIn.code}
-          onChange={signIn.setCode}
-          onComplete={signIn.verify}
-          status={
-            signIn.verified ? "verified" : signIn.verifying ? "verifying" : signIn.codeRejected ? "invalid" : "idle"
-          }
-          rejection={signIn.rejection}
-          disabled={needsNewCode || signIn.verified}
-          accessibilityLabel={t("mobile.auth.email.codeLabel")}
-          motion={slotMotion}
-          reduced={reduced}
-        />
+        {whatsapp ? (
+          <View className="gap-3">
+            <SignInButton
+              label={t("mobile.auth.email.whatsappOpen")}
+              brand
+              onPress={() => void Linking.openURL(whatsapp.url)}
+              waiting={busy || needsNewCode}
+              reduced={reduced}
+            />
+            <SignInButton
+              label={t("mobile.auth.email.whatsappSent")}
+              brand={false}
+              onPress={() => signIn.verify(whatsapp.code)}
+              busy={signIn.verifying}
+              waiting={busy || needsNewCode}
+              reduced={reduced}
+            />
+          </View>
+        ) : (
+          <EmailCodeInput
+            ref={codeInput}
+            value={signIn.code}
+            onChange={signIn.setCode}
+            onComplete={signIn.verify}
+            status={
+              signIn.verified ? "verified" : signIn.verifying ? "verifying" : signIn.codeRejected ? "invalid" : "idle"
+            }
+            rejection={signIn.rejection}
+            disabled={needsNewCode || signIn.verified}
+            accessibilityLabel={t("mobile.auth.email.codeLabel")}
+            motion={slotMotion}
+            reduced={reduced}
+          />
+        )}
         <PaneMessage message={message} spinner={signIn.verifying} reduced={reduced} />
       </View>
       <PaneItem index={3} motion={motion} className="mt-1.5 flex-row justify-between">

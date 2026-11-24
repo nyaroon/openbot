@@ -478,7 +478,7 @@ export const messages = {
   "settings.profile.teammates.title": "最活跃的助手",
   "settings.profile.models.title": "模型用量",
   "settings.profile.account.title": "账号",
-  "settings.profile.email.title": "邮箱",
+  "settings.profile.email.title": "WhatsApp 号码",
   "settings.profile.email.description": "用于登录 OpenBot。",
   "settings.profile.sessions.title": "账号会话",
   "settings.profile.sessions.description":

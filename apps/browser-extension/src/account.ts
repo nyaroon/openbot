@@ -1,4 +1,5 @@
 import type { CentralAuthIssue, CentralAuthUser } from "@openbot/contracts/ipc";
+import { readWhatsAppSignIn, type WhatsAppSignIn } from "@openbot/contracts/phone-identity";
 import { type DynamicRecord, isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import { currentText } from "@openbot/ui/text";
 import { decodeUser, deviceId, type ExtensionSession } from "./extension-storage";
@@ -19,6 +20,7 @@ export interface EmailChallenge {
   resendAt: number;
   expiresAt: number;
   developmentCode?: string;
+  whatsapp?: WhatsAppSignIn;
 }
 
 async function accountRequest(
@@ -70,11 +72,13 @@ export async function startEmailSignIn(email: string, idempotencyKey: string): P
   if (!response.ok) throw new SignInIssue(issueFrom(response, body));
   if (!body || !isString(body.challengeId) || typeof body.resendAt !== "number")
     throw new Error(currentText().t("extension.signIn.failed"));
+  const whatsapp = readWhatsAppSignIn(body.whatsapp);
   return {
     challengeId: body.challengeId,
     resendAt: body.resendAt,
     expiresAt: typeof body.expiresAt === "number" ? body.expiresAt : Date.now() + 600_000,
     ...(isString(body.developmentCode) ? { developmentCode: body.developmentCode } : {}),
+    ...(whatsapp ? { whatsapp } : {}),
   };
 }
 

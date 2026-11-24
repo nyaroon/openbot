@@ -1,14 +1,20 @@
 import { AppLogo } from "@openbot/brand";
 import { INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import type { AppVariant, CentralAuthIssue, CentralAuthState } from "@openbot/contracts/ipc";
+import {
+  formatAccountIdentity,
+  normalizeAccountIdentity,
+  phoneFromIdentityEmail,
+} from "@openbot/contracts/phone-identity";
 import { referralCodeFromInput } from "@openbot/contracts/referral";
-import { normalizeEmailAddress, normalizeOneTimeCode } from "@openbot/contracts/validation";
+import { normalizeOneTimeCode } from "@openbot/contracts/validation";
 import type { TranslatedLocale } from "@openbot/i18n";
 import { appLanguageOption } from "@openbot/i18n/languages";
 import { ArrowLeft, Button, Confetti, ErrorReference, Globe2, Input, Lock, RefreshCw } from "@openbot/ui";
 import { errorReference, type UserErrorDetails } from "@openbot/user-errors";
 import type { JSX } from "@solidjs/web";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show, untrack } from "solid-js";
+import { QrCode } from "../../qr-code";
 import { useText } from "../../text";
 import { InviteCorner } from "./InviteCorner";
 import { OtpInput, type OtpInputStatus } from "./OtpInput";
@@ -21,6 +27,8 @@ interface AccountLoginProps {
   onVerifyEmailCode: (challengeId: string, code: string, referralCode?: string) => Promise<void>;
   onReset: () => Promise<void>;
   onOpenCompanySignIn?: () => Promise<void>;
+  /** Opens the WhatsApp link of a reverse sign-in. Without it, only the QR code is shown. */
+  onOpenWhatsApp?: (url: string) => void;
   consent?: JSX.Element;
   notice?: JSX.Element;
   language?: TranslatedLocale;
@@ -48,7 +56,7 @@ const UNCERTAIN_EMAIL_DELIVERY_ISSUES = new Set([
 ]);
 
 const PRODUCT_NAME = "OpenBot";
-const EMAIL_PLACEHOLDER = "you@example.com";
+const EMAIL_PLACEHOLDER = "+62 812 3456 7890";
 const EMAIL_MARKER = "\u0000";
 
 export function AccountLogin(props: AccountLoginProps) {
@@ -119,6 +127,7 @@ export function AccountLogin(props: AccountLoginProps) {
   const companySignIn = () => (props.state.status === "company_sign_in" ? props.state : undefined);
   const loginStep = (): LoginStep => (companySignIn() ? "company" : codeSent() || verified() ? "code" : "email");
   const challenge = () => (props.state.status === "code_sent" ? props.state : undefined);
+  const whatsapp = () => challenge()?.whatsapp;
   const connecting = () => props.state.status === "loading";
   const keyringChanged = () => props.state.status === "signed_out" && props.state.reason === "keyring_changed";
   const currentIssue = (): CentralAuthIssue | undefined => {
@@ -177,7 +186,9 @@ export function AccountLogin(props: AccountLoginProps) {
     return [before, after] as const;
   };
   const codeSentParts = () => {
-    const [before = "", after = ""] = t("account.login.codeSent", { email: EMAIL_MARKER }).split(EMAIL_MARKER);
+    const [before = "", after = ""] = t(whatsapp() ? "account.login.whatsappHint" : "account.login.codeSent", {
+      email: EMAIL_MARKER,
+    }).split(EMAIL_MARKER);
     return [before, after] as const;
   };
   const emailFormShown = () => !connecting() && !unavailable() && loginStep() === "email";
@@ -231,7 +242,7 @@ export function AccountLogin(props: AccountLoginProps) {
 
   function validateEmail(value: string): string | null {
     if (!value.trim()) return t("account.login.emailRequired");
-    return normalizeEmailAddress(value) ? null : t("account.login.emailInvalid");
+    return phoneIdentity(value) ? null : t("account.login.emailInvalid");
   }
 
   function clearEmailErrorTimers(): void {
@@ -316,11 +327,11 @@ export function AccountLogin(props: AccountLoginProps) {
       emailInput?.focus();
       return;
     }
-    const normalizedEmail = normalizeEmailAddress(email());
+    const normalizedEmail = phoneIdentity(email());
     if (!normalizedEmail) return;
     sentInviteCode = props.inviteField ? (inviteCode() ?? undefined) : undefined;
     const action: PendingAction = emailDeliveryUncertain() ? "check" : "send";
-    setEmail(normalizedEmail);
+    setEmail(formatAccountIdentity(normalizedEmail));
     setIssueVisible(false);
     setLocalError(null);
     setPendingAction(action);
@@ -466,7 +477,7 @@ export function AccountLogin(props: AccountLoginProps) {
                 ) : (
                   <>
                     {codeSentParts()[0]}
-                    <strong>{challenge()?.email}</strong>
+                    <strong>{formatAccountIdentity(challenge()?.email ?? "")}</strong>
                     {codeSentParts()[1]}
                   </>
                 )}
@@ -588,10 +599,10 @@ export function AccountLogin(props: AccountLoginProps) {
                       ref={(element) => (emailInput = element)}
                       class={`t-input${emailErrorActive() ? " is-error" : ""}${emailShaking() ? " is-shaking" : ""}`}
                       id="account-email"
-                      type="email"
-                      autocomplete="email"
+                      type="tel"
+                      autocomplete="tel"
                       autocapitalize="none"
-                      inputmode="email"
+                      inputmode="tel"
                       spellcheck={false}
                       placeholder={EMAIL_PLACEHOLDER}
                       maxlength={INPUT_LIMITS.email}
@@ -655,17 +666,52 @@ export function AccountLogin(props: AccountLoginProps) {
                 data-auth-panel="code"
                 aria-busy={codeBusy() || resendBusy() ? "true" : "false"}
               >
-                <OtpInput
-                  value={code()}
-                  status={otpStatus()}
-                  hint={t("account.login.codeHint")}
-                  errorMessage={displayedCodeError()}
-                  successMessage={t("account.login.verified")}
-                  disabled={codeNeedsReplacement() || resendBusy()}
-                  autofocus
-                  onChange={handleCodeInput}
-                  onComplete={(value) => void submitCode(value)}
-                />
+                <Show
+                  when={whatsapp()}
+                  fallback={
+                    <OtpInput
+                      value={code()}
+                      status={otpStatus()}
+                      hint={t("account.login.codeHint")}
+                      errorMessage={displayedCodeError()}
+                      successMessage={t("account.login.verified")}
+                      disabled={codeNeedsReplacement() || resendBusy()}
+                      autofocus
+                      onChange={handleCodeInput}
+                      onComplete={(value) => void submitCode(value)}
+                    />
+                  }
+                >
+                  {(reverse) => (
+                    <div class="account-login-whatsapp">
+                      <QrCode value={reverse().url} size={176} label={t("account.login.whatsappOpen")} />
+                      <Show when={props.onOpenWhatsApp}>
+                        {(open) => (
+                          <Button
+                            variant="ghost"
+                            type="button"
+                            disabled={codeNeedsReplacement()}
+                            onClick={() => open()(reverse().url)}
+                          >
+                            {t("account.login.whatsappOpen")}
+                          </Button>
+                        )}
+                      </Show>
+                      <Button
+                        variant="default"
+                        type="button"
+                        class="account-login-primary"
+                        disabled={codeBusy() || codeNeedsReplacement() || pendingAction() !== null}
+                        onClick={() => void submitCode(reverse().code)}
+                      >
+                        <Show when={codeBusy()}>
+                          <span class="account-login-button-spinner" aria-hidden="true" />
+                        </Show>
+                        {t("account.login.whatsappSent")}
+                      </Button>
+                    </div>
+                  )}
+                </Show>
 
                 <Show when={challenge()?.developmentCode}>
                   {(developmentCode) => (
@@ -801,4 +847,10 @@ function formatTimer(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const remainder = seconds % 60;
   return `${minutes}:${remainder.toString().padStart(2, "0")}`;
+}
+
+/** The phone identity for a typed WhatsApp number, or null when it is not a phone number. */
+function phoneIdentity(value: string): string | null {
+  const identity = normalizeAccountIdentity(value);
+  return identity && phoneFromIdentityEmail(identity) ? identity : null;
 }

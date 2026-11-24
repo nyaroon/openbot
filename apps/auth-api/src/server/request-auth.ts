@@ -40,6 +40,7 @@ import { enforceHostedSiteReportRateLimit as enforceReportRateLimit } from "./ho
 import { adoptUnlinkedHostedSites, resolveHostedSiteScope } from "./hosted-site-server";
 import { HostedSiteService } from "./hosted-site-service";
 import { JsonBodyError } from "./json-body";
+import { kirimiWebhookSecret } from "./kirimi-delivery";
 import { type ApnsRelaySender, sharedApnsSender } from "./live-activity-relay";
 import { MarketplaceQueryError } from "./marketplace-pagination";
 import {
@@ -78,6 +79,11 @@ function accountAnalytics(bindings: WorkerBindings): AccountAnalytics {
 export function requestAccountAttribution(): AccountAttribution {
   const bindings = requireWorkerBindings(env);
   return new AccountAttribution({ database: bindings.DB, analytics: accountAnalytics(bindings) });
+}
+
+/** The secret in the path of the Kirimi incoming-message webhook. Null when reverse sign-in is off. */
+export function requestKirimiWebhookSecret(): string | null {
+  return kirimiWebhookSecret(requireWorkerBindings(env));
 }
 
 export function requestAuthService(): AuthService {

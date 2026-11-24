@@ -55,6 +55,7 @@ export function SignInScreen(props: SignInScreenProps) {
           onRequestEmailCode={props.onRequestEmailCode}
           onVerifyEmailCode={props.onVerifyEmailCode}
           onReset={props.onReset}
+          onOpenWhatsApp={openWhatsApp}
           inviteField
         />
       }
@@ -102,4 +103,8 @@ export function SignInScreen(props: SignInScreenProps) {
       </main>
     </Show>
   );
+}
+
+function openWhatsApp(url: string): void {
+  window.open(url, "_blank", "noopener,noreferrer");
 }

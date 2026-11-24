@@ -525,7 +525,7 @@ export const messages = {
   "settings.profile.teammates.title": "الزملاء الأكثر نشاطًا",
   "settings.profile.models.title": "استخدام النماذج",
   "settings.profile.account.title": "الحساب",
-  "settings.profile.email.title": "البريد الإلكتروني",
+  "settings.profile.email.title": "رقم واتساب",
   "settings.profile.email.description": "يُستخدم لتسجيل الدخول إلى OpenBot.",
   "settings.profile.sessions.title": "جلسات الحساب",
   "settings.profile.sessions.description":

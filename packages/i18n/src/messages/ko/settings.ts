@@ -502,7 +502,7 @@ export const messages = {
   "settings.profile.teammates.title": "가장 활발한 팀원",
   "settings.profile.models.title": "모델 사용량",
   "settings.profile.account.title": "계정",
-  "settings.profile.email.title": "이메일",
+  "settings.profile.email.title": "WhatsApp 번호",
   "settings.profile.email.description": "OpenBot에 로그인할 때 사용해요.",
   "settings.profile.sessions.title": "계정 세션",
   "settings.profile.sessions.description":
