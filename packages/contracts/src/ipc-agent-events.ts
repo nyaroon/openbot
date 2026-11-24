@@ -79,6 +79,7 @@ export type AgentEvent =
   | { type: "boards-changed"; boardId: string }
   | { type: "vault-changed" }
   | { type: "browser-profiles-changed" }
+  | { type: "host-turn-limits-changed" }
   | { type: "library-folders-changed" }
   | { type: "workflow-folders-changed" }
   | { type: "usage-credits-changed" }
@@ -226,6 +227,7 @@ export function isAgentEvent(value: unknown): value is AgentEvent {
     case "crm-changed":
     case "vault-changed":
     case "browser-profiles-changed":
+    case "host-turn-limits-changed":
     case "library-folders-changed":
     case "workflow-folders-changed":
     case "usage-credits-changed":

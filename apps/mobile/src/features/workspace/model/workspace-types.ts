@@ -86,6 +86,8 @@ import type {
   HostSignalHomeSettings,
   HostSkillLearning,
   HostTimezoneSettings,
+  HostTurnLimits,
+  HostTurnLimitsInput,
   HostUpdateSettingsChange,
   HostUpdateStatus,
   HostVoiceModel,
@@ -417,6 +419,9 @@ export interface MobileWorkspaceContextValue {
   canManageServerTimezone: (serverId: string) => boolean;
   loadServerTimezone: (serverId: string) => Promise<HostTimezoneSettings>;
   setServerTimezone: (timezone: string | null, serverId: string) => Promise<HostTimezoneSettings>;
+  canManageServerTurnLimits: (serverId: string) => boolean;
+  loadServerTurnLimits: (serverId: string) => Promise<HostTurnLimits>;
+  setServerTurnLimits: (input: HostTurnLimitsInput, serverId: string) => Promise<HostTurnLimits>;
   canManageServerVoiceModel: (serverId: string) => boolean;
   canManageServerSignalHome: (serverId: string) => boolean;
   servesServerSignalHome: (serverId: string) => boolean;
@@ -867,6 +872,7 @@ type ServerCheckKey =
   | "canCreateLocalServers"
   | "canRestartServerItself"
   | "canManageServerTimezone"
+  | "canManageServerTurnLimits"
   | "canManageServerVoiceModel"
   | "canManageServerSignalHome"
   | "servesServerSignalHome"

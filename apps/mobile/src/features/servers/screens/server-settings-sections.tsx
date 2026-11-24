@@ -31,6 +31,7 @@ import {
   ServerPersonalityRow,
   ServerSkillLearningRow,
 } from "@/features/servers/components/server-learning-rows";
+import { ServerTurnLimitsRows } from "@/features/servers/components/server-turn-limits-rows";
 import { ServerVoiceModelRow } from "@/features/servers/components/server-voice-model-row";
 import { TrailingValue } from "@/features/servers/components/trailing-value";
 import { SERVER_ROLE_LABEL_KEYS } from "@/features/servers/model/server-role";
@@ -296,6 +297,7 @@ export function ServerConnectionSection({ server }: { server: MobileServer }) {
 
 function permitsAgentSettings(checks: ServerChecks, serverId: string): boolean {
   return (
+    checks.canManageServerTurnLimits(serverId) ||
     checks.canManageServerPersonality(serverId) ||
     checks.canManageAgentMemoryLimit(serverId) ||
     checks.canManageMemoryReview(serverId) ||
@@ -391,6 +393,7 @@ export function ServerGeneralSection({ serverId }: { serverId: string }) {
 
 export function ServerAgentsSection({ serverId }: { serverId: string }) {
   const {
+    canManageServerTurnLimits,
     canManageServerPersonality,
     canManageAgentMemoryLimit,
     canManageMemoryReview,
@@ -400,6 +403,7 @@ export function ServerAgentsSection({ serverId }: { serverId: string }) {
   } = useMobileWorkspace();
   return (
     <>
+      {canManageServerTurnLimits(serverId) ? <ServerTurnLimitsRows serverId={serverId} /> : null}
       {canManageServerPersonality(serverId) ? <ServerPersonalityRow serverId={serverId} /> : null}
       {canManageAgentMemoryLimit(serverId) ? <ServerMemoryLimitRow serverId={serverId} /> : null}
       {canManageMemoryReview(serverId) ? <ServerMemoryReviewRow serverId={serverId} /> : null}
