@@ -232,7 +232,11 @@ import {
   withHostSidebarPins,
   withPhoneSidebarPins,
 } from "@/features/workspace/model/agent-pins";
-import { ConnectionWaits, isConnectionStop } from "@/features/workspace/model/connection-waits";
+import {
+  ConnectionUnavailableError,
+  ConnectionWaits,
+  isConnectionStop,
+} from "@/features/workspace/model/connection-waits";
 import { NO_CONTEXT_STATES, reduceContextStates } from "@/features/workspace/model/context-states";
 import { conversationMessageId, decodeConversationPage } from "@/features/workspace/model/conversation";
 import { MobileConversationStore } from "@/features/workspace/model/conversation-store";
@@ -616,7 +620,10 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
         clearTimeout(firstConnectionTimers.current.get(serverId));
         firstConnectionTimers.current.delete(serverId);
         deleteServerAvatars(serverId);
-        connectionWaits.drop(serverId, new Error(currentText().t("mobile.workspace.error.transportNotReady")));
+        connectionWaits.drop(
+          serverId,
+          new ConnectionUnavailableError(currentText().t("mobile.workspace.error.transportNotReady")),
+        );
         readRefresh.invalidate(serverId);
         for (const id of serverAgentIds.current.get(serverId) ?? []) removedAgentIds.add(id);
         serverAgentIds.current.delete(serverId);
@@ -767,7 +774,7 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
     ): Promise<T> => {
       if (serverId) await connectionWaits.whenConnected(serverId);
       const client = serverId ? connections.current.get(serverId)?.client : null;
-      if (!client) throw new Error(currentText().t("mobile.workspace.error.transportNotReady"));
+      if (!client) throw new ConnectionUnavailableError(currentText().t("mobile.workspace.error.transportNotReady"));
       return client.request(method, path, decode, body, upload, onUploadProgress, largeDownload, download);
     },
     [connectionWaits],
@@ -1485,7 +1492,10 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
           { cancelRefetch: false },
         );
       } else if (!resuming && status.phase !== "connecting")
-        connectionWaits.settle(hostId, new Error(sourceText("error.remote.selectedServerOffline")));
+        connectionWaits.settle(
+          hostId,
+          new ConnectionUnavailableError(sourceText("error.remote.selectedServerOffline")),
+        );
       if (status.phase === "online" && hostId === activeServerIdRef.current) setHold(null);
     },
     [recoveryCountdowns, connectionWaits, limitFirstConnection, backgroundRefreshStatus, queryClient],
@@ -1510,7 +1520,7 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
       conversationStore.cancelRequests();
       conversationStore.flush();
       for (const { id } of serversRef.current) persistServer(id);
-      connectionWaits.dropAll(new Error(sourceText("error.remote.appInBackground")));
+      connectionWaits.dropAll(new ConnectionUnavailableError(sourceText("error.remote.appInBackground")));
     }
     directoryRefresh.setActive(live);
   }, [live, directoryRefresh, conversationStore, connectionWaits, persistServer]);
