@@ -3667,6 +3667,7 @@ export async function createApplicationServices({
           }),
       },
       accountReady: centralAuthInitialization,
+      headlessHost: Boolean(serverModeEnvironment),
       ...(serverModeEnvironment || localServerChild
         ? {}
         : {

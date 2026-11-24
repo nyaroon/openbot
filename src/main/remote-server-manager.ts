@@ -232,6 +232,7 @@ interface RemoteServerManagerOptions {
   accountReady?: Effect.Effect<unknown, RemoteWorkflowError>;
   localNotificationLevels?: LocalNotificationLevels;
   computerActivity?: ComputerActivityOptions;
+  headlessHost?: boolean;
 }
 
 interface ComputerActivityOptions {
@@ -305,6 +306,7 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
     this.#background(this.request(serverId, FOCUS_USE_ROUTES.ping, acceptEmpty, { method: "POST", body: {} })),
   );
   readonly #computerActivity: ComputerActivityReport | null;
+  readonly #headlessHost: boolean;
   readonly #remoteViewerProxy: RemoteViewerProxy | null;
   #selections = Semaphore.makeUnsafe(1);
   readonly #directorySync = Semaphore.makeUnsafe(1);
@@ -339,6 +341,7 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
     this.#connectTrace = options.connectTrace ?? null;
     this.#accountReady = options.accountReady ?? Effect.void;
     this.#localLevels = options.localNotificationLevels ?? null;
+    this.#headlessHost = options.headlessHost ?? false;
     const activity = options.computerActivity;
     this.#computerActivity = activity
       ? new ComputerActivityReport({
@@ -587,6 +590,7 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
   }).bind(this);
 
   connectActiveServer(): void {
+    if (this.#headlessHost) return;
     const transport = this.#webrtcTransport;
     const server = this.#store.find(this.#store.activeServerId);
     if (!transport || server?.transport !== "webrtc-v2") return;
@@ -819,6 +823,7 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
   readonly startEventConnections = Effect.fn("RemoteManager.startEventConnections")(function* (
     this: RemoteServerManager,
   ) {
+    if (this.#headlessHost) return;
     this.#computerActivity?.start();
     yield* this.#events.start();
   }).bind(this);
@@ -826,6 +831,7 @@ export class RemoteServerManager extends EventEmitter<RemoteServerEvents> {
   readonly refreshRuntimeSnapshots = Effect.fn("RemoteManager.refreshRuntimeSnapshots")(function* (
     this: RemoteServerManager,
   ) {
+    if (this.#headlessHost) return;
     yield* this.#events.refreshRuntimeSnapshots();
   }).bind(this);
 
