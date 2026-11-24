@@ -8,6 +8,7 @@ export interface MemoryHoldHooks {
   retryWaiting(): void;
   releaseIdleThreads(): Effect.Effect<void, ProviderClientOperationError>;
   releaseQuietBackgroundThreads(): Effect.Effect<void, ProviderClientOperationError>;
+  releaseIdleBrowserTabs(): Effect.Effect<void>;
   emitError(code: string, error: unknown, agentId?: string): void;
 }
 
@@ -90,7 +91,9 @@ export class MemoryHold {
     if (!this.#releasing && level !== "ok") {
       this.#releasing = true;
       const releases = [this.#hooks.releaseQuietBackgroundThreads()];
-      if (critical || this.#told.size > 0) releases.push(this.#hooks.releaseIdleThreads());
+      if (critical || this.#told.size > 0) {
+        releases.push(this.#hooks.releaseIdleThreads(), this.#hooks.releaseIdleBrowserTabs());
+      }
       if (critical) this.#criticalReleased = true;
       yield* Effect.forEach(
         releases,
