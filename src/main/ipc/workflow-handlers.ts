@@ -3,7 +3,6 @@ import { join } from "node:path";
 import {
   fillWorkflowFileExport,
   parseWorkflowFolderAction,
-  WORKFLOW_MEDIA_CATALOG_MAX,
   type WorkflowFileHostExport,
   type WorkflowFileSaveResult,
   type WorkflowMediaCatalog,
@@ -14,14 +13,6 @@ import {
   WORKFLOW_FOLDERS_CAPABILITY,
   WORKFLOW_FOLDERS_ROUTES,
 } from "@openbot/contracts/team-protocol/workflow-folders-v1";
-import {
-  WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CAPABILITY,
-  WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_ROUTES,
-} from "@openbot/contracts/team-protocol/workflows-credit-media-unavailable-v1";
-import {
-  WORKFLOWS_CREDIT_MEDIA_CAPABILITY,
-  WORKFLOWS_CREDIT_MEDIA_ROUTES,
-} from "@openbot/contracts/team-protocol/workflows-credit-media-v1";
 import {
   WORKFLOWS_GITHUB_CAPABILITY,
   WORKFLOWS_GITHUB_ROUTES,
@@ -66,7 +57,6 @@ import { WORKFLOWS_CAPABILITY, WORKFLOWS_ROUTES } from "@openbot/contracts/team-
 import type { AppTranslate } from "@openbot/i18n";
 import { sourceText } from "@openbot/i18n/source";
 import {
-  decodeRemoteCreditMediaCredits,
   decodeRemoteHiggsfieldCredits,
   decodeRemoteHiggsfieldProviders,
   decodeRemoteMediaServiceAccounts,
@@ -81,7 +71,6 @@ import {
   decodeRemoteWorkflowMediaCredits,
   decodeRemoteWorkflowMediaPrice,
   decodeRemoteWorkflowMediaProviders,
-  decodeRemoteWorkflowMediaUnavailable,
   decodeRemoteWorkflowPicture,
   decodeRemoteWorkflowRunDetail,
   decodeRemoteWorkflowRunPage,
@@ -140,8 +129,6 @@ interface WorkflowRemoteServers {
       | typeof WORKFLOWS_HIGGSFIELD_CAPABILITY
       | typeof WORKFLOWS_MEDIA_CATALOG_CAPABILITY
       | typeof WORKFLOWS_MEDIA_CATALOG_V2_CAPABILITY
-      | typeof WORKFLOWS_CREDIT_MEDIA_CAPABILITY
-      | typeof WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CAPABILITY
       | typeof WORKFLOWS_MEDIA_SERVICE_ACCOUNT_CAPABILITY
       | typeof WORKFLOWS_STEP_SETTINGS_CAPABILITY
       | typeof WORKFLOWS_PAUSE_CAPABILITY
@@ -366,45 +353,15 @@ export function workflowIpcHandlers({
       }),
       mediaProviders: scopedQueryHandler({
         local: () => workflows.mediaProviders(),
-        remote: async (serverId) => ({
-          ...(await serviceProviders(serverId)),
-          ...(creditMedia(serverId) ? { openbot: true } : {}),
-        }),
+        remote: (serverId) => serviceProviders(serverId),
       }),
       mediaCredits: scopedQueryHandler({
         local: () => runCauseEffect(workflows.mediaCredits()),
-        remote: async (serverId) => {
-          const [services, credit] = await Promise.all([
-            serviceCredits(serverId),
-            creditMedia(serverId)
-              ? remote(serverId, WORKFLOWS_CREDIT_MEDIA_ROUTES.credits, decodeRemoteCreditMediaCredits, {})
-              : {},
-          ]);
-          return { ...services, ...credit };
-        },
+        remote: (serverId) => serviceCredits(serverId),
       }),
       mediaCatalog: scopedQueryHandler({
         local: () => runCauseEffect(workflows.mediaCatalog()),
-        remote: async (serverId) => {
-          const [credit, services, unavailable] = await Promise.all([
-            creditMedia(serverId)
-              ? remote(serverId, WORKFLOWS_CREDIT_MEDIA_ROUTES.catalog, decodeRemoteWorkflowMediaCatalog, {})
-              : { models: [] },
-            serviceCatalog(serverId),
-            remoteServers.supportsCapability(serverId, WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CAPABILITY)
-              ? remote(
-                  serverId,
-                  WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_ROUTES.list,
-                  decodeRemoteWorkflowMediaUnavailable,
-                  {},
-                ).catch(() => [])
-              : [],
-          ]);
-          return {
-            models: [...credit.models, ...services.models].slice(0, WORKFLOW_MEDIA_CATALOG_MAX),
-            ...(unavailable.length > 0 ? { unavailable } : {}),
-          };
-        },
+        remote: (serverId) => serviceCatalog(serverId),
       }),
       mediaPrice: scopedHandler(parseWorkflowMediaPrice, {
         local: (input) => runCauseEffect(workflows.mediaPrice(input)),
@@ -425,10 +382,6 @@ export function workflowIpcHandlers({
       }),
     },
   };
-
-  function creditMedia(serverId: string) {
-    return remoteServers.supportsCapability(serverId, WORKFLOWS_CREDIT_MEDIA_CAPABILITY);
-  }
 
   async function serviceProviders(serverId: string): Promise<WorkflowMediaProviders> {
     if (remoteServers.supportsCapability(serverId, WORKFLOWS_MEDIA_SERVICE_ACCOUNT_CAPABILITY)) {

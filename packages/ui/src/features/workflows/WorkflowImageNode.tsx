@@ -1,8 +1,8 @@
-import { type WorkflowMediaInput, workflowCatalogSource } from "@openbot/contracts/ipc";
+import type { WorkflowMediaInput } from "@openbot/contracts/ipc";
 import type { AppTranslate } from "@openbot/i18n";
 import { Button, Download, Film, Image, Maximize2, Mic, RotateCcw, Square, Textarea, TriangleAlert } from "@openbot/ui";
 import type { JSX } from "@solidjs/web";
-import { createEffect, createSignal, Show, untrack } from "solid-js";
+import { createSignal, Show, untrack } from "solid-js";
 import { useText } from "../../text";
 import { ImageLightbox, type ImageLightboxOpening } from "../conversation/ImageLightbox";
 import { MediaGenerationCanvas } from "../conversation/media-generation-frame";
@@ -85,7 +85,7 @@ function FailedTake(props: { id: string; result: WfnResult; step: MediaStep }) {
             size="sm"
             class="wfn-media-retry"
             aria-label={props.step.retryLabel()}
-            disabled={props.step.locked() || props.step.retryShort()}
+            disabled={props.step.locked()}
             onClick={() => retry()(props.id, props.result.id)}
           >
             <RotateCcw aria-hidden="true" />
@@ -122,10 +122,6 @@ export function ImageNode(props: { id: string; image?: string | undefined; promp
     untrack(() => ({ prompt: props.prompt, aspect: props.aspect })),
   );
   const { kind, prompt, specs, model, run } = step;
-  createEffect(step.short, (short) => {
-    board.markCreditsShort(props.id, short);
-    return () => board.markCreditsShort(props.id, false);
-  });
   const text = (key: keyof (typeof KIND_TEXT)["image"]) => t(KIND_TEXT[kind()][key]);
   const frameRatio = () => {
     const size = specs().size;
@@ -187,8 +183,7 @@ export function ImageNode(props: { id: string; image?: string | undefined; promp
     const shown = board.shown(props.id);
     return shown?.failed ? shown : undefined;
   };
-  const paidWithCredits = () => workflowCatalogSource(model()?.id ?? "") === "openbot";
-  const stoppable = () => !paidWithCredits() && run.stop();
+  const stoppable = () => run.stop();
   const durationText = (value: number) => t("workflow.video.seconds", { value: String(value) });
   const frameText = () => {
     const size = specs().size;
@@ -344,7 +339,6 @@ export function ImageNode(props: { id: string; image?: string | undefined; promp
                 kind={kind()}
                 models={step.models()}
                 model={model()}
-                savedName={step.savedModelName()}
                 account={step.account()}
                 title={text("models")}
                 disabled={step.specsDisabled()}
@@ -357,7 +351,7 @@ export function ImageNode(props: { id: string; image?: string | undefined; promp
                     size="xs"
                     class="wfn-run-pill"
                     loading={step.busy()}
-                    disabled={!step.runnable() || step.locked() || step.short() || !model()}
+                    disabled={!step.runnable() || step.locked() || !model()}
                     aria-label={step.runLabel()}
                   >
                     <RunContent credits={step.total()} takes={step.batch()} modelMissing={step.modelMissing()} />

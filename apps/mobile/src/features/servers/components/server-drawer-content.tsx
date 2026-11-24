@@ -71,7 +71,6 @@ import { isAndroid, longPressDelay } from "@/shared/lib/platform";
 import { currentText, useText } from "@/shared/lib/text";
 import { MIRROR_IN_RTL } from "@/shared/lib/text-direction";
 import { typeScale } from "@/shared/lib/type-scale";
-import { DrawerCredits } from "./drawer-credits";
 import { DrawerHeaderBlur } from "./drawer-header-blur";
 import { SERVER_AVATAR_CORNER_RATIO, ServerAvatar } from "./server-avatar";
 import { ServerDrawerIconButton } from "./server-drawer-icon-button";
@@ -551,7 +550,6 @@ export const ServerDrawerContent = memo(function ServerDrawerContent({
       </View>
 
       <View className="mr-6 pt-2">
-        <DrawerCredits serverId={activeServer?.id ?? null} open={open} onNavigate={onNavigate} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${displayName}, ${session.user.email}`}

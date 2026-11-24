@@ -11,7 +11,6 @@ export interface BillingDialogProps {
   store: BillingStore;
   hostedServers?: SettingsHostedServersStore | undefined;
   license?: JSX.Element;
-  credits?: JSX.Element;
 }
 
 export function BillingDialog(props: BillingDialogProps): JSX.Element {
@@ -39,13 +38,7 @@ export function BillingDialog(props: BillingDialogProps): JSX.Element {
               </Dialog.Description>
             </header>
             <div class="billing-dialog-body">
-              <BillingPanel
-                store={props.store}
-                available
-                hostedServers={props.hostedServers}
-                license={props.license}
-                credits={props.credits}
-              />
+              <BillingPanel store={props.store} available hostedServers={props.hostedServers} license={props.license} />
             </div>
           </Dialog.Content>
         </Dialog.Overlay>

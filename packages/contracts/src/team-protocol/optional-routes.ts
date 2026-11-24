@@ -173,8 +173,6 @@ import { WHATSAPP_READ_ONLY_CODECS } from "./whatsapp-read-only-v1";
 import { WHATSAPP_STATUS_REACTIONS_CODECS } from "./whatsapp-status-reactions-v1";
 import { WHATSAPP_WORKING_MESSAGE_CODECS } from "./whatsapp-working-message-v1";
 import { WORKFLOW_FOLDERS_CODECS } from "./workflow-folders-v1";
-import { WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CODECS } from "./workflows-credit-media-unavailable-v1";
-import { WORKFLOWS_CREDIT_MEDIA_CODECS } from "./workflows-credit-media-v1";
 import { WORKFLOWS_GITHUB_CODECS } from "./workflows-github-v1";
 import { WORKFLOWS_HIGGSFIELD_CODECS } from "./workflows-higgsfield-v1";
 import { WORKFLOWS_MEDIA_CATALOG_CODECS } from "./workflows-media-catalog-v1";
@@ -363,8 +361,6 @@ const CODECS: ReadonlyMap<string, OptionalRouteCodec> = new Map([
   ...WORKFLOWS_MEDIA_SERVICE_ACCOUNT_CODECS,
   ...WORKFLOWS_MEDIA_CATALOG_CODECS,
   ...WORKFLOWS_MEDIA_CATALOG_V2_CODECS,
-  ...WORKFLOWS_CREDIT_MEDIA_CODECS,
-  ...WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CODECS,
   ...WORKFLOWS_STEP_SETTINGS_CODECS,
   ...WORKFLOWS_PAUSE_CODECS,
   ...WORKFLOWS_PORTABLE_CODECS,

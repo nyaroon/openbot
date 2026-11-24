@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { createAccountAnalytics } from "./account-analytics";
 import { BillingOss } from "./billing-oss";
-import { creditPurchaseAlertText, purchaseAlertText } from "./billing-purchase";
+import { purchaseAlertText } from "./billing-purchase";
 import { BillingSales } from "./billing-sales";
 import { BillingService } from "./billing-service";
 import { vatAlertText } from "./billing-tax";
@@ -100,7 +100,6 @@ export function createHostedBilling(
         ...(operatorAlert
           ? {
               onPurchase: (purchase) => options.schedule(operatorAlert(purchaseAlertText(purchase))),
-              onCreditPurchase: (purchase) => options.schedule(operatorAlert(creditPurchaseAlertText(purchase))),
               onVatMismatch: (text) => options.schedule(operatorAlert(vatAlertText(text))),
             }
           : {}),

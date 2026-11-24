@@ -11,7 +11,6 @@ import {
   isWorkflowMediaCreditBalance,
   isWorkflowMediaPrice,
   isWorkflowMediaServiceAccount,
-  isWorkflowMediaUnavailableModel,
   isWorkflowRunDetail,
   isWorkflowRunPage,
   isWorkflowSaveResult,
@@ -38,7 +37,6 @@ import {
   type WorkflowMediaPrice,
   type WorkflowMediaProviders,
   type WorkflowMediaServiceAccount,
-  type WorkflowMediaUnavailableModel,
   type WorkflowStepSettings,
   workflowFormatIsNewer,
   workflowGraphPlaceholders,
@@ -180,11 +178,6 @@ export function decodeRemoteHiggsfieldCredits(value: unknown): { higgsfield: Wor
   return { higgsfield: remoteCreditBalance(value.higgsfield) };
 }
 
-export function decodeRemoteCreditMediaCredits(value: unknown): { openbot: WorkflowMediaCreditBalance | null } {
-  if (!isDynamicRecord(value)) throw new Error("Invalid remote workflow credits.");
-  return { openbot: remoteCreditBalance(value.openbot) };
-}
-
 function remoteAccountList<T>(value: unknown, item: (entry: unknown) => entry is T): T[] {
   if (
     !isDynamicRecord(value) ||
@@ -257,14 +250,6 @@ export function decodeRemoteWorkflowMediaCatalog(value: unknown): WorkflowMediaC
         : {}),
     })),
   };
-}
-
-export function decodeRemoteWorkflowMediaUnavailable(value: unknown): WorkflowMediaUnavailableModel[] {
-  if (!isDynamicRecord(value) || !Array.isArray(value.models) || value.models.length > WORKFLOW_MEDIA_CATALOG_MAX)
-    throw new Error("Invalid remote workflow catalog.");
-  return value.models
-    .filter(isWorkflowMediaUnavailableModel)
-    .map((model) => ({ id: model.id, name: model.name, kinds: [...model.kinds] }));
 }
 
 export function decodeRemoteWorkflowMediaPrice(value: unknown): WorkflowMediaPrice {

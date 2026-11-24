@@ -143,7 +143,7 @@ export function WorkflowMediaComposer(props: {
   });
 
   const pictures = () => step.inputs().filter((source) => step.inputUrl(source) !== undefined);
-  const ready = () => !step.busy() && step.runnable() && !step.locked() && !step.short() && step.model() !== undefined;
+  const ready = () => !step.busy() && step.runnable() && !step.locked() && step.model() !== undefined;
   takeKey(
     isEscape,
     (target) => section?.contains(target) === true,
@@ -204,7 +204,6 @@ function ComposerModel(props: { step: MediaStep; id: string }) {
       kind={props.step.kind()}
       models={props.step.models()}
       model={props.step.model()}
-      savedName={props.step.savedModelName()}
       account={props.step.account()}
       title={t(KIND_TEXT[props.step.kind()].models)}
       disabled={props.step.specsDisabled()}

@@ -6,9 +6,8 @@ import {
   type WorkflowMediaCatalogModel,
   type WorkflowMediaModel,
   type WorkflowMediaServiceAccount,
-  type WorkflowMediaUnavailableModel,
   workflowCatalogMediaModel,
-  workflowCatalogSource,
+  workflowCatalogProvider,
 } from "@openbot/contracts/ipc";
 import { Spinner } from "@openbot/ui";
 import { providerAvailability, providerTurnedOff } from "@openbot/ui/components/provider-model-options";
@@ -46,26 +45,11 @@ export function WorkflowsCanvas(props: {
   );
   const [sunra, setSunra] = createSignal(false);
   const [higgsfield, setHiggsfield] = createSignal(false);
-  const [openbot, setOpenbot] = createSignal(false);
   const [serviceAccounts, setServiceAccounts] = createSignal<readonly WorkflowMediaServiceAccount[] | null>(null);
   const [catalog, setCatalog] = createSignal<readonly WorkflowMediaCatalogModel[]>([]);
   const [providersRead, setProvidersRead] = createSignal(false);
   const [catalogRead, setCatalogRead] = createSignal(false);
-  const [unavailable, setUnavailable] = createSignal<readonly WorkflowMediaUnavailableModel[]>([]);
-  const [creditBalance, setCreditBalance] = createSignal<number | null>(null);
   let disposed = false;
-  let balanceRequest = 0;
-  const readCreditBalance = () => {
-    if (!props.host.mediaSupported()) return;
-    balanceRequest += 1;
-    const sent = balanceRequest;
-    void props.host.workflows
-      .mediaCredits()
-      .then((answer) => {
-        if (!disposed && sent === balanceRequest) setCreditBalance(answer.openbot?.available ?? null);
-      })
-      .catch(() => undefined);
-  };
   const readMediaProviders = () => {
     if (!props.host.mediaSupported()) return;
     void props.host.workflows
@@ -74,10 +58,8 @@ export function WorkflowsCanvas(props: {
         if (disposed) return;
         setSunra(providers.sunra);
         setHiggsfield(providers.higgsfield);
-        setOpenbot(providers.openbot === true);
         setServiceAccounts(providers.accounts);
         setProvidersRead(true);
-        if (providers.openbot === true) readCreditBalance();
       })
       .catch(() => undefined);
     void props.host.workflows
@@ -85,7 +67,6 @@ export function WorkflowsCanvas(props: {
       .then((answer) => {
         if (disposed) return;
         setCatalog(answer.models);
-        setUnavailable(answer.unavailable ?? []);
         setCatalogRead(true);
       })
       .catch(() => undefined);
@@ -133,11 +114,10 @@ export function WorkflowsCanvas(props: {
         if (shown.ends.has(end)) continue;
         shown.ends.add(end);
         const model = workflow.graph.nodes.find((node) => node.id === step.nodeId)?.fields.model;
-        if (typeof model === "string" && workflowCatalogSource(model)) ended = true;
+        if (typeof model === "string" && workflowCatalogProvider(model)) ended = true;
       }
       if (!ended) return;
       noteMediaStepEnded();
-      if (openbot()) readCreditBalance();
     },
   );
   window.addEventListener("focus", readMediaProviders);
@@ -173,7 +153,7 @@ export function WorkflowsCanvas(props: {
     get imageModels() {
       if (!props.host.mediaSupported()) return [];
       const fixed = WORKFLOW_MEDIA_MODELS.flatMap((model) => {
-        if (model.provider === "sunra" || model.provider === "higgsfield" || model.provider === "openbot") return [];
+        if (model.provider === "sunra" || model.provider === "higgsfield") return [];
         if (providerTurnedOff(props.status, model.provider)) return [];
         const status = providerAvailability(props.status, props.models, model.provider, currentText().t);
         if (status.state !== "available") return [];
@@ -199,30 +179,13 @@ export function WorkflowsCanvas(props: {
           ...(accounts ? { accounts } : {}),
         }));
       };
-      const credit = openbot()
-        ? catalog()
-            .filter((entry) => entry.provider === "openbot")
-            .flatMap((entry) => workflowCatalogMediaModel(entry) ?? [])
-        : [];
-      return [...credit, ...fixed, ...service("sunra", sunra()), ...service("higgsfield", higgsfield())];
+      return [...fixed, ...service("sunra", sunra()), ...service("higgsfield", higgsfield())];
     },
     get imageModelsReady() {
       return !props.host.mediaSupported() || (providersRead() && catalogRead());
     },
-    get unavailableModels() {
-      if (!props.host.mediaSupported()) return [];
-      const hidden = openbot()
-        ? []
-        : catalog()
-            .filter((entry) => entry.provider === "openbot")
-            .map(({ id, name, kinds }) => ({ id, name, kinds }));
-      return [...unavailable(), ...hidden];
-    },
     get mediaPrice() {
       return props.host.mediaSupported() ? props.host.workflows.mediaPrice : undefined;
-    },
-    get creditBalance() {
-      return openbot() ? creditBalance() : null;
     },
     get mediaSize() {
       return props.host.mediaSizeSupported();

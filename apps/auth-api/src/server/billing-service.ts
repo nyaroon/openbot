@@ -47,7 +47,7 @@ import {
 } from "@openbot/contracts/license";
 import { isDynamicRecord, isOneOf, isString } from "@openbot/contracts/runtime-values";
 import { sourceText } from "@openbot/i18n/source";
-import { Context, Effect, Exit, Layer } from "effect";
+import { Context, Effect, Layer } from "effect";
 import { SOLD_OUT_PLANS } from "../lib/pricing-page";
 import {
   type AccountAnalytics,
@@ -66,13 +66,7 @@ import {
   stripeRequest,
 } from "./billing-errors";
 import type { BillingOss } from "./billing-oss";
-import {
-  type BillingPurchase,
-  type CreditPurchase,
-  purchaseEvent,
-  reportPurchase,
-  subscriptionEnd,
-} from "./billing-purchase";
+import { type BillingPurchase, purchaseEvent, reportPurchase, subscriptionEnd } from "./billing-purchase";
 import {
   type BillingSales,
   type BillingSalesSynced,
@@ -81,8 +75,6 @@ import {
   withoutTax,
 } from "./billing-sales";
 import { billingDetailsOf, checkoutCountryMismatch, checkoutTax, setCustomerBillingDetails } from "./billing-tax";
-import { CreditGrants } from "./credit-grants";
-import { CreditService, isCreditCheckoutEvent, isCreditInvoiceEvent } from "./credit-service";
 import type { HostedFailure } from "./hosted-server-service";
 import {
   type FailedLicenseInvoice,
@@ -179,7 +171,6 @@ export interface BillingServiceOptions {
   onFirstPlanStarted?: (start: FirstPlanStart) => void;
   onLicenseEmail?: LicenseServiceOptions["onLicenseEmail"];
   onPurchase?: (purchase: BillingPurchase) => void;
-  onCreditPurchase?: (purchase: CreditPurchase) => void;
   vies?: ViesClient;
   onVatMismatch?: (text: string) => void;
   oss?: BillingOss;
@@ -277,7 +268,6 @@ export class BillingService {
   readonly #oss: BillingOss | null;
   readonly #countryRequired: boolean;
   readonly license: LicenseService;
-  readonly credits: CreditService;
 
   constructor(options: BillingServiceOptions) {
     const database = options.database;
@@ -302,16 +292,6 @@ export class BillingService {
       onCustomServerChanged: options.onCustomServerChanged ?? null,
       onServerRefunded: options.onServerRefunded ?? null,
       analytics: this.#analytics,
-    });
-    this.credits = new CreditService({
-      database,
-      stripe,
-      secretKey: options.secretKey,
-      countryRequired: this.#countryRequired,
-      now,
-      ensureCustomer: (user) => this.ensureCustomer(user),
-      analytics: this.#analytics,
-      ...(options.onCreditPurchase ? { onPurchase: options.onCreditPurchase } : {}),
     });
     this.license = new LicenseService({
       database,
@@ -1010,12 +990,6 @@ export class BillingService {
           .first<{ seen: number }>(),
       );
       if (seen) return;
-      yield* this.credits.webhook(event);
-      if (isCreditCheckoutEvent(event)) return yield* this.#recordEvent(event, now);
-      if (isCreditInvoiceEvent(event)) {
-        if (this.#oss) yield* this.#oss.record(event);
-        return yield* this.#recordEvent(event, now);
-      }
       const reversal = paymentReversal(event);
       const payment = reversal
         ? yield* this.#stripeCall(() => dependencies.stripe.getPaymentInvoice(reversal.paymentIntentId))
@@ -1149,14 +1123,6 @@ export class BillingService {
       const ownerId = yield* this.#subscriptionOwner(subscription, customerId);
       if (!ownerId) return null;
       const synced = yield* this.license.sync(subscription, ownerId, readAt);
-      const granted = yield* Effect.exit(
-        new CreditGrants({
-          database: dependencies.database,
-          now: dependencies.now,
-          analytics: dependencies.analytics,
-        }).issue(subscription.id),
-      );
-      if (Exit.isFailure(granted)) console.warn("billing: license credits wait for the next sweep", { subscriptionId });
       return synced;
     }
     const key = price ? planLookupKey(price) : null;

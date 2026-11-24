@@ -240,7 +240,6 @@ export function WorkspaceSidebar(props: { peopleEnabled: boolean }) {
                 onInstallServer: serverActions.addMenuInstallServer(),
                 addCreatesServer: serverActions.addCreatesServer(),
                 hiddenLocal: serverActions.hiddenLocal(),
-                credits: windowPage.creditsMenu(),
                 ...serverActions.callbacks,
               }
             : undefined

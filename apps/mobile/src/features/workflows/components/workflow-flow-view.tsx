@@ -111,7 +111,7 @@ export function FlowStepCard({
           </Typography.Paragraph>
           {credits ? (
             <View className="mt-1">
-              <CreditBadge credits={credits.credits} short={credits.short} />
+              <CreditBadge credits={credits.credits} />
             </View>
           ) : null}
           {problem ? (

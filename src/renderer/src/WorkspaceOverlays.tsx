@@ -1084,9 +1084,6 @@ function AppSettings(props: AccountProps) {
         onSignOut={platform.landingPreview ? undefined : auth.logoutCentralAccount}
         billingApi={appPort().billing}
         licenseApi={appPort().license}
-        creditsApi={appPort().credits}
-        onCreditsChange={windowPage.adoptCredits}
-        onBuyCredits={(serverId) => windowPage.openCredits(serverId)}
         onContactUs={() => void appPort().openExternal("hosted-server-contact")}
         hostedServersApi={appPort().hostedServers}
         onAddHostedServer={() => {

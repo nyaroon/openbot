@@ -5,7 +5,6 @@ import {
   fillWorkflowFileExport,
   STORAGE_CAPABILITY,
   type TeamRealtimeEvent,
-  WORKFLOW_MEDIA_CATALOG_MAX,
   type WorkflowFileSaveResult,
   type WorkflowFolderAction,
   type WorkflowMediaKind,
@@ -22,14 +21,6 @@ import { WORKFLOWS_AGENT_FILES_CAPABILITY } from "@openbot/contracts/team-protoc
 import { WORKFLOWS_ANSWERS_CAPABILITY } from "@openbot/contracts/team-protocol/workflows-answers-v1";
 import { WORKFLOWS_CHANNELS_CAPABILITY } from "@openbot/contracts/team-protocol/workflows-channels-v1";
 import { WORKFLOWS_CHATS_CAPABILITY } from "@openbot/contracts/team-protocol/workflows-chats-v1";
-import {
-  WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CAPABILITY,
-  WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_ROUTES,
-} from "@openbot/contracts/team-protocol/workflows-credit-media-unavailable-v1";
-import {
-  WORKFLOWS_CREDIT_MEDIA_CAPABILITY,
-  WORKFLOWS_CREDIT_MEDIA_ROUTES,
-} from "@openbot/contracts/team-protocol/workflows-credit-media-v1";
 import {
   WORKFLOWS_GITHUB_CAPABILITY,
   WORKFLOWS_GITHUB_ROUTES,
@@ -89,7 +80,6 @@ import {
   uploadAttachmentDraft,
 } from "@openbot/team-client/team-api-requests";
 import {
-  decodeRemoteCreditMediaCredits,
   decodeRemoteHiggsfieldCredits,
   decodeRemoteHiggsfieldProviders,
   decodeRemoteMediaServiceAccounts,
@@ -104,7 +94,6 @@ import {
   decodeRemoteWorkflowMediaCredits,
   decodeRemoteWorkflowMediaPrice,
   decodeRemoteWorkflowMediaProviders,
-  decodeRemoteWorkflowMediaUnavailable,
   decodeRemoteWorkflowPicture,
   decodeRemoteWorkflowRunDetail,
   decodeRemoteWorkflowRunPage,
@@ -304,36 +293,9 @@ export function webWorkflowHost(options: WebWorkflowHostOptions): WorkflowHost {
       githubRunLastEvent: (input) =>
         postGitHub(WORKFLOWS_GITHUB_ROUTES.runLastEvent, decodeRemoteWorkflowRunDetail, input),
       keepPicture: (draftId) => postMedia(WORKFLOWS_MEDIA_ROUTES.keepPicture, decodeRemoteWorkflowPicture, { draftId }),
-      mediaProviders: async () => ({
-        ...(await serviceProviders()),
-        ...(has(WORKFLOWS_CREDIT_MEDIA_CAPABILITY) ? { openbot: true } : {}),
-      }),
-      mediaCredits: async () => {
-        const [services, credit] = await Promise.all([
-          serviceCredits(),
-          has(WORKFLOWS_CREDIT_MEDIA_CAPABILITY)
-            ? post(WORKFLOWS_CREDIT_MEDIA_ROUTES.credits, decodeRemoteCreditMediaCredits, {})
-            : {},
-        ]);
-        return { ...services, ...credit };
-      },
-      mediaCatalog: async () => {
-        const [credit, services, unavailable] = await Promise.all([
-          has(WORKFLOWS_CREDIT_MEDIA_CAPABILITY)
-            ? post(WORKFLOWS_CREDIT_MEDIA_ROUTES.catalog, decodeRemoteWorkflowMediaCatalog, {})
-            : { models: [] },
-          serviceCatalog(),
-          has(WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CAPABILITY)
-            ? post(WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_ROUTES.list, decodeRemoteWorkflowMediaUnavailable, {}).catch(
-                () => [],
-              )
-            : [],
-        ]);
-        return {
-          models: [...credit.models, ...services.models].slice(0, WORKFLOW_MEDIA_CATALOG_MAX),
-          ...(unavailable.length > 0 ? { unavailable } : {}),
-        };
-      },
+      mediaProviders: () => serviceProviders(),
+      mediaCredits: () => serviceCredits(),
+      mediaCatalog: () => serviceCatalog(),
       mediaPrice: async (input) =>
         has(WORKFLOWS_MEDIA_CATALOG_V2_CAPABILITY)
           ? post(WORKFLOWS_MEDIA_CATALOG_V2_ROUTES.price, decodeRemoteWorkflowMediaPrice, input)

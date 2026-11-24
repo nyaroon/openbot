@@ -243,7 +243,6 @@ import { createMockBilling, previewBillingServers } from "./mock-billing";
 import { createMockBitwardenConnector } from "./mock-bitwarden-connector";
 import { createMockBrowser, type MockBrowserOptions } from "./mock-browser";
 import { createMockChannels, type MockChannelSeed } from "./mock-channels";
-import { createMockCredits } from "./mock-credits";
 import { type MockCrmSeed, mockCrm } from "./mock-crm";
 import { createMockEvents } from "./mock-events";
 import { createMockGitHubConnector } from "./mock-github-connector";
@@ -1757,7 +1756,6 @@ export function createMockOpenBot(options: MockOpenBotOptions = {}): MockOpenBot
     vault: createMockVault(),
     billing: createMockBilling(billingPlans),
     license: createMockLicense(),
-    credits: createMockCredits(),
     routineFeed: createMockRoutineFeed(),
     hostedServers: createMockHostedServers(billingPlans),
     customProviders: {

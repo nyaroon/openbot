@@ -188,7 +188,6 @@ import type {
   WorkflowGraph,
   WorkflowMediaModel,
   WorkflowMediaPriceRequest,
-  WorkflowMediaUnavailableModel,
   WorkflowRunDetail,
   WorkflowRunPage,
   WorkflowSaveResult,
@@ -235,7 +234,6 @@ import type { PendingApproval } from "./pending-approvals";
 
 export interface WorkflowMediaModels {
   models: readonly WorkflowMediaModel[];
-  unavailable?: readonly WorkflowMediaUnavailableModel[];
   partial: boolean;
 }
 
@@ -757,7 +755,6 @@ export interface MobileWorkspaceContextValue {
   canPauseWorkflows: (serverId: string) => boolean;
   loadWorkflowMediaModels: (serverId: string) => Promise<WorkflowMediaModels>;
   loadWorkflowMediaPrice: (input: WorkflowMediaPriceRequest, serverId: string) => Promise<number | null>;
-  loadWorkflowCreditBalance: (serverId: string) => Promise<number | null>;
   loadWorkflowGitHubCatalog: (serverId: string) => Promise<WorkflowGitHubCatalog>;
   loadWorkflowGitHubOptions: (repository: string, serverId: string) => Promise<WorkflowGitHubRepositoryOptions>;
   loadWorkflowGitHubHistory: (workflowId: string, serverId: string) => Promise<WorkflowGitHubHistory>;

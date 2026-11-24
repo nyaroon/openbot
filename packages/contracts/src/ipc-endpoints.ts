@@ -5,7 +5,6 @@ import type { AppLanguagePreference, SetAppLanguagePreferenceInput } from "./app
 import type { AppLogoColorPreference, SetAppLogoColorPreferenceInput } from "./app-logo-color";
 import type { BillingPortalRequest, BillingState, BillingStorageRequest } from "./billing";
 import type { BillingDetails, BillingDetailsRequest } from "./billing-details";
-import type { CreditActivity, CreditCheckoutRequest, CreditsState, CreditTransferRequest } from "./credits";
 import type { CustomServerCheckoutRequest, CustomServerCheckoutResult } from "./custom-server-plans";
 import type {
   CreateHostedServerInput,
@@ -1389,12 +1388,6 @@ export const IPC_ENDPOINTS = {
     getDetails: request<undefined, BillingDetails>()("billing:get-details"),
     setDetails: request<BillingDetailsRequest, BillingDetails>()("billing:set-details"),
   },
-  credits: {
-    getState: request<undefined, CreditsState>()("credits:get-state"),
-    getActivity: request<undefined, CreditActivity>()("credits:get-activity"),
-    openCheckout: request<CreditCheckoutRequest, void>()("credits:open-checkout"),
-    transfer: request<CreditTransferRequest, CreditsState>()("credits:transfer"),
-  },
   license: {
     getState: request<undefined, LicenseState>()("license:get-state"),
     openCheckout: request<LicenseCheckoutRequest, void>()("license:open-checkout"),
@@ -2062,7 +2055,6 @@ export const IPC_GROUP_PATHS = {
   crm: "crm",
   routineResults: "routineResults",
   billing: "billing",
-  credits: "credits",
   license: "license",
   hostedServers: "hostedServers",
   localServers: "localServers",

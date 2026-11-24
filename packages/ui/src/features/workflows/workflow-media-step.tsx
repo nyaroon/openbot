@@ -1,6 +1,6 @@
 import {
   isWorkflowMediaSide,
-  WORKFLOW_CATALOG_SOURCES,
+  WORKFLOW_CATALOG_PROVIDERS,
   WORKFLOW_MEDIA_ASPECTS,
   WORKFLOW_MEDIA_CUSTOM_ASPECT,
   WORKFLOW_MEDIA_KINDS,
@@ -266,11 +266,6 @@ export function useMediaStep(id: string, defaults: { prompt?: string | undefined
   );
   const model = () => models().find((candidate) => candidate.id === modelId());
   const modelMissing = () => board.catalogs().imageModelsReady === true && modelId() !== "" && model() === undefined;
-  const savedModelName = () =>
-    model() === undefined
-      ? board.catalogs().unavailableModels?.find((entry) => entry.id === modelId() && entry.kinds.includes(kind()))
-          ?.name
-      : undefined;
   const aspects = () => workflowMediaAspects(model(), kind()).filter((value) => hostAspect(value) !== "");
   const [account] = useField(key, "account", "", asString);
   const specs = () =>
@@ -306,7 +301,7 @@ export function useMediaStep(id: string, defaults: { prompt?: string | undefined
   const durations = () => workflowVideoDurations(model());
   const price = useMediaPrice(() => {
     const chosen = model();
-    if (!chosen?.credits || !isOneOf(WORKFLOW_CATALOG_SOURCES, chosen.provider)) return null;
+    if (!chosen?.credits || !isOneOf(WORKFLOW_CATALOG_PROVIDERS, chosen.provider)) return null;
     const { aspect, duration, resolution, transparent, options } = specs();
     return {
       model: chosen.id,
@@ -323,26 +318,15 @@ export function useMediaStep(id: string, defaults: { prompt?: string | undefined
     const credits = price();
     return credits === null ? null : credits * batch();
   };
-  const balance = () => (model()?.provider === "openbot" ? board.catalogs().creditBalance : undefined);
-  const exceeds = (credits: number | null) => {
-    const available = balance();
-    return typeof available === "number" && credits !== null && credits > available;
-  };
-  const short = () => exceeds(total());
-  const retryShort = () => exceeds(price());
-  const priced = (label: string, isShort: boolean) =>
-    isShort ? [t("billing.credits.notEnough"), label].join(", ") : label;
   const runLabel = () => {
     const credits = total();
     return credits === null || modelMissing()
       ? undefined
-      : priced(t("workflow.node.runPriceLabel", { credits: format.number(credits) }), short());
+      : t("workflow.node.runPriceLabel", { credits: format.number(credits) });
   };
   const retryLabel = () => {
     const credits = price();
-    return credits === null
-      ? undefined
-      : priced(t("workflow.node.retryPriceLabel", { credits: format.number(credits) }), retryShort());
+    return credits === null ? undefined : t("workflow.node.retryPriceLabel", { credits: format.number(credits) });
   };
   const chooseFrame = (frame: Frame) => {
     if (frame !== WORKFLOW_MEDIA_CUSTOM_ASPECT) {
@@ -396,7 +380,6 @@ export function useMediaStep(id: string, defaults: { prompt?: string | undefined
     models,
     model,
     modelMissing,
-    savedModelName,
     account,
     specs,
     resolutions,
@@ -412,8 +395,6 @@ export function useMediaStep(id: string, defaults: { prompt?: string | undefined
     total,
     batch,
     setBatch,
-    short,
-    retryShort,
     runLabel,
     retryLabel,
     chooseFrame,

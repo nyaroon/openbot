@@ -6,3 +6,4 @@
 
 - Company sign-in (single sign-on and SCIM) is removed.
 - The invite-a-friend referral programme is removed: invite links, referral credit, the Invite friends settings tab and the referral landing page.
+- OpenBot credits are removed: buying, moving and spending them, the Credits page and rail button, and the OpenBot image and video models that they paid for. Sunra, Higgsfield and agent provider media keep working with their own accounts.

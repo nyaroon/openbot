@@ -1,4 +1,3 @@
-import { isCreditAmount } from "./credits";
 import { INPUT_LIMITS } from "./input-limits";
 import { integerInRange, isBoundedString, isFiniteNumber, isIdentifier } from "./ipc-bounded-values";
 import { isRoutineSchedule, type RoutineSchedule } from "./ipc-routines";
@@ -94,7 +93,7 @@ export interface WorkflowMediaSize {
   height: number;
 }
 
-export type WorkflowMediaProvider = "codex" | "grok" | "sunra" | "higgsfield" | "openbot";
+export type WorkflowMediaProvider = "codex" | "grok" | "sunra" | "higgsfield";
 
 export interface WorkflowMediaModel {
   id: string;
@@ -1122,7 +1121,6 @@ export interface WorkflowMediaProviders {
   sunra: boolean;
   higgsfield: boolean;
   accounts: readonly WorkflowMediaServiceAccount[] | null;
-  openbot?: boolean;
 }
 
 export const WORKFLOW_MEDIA_SERVICE_ACCOUNT_MAX = 32;
@@ -1151,8 +1149,7 @@ export function isWorkflowMediaProviders(value: unknown): value is WorkflowMedia
     isDynamicRecord(value) &&
     isBoolean(value.sunra) &&
     isBoolean(value.higgsfield) &&
-    isNullableListOf(value.accounts, isWorkflowMediaServiceAccount) &&
-    (value.openbot === undefined || isBoolean(value.openbot))
+    isNullableListOf(value.accounts, isWorkflowMediaServiceAccount)
   );
 }
 
@@ -1165,7 +1162,6 @@ export interface WorkflowMediaCredits {
   sunra: WorkflowMediaCreditBalance | null;
   higgsfield: WorkflowMediaCreditBalance | null;
   accounts: readonly WorkflowMediaAccountCredits[] | null;
-  openbot?: WorkflowMediaCreditBalance | null;
 }
 
 export interface WorkflowMediaAccountCredits extends WorkflowMediaServiceAccount {
@@ -1181,19 +1177,12 @@ export function isWorkflowMediaCreditBalance(value: unknown): value is WorkflowM
   );
 }
 
-function isOpenBotCreditBalance(value: unknown): value is WorkflowMediaCreditBalance {
-  return (
-    isDynamicRecord(value) && isCreditAmount(value.available) && (value.quota === null || isCreditAmount(value.quota))
-  );
-}
-
 export function isWorkflowMediaCredits(value: unknown): value is WorkflowMediaCredits {
   return (
     isDynamicRecord(value) &&
     (value.sunra === null || isWorkflowMediaCreditBalance(value.sunra)) &&
     (value.higgsfield === null || isWorkflowMediaCreditBalance(value.higgsfield)) &&
-    isNullableListOf(value.accounts, isWorkflowMediaAccountCredits) &&
-    (value.openbot === undefined || value.openbot === null || isOpenBotCreditBalance(value.openbot))
+    isNullableListOf(value.accounts, isWorkflowMediaAccountCredits)
   );
 }
 
@@ -1207,23 +1196,17 @@ export function isWorkflowMediaAccountCredits(value: unknown): value is Workflow
 
 export type WorkflowCatalogProvider = "sunra" | "higgsfield";
 export const WORKFLOW_CATALOG_PROVIDERS: readonly WorkflowCatalogProvider[] = ["sunra", "higgsfield"];
-export type WorkflowCatalogSource = WorkflowCatalogProvider | "openbot";
-export const WORKFLOW_CATALOG_SOURCES: readonly WorkflowCatalogSource[] = [...WORKFLOW_CATALOG_PROVIDERS, "openbot"];
 export const WORKFLOW_MEDIA_CATALOG_MAX = 1000;
-export const WORKFLOW_CREDIT_MODEL_PREFIX = "openbot-";
 
 export const workflowCatalogProvider = (id: string): WorkflowCatalogProvider | null =>
   id.startsWith("sunra-") ? "sunra" : id.startsWith("higgsfield-") ? "higgsfield" : null;
-
-export const workflowCatalogSource = (id: string): WorkflowCatalogSource | null =>
-  id.startsWith(WORKFLOW_CREDIT_MODEL_PREFIX) ? "openbot" : workflowCatalogProvider(id);
 const WORKFLOW_MEDIA_NAME_MAX = 160;
 const WORKFLOW_MEDIA_MAKER_MAX = 120;
 const WORKFLOW_MEDIA_RESOLUTION_MAX = 16;
 
 export interface WorkflowMediaCatalogModel {
   id: string;
-  provider: WorkflowCatalogSource;
+  provider: WorkflowCatalogProvider;
   providerModel: string;
   name: string;
   maker: string;
@@ -1241,15 +1224,8 @@ export interface WorkflowMediaCatalogModel {
 
 export const WORKFLOW_MEDIA_FRAME_COUNT_MAX = 2;
 
-export interface WorkflowMediaUnavailableModel {
-  id: string;
-  name: string;
-  kinds: readonly WorkflowMediaKind[];
-}
-
 export interface WorkflowMediaCatalog {
   models: readonly WorkflowMediaCatalogModel[];
-  unavailable?: readonly WorkflowMediaUnavailableModel[];
 }
 
 const isListOf = <T>(value: unknown, max: number, item: (entry: unknown) => entry is T): value is readonly T[] =>
@@ -1259,7 +1235,7 @@ export function isWorkflowMediaCatalogModel(value: unknown): value is WorkflowMe
   return (
     isDynamicRecord(value) &&
     isIdentifier(value.id) &&
-    isOneOf(WORKFLOW_CATALOG_SOURCES, value.provider) &&
+    isOneOf(WORKFLOW_CATALOG_PROVIDERS, value.provider) &&
     isIdentifier(value.providerModel) &&
     isBoundedString(value.name, WORKFLOW_MEDIA_NAME_MAX) &&
     isBoundedString(value.maker, WORKFLOW_MEDIA_MAKER_MAX) &&
@@ -1308,28 +1284,13 @@ function isWorkflowMediaOptionValue(value: unknown): value is WorkflowMediaOptio
   return isDynamicRecord(value) && isIdentifier(value.name) && isOptionText(value.value);
 }
 
-export function isWorkflowMediaUnavailableModel(value: unknown): value is WorkflowMediaUnavailableModel {
-  return (
-    isDynamicRecord(value) &&
-    isIdentifier(value.id) &&
-    isBoundedString(value.name, WORKFLOW_MEDIA_NAME_MAX) &&
-    isListOf(value.kinds, 2, (entry): entry is WorkflowMediaKind => isOneOf(WORKFLOW_MEDIA_KINDS, entry))
-  );
-}
-
 export function isWorkflowMediaCatalog(value: unknown): value is WorkflowMediaCatalog {
-  return (
-    isDynamicRecord(value) &&
-    isListOf(value.models, WORKFLOW_MEDIA_CATALOG_MAX, isWorkflowMediaCatalogModel) &&
-    (value.unavailable === undefined ||
-      isListOf(value.unavailable, WORKFLOW_MEDIA_CATALOG_MAX, isWorkflowMediaUnavailableModel))
-  );
+  return isDynamicRecord(value) && isListOf(value.models, WORKFLOW_MEDIA_CATALOG_MAX, isWorkflowMediaCatalogModel);
 }
 
-const WORKFLOW_CATALOG_SOURCE_NAMES: Readonly<Record<WorkflowCatalogSource, string>> = {
+const WORKFLOW_CATALOG_SOURCE_NAMES: Readonly<Record<WorkflowCatalogProvider, string>> = {
   sunra: "Sunra",
   higgsfield: "Higgsfield",
-  openbot: "OpenBot",
 };
 
 export function workflowCatalogMediaModel(entry: WorkflowMediaCatalogModel): WorkflowMediaModel | null {

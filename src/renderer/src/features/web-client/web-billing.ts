@@ -1,6 +1,5 @@
 import { parseBillingSessionUrl, parseBillingState } from "@openbot/contracts/billing";
 import { parseBillingDetails } from "@openbot/contracts/billing-details";
-import { parseCreditActivity, parseCreditCheckoutUrl, parseCreditsState } from "@openbot/contracts/credits";
 import {
   PRICING_ORDER_PARAMS,
   type PricingOrder,
@@ -13,7 +12,6 @@ import { isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import type { BillingDetailsCalls } from "@openbot/ui/features/billing/BillingDetailsFields";
 import type { BillingCalls } from "@openbot/ui/features/billing/billing-store";
 import type { LicenseCalls } from "@openbot/ui/features/billing/license-store";
-import type { CreditsCalls } from "@openbot/ui/features/credits/credits-store";
 import { currentText } from "@openbot/ui/text";
 
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -76,34 +74,6 @@ export function createWebLicenseCalls(
     setUsers: (users) => state("v1/me/license/users", JSON.stringify(users)),
     changePlan: (plan) => state("v1/me/license/plan", JSON.stringify(plan)),
     setRenewal: (renewal) => state("v1/me/license/renewal", JSON.stringify(renewal)),
-  };
-}
-
-export function createWebCreditsCalls(
-  accountFetch: typeof fetch,
-  navigate: (url: string) => void = (url) => window.location.assign(url),
-): CreditsCalls {
-  const request = browserRequest(accountFetch);
-
-  async function state(path: string, body?: string) {
-    const credits = await request(path, parseCreditsState, body);
-    if (!credits) throw new Error(currentText().sourceText("error.billing.invalidResponse"));
-    return credits;
-  }
-
-  return {
-    getState: () => state("v1/me/credits"),
-    async getActivity() {
-      const activity = await request("v1/me/credits/activity", parseCreditActivity);
-      if (!activity) throw new Error(currentText().sourceText("error.billing.invalidResponse"));
-      return activity;
-    },
-    async openCheckout(checkout) {
-      const url = await request("v1/me/credits/checkout", parseCreditCheckoutUrl, JSON.stringify(checkout));
-      if (!url) throw new Error(currentText().sourceText("error.billing.notStripePage"));
-      navigate(url);
-    },
-    transfer: (transfer) => state("v1/me/credits/transfer", JSON.stringify(transfer)),
   };
 }
 

@@ -1,5 +1,5 @@
 import {
-  WORKFLOW_CATALOG_SOURCES,
+  WORKFLOW_CATALOG_PROVIDERS,
   WORKFLOW_MEDIA_CUSTOM_ASPECT,
   WORKFLOW_MEDIA_LEGACY_ASPECTS,
   type WorkflowMediaKind,
@@ -54,7 +54,7 @@ export function mediaChoice(
 
 function priceRequest(choice: MediaChoice): WorkflowMediaPriceRequest | null {
   const { chosen, kind, specs } = choice;
-  if (!chosen?.credits || !isOneOf(WORKFLOW_CATALOG_SOURCES, chosen.provider)) return null;
+  if (!chosen?.credits || !isOneOf(WORKFLOW_CATALOG_PROVIDERS, chosen.provider)) return null;
   const { aspect, duration, resolution, transparent, options } = specs;
   return {
     model: chosen.id,
@@ -81,12 +81,11 @@ function useMediaModels(serverId: string, enabled = true) {
 
 export interface NodeCredits {
   credits: number;
-  short: boolean;
 }
 
 export function useMediaCredits(serverId: string, nodes: readonly WorkflowNode[]) {
   const queryScope = useQueryScope();
-  const { loadWorkflowMediaPrice, loadWorkflowCreditBalance } = useMobileWorkspaceActions();
+  const { loadWorkflowMediaPrice } = useMobileWorkspaceActions();
   const sizeHost = useMobileWorkspaceSelector((current) => current.canUseWorkflowMediaSize(serverId));
   const media = nodes.filter((node) => node.kind === "image");
   const catalog = useMediaModels(serverId, media.length > 0);
@@ -103,21 +102,12 @@ export function useMediaCredits(serverId: string, nodes: readonly WorkflowNode[]
       staleTime: 60_000,
     })),
   });
-  const usesBalance = priced.some(({ choice }) => choice.chosen?.provider === "openbot");
-  const balance = useQuery({
-    queryKey: queryKeys.workflowCreditBalance(queryScope, serverId),
-    queryFn: () => loadWorkflowCreditBalance(serverId),
-    enabled: usesBalance,
-    retry: false,
-  });
-  const available = usesBalance ? (balance.data ?? null) : null;
   const byNode = new Map<string, NodeCredits>();
-  priced.forEach(({ node, choice }, index) => {
+  priced.forEach(({ node }, index) => {
     const credits = prices[index]?.data;
     if (typeof credits !== "number") return;
-    const counted = choice.chosen?.provider === "openbot" ? available : null;
-    byNode.set(node.id, { credits, short: counted !== null && credits > counted });
+    byNode.set(node.id, { credits });
   });
   const total = byNode.size > 0 ? [...byNode.values()].reduce((sum, entry) => sum + entry.credits, 0) : null;
-  return { byNode, total, available, catalog };
+  return { byNode, total, catalog };
 }

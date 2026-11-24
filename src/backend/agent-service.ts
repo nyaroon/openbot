@@ -164,12 +164,10 @@ import {
   sameAgentBrowserProfile,
   sameAgentModelChoice,
   WORKFLOW_CATALOG_PROVIDERS,
-  WORKFLOW_MEDIA_CATALOG_MAX,
   WORKFLOW_MEDIA_SERVICE_ACCOUNT_MAX,
   WORKFLOW_MEDIA_SERVICE_ACCOUNT_NAME_MAX,
   WORKFLOWS_USAGE_ID,
   type WorkflowCatalogProvider,
-  type WorkflowCatalogSource,
   type WorkflowMediaCatalog,
   type WorkflowMediaCredits,
   type WorkflowMediaPrice,
@@ -177,7 +175,6 @@ import {
   type WorkflowMediaProvider,
   type WorkflowMediaProviders,
   type WorkflowMediaSpecs,
-  workflowCatalogSource,
   workspaceAccessEnforced,
 } from "@openbot/contracts/ipc";
 import type { DynamicRecord } from "@openbot/contracts/runtime-values";
@@ -371,7 +368,6 @@ import { shortenDiagnostic } from "./stderr-diagnostics";
 import { extractJsonObject } from "./structured-output";
 import type { UserBrowsingLog } from "./user-browsing-log";
 import type { VaultItems } from "./vault-items";
-import { type CreditMediaGateway, CreditMediaWorkflows } from "./workflows/credit-media";
 import { generateHiggsfieldMedia, HIGGSFIELD_MCP_HOST, readHiggsfieldCredits } from "./workflows/higgsfield-media";
 import { WorkflowMediaCatalogCache } from "./workflows/media-catalog";
 import { generateSunraMedia, readSunraCredits, SUNRA_MCP_HOST } from "./workflows/sunra-media";
@@ -494,7 +490,6 @@ export interface AgentServiceOptions {
   computerUseOnWayland?: boolean;
   computerUseInputRefused?: () => boolean;
   codexIdleSessions?: { releaseAfterMs: number; idleLimit: number };
-  creditMedia?: CreditMediaGateway | null;
 }
 
 const USER_SEND_RETRY_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -566,7 +561,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
   readonly routineRecords: RoutineRecords;
   readonly #mcp: McpGateway;
   readonly #mediaCatalog: WorkflowMediaCatalogCache;
-  readonly #creditMedia: CreditMediaWorkflows | null;
   readonly #mcpAgentAccess: AgentServiceOptions["mcpAgentAccess"];
   readonly #hiddenModels: AgentServiceOptions["hiddenModels"];
   readonly #clearPictureBackground: AgentServiceOptions["clearPictureBackground"];
@@ -670,12 +664,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       signIn: (provider) => this.#mediaSignIn(provider),
       warn: (message, details) => logger.warn(message, details),
     });
-    this.#creditMedia = options.creditMedia
-      ? new CreditMediaWorkflows({
-          gateway: options.creditMedia,
-          warn: (message, details) => logger.warn(message, details),
-        })
-      : null;
     this.#sidebarLayout = sidebarLayout;
     this.#libraryFolders = libraryFolders;
     this.#profileSave = new ProfileSave(store, {
@@ -3078,24 +3066,10 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
 
   readonly workflowMediaCatalog = Effect.fn("AgentService.workflowMediaCatalog")(function* (
     this: AgentService,
-    only?: WorkflowCatalogSource,
+    only?: WorkflowCatalogProvider,
   ) {
     if (this.#stopping) return { models: [] } satisfies WorkflowMediaCatalog;
-    const credit =
-      this.#creditMedia && (only === undefined || only === "openbot")
-        ? this.#creditMedia.catalog()
-        : Effect.succeed({ models: [], unavailable: [] } satisfies WorkflowMediaCatalog);
-    const services =
-      only === "openbot"
-        ? Effect.succeed({ models: [] } satisfies WorkflowMediaCatalog)
-        : this.#mediaCatalog.catalog(only);
-    const [listed, credits] = yield* Effect.all([services, credit], { concurrency: "unbounded" });
-    return {
-      models: [...credits.models, ...listed.models].slice(0, WORKFLOW_MEDIA_CATALOG_MAX),
-      ...(credits.unavailable.length > 0
-        ? { unavailable: credits.unavailable.slice(0, WORKFLOW_MEDIA_CATALOG_MAX) }
-        : {}),
-    } satisfies WorkflowMediaCatalog;
+    return yield* this.#mediaCatalog.catalog(only);
   }).bind(this);
 
   readonly workflowMediaPrice = Effect.fn("AgentService.workflowMediaPrice")(function* (
@@ -3103,29 +3077,18 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
     request: WorkflowMediaPriceRequest,
   ) {
     if (this.#stopping) return { credits: null } satisfies WorkflowMediaPrice;
-    if (workflowCatalogSource(request.model) === "openbot")
-      return {
-        credits: this.#creditMedia ? yield* this.#creditMedia.price(request) : null,
-      } satisfies WorkflowMediaPrice;
     return yield* this.#mediaCatalog.price(request);
   }).bind(this);
 
   workflowMediaProviders(): WorkflowMediaProviders {
-    return {
-      ...workflowMediaProvidersOf(this.#mediaServiceAccounts().map(({ account }) => account)),
-      openbot: this.#creditMedia?.available() === true,
-    };
+    return workflowMediaProvidersOf(this.#mediaServiceAccounts().map(({ account }) => account));
   }
 
   readonly workflowMediaCredits = Effect.fn("AgentService.workflowMediaCredits")(function* (
     this: AgentService,
-    only?: WorkflowCatalogSource,
+    only?: WorkflowCatalogProvider,
   ) {
     if (this.#stopping) return { sunra: null, higgsfield: null, accounts: null } satisfies WorkflowMediaCredits;
-    const openbot =
-      this.#creditMedia && (only === undefined || only === "openbot") ? yield* this.#creditMedia.credits() : null;
-    if (only === "openbot")
-      return { sunra: null, higgsfield: null, accounts: null, openbot } satisfies WorkflowMediaCredits;
     const all = this.#mediaServiceAccounts();
     const accounts = only ? all.filter((account) => account.provider === only).slice(0, 1) : all;
     const orNull = <A>(read: Effect.Effect<A, { readonly message: string }>, service: string) =>
@@ -3147,7 +3110,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
     return {
       ...workflowMediaCreditsOf(listed),
       accounts: only ? null : listed,
-      ...(only ? {} : { openbot }),
     } satisfies WorkflowMediaCredits;
   }).bind(this);
 
@@ -3156,7 +3118,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       this: AgentService,
       input: {
         jobId: string;
-        earlierJobIds: readonly string[];
         kind: GeneratedMediaKind;
         provider: WorkflowMediaProvider;
         model: string;
@@ -3172,32 +3133,6 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       const pictures = input.images.filter(
         (image): image is { role: MediaPictureRole; attachmentId: string } => image.role !== "file",
       );
-      if (input.provider === "openbot") {
-        if (this.#stopping) return yield* failed(sourceText("error.backend.shuttingDown"));
-        if (!this.#creditMedia) return yield* failed(sourceText("error.billing.mediaSignInRequired"));
-        return yield* this.#creditMedia
-          .generate(
-            {
-              resolveAttachment: (attachmentId) => this.#mailbox.resolveAttachment(attachmentId),
-              store: (file) => this.#mailbox.storeGeneratedAttachment(file),
-            },
-            {
-              jobId: input.jobId,
-              earlierJobIds: input.earlierJobIds,
-              kind: input.kind,
-              model: input.catalogId,
-              prompt: input.prompt,
-              specs: input.specs,
-              images: pictures,
-            },
-          )
-          .pipe(
-            Effect.tapError((failure) =>
-              Effect.sync(() => logger.warn("Could not make workflow media with credits.", { error: failure.message })),
-            ),
-            Effect.mapError((failure) => failed(failure.message)),
-          );
-      }
       if (input.provider === "sunra") {
         if (this.#stopping) return yield* failed(sourceText("error.backend.shuttingDown"));
         const signIn = yield* this.#mediaStepSignIn("sunra", input.account);

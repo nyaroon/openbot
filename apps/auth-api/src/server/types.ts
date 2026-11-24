@@ -40,10 +40,6 @@ export interface WorkerBindings {
   KIRIMI_WABA_NUMBER?: string;
   KIRIMI_WEBHOOK_SECRET?: string;
   SKILLS_ADMIN_TOKEN?: string;
-  MEDIA_API_URL?: string;
-  MEDIA_API_KEY?: string;
-  MEDIA_API_TASKS_URL?: string;
-  MEDIA_API_TASKS_KEY?: string;
   SITE_OPERATIONS_ADMIN_TOKEN?: string;
   SERVER_CLAIMS_ADMIN_TOKEN?: string;
   SITE_REPORT_HASH_SECRET?: string;

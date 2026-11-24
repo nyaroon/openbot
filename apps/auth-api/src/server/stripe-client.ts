@@ -52,12 +52,6 @@ const stripeErrorSchema = Schema.Struct({
 });
 const sessionSchema = Schema.Struct({ id: Schema.String, url: Schema.NullOr(Schema.String) });
 const customerSchema = Schema.Struct({ id: Schema.String, deleted: Schema.optional(Schema.Boolean) });
-const customerBalanceSchema = Schema.Struct({
-  id: Schema.String,
-  deleted: Schema.optional(Schema.Boolean),
-  currency: Schema.optional(Schema.NullOr(Schema.String)),
-  invoice_credit_balance: Schema.optional(Schema.NullOr(Schema.Record(Schema.String, Schema.Number))),
-});
 const balanceTransactionSchema = Schema.Struct({ id: Schema.String });
 const taxIdSchema = Schema.Struct({
   id: Schema.String,
@@ -785,24 +779,6 @@ export class StripeClient {
       if (typeof charge === "object" && charge !== null && charge.amount_refunded > 0 && !charge.disputed) return true;
     }
     return false;
-  }).bind(this);
-
-  readonly getCustomerCredit = Effect.fn("StripeClient.getCustomerCredit")(function* (
-    this: StripeClient,
-    customerId: string,
-  ): Effect.fn.Return<
-    { currency: string | null; credit: Readonly<Record<string, number>> } | null,
-    StripeRequestError | StripeTransportError
-  > {
-    const query = new URLSearchParams({ "expand[]": "invoice_credit_balance" });
-    const path = `/v1/customers/${encodeURIComponent(customerId)}?${query}`;
-    const customer = yield* this.#requestEffect("GET", path, null, customerBalanceSchema);
-    if (customer.deleted) return null;
-    const credit: Record<string, number> = {};
-    for (const [currency, balance] of Object.entries(customer.invoice_credit_balance ?? {})) {
-      if (Number.isSafeInteger(balance) && balance > 0) credit[currency.toLowerCase()] = balance;
-    }
-    return { currency: customer.currency?.toLowerCase() ?? null, credit };
   }).bind(this);
 
   readonly addCustomerBalance = Effect.fn("StripeClient.addCustomerBalance")(function* (

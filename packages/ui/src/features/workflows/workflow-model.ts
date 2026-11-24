@@ -15,7 +15,6 @@ import {
   type WorkflowMediaOption,
   type WorkflowMediaPrice,
   type WorkflowMediaPriceRequest,
-  type WorkflowMediaUnavailableModel,
   type WorkflowNodeKind,
   type WorkflowOutputTarget,
   type WorkflowStepSettings,
@@ -107,9 +106,7 @@ export interface WorkflowCatalogs {
   channels?: readonly WorkflowChannel[] | undefined;
   imageModels: readonly WorkflowImageModel[];
   imageModelsReady?: boolean | undefined;
-  unavailableModels?: readonly WorkflowMediaUnavailableModel[] | undefined;
   mediaPrice?: ((request: WorkflowMediaPriceRequest) => Promise<WorkflowMediaPrice>) | undefined;
-  creditBalance?: number | null | undefined;
   mediaSize?: boolean | undefined;
   agentFiles?: boolean | undefined;
   answers?: boolean | undefined;

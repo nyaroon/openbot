@@ -69,12 +69,10 @@ function modelLabel(option: WorkflowMediaModel, t: ReturnType<typeof useText>["t
 function savedModelLabel(
   savedModel: string,
   model: WorkflowMediaModel | null | undefined,
-  unavailableName: string | undefined,
   catalogLoaded: boolean,
   t: ReturnType<typeof useText>["t"],
 ): string {
   if (model?.id === savedModel) return model.name;
-  if (unavailableName) return t("mobile.workflow.media.unavailableModelLabel", { name: unavailableName });
   return catalogLoaded ? t("mobile.workflow.media.modelUnavailable") : savedModel;
 }
 
@@ -82,13 +80,10 @@ export function MediaFields({ node, draft }: { node: WorkflowNode; draft: Workfl
   const { t, format } = useText();
   const setFields = useWorkflowDraft((state) => state.setFields);
   const sizeHost = useMobileWorkspaceSelector((current) => current.canUseWorkflowMediaSize(draft.serverId));
-  const { byNode, available, catalog } = useMediaCredits(draft.serverId, [node]);
+  const { byNode, catalog } = useMediaCredits(draft.serverId, [node]);
   const { kind, models, model, hostAspects, specs } = mediaChoice(node, catalog.data?.models ?? [], sizeHost);
   const savedModel = fieldText(node, "model");
   const catalogLoaded = catalog.data !== undefined && !catalog.data.partial;
-  const unavailableName = catalog.data?.unavailable?.find(
-    (entry) => entry.id === savedModel && entry.kinds.includes(kind),
-  )?.name;
   const custom = kind === "image" && sizeHost && fieldText(node, "aspect") === WORKFLOW_MEDIA_CUSTOM_ASPECT;
   const aspect = custom
     ? WORKFLOW_MEDIA_CUSTOM_ASPECT
@@ -100,7 +95,6 @@ export function MediaFields({ node, draft }: { node: WorkflowNode; draft: Workfl
   const seconds = (value: number) => t("mobile.workflow.duration.seconds", { seconds: value });
   const price = byNode.get(node.id);
   const credits = price?.credits ?? null;
-  const short = price?.short ?? false;
   const amount = (count: number) => t("mobile.workflow.media.credits", { count, amount: format.number(count) });
 
   return (
@@ -116,13 +110,7 @@ export function MediaFields({ node, draft }: { node: WorkflowNode; draft: Workfl
       />
       <SettingsSection
         title={t("mobile.workflow.media.settings")}
-        footer={
-          catalog.isError || catalog.data?.partial
-            ? t("mobile.workflow.step.modelsFailed")
-            : short && available !== null
-              ? t("mobile.workflow.media.notEnough", { available: amount(available) })
-              : undefined
-        }
+        footer={catalog.isError || catalog.data?.partial ? t("mobile.workflow.step.modelsFailed") : undefined}
       >
         <PickerRow<string>
           label={t("mobile.workflow.step.model")}
@@ -133,9 +121,7 @@ export function MediaFields({ node, draft }: { node: WorkflowNode; draft: Workfl
               { value: "", label: t("mobile.workflow.media.automatic") },
               ...models.map((option) => ({ value: option.id, label: modelLabel(option, t) })),
             ],
-            savedModel
-              ? { value: savedModel, label: savedModelLabel(savedModel, model, unavailableName, catalogLoaded, t) }
-              : null,
+            savedModel ? { value: savedModel, label: savedModelLabel(savedModel, model, catalogLoaded, t) } : null,
           )}
           onChange={(next) => setFields(node.id, { model: next || undefined, account: undefined })}
         />
@@ -172,11 +158,7 @@ export function MediaFields({ node, draft }: { node: WorkflowNode; draft: Workfl
         {credits !== null ? (
           <SettingsRow
             disclosure={false}
-            trailing={
-              <Typography.Paragraph className={short ? "font-medium text-danger-text" : "text-grouped-secondary"}>
-                {amount(credits)}
-              </Typography.Paragraph>
-            }
+            trailing={<Typography.Paragraph className="text-grouped-secondary">{amount(credits)}</Typography.Paragraph>}
           >
             <Typography.Paragraph>{t("mobile.workflow.media.price")}</Typography.Paragraph>
           </SettingsRow>

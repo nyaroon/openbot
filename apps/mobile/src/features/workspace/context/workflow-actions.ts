@@ -31,11 +31,7 @@ import {
 } from "@openbot/team-client/workflow-decoding";
 import * as Crypto from "expo-crypto";
 import type { WorkspaceRequest } from "@/features/workspace/context/host-request-actions";
-import {
-  loadWorkflowCreditBalance,
-  loadWorkflowMediaModels,
-  loadWorkflowMediaPrice,
-} from "@/features/workspace/context/workflow-media-models";
+import { loadWorkflowMediaModels, loadWorkflowMediaPrice } from "@/features/workspace/context/workflow-media-models";
 import { requireCapability, type ServerCapabilities } from "@/features/workspace/model/server-capabilities";
 import { ignoreResponse } from "@/features/workspace/model/workspace-records";
 import type { MobileWorkspaceContextValue } from "@/features/workspace/model/workspace-types";
@@ -65,7 +61,6 @@ type WorkflowActions = Pick<
   | "restoreWorkflowVersion"
   | "loadWorkflowMediaModels"
   | "loadWorkflowMediaPrice"
-  | "loadWorkflowCreditBalance"
   | "loadWorkflowGitHubCatalog"
   | "loadWorkflowGitHubOptions"
   | "loadWorkflowGitHubHistory"
@@ -164,7 +159,6 @@ export function createWorkflowActions({
     loadWorkflowMediaModels: (serverId) =>
       loadWorkflowMediaModels({ request, capabilities, loadAgentModels, serverId }),
     loadWorkflowMediaPrice: (input, serverId) => loadWorkflowMediaPrice({ request, capabilities, serverId, input }),
-    loadWorkflowCreditBalance: (serverId) => loadWorkflowCreditBalance({ request, capabilities, serverId }),
     loadWorkflowGitHubCatalog: (serverId) =>
       sendGitHub(serverId, WORKFLOWS_GITHUB_ROUTES.catalog, decodeRemoteWorkflowGitHubCatalog, {}),
     loadWorkflowGitHubOptions: (repository, serverId) =>

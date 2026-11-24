@@ -1,12 +1,6 @@
 import { isAvatarMimeType } from "@openbot/contracts/avatar-images";
 import { parseBillingPortalRequest, parseBillingStorageRequest } from "@openbot/contracts/billing";
 import { parseBillingDetailsRequest } from "@openbot/contracts/billing-details";
-import {
-  CREDITS_UNAVAILABLE_STATE,
-  EMPTY_CREDIT_ACTIVITY,
-  parseCreditCheckoutRequest,
-  parseCreditTransferRequest,
-} from "@openbot/contracts/credits";
 import { parseHostedServerLifecycleInput } from "@openbot/contracts/hosted-servers";
 import {
   LICENSE_UNAVAILABLE_STATE,
@@ -94,7 +88,7 @@ export interface BrowserApiServices {
   attribution: () => Pick<AccountAttribution, "recordCheckout">;
   billing: () => Pick<
     BillingService,
-    "getState" | "createPortal" | "buyStorage" | "getBillingDetails" | "setBillingDetails" | "license" | "credits"
+    "getState" | "createPortal" | "buyStorage" | "getBillingDetails" | "setBillingDetails" | "license"
   > | null;
   avatarBucket: () => R2Bucket;
   hostedSites: () => Pick<HostedSiteService, "list" | "delete">;
@@ -361,8 +355,6 @@ const handleAccount = Effect.fn("BrowserApi.handleAccount")(function* (
     return json(yield* services.auth.createServerClaimForUser(user.id));
   if (path.startsWith("v1/me/billing") || path.startsWith("v1/me/license"))
     return yield* handleBilling(request, path, user, services);
-  if (path === "v1/me/credits" || path.startsWith("v1/me/credits/"))
-    return yield* handleCredits(request, path, user, services);
   const [, sessionId] = /^v1\/me\/sessions\/([^/]+)$/u.exec(path) ?? [];
   if (sessionId !== undefined && request.method === "DELETE") {
     yield* services.auth.revokeAccountSession(token, sessionId);
@@ -425,34 +417,6 @@ const handleBilling = Effect.fn("BrowserApi.handleBilling")(function* (
     const input = parseLicenseRenewalRequest(body);
     if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
     return json(yield* billing.license.setRenewal(user.id, input.cancel));
-  }
-  return null;
-}, refuseWith(BillingError));
-
-const handleCredits = Effect.fn("BrowserApi.handleCredits")(function* (
-  request: Request,
-  path: string,
-  user: AuthUser,
-  services: BrowserApiServices,
-) {
-  const billing = services.billing();
-  if (path === "v1/me/credits" && request.method === "GET")
-    return json(billing ? yield* billing.credits.getState(user.id) : CREDITS_UNAVAILABLE_STATE);
-  if (path === "v1/me/credits/activity" && request.method === "GET")
-    return json(billing ? yield* billing.credits.activity(user.id) : EMPTY_CREDIT_ACTIVITY);
-  if (request.method !== "POST") return null;
-  if (!billing) return failure(503, "billing_unavailable", "Billing is not available.");
-  const body = yield* readJsonObject(request);
-  if (path === "v1/me/credits/checkout") {
-    const input = parseCreditCheckoutRequest(body);
-    if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
-    const origin = new URL(request.url).origin;
-    return json(yield* billing.credits.createCheckout({ user, request: input, target: "web", origin }));
-  }
-  if (path === "v1/me/credits/transfer") {
-    const input = parseCreditTransferRequest(body);
-    if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
-    return json(yield* billing.credits.transfer(user.id, input));
   }
   return null;
 }, refuseWith(BillingError));

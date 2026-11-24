@@ -2,20 +2,11 @@ import {
   type AgentModelOption,
   WORKFLOW_CATALOG_PROVIDERS,
   WORKFLOW_MEDIA_MODELS,
-  type WorkflowCatalogSource,
+  type WorkflowCatalogProvider,
   type WorkflowMediaCatalogModel,
   type WorkflowMediaPriceRequest,
-  type WorkflowMediaUnavailableModel,
   workflowCatalogMediaModel,
 } from "@openbot/contracts/ipc";
-import {
-  WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CAPABILITY,
-  WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_ROUTES,
-} from "@openbot/contracts/team-protocol/workflows-credit-media-unavailable-v1";
-import {
-  WORKFLOWS_CREDIT_MEDIA_CAPABILITY,
-  WORKFLOWS_CREDIT_MEDIA_ROUTES,
-} from "@openbot/contracts/team-protocol/workflows-credit-media-v1";
 import {
   WORKFLOWS_MEDIA_CATALOG_CAPABILITY,
   WORKFLOWS_MEDIA_CATALOG_ROUTES,
@@ -27,10 +18,8 @@ import {
 import { WORKFLOWS_MEDIA_CAPABILITY } from "@openbot/contracts/team-protocol/workflows-media-v1";
 import { WORKFLOWS_CAPABILITY } from "@openbot/contracts/team-protocol/workflows-v1";
 import {
-  decodeRemoteCreditMediaCredits,
   decodeRemoteWorkflowMediaCatalog,
   decodeRemoteWorkflowMediaPrice,
-  decodeRemoteWorkflowMediaUnavailable,
 } from "@openbot/team-client/workflow-decoding";
 import type { WorkspaceRequest } from "@/features/workspace/context/host-request-actions";
 import {
@@ -41,7 +30,6 @@ import {
 import type { WorkflowMediaModels } from "@/features/workspace/model/workspace-types";
 
 const NO_ENTRIES: readonly WorkflowMediaCatalogModel[] = [];
-const NO_UNAVAILABLE: readonly WorkflowMediaUnavailableModel[] = [];
 
 export async function loadWorkflowMediaModels({
   request,
@@ -71,24 +59,14 @@ export async function loadWorkflowMediaModels({
     : has(WORKFLOWS_MEDIA_CATALOG_CAPABILITY)
       ? WORKFLOWS_MEDIA_CATALOG_ROUTES.catalog
       : null;
-  const [credit, services, agentModels, unavailable] = await Promise.all([
-    has(WORKFLOWS_CREDIT_MEDIA_CAPABILITY) ? catalog(WORKFLOWS_CREDIT_MEDIA_ROUTES.catalog) : NO_ENTRIES,
+  const [services, agentModels] = await Promise.all([
     servicePath ? catalog(servicePath) : NO_ENTRIES,
     loadAgentModels(serverId).catch((): AgentModelOption[] => {
       partial = true;
       return [];
     }),
-    has(WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_CAPABILITY)
-      ? request(
-          "POST",
-          WORKFLOWS_CREDIT_MEDIA_UNAVAILABLE_ROUTES.list,
-          decodeRemoteWorkflowMediaUnavailable,
-          {},
-          serverId,
-        ).catch(() => NO_UNAVAILABLE)
-      : NO_UNAVAILABLE,
   ]);
-  const listed = (entries: readonly WorkflowMediaCatalogModel[], source: WorkflowCatalogSource) =>
+  const listed = (entries: readonly WorkflowMediaCatalogModel[], source: WorkflowCatalogProvider) =>
     entries.filter((entry) => entry.provider === source).flatMap((entry) => workflowCatalogMediaModel(entry) ?? []);
   const providers = new Set<string>(agentModels.map((model) => model.provider));
   const fixed = WORKFLOW_MEDIA_MODELS.filter(
@@ -100,7 +78,7 @@ export async function loadWorkflowMediaModels({
     const ids = new Set(live.map((model) => model.id));
     return [...live, ...WORKFLOW_MEDIA_MODELS.filter((model) => model.provider === provider && !ids.has(model.id))];
   });
-  return { models: [...listed(credit, "openbot"), ...fixed, ...service], unavailable, partial };
+  return { models: [...fixed, ...service], partial };
 }
 
 export async function loadWorkflowMediaPrice({
@@ -131,24 +109,4 @@ export async function loadWorkflowMediaPrice({
     ...(input.options ? { options: input.options.map((option) => ({ name: option.name, value: option.value })) } : {}),
   };
   return (await request("POST", path, decodeRemoteWorkflowMediaPrice, body, serverId)).credits;
-}
-
-export async function loadWorkflowCreditBalance({
-  request,
-  capabilities,
-  serverId,
-}: {
-  request: WorkspaceRequest;
-  capabilities: ServerCapabilities;
-  serverId: string;
-}): Promise<number | null> {
-  if (!hasCapability(capabilities, serverId, WORKFLOWS_CREDIT_MEDIA_CAPABILITY)) return null;
-  const credits = await request(
-    "POST",
-    WORKFLOWS_CREDIT_MEDIA_ROUTES.credits,
-    decodeRemoteCreditMediaCredits,
-    {},
-    serverId,
-  );
-  return credits.openbot?.available ?? null;
 }
