@@ -7,8 +7,7 @@ The optional OpenBot account
 service stores the minimum central data needed for email sign-in, account avatars, remote host
 configuration, memberships, invitations, ownership transfers, logical sessions, and the account's
 product analytics answer. An ownership transfer keeps the server, the email that the owner entered
-and the two accounts, also after it ends, so that a server plan of the earlier owner still counts
-for the server.
+and the two accounts, also after it ends.
 
 The optional browser client at `/app` connects to the computer that runs OpenBot. Conversation
 and attachment data travel through the existing encrypted host connection, not through the
@@ -18,11 +17,7 @@ their browser. The host must stay online. An owner or admin can manage members a
 the browser; these requests go to the account Worker, as they do from the desktop app. A signed-in
 user can also change the display name and avatar and disconnect account sessions from the browser;
 these requests and the avatar image go to the same account Worker as from the desktop app. Host
-settings, such as MCP servers and the server's hosted sites, travel through the encrypted host
-connection. A hosted site belongs to the server that published it. When the computer that runs
-OpenBot is a registered server, its site requests to the account Worker also send that server's id and
-machine token. The account Worker already holds both, and uses them only to find the server and its
-plan's site limit.
+settings, such as MCP servers, travel through the encrypted host connection.
 A Grok Bot export that a member imports into a joined server, from the desktop app or the browser, goes
 to the computer that runs that server through the same encrypted host connection, not through the
 account Worker. The host keeps the file only until the import ends, is cancelled, or expires.
@@ -75,27 +70,8 @@ message content, file content, or search queries to telemetry.
 Production builds of OpenBot desktop, the browser client at `/app`, the configured mobile app, and the website use a
 self-hosted OpenPanel service for product analytics. Development builds, previews, tests, and Storybook do not send analytics.
 
-The production account service also sends OpenPanel an event when a paid plan or a hosted server
-changes: a Checkout starts or expires, a plan starts, changes, is cancelled or ends, a payment
-succeeds or fails, a payment is refunded or disputed, the Customer Portal opens, or a hosted server is set up, fails to set up, stops
-after no use, starts, becomes ready after a start, changes its machine, stops at the end of its plan, is renewed or is deleted.
-It also sends these events for a license: a Checkout starts, the license starts, its number of
-users goes up or down, its renewal is cancelled or resumed, it ends, or its payment succeeds, fails,
-is refunded or is disputed.
-Each event has your account ID and only fixed values: the action, whether it is a server plan or a
-license, the plan, the number of license users, the billing period, the currency, the amount that
-Stripe reports, the place in the app where the plans were opened, the server size, the start reason,
-how long a start took, and an error code. It has
-no email, name, Stripe ID or server ID. The desktop analytics setting does not stop these events,
-because the account service sends them and not your computer.
-When you pay for a plan or a license (it starts, each payment succeeds, it changes, or its renewal
-is cancelled or resumed), the account service also sets your normalized account email on the OpenPanel
-profile of your account ID, as the apps do at sign-in. It does this also when product analytics is
-off on your devices, so that the paid account is not anonymous in the sales data. The email is not
-copied into the events.
-
 For each email that the account service sends from its mailbox (a sign-in code, an invitation, an
-ownership transfer, a contact message, a welcome email for a server plan, or a license email), it sends OpenPanel one event with the kind of email and the result of the send. This
+ownership transfer, or a contact message), it sends OpenPanel one event with the kind of email and the result of the send. This
 event has no account ID, email address, name or message content.
 
 Every 5 minutes, each Signal host sends OpenPanel one event with the number of TURN relay allocations
@@ -103,18 +79,8 @@ and the number of Signal connections. It also has the number of webhook requests
 in those 5 minutes, by HTTP status, and the average time it waited for a host. It has no account ID,
 address, session, route, or message content.
 
-The account service also records a return from Checkout without payment and later payment
-recovery. Verified paid invoices produce a revenue event in USD, with the original amount,
-currency, and dated exchange rate. Refunds and disputes produce an event with the same USD amount,
-currency, and dated exchange rate. Daily totals contain recurring revenue, overdue recurring
-revenue, paid accounts, paid servers, scheduled cancellations, and license recurring revenue,
-accounts and users. These totals have no account ID.
-The service stores payment facts and a delivery ledger in D1 to prevent duplicate revenue events.
-It does not send Stripe identifiers, server identifiers, or Checkout return tokens to OpenPanel.
-An account deletion clears its profile reference and stops pending account event delivery.
 The account service also sends an event when it makes a new account (with the app used to sign in)
-and when it saves the first website visit of an account. A payment event and a revenue event include
-that first visit when the account has one.
+and when it saves the first website visit of an account.
 
 ## AI conversation context
 
@@ -192,18 +158,14 @@ and incomplete billing inputs remain marked as unavailable or partial.
 The production website records anonymous page views using only fixed paths: `/`, `/join`, the
 download pages, the news and guide indexes, and published articles. It also records download clicks,
 clicks on allowlisted public links, invitation validity, and open-app actions on invitation pages.
-It also records the topic and result of a contact form send, and whether a return from Stripe
-completed or was cancelled, for a plan, a license or the billing portal. The contact form message,
+It also records the topic and result of a contact form send. The contact form message,
 name and email are not sent to analytics.
 The production desktop app records application, sign-in, onboarding, agent, message, turn, prompt,
 approval, queue, routine, workflow, team, browser, search, Remote Desktop, update, marketplace, memory,
 provider, voice transcription, voice conversation, spoken reply, voice model download, spoken reply setting,
-reaction, Hosted Site, hosted server offer, hosted server plans, plan and member limits, license,
-contact sales, provider usage limit, agent template, phone connection, connector, Computer Use
+reaction, member limits, provider usage limit, agent template, phone connection, connector, Computer Use
 permission, help link, channel, server export and import, Usage view, and confirmed
-application-version-change actions. Plans and license events send the plan, billing interval,
-currency, where the plans were opened, and whether a license user count went up or down; they do
-not send a price, a payment detail or a Stripe ID. Connector events name only the connector type,
+application-version-change actions. Connector events name only the connector type,
 such as Slack; channel events send no channel name. Message events can send the kinds of the
 attached files (image, document, spreadsheet, ZIP or other), never their names or types. For each
 webhook request that reaches the computer, the app records the kind of owner (agent, channel or
@@ -224,8 +186,7 @@ The configured production mobile app records app opens and foreground returns, s
 and camera-permission outcomes, host connection attempts and losses, conversation-load outcomes,
 message and prompt-answer submissions, attachment operations, agent/routine/memory actions,
 server selection/join/leave, search result counts, pin/unpin, hide/unhide, Usage views and sign-out.
-It also records email sign-in steps, whether pairing started from a QR code or a link, hosted
-server plans views, setup steps, notification settings and the notification permission result,
+It also records email sign-in steps, whether pairing started from a QR code or a link, setup steps, notification settings and the notification permission result,
 Live Activity starts and ends, voice conversation and spoken turn outcomes, agent template
 installs, and Marketplace installs (agent, skill or app, and the result; no listing name).
 
@@ -267,17 +228,9 @@ from where the article sits on screen, never from how long it was open. Referral
 The production website also saves the first visit of the browser in its `localStorage`: the source
 category, the platform name, the first website page, the day, and the allowlisted campaign tags.
 It saves no referrer, IP address or identifier. A later visit does not change it, and it is not used
-after 90 days. When you sign in on the web, or open the page after a desktop checkout in the same
-browser, the browser sends it to the account service. The account service keeps the first one that
+after 90 days. When you sign in on the web, the browser sends it to the account service. The account service keeps the first one that
 it gets on your account and sends it to OpenPanel with your account ID. To remove it from a
-browser, clear the site data of openbot.run. When you open a discount link (an openbot.run address
-with `?promo=CODE`), the website saves the code and the time in its `localStorage` for 30 days. When
-you pay on the web, the web client sends the code to the account service, which gives it to Stripe
-for that Checkout page. It is not sent to analytics. When you open an invite link (an openbot.run
-address with `?ref=CODE`), the website saves the code and the time in its `localStorage` for 30 days.
-When you sign in on the web, the web client sends the code to the account service and removes it from
-`localStorage`. On the desktop, on the web and on the phone, you can also type an invite link or code
-on the sign-in screen; the app sends only the code. The account service uses a code only for a new account. It is not sent to analytics. The invite page shows the first name from the profile of the account that made the link to anyone who opens the link. It shows no other name, picture or email. When you choose a language on the website, it saves
+browser, clear the site data of openbot.run. When you choose a language on the website, it saves
 the language code, and nothing else, in the `openbot_lang` cookie for one year, so that the next
 pages open in that language. The browser sends this cookie only to openbot.run. OpenPanel can also derive
 session, device, browser, operating-system, network, and approximate geographic metadata from a
@@ -443,8 +396,7 @@ The service stores:
 - the current account avatar file and its content type when the user uploads an avatar.
 - optional host logo files and their content types when the owner uploads a logo.
 - the first website visit of an account, when a browser sends it: the source category, platform
-  name, first website page, day, allowlisted campaign tags, whether it came from a sign-in or a
-  checkout, and the save time. Deleting the account removes it.
+  name, first website page, day, allowlisted campaign tags, and the save time. Deleting the account removes it.
 - webhook routes: for each webhook routine and each workflow webhook trigger of a host, the opaque
   route ID, the host ID, the owner account ID, the link time, and the revocation time. When the
   routine or workflow stops using a route, or the host is deleted, the service sets the revocation
@@ -459,17 +411,6 @@ The service stores:
   the account ID, the local agent ID and the unpublish time, so publishing the same agent again
   gives back the same link. Deleting the account removes them. Templates do not include
   workspace files, memories, conversations, or integration credentials.
-- billing records when the account starts a paid plan: the Stripe customer ID, and for
-  each subscription the Stripe subscription ID, plan, billing period, currency, price, status, period end,
-  and whether it ends at the period end. For a license, it keeps the same fields and the number of
-  users in place of the plan. The service also keeps the ID, type and receive time of each
-  Stripe webhook event for 7 days, to ignore a repeated event. These records hold no card data.
-- for the EU VAT limit: for each paid invoice of a consumer in an EU country other than Poland, the
-  Stripe invoice ID, the year, the country and the net amount in euro, with no account ID. The service
-  deletes them after the end of the next year.
-- hosted sites: the hostname, title, description, framework, state, owner account ID, lifecycle
-  times, and for each deployment the file list, sizes and content types. The published site files
-  are in R2. Anyone can read a published site. Deleting a site removes its files.
 - marketplace skills: the owner account ID, name, description, category, review state, version
   records, install counts, and the skill bundle and icon in R2.
 - reports about a hosted site: the hostname, the reason, the optional details text, a keyed hash of
@@ -518,77 +459,6 @@ another account signs in, when the server leaves your list, and when the server 
 
 Account avatar URLs are public, long-lived resources. A person who has the complete URL can request
 the avatar without an account session.
-
-## Hosted servers
-
-Each account can buy hosted servers. A hosted server is a Linux
-OpenBot computer. It runs on a virtual server that OpenBot rents from
-[Leaseweb](https://www.leaseweb.com) when one is free at the purchase (see below), and otherwise in a
-[boat](https://boat.dev) sandbox in the EU (Germany, Finland or
-France). The sandbox holds the server's workspaces, conversations, attachments, browser data and
-team data, the same as your own computer would. The server stops 15 to 30 minutes after its last use and
-starts again when you press a key or click in an app that shows it, when a Slack, Discord or
-Telegram message addresses OpenBot, or a few minutes before its next scheduled routine run. Use means that an agent works, a remote desktop is open, a file moves, or you
-sent a message, made a change, typed or used a shared browser view in the last 5 minutes. An app
-that has focus (a focused window or tab, or the phone app in the foreground) also counts, for at
-most 30 minutes after your last message, change or typing, or after you return to the app. The app
-tells only the server that it
-has focus; the account service gets no new data. An app that is only open without focus does not count.
-To show whether a server is asleep, the app asks the account service for its state. This request
-stores nothing. When boat stops the sandbox, boat keeps a snapshot of its disk until
-the server starts again. Deleting the server
-deletes the sandbox. A hosted server updates itself: it downloads the newest release from GitHub
-Releases, as an installed build does, installs the Ubuntu packages that the release needs from the
-Ubuntu package servers, and starts it at its next start, or when a member with update access installs
-it from Server Settings.
-
-For each hosted server, the account service stores the owner, name, size and the size of a pending
-plan change, the plan, billing interval and currency, the open Stripe Checkout session ID, desired
-and reported state, a reason code when the server fails to start, the reason for its last start, the
-boat sandbox ID, a hash of the setup claim with its expiry and first-use times, the ID of the account
-session that the server signed in with, the time of its last use, the end of its boat stop timer, the time of
-its next scheduled routine run (not the routine or its instructions), and creation, update and deletion times. After a
-server is deleted, its record stays so that the service never loses track of a sandbox. It also
-stores the ID and receive time of each boat webhook delivery for 7 days. The account service does
-not receive the server's conversations, files or commands, and its boat key cannot read them.
-
-The account service gives each sandbox a name in boat, so that an operator can find a server in the
-boat dashboard: `openbot-`, the plan, your account email with each other character as `-`, and the
-first 8 characters of the server ID, such as `openbot-starter-ada-example-com-1a2b3c4d`. boat keeps
-the name with the sandbox.
-
-A new hosted server of each plan starts on a virtual server that OpenBot rents from
-[Leaseweb](https://www.leaseweb.com) when one is free at the purchase. For a purchase in euros or
-złotys, it is in Amsterdam, the Netherlands. For a purchase in US dollars or Brazilian reais, it is
-near Washington, D.C., in the United States, or in Amsterdam when none is free there. When no
-virtual server is free, the server starts in a boat sandbox. An operator can also move a
-server from boat to such a virtual server: the operator copies the server's disk over SSH, and
-deletes the copy after the move. The virtual server holds the server's
-workspaces, conversations, attachments, browser data and team data, as a sandbox does, and runs
-all the time, with no stop after the last use. A server that started on the virtual server has no
-boat sandbox. For a moved server, boat keeps the old sandbox until the server is
-deleted. A free virtual server asks the account service each 10 seconds whether it has a server; the
-account service stores a hash of the token of that request and the time of the last request, and
-no customer data. The account service stores the Leaseweb server ID with the server. So that an operator can
-find the server in the Leaseweb portal, the operator gives it a reference in Leaseweb: your account
-email and the first 8 characters of the server ID, such as `ada@example.com 1a2b3c4d`. When you
-delete the server, when its plan is cancelled with a refund, when a payment of a plan less than 30 days old is disputed, or 14 days after its plan ends with no renewal, the account service deletes the old
-sandbox when the server has one, and within a day an operator reinstalls the virtual server, which erases its disk, and sets
-its reference to `pool`.
-
-When the plan of a server on a virtual server ends with no refund, an operator moves the server's
-disk into an archive, so that the virtual server can take a new server. This occurs within a day
-after the plan ends, or 3 to 4 days after it when the last payment failed. The virtual server
-encrypts the archive with a new key before it sends it, and sends it straight to
-[Backblaze B2](https://www.backblaze.com) in the EU (the Netherlands), also from a virtual server in the United States. Backblaze
-stores the encrypted archive and has no key to read it. When Backblaze has all of the archive, the
-operator reinstalls the virtual server, which erases its disk. The account service stores the
-archive key, encrypted with a key that only the account service has, and the server ID, size,
-checksum and Backblaze name of the archive, with its times. When you renew the plan, the server
-gets its data back from the archive. The operator deletes the archive and the key within a day
-after 14 days from the end of the plan, after you delete the server or your account, or after the
-plan is cancelled with a refund. Backblaze deletes each archive by itself 16 days after it was
-made. The account service keeps the other values of the archive with the server record.
 
 ## Central data retention
 
@@ -781,18 +651,10 @@ The chosen voice settings are kept on the phone. OpenBot does not store the repl
 
 ## Email delivery and infrastructure providers
 
-OpenBot sends sign-in, team invitation, and welcome messages from `no_reply@openbot.run` through the
+OpenBot sends sign-in and team invitation messages from `no_reply@openbot.run` through the
 configured SMTP provider. A reply goes to `hello@openbot.run`. The provider receives the recipient address and the message content. A sign-in message contains the
 one-time code and its expiration time. A team invitation can contain the inviter address, team name,
-role, and invite URL. When the first cloud server plan of an account starts, a welcome message goes
-to the account address. It contains the plan name and the server name. License messages go to the
-account address from `no_reply@openbot.run` through the same provider, and a reply goes to
-`licenses@openbot.run`. When a license has its first
-payment, the message contains the license tier, the number of users, the list price when no discount
-applies, the currency, the billing period, and the date of the next payment. When a renewal payment fails, the message contains
-the license tier, the number of users, the amount due, the currency, the date of the next payment
-try, and the link to the Stripe page of the invoice. When a paid license ends, the message contains
-the license tier, the number of users, and whether it ended after a failed payment. The HTML version of a message loads the OpenBot logo from `openbot.run` when
+role, and invite URL. The HTML version of a message loads the OpenBot logo from `openbot.run` when
 the mail client shows images. The image address is the same in every message and identifies no
 recipient.
 
@@ -825,36 +687,6 @@ with plain requests that carry no account or user data. Incidents on the page co
 with the `status` label in the public OpenBot repository. The same workflow sends the public incident
 and service state to webhook addresses that the OpenBot team sets, such as a team chat channel. It
 sends no account or user data.
-
-Paid server plans use Stripe. You enter card and billing details on Stripe's pages, not in OpenBot.
-Stripe sends the account service the subscription state, the plan, its price, the period, and the
-account and server IDs that the subscription names, never the card number. When you choose a plan
-for a new hosted server, the account service sends Stripe your account email and account ID (to
-make the Stripe customer), and the server ID, the plan, the billing period and the currency (to
-open Stripe Checkout, `checkout.stripe.com`). When you buy or change a license, it sends Stripe
-your account ID, the number of users and the currency, and no names or emails of the users. Before the payment page opens, you give
-your billing country and, for a company in the EU, an optional EU VAT ID. The account service saves
-them on your Stripe customer, because they decide the VAT. When the VAT ID is of an EU country other
-than Poland, the account service first sends only that VAT ID to the EU VAT check service (VIES,
-`ec.europa.eu`) of the European Commission, which says if it is valid. When the billing address that you enter on the
-payment page is in another country than the one you gave, the account service sends the OpenBot team
-the ID of that payment page and the two countries, through a Discord webhook, to check the VAT. When you delete a hosted server, the account service
-tells Stripe to cancel its plan. When you manage billing,
-the account service sends Stripe your Stripe customer ID, and the subscription ID of the plan you
-change or cancel, to open the Stripe Customer Portal (`billing.stripe.com`). Stripe keeps the
-customer, invoices and payment records under its own policy, also after the subscription ends.
-Billing is off, and Stripe receives nothing, when the account service has no Stripe key.
-
-When a server plan or a license starts or ends, when you cancel or resume its renewal, and when a
-payment for it succeeds, fails, or goes back (a refund or a dispute), the account service sends one
-message to a private Discord channel of the OpenBot team, through a Discord webhook. The message has
-your account email, the plan or the license tier and its number of users, the billing period, the
-currency, and the list amount or the amount of the payment. It has no card data, no Stripe ID and no
-server ID. Discord keeps the message under its own policy.
-
-When your hosted server plan ends and the OpenBot team stores the data of the server in its archive,
-the same channel gets one message with your account email, the plan, the first 8 characters of the
-server ID, the size of the archive and the ID of the machine.
 
 ## Data stored on the OpenBot computer
 

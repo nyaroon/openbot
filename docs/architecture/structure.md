@@ -4,7 +4,7 @@
 
 ```text
 apps/
-  auth-api/          Public web and /app browser entry, accounts, memberships, connection tickets, and billing
+  auth-api/          Public web and /app browser entry, accounts, memberships, and connection tickets
   browser-extension/ Chrome side panel (Manifest V3) that chats with the agents of a joined server, as the phone app does, and sends X posts to the X agent
   discord-app/       Developer Portal settings of the OpenBot Discord app (no code)
   mobile/            Expo React Native client for remote team hosts
@@ -92,8 +92,6 @@ SolidJS, provider, Cloudflare, and application code; and the account server to d
   Muse and Devin XDG folders are provider-owned login and resume state. They are not OpenBot
   conversation storage.
 - D1 is the source of truth for central accounts, remote membership, invitations, and logical sessions.
-- Stripe is the source of truth for paid plans. D1 `billing_subscriptions` is a copy that the Stripe
-  webhook keeps current; see [Billing](servers.md#billing).
 - A local team host owns conversations, files, agents, and the local member projection used by Team API.
 - `openbot-approval-automation-v3.json` holds which agents have Full access: the `autoApprove` half of
   each agent's Permissions level (Workspace only, Ask first, Full access). OpenBot reads an older

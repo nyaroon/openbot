@@ -82,7 +82,7 @@ export function WorkspacePageRail(props: { hidden: boolean }) {
         serverSettingsShownSection() === "providers" && serverSettingsTarget()?.id === activeServer()?.id;
       return providers ? "providers" : null;
     }
-    return page === "pricing" ? null : page;
+    return page;
   };
   return (
     <PageRail
@@ -94,7 +94,6 @@ export function WorkspacePageRail(props: { hidden: boolean }) {
       customAgentUsage={localAgentUsage()}
       mediaCredits={mediaCredits()}
       onMediaCredits={(provider) => {
-        windowPage.leavePricing();
         setPendingPluginConnect(false);
         setPendingPluginSlug(provider);
         setSkillsMarketplaceOpen(true);
@@ -110,7 +109,6 @@ export function WorkspacePageRail(props: { hidden: boolean }) {
       onCrm={crmRailAction()}
       onCrmConnectors={crmConnectorsAction()}
       onMarketplace={() => {
-        windowPage.leavePricing();
         setSkillsMarketplaceOpen(true);
       }}
       onSettings={(button) => (updateNotice() ? openAppSettings(button, "updates") : windowPage.openSettings(button))}

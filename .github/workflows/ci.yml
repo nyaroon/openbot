@@ -1563,9 +1563,6 @@ jobs:
           REMOTE_AUTH_WEBHOOK_SECRET: ${{ secrets.REMOTE_AUTH_WEBHOOK_SECRET }}
           OPENPANEL_CLIENT_ID: ${{ secrets.OPENPANEL_CLIENT_ID }}
           OPENPANEL_CLIENT_SECRET: ${{ secrets.OPENPANEL_CLIENT_SECRET }}
-          # Optional: an unset value keeps the value that the Worker has.
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
           # GitHub refuses an Actions secret name that starts with GITHUB_. The Worker name is GITHUB_APP_PRIVATE_KEY.
           OPENBOT_GITHUB_APP_PRIVATE_KEY: ${{ secrets.OPENBOT_GITHUB_APP_PRIVATE_KEY }}
           APNS_PRIVATE_KEY: ${{ secrets.APNS_PRIVATE_KEY }}
@@ -1597,11 +1594,9 @@ jobs:
             ) {
               throw new Error("Required production secrets are missing.");
             }
-            // A Stripe key without its webhook secret takes payments that
-            // the Worker never sees, so each pair is set together or not at all.
+            // Each optional pair is set together or not at all.
             const optional = {};
             for (const names of [
-              ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
               // The Live Activity relay stays off until both are set.
               ["APNS_PRIVATE_KEY", "APNS_KEY_ID"],
             ]) {
@@ -1623,10 +1618,6 @@ jobs:
               }
               if (parsed?.type !== "service_account") throw new Error("FCM_SERVICE_ACCOUNT is not a Firebase service account key file.");
               optional.FCM_SERVICE_ACCOUNT = fcmServiceAccount;
-            }
-            const stripeKey = optional.STRIPE_SECRET_KEY;
-            if (stripeKey && !stripeKey.startsWith("sk_live_") && !stripeKey.startsWith("rk_live_")) {
-              throw new Error("STRIPE_SECRET_KEY is not a live key.");
             }
             const secrets = {
               ...optional,

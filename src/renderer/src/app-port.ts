@@ -29,8 +29,6 @@ export interface AppPort {
   >;
   agentTemplates: Pick<OpenBotDesktopApi["agentTemplates"], "onOpenLink" | "takePendingLink">;
   acpRegistry: OpenBotDesktopApi["acpRegistry"];
-  billing: OpenBotDesktopApi["billing"];
-  license: OpenBotDesktopApi["license"];
   auth: Pick<
     OpenBotDesktopApi["auth"],
     "listOwnerTransfers" | "acceptOwnerTransfer" | "declineOwnerTransfer" | "onOwnerTransfersChanged"

@@ -3,7 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { DEFAULT_TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
+import { TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
 import { z } from "zod";
 import { developmentChildEnvironment } from "./development-environment";
 
@@ -103,13 +103,11 @@ function clear() {
   d1(
     [
       `DELETE FROM remote_owner_transfers WHERE host_id LIKE '${PREFIX}-%'`,
-      `DELETE FROM hosted_servers WHERE server_id LIKE '${PREFIX}-%'`,
       `DELETE FROM remote_auth_events WHERE payload LIKE '%${PREFIX}-%'`,
       `DELETE FROM remote_sessions WHERE host_id IN ${hosts}`,
       `DELETE FROM remote_invites WHERE host_id IN ${hosts}`,
       `DELETE FROM remote_memberships WHERE host_id IN ${hosts}`,
       `DELETE FROM webhook_routes WHERE host_id IN ${hosts}`,
-      `DELETE FROM billing_subscriptions WHERE user_id IN ${users}`,
       `DELETE FROM remote_hosts WHERE host_id LIKE '${PREFIX}-%'`,
       `DELETE FROM auth_sessions WHERE user_id IN ${users}`,
       `DELETE FROM auth_rate_limits WHERE key_hash IN (${ACCOUNT_NAMES.flatMap((name) => [
@@ -132,11 +130,7 @@ function addServer(owner: Account, admin: Account): Server {
      VALUES (${quote(`${server.id}:owner`)}, ${quote(server.id)}, ${quote(owner.id)}, 'owner', 'active', ${now}, ${now}),
             (${quote(`${server.id}:admin`)}, ${quote(server.id)}, ${quote(admin.id)}, 'admin', 'active', ${now}, ${now});
      INSERT INTO webhook_routes(route_id, host_id, account_id, connected_at)
-     VALUES (${quote(`${server.id}-route`)}, ${quote(server.id)}, ${quote(owner.id)}, ${now});
-     INSERT INTO billing_subscriptions(stripe_subscription_id, user_id, stripe_customer_id, server_id, plan,
-       interval, currency, amount, status, current_period_end, updated_at)
-     VALUES (${quote(`sub_${server.id}`)}, ${quote(owner.id)}, ${quote(`cus_${owner.id}`)}, ${quote(server.id)},
-       'pro', 'month', 'eur', 1000, 'active', ${now + 30 * DAY}, ${now})`,
+     VALUES (${quote(`${server.id}-route`)}, ${quote(server.id)}, ${quote(owner.id)}, ${now})`,
     z.unknown(),
   );
   return server;
@@ -160,8 +154,8 @@ async function run(api: string) {
   const recipient = new Account("recipient", api).create();
   const stranger = new Account("stranger", api).create();
   const server = addServer(owner, admin);
-  const planLimit = (await hostOf(owner, server.id))?.memberLimit ?? 0;
-  record("the plan of the owner sets the member limit", planLimit > DEFAULT_TEAM_MEMBER_LIMIT, String(planLimit));
+  const memberLimit = (await hostOf(owner, server.id))?.memberLimit ?? 0;
+  record("a server allows the team member limit", memberLimit === TEAM_MEMBER_LIMIT, String(memberLimit));
 
   const transferPath = `/v2/remote/hosts/${server.id}/owner-transfer`;
   const byAdmin = await admin.request(transferPath, {
@@ -180,25 +174,6 @@ async function run(api: string) {
     (await errorCode(toSelf)) === "owner_transfer_self",
     String(toSelf.status),
   );
-
-  const now = Date.now();
-  d1(
-    `INSERT INTO hosted_servers(server_id, owner_user_id, name, size, plan, billing_interval, currency, desired_state,
-       observed_state, idempotency_key, created_at, updated_at)
-     VALUES (${quote(server.id)}, ${quote(owner.id)}, 'Transfer e2e', 'default', 'pro', 'month', 'eur', 'running',
-       'running', ${quote(`${PREFIX}-hosted`)}, ${now}, ${now})`,
-    z.unknown(),
-  );
-  const hosted = await owner.request(transferPath, {
-    method: "POST",
-    body: JSON.stringify({ email: recipient.email }),
-  });
-  record(
-    "a server that OpenBot hosts cannot be transferred",
-    (await errorCode(hosted)) === "owner_transfer_hosted",
-    String(hosted.status),
-  );
-  d1(`DELETE FROM hosted_servers WHERE server_id = ${quote(server.id)}`, z.unknown());
 
   const first = await owner.request(transferPath, { method: "POST", body: JSON.stringify({ email: stranger.email }) });
   const firstTransfer = transferSchema.parse(await first.json());
@@ -266,8 +241,8 @@ async function run(api: string) {
   const newOwnerHost = await hostOf(recipient, server.id);
   record("the recipient is the owner", newOwnerHost?.role === "owner", String(newOwnerHost?.role));
   record(
-    "the plan of the previous owner still pays for the server",
-    newOwnerHost?.memberLimit === planLimit,
+    "the member limit stays the same after the transfer",
+    newOwnerHost?.memberLimit === memberLimit,
     String(newOwnerHost?.memberLimit),
   );
   record("the previous owner lost access", (await hostOf(owner, server.id)) === null, "not listed");

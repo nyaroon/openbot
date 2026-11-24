@@ -337,8 +337,6 @@ export const messages = {
   "settings.tab.agentDock.description": "Выберите, где показывается док и какие агенты в нём.",
   "settings.tab.updates.title": "Обновления",
   "settings.tab.updates.description": "Поддерживайте OpenBot на этом компьютере в актуальном состоянии.",
-  "settings.tab.billing.title": "Оплата",
-  "settings.tab.billing.description": "Лицензия, тарифы серверов, способ оплаты и счета.",
   "settings.tab.appearance.description": "Тема, цвета, язык и шрифты.",
   "settings.tab.appBehavior.description": "Как OpenBot запускается и работает на этом компьютере.",
   "settings.appearance.colorsTitle": "Цвета",
@@ -584,7 +582,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "Разрешить обновления от участников сервера",
   "settings.updates.allowRemote.description":
     "Все вошедшие участники сервера могут запросить обновление, когда этот компьютер простаивает. Владельцы и администраторы могут также принудительно перезапустить OpenBot.",
-  "settings.hostedServers.plan.recommended": "Самый выгодный",
   "settings.voice.dictation.section": "Диктовка",
   "settings.voice.model.parakeet.description": "Быстрая. Сама определяет язык речи, 25 европейских языков.",
   "settings.voice.model.parakeetUnified.description":

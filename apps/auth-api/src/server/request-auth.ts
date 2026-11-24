@@ -9,10 +9,7 @@ import { AgentMarketplace, AgentMarketplaceError } from "./agent-marketplace";
 import { AgentTemplates } from "./agent-templates";
 import { type FcmRelaySender, sharedFcmSender } from "./android-notification-relay";
 import { AuthOperationError, AuthService, AuthServiceError } from "./auth-service";
-import { BillingError, type BillingService } from "./billing-service";
 import type { ContactMessageServices } from "./contact-message";
-import { createBilling } from "./create-billing";
-import { CustomServerOffers } from "./custom-server-offers";
 import { D1AuthRepository } from "./d1-auth-repository";
 import { DiscordAppError, DiscordAppService } from "./discord-app";
 import { runApiEffect } from "./effect-runtime";
@@ -62,13 +59,7 @@ function accountAnalytics(bindings: WorkerBindings): AccountAnalytics {
     clientSecret: bindings.OPENPANEL_CLIENT_SECRET,
     fetch: (input, init) => fetch(input, init),
     schedule,
-    database: bindings.DB,
   });
-}
-
-export function requestAccountAttribution(): AccountAttribution {
-  const bindings = requireWorkerBindings(env);
-  return new AccountAttribution({ database: bindings.DB, analytics: accountAnalytics(bindings) });
 }
 
 /** The secret in the path of the Kirimi incoming-message webhook. Null when reverse sign-in is off. */
@@ -119,19 +110,6 @@ export function requestAgentMarketplace(): AgentMarketplace {
 
 export function requestAgentTemplates(): AgentTemplates {
   return new AgentTemplates(requireWorkerBindings(env));
-}
-
-export function requestBillingService(): BillingService | null {
-  return requestBilling();
-}
-
-export function requestCustomServerOffers(): CustomServerOffers {
-  return new CustomServerOffers({ database: requireWorkerBindings(env).DB, billing: requestBillingService() });
-}
-
-export function billingErrorResponse(error: unknown): Response {
-  if (error instanceof BillingError) return apiError(error.status, error.code, error.message);
-  return authErrorResponse(error);
 }
 
 let githubInstallationTokens: { key: string; service: GitHubInstallationTokens } | null = null;
@@ -468,17 +446,6 @@ export function schedule<E>(work: Effect.Effect<void, E>): void {
   waitUntil(runApiEffect(work));
 }
 
-function requestBilling(): BillingService | null {
-  const bindings = requireWorkerBindings(env);
-  const remote = new RemoteControlPlane(bindings, { schedule });
-  return createBilling(bindings, {
-    planChanged: (hostId) => remote.planChanged(hostId),
-    licenseChanged: (userId) => remote.licenseChanged(userId),
-    schedule,
-  });
-}
-
 export function browserApiErrorResponse(error: unknown): Response {
-  if (error instanceof BillingError) return apiError(error.status, error.code, error.message);
   return remoteControlPlaneErrorResponse(error);
 }

@@ -731,10 +731,6 @@
     pointer-events: none;
   }
 
-  .app-frame-edge > .window-page > .window-page-portal {
-    display: contents;
-  }
-
   .app-frame-edge.app-frame-with-server-rail:not([data-window-page-kind="agents"]) > .window-page {
     inset-inline-start: calc(var(--server-rail-width) + 1px);
   }

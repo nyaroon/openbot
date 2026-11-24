@@ -198,8 +198,6 @@ export const messages = defineMessages("error.remote", {
   "error.remote.directoryTimeout": "The OpenBot service did not answer in time. Try again.",
   "error.remote.inviteAlreadyUsed": "This invitation was already used. Ask for a new invitation.",
   "error.remote.inviteNotFound": "This invitation does not exist or has expired. Ask for a new invitation.",
-  "error.remote.licenseUsersFull":
-    "The server owner's license has no free user. Ask the owner to add a user to the license.",
   "error.remote.memberLimitReached": "This host has reached its member limit. Ask the owner to make space.",
   "error.remote.hostNotRegistered": "This host is no longer registered with the OpenBot service.",
   "error.remote.membershipEnded": "You are no longer a member of this host. Ask the owner for a new invitation.",
@@ -210,10 +208,8 @@ export const messages = defineMessages("error.remote", {
   "error.remote.remoteNotConfigured": "Remote connections are not set up on this OpenBot service.",
   "error.remote.hostRefused": "The host refused the request ({status}).",
   "error.remote.formUnavailable": "This form is no longer available.",
-  "error.remote.hostedServerRemoval": "Use Billing to delete a hosted server.",
   "error.remote.hostRemoved": "The owner removed this server from the account.",
   "error.remote.ownerTransferSelf": "You already own this server. Enter the email of the new owner.",
-  "error.remote.ownerTransferHosted": "A server that OpenBot hosts cannot change its owner.",
   "error.remote.ownerTransferInvalid":
     "This ownership transfer is no longer available. Ask the owner to send it again.",
   "error.remote.channelsUnsupported": "Update this desktop server to use channels.",

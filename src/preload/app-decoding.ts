@@ -1,6 +1,4 @@
 import { isAgentTemplateId } from "@openbot/contracts/agent-template-links";
-import { type BillingState, parseBillingState } from "@openbot/contracts/billing";
-import { type BillingDetails, parseBillingDetails } from "@openbot/contracts/billing-details";
 import {
   type AccountSession,
   AGENT_DEFAULT_KEYS,
@@ -133,7 +131,6 @@ import {
   requiredNumber,
   requiredString,
 } from "@openbot/contracts/ipc-decoding";
-import { type LicenseState, parseLicenseState } from "@openbot/contracts/license";
 import {
   isMarketplaceAgentId,
   isMarketplaceSkillSlug,
@@ -712,24 +709,6 @@ export function decodeOnePasswordConnectorStatus(value: unknown): OnePasswordCon
   const status = parseOnePasswordConnectorStatus(value);
   if (!status) throw new Error("Invalid 1Password connector response.");
   return status;
-}
-
-export function decodeBillingState(value: unknown): BillingState {
-  const state = parseBillingState(value);
-  if (!state) throw new Error("Invalid billing state response.");
-  return state;
-}
-
-export function decodeBillingDetails(value: unknown): BillingDetails {
-  const details = parseBillingDetails(value);
-  if (!details) throw new Error("Invalid billing details response.");
-  return details;
-}
-
-export function decodeLicenseState(value: unknown): LicenseState {
-  const state = parseLicenseState(value);
-  if (!state) throw new Error("Invalid license state response.");
-  return state;
 }
 
 export function decodeServerClaim(value: unknown): ServerClaim {

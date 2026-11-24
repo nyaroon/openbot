@@ -322,8 +322,6 @@ export const messages = {
   "settings.tab.agentDock.description": "בחירת מקום הצגת המעגן ואילו סוכנים נמצאים בו.",
   "settings.tab.updates.title": "עדכונים",
   "settings.tab.updates.description": "שמירה על OpenBot מעודכן במחשב הזה.",
-  "settings.tab.billing.title": "חיוב",
-  "settings.tab.billing.description": "רישיון, תוכניות שרת, אמצעי תשלום וחשבוניות.",
   "settings.tab.appearance.description": "בחירת ערכת נושא, צבעים, שפה וגופנים.",
   "settings.tab.appBehavior.description": "בחירה איך OpenBot מופעל ופועל במחשב הזה.",
   "settings.appearance.colorsTitle": "צבעים",
@@ -556,7 +554,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "אישור עדכונים מחברי שרת",
   "settings.updates.allowRemote.description":
     "כל חברי השרת המחוברים יכולים לבקש עדכון כשהמחשב הזה במצב סרק. בעלים ומנהלים יכולים גם לכפות הפעלה מחדש.",
-  "settings.hostedServers.plan.recommended": "המשתלם ביותר",
   "settings.voice.dictation.section": "הכתבה",
   "settings.voice.model.parakeet.description": "מהיר. מזהה בעצמו את השפה המדוברת, ב-25 שפות אירופיות.",
   "settings.voice.model.parakeetUnified.description": "מהיר. אנגלית בלבד. כותב פיסוק, עם פחות שגיאות מ-Parakeet TDT.",

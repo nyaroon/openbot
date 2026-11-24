@@ -5,5 +5,5 @@ export const TERMS_UPDATED_AT = "2026-11-21";
 export const TERMS_META = {
   title: "OpenBot Terms & Conditions",
   description:
-    "The terms that govern the use of OpenBot: accounts, AI agents, integrations, the Marketplace, commercial licenses, hosted servers, subscriptions, credits and payments.",
+    "The terms that govern the use of OpenBot: accounts, AI agents, integrations, teams, the Marketplace and self-hosting.",
 } as const;

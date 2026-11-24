@@ -58,8 +58,6 @@ export function createDevelopmentDefaults(): Record<string, string> {
     EMAIL_SMTP_USERNAME: "",
     EMAIL_FROM: "",
     EMAIL_REPLY_TO: "",
-    EMAIL_LICENSE_FROM: "",
-    EMAIL_LICENSE_REPLY_TO: "",
     EMAIL_SMTP_PASSWORD: "",
     SKILLS_ADMIN_TOKEN: developmentSecret(),
     REMOTE_AUTH_WEBHOOK_SECRET: developmentSecret(),

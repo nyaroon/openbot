@@ -42,7 +42,6 @@ import {
   Text,
   UsersRound,
 } from "@openbot/ui";
-import type { LicenseCalls } from "@openbot/ui/features/billing/license-store";
 import type { ProviderSettingsDetail } from "@openbot/ui/features/settings/ProviderSettingsPage";
 import {
   SaveBarDock,
@@ -114,9 +113,7 @@ export interface ServerSettingsModalProps {
   onSetPublished: (published: boolean) => Promise<void>;
   onRotateHostKey?: (() => Promise<void>) | undefined;
   onCreateInvite: (input: { role: "admin" | "member"; email?: string; permanent?: boolean }) => Promise<InviteSummary>;
-  license?: Pick<LicenseCalls, "getState" | "setUsers" | "changePlan"> | undefined;
   ownerTransfer?: OwnerTransferCalls | undefined;
-  onContactUs?: () => void;
   onUpdateMember: (input: UpdateTeamMemberInput) => Promise<void>;
   onRemoveMember: (memberId: string) => Promise<void>;
   onRevokeInvite: (inviteId: string) => Promise<void>;

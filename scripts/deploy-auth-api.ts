@@ -28,8 +28,6 @@ async function main(): Promise<void> {
   await putRequiredSecret("REMOTE_TICKET_PRIVATE_JWK");
   await putRequiredSecret("REMOTE_TICKET_PUBLIC_JWKS");
   await putRequiredSecret("REMOTE_AUTH_WEBHOOK_SECRET");
-  assertStripeKeyMode();
-  await putOptionalSecretSet("STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET");
   await putOptionalSecret("GITHUB_APP_PRIVATE_KEY");
   await putOptionalSecret("SERVER_CLAIMS_ADMIN_TOKEN");
   await putOptionalSecretSet("SLACK_CLIENT_ID", "SLACK_CLIENT_SECRET", "SLACK_STATE_SECRET");
@@ -95,17 +93,6 @@ function assertFcmServiceAccount(): void {
   if (value.startsWith("encrypted:"))
     throw new Error("FCM_SERVICE_ACCOUNT is not decrypted. Check the environment decryption key.");
   if (!readFcmServiceAccount(value)) throw new Error("FCM_SERVICE_ACCOUNT is not a Firebase service account key file.");
-}
-
-function assertStripeKeyMode(): void {
-  const key = process.env.STRIPE_SECRET_KEY?.trim();
-  if (!key) return;
-  const live = key.startsWith("sk_live_") || key.startsWith("rk_live_");
-  if (cloudflareEnvironment && live) {
-    throw new Error(`STRIPE_SECRET_KEY is a live key. The ${cloudflareEnvironment} Worker takes only test keys.`);
-  }
-  if (!cloudflareEnvironment && !live)
-    throw new Error("STRIPE_SECRET_KEY is not a live key. Production takes only live keys.");
 }
 
 async function putOptionalSecret(name: string): Promise<void> {

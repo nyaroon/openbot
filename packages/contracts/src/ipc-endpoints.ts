@@ -3,8 +3,6 @@ import type { AppAppearancePreference, SetAppAppearancePreferenceInput } from ".
 import type { AppInterfaceSizePreference, SetAppInterfaceSizePreferenceInput } from "./app-interface-size";
 import type { AppLanguagePreference, SetAppLanguagePreferenceInput } from "./app-language";
 import type { AppLogoColorPreference, SetAppLogoColorPreferenceInput } from "./app-logo-color";
-import type { BillingPortalRequest, BillingState, BillingStorageRequest } from "./billing";
-import type { BillingDetails, BillingDetailsRequest } from "./billing-details";
 import type {
   AcpRegistryEntry,
   AcpRegistryInstallation,
@@ -653,13 +651,6 @@ import type {
   WorkflowVersionInput,
   WorkflowWebhookSecret,
 } from "./ipc-workflows";
-import type {
-  LicenseCheckoutRequest,
-  LicensePlanRequest,
-  LicenseRenewalRequest,
-  LicenseState,
-  LicenseUsersRequest,
-} from "./license";
 import type { MarketplaceListingLink } from "./marketplace-links";
 import type { AccountSession, MobileConnectedDevice, MobileConnectLink, MobileConnectTicket } from "./mobile-connect";
 import type { AcceptedOwnerTransfer, OwnerTransfer } from "./owner-transfer";
@@ -1358,20 +1349,6 @@ export const IPC_ENDPOINTS = {
     create: request<undefined, RoutineFeed>()("routine-feed:create"),
     remove: request<undefined, RoutineFeed>()("routine-feed:remove"),
   },
-  billing: {
-    getState: request<undefined, BillingState>()("billing:get-state"),
-    openPortal: request<BillingPortalRequest, void>()("billing:open-portal"),
-    buyStorage: request<BillingStorageRequest, BillingState>()("billing:buy-storage"),
-    getDetails: request<undefined, BillingDetails>()("billing:get-details"),
-    setDetails: request<BillingDetailsRequest, BillingDetails>()("billing:set-details"),
-  },
-  license: {
-    getState: request<undefined, LicenseState>()("license:get-state"),
-    openCheckout: request<LicenseCheckoutRequest, void>()("license:open-checkout"),
-    setUsers: request<LicenseUsersRequest, LicenseState>()("license:set-users"),
-    changePlan: request<LicensePlanRequest, LicenseState>()("license:change-plan"),
-    setRenewal: request<LicenseRenewalRequest, LicenseState>()("license:set-renewal"),
-  },
   localServers: {
     create: request<string, ServerSummary>()("local-servers:create"),
     restart: request<string, void>()("local-servers:restart"),
@@ -2017,8 +1994,6 @@ export const IPC_GROUP_PATHS = {
   workflows: "workflows",
   crm: "crm",
   routineResults: "routineResults",
-  billing: "billing",
-  license: "license",
   localServers: "localServers",
   marketplaceAgents: "marketplaceAgents",
   agentTemplates: "agentTemplates",

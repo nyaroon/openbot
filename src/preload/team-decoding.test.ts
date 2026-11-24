@@ -208,17 +208,6 @@ const typingEvent = {
   event: { type: "team-direct-typing", senderMemberId: "member-1", recipientMemberId: "member-2", typing: true },
 } satisfies ScopedDirectTypingEvent;
 
-const customPlan = {
-  name: "Business",
-  amount: 89_000,
-  currency: "eur",
-  interval: "month",
-  vcpu: 16,
-  memoryGb: 64,
-  storageGb: 500,
-  personalizedSupport: true,
-};
-
 describe("team decoders", () => {
   it.each([
     ["host status", decodeHostStatus, hostStatus],
@@ -255,8 +244,6 @@ describe("team decoders", () => {
     ["server without a connection issue", decodeServer, { ...remoteServer, compatibility: null, issue: null }],
     ["server on this computer", decodeServer, { ...remoteServer, thisComputer: true }],
     ["server with a key change time", decodeServer, { ...remoteServer, keyChangedAt: 1_700_000_000_000 }],
-    ["custom server that waits for payment", decodeServer, { ...remoteServer, paymentRequired: true }],
-    ["custom server with its plan", decodeServer, { ...remoteServer, paymentRequired: true, customPlan }],
     ["invite preview", decodeInvitePreview, invitePreview],
     ["invite link", decodeInviteUrl, "openbot://join/invite-1"],
     ["pending invite", decodePendingInvite, "openbot://join/invite-1"],
@@ -335,20 +322,6 @@ describe("team decoders", () => {
     ["server with a false capability wait", decodeServer, { ...remoteServer, capabilitiesPending: false }],
     ["server with an invalid restart flag", decodeServer, { ...remoteServer, restartAvailable: "false" }],
     ["server on this computer marked false", decodeServer, { ...remoteServer, thisComputer: false }],
-    ["server with a fractional plan storage", decodeServer, { ...remoteServer, storageGb: 1.5 }],
-    ["server with a text plan storage", decodeServer, { ...remoteServer, storageGb: "50" }],
-    ["custom server with payment marked false", decodeServer, { ...remoteServer, paymentRequired: false }],
-    [
-      "custom server with a text price",
-      decodeServer,
-      { ...remoteServer, customPlan: { ...customPlan, amount: "890" } },
-    ],
-    [
-      "custom server with an unknown currency",
-      decodeServer,
-      { ...remoteServer, customPlan: { ...customPlan, currency: "btc" } },
-    ],
-    ["custom server with no memory", decodeServer, { ...remoteServer, customPlan: { ...customPlan, memoryGb: 0 } }],
     ["server with a text key change time", decodeServer, { ...remoteServer, keyChangedAt: "2026-10-31" }],
     ["server with a negative key change time", decodeServer, { ...remoteServer, keyChangedAt: -1 }],
     ["invite preview for an owner", decodeInvitePreview, { ...invitePreview, role: "owner" }],

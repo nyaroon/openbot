@@ -68,10 +68,6 @@ export const messages = {
   "server.join.account": "계정",
   "server.join.emailBound": "이 초대는 해당 이메일 수신자만 사용할 수 있어요.",
   "server.join.unknownDate": "알 수 없음",
-  "server.add.billing.label": "결제 주기",
-  "server.add.billing.monthly": "월간",
-  "server.add.billing.yearly": "연간",
-  "server.add.billing.save": "{percent}% 절약",
   "server.add.otherOptions": "기타 옵션",
   "server.local.createTitle": "이 컴퓨터의 새 서버",
   "server.local.createDescription": "이 서버에는 자체 에이전트, 채팅, 파일이 있어요. 이 컴퓨터에서 실행돼요.",
@@ -103,11 +99,6 @@ export const messages = {
   "server.install.setUpWithAgent": "에이전트로 설정",
   "server.install.sshAgentPrompt":
     "SSH로 내 Linux 서버에 연결하고 OpenBot을 서버로 설치해 주세요.\n\nSSH 주소 (user@host):",
-  "server.upsell.notNow": "나중에",
-  "server.upgrade.title": "에이전트의 공간이 부족해요",
-  "server.upgrade.description":
-    "{server}의 여유 공간이 거의 없어요. 업그레이드하면 에이전트가 중단 없이 계속 작동해요.",
-  "server.upgrade.used": "{total} 중 {used} 사용",
   "server.hosted.open": "서버 열기",
   "server.role.admin": "관리자",
   "server.role.member": "멤버",

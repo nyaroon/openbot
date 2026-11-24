@@ -11,12 +11,10 @@ import { isBoolean, isOneOf } from "@openbot/contracts/runtime-values";
 import { OpenPanel, OpenPanelBase, type OpenPanelOptions, type TrackProperties } from "@openpanel/web";
 import { BRAND_ROUTE } from "./brand-page";
 import { CLA_ROUTE } from "./cla";
-import { COMMERCIAL_LICENSE_ROUTE } from "./commercial-license";
 import { CONTACT_TOPICS } from "./contact";
 import { CONTENT_COLLECTIONS } from "./content";
 import { type CollectionId, type ContentCollection, findArticle } from "./content-collection";
 import { DOWNLOAD_PLATFORM_ORDER, type DownloadPlatform } from "./download-platforms";
-import { DPA_ROUTE } from "./dpa";
 import {
   OPENBOT_ALTERNATE_DOWNLOAD_LINKS,
   OPENBOT_ANDROID_APK_LINK,
@@ -44,10 +42,6 @@ export interface ArticleReference {
   slug: string;
 }
 
-export type BillingReturnKind = "plan" | "license" | "portal";
-export const BILLING_RETURN_KINDS = ["plan", "license", "portal"] as const satisfies readonly BillingReturnKind[];
-type BillingReturnOutcome = "completed" | "cancelled";
-
 type ContactTopicId = (typeof CONTACT_TOPICS)[number]["id"];
 type ContactFormResult = "succeeded" | "failed" | "rate_limited";
 const CONTACT_TOPIC_IDS = CONTACT_TOPICS.map((topic) => topic.id);
@@ -63,7 +57,6 @@ interface LandingAnalyticsEvents {
     | { action: "view"; valid_invite: boolean }
     | { action: "open_app" }
     | { action: "download"; platform: DownloadPlatform };
-  billing_return_viewed: { outcome: BillingReturnOutcome; kind?: BillingReturnKind };
   contact_form_submitted: { topic?: ContactTopicId; result: ContactFormResult };
 }
 
@@ -128,13 +121,10 @@ export type LandingScreenPath =
   | "/"
   | "/join"
   | "/contact"
-  | "/billing/return"
   | typeof TEAMS_ROUTE
   | typeof BRAND_ROUTE
   | typeof PRIVACY_POLICY_ROUTE
   | typeof TERMS_ROUTE
-  | typeof COMMERCIAL_LICENSE_ROUTE
-  | typeof DPA_ROUTE
   | typeof CLA_ROUTE
   | DownloadPagePath
   | MarketplaceTabPath
@@ -149,8 +139,6 @@ const FIXED_SCREEN_PATHS = [
   BRAND_ROUTE,
   PRIVACY_POLICY_ROUTE,
   TERMS_ROUTE,
-  COMMERCIAL_LICENSE_ROUTE,
-  DPA_ROUTE,
   CLA_ROUTE,
   ...Object.values(OPENBOT_DOWNLOAD_PAGE_LINKS),
   ...Object.values(MARKETPLACE_TAB_ROUTES),
@@ -251,7 +239,6 @@ const EVENT_PROPERTY_ALLOWLIST = {
   content_article_opened: ["collection", "slug", "placement"],
   content_article_read: ["collection", "slug", "depth"],
   join_page_action: ["action", "valid_invite", "platform"],
-  billing_return_viewed: ["outcome", "kind"],
   contact_form_submitted: ["topic", "result"],
 } as const satisfies Record<LandingEventName, readonly string[]>;
 
@@ -327,25 +314,6 @@ class LandingAnalytics {
       if (platform) this.#track("join_page_action", { action: "download", platform });
     };
     return this.#replaceClickListener(document, handleClick, "/join");
-  }
-
-  startBillingReturn(
-    document: Document,
-    hostname: string,
-    options: { cancelled: boolean; kind: BillingReturnKind | undefined },
-  ): () => void {
-    if (isLikelyAutomation(document.defaultView?.navigator)) return () => undefined;
-    if (!this.#ensureClient(hostname)) return () => undefined;
-    this.#campaignPath = "/billing/return";
-    this.#client?.setGlobalProperties(landingAttribution(document, hostname));
-    this.#pageStarted = true;
-    this.#flushPending();
-    this.#screenView("/billing/return");
-    this.#track("billing_return_viewed", {
-      outcome: options.cancelled ? "cancelled" : "completed",
-      ...(options.kind ? { kind: options.kind } : {}),
-    });
-    return this.#replaceClickListener(document, () => undefined, "/billing/return");
   }
 
   trackContactFormSubmitted(topic: string, result: ContactFormResult): void {
@@ -460,8 +428,6 @@ class LandingAnalytics {
 
 function isSafeLandingProperty(name: LandingEventName, key: string, value: unknown): boolean {
   if (key === "action") return isOneOf(["view", "open_app", "download"] as const, value);
-  if (key === "outcome") return name === "billing_return_viewed" && isOneOf(["completed", "cancelled"] as const, value);
-  if (key === "kind") return name === "billing_return_viewed" && isOneOf(BILLING_RETURN_KINDS, value);
   if (key === "topic") return name === "contact_form_submitted" && isOneOf(CONTACT_TOPIC_IDS, value);
   if (key === "result")
     return name === "contact_form_submitted" && isOneOf(["succeeded", "failed", "rate_limited"] as const, value);

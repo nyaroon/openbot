@@ -202,8 +202,6 @@ export const messages = {
   "error.remote.directoryTimeout": "OpenBot hizmeti zamanında yanıt vermedi. Tekrar deneyin.",
   "error.remote.inviteAlreadyUsed": "Bu davet zaten kullanıldı. Yeni bir davet isteyin.",
   "error.remote.inviteNotFound": "Bu davet yok veya süresi doldu. Yeni bir davet isteyin.",
-  "error.remote.licenseUsersFull":
-    "Sunucu sahibinin lisansında boş kullanıcı yok. Sahibinden lisansa kullanıcı eklemesini isteyin.",
   "error.remote.memberLimitReached": "Bu ana makine üye sınırına ulaştı. Sahibinden yer açmasını isteyin.",
   "error.remote.hostNotRegistered": "Bu ana makine artık OpenBot hizmetine kayıtlı değil.",
   "error.remote.membershipEnded": "Artık bu ana makinenin üyesi değilsiniz. Sahibinden yeni bir davet isteyin.",
@@ -214,10 +212,8 @@ export const messages = {
   "error.remote.remoteNotConfigured": "Bu OpenBot hizmetinde uzak bağlantılar ayarlanmamış.",
   "error.remote.hostRefused": "Ana makine isteği reddetti ({status}).",
   "error.remote.formUnavailable": "Bu form artık kullanılamıyor.",
-  "error.remote.hostedServerRemoval": "Barındırılan bir sunucuyu silmek için Faturalandırma'yı kullanın.",
   "error.remote.hostRemoved": "Sahibi bu sunucuyu hesaptan kaldırdı.",
   "error.remote.ownerTransferSelf": "Bu sunucunun sahibi zaten sizsiniz. Yeni sahibin e-posta adresini girin.",
-  "error.remote.ownerTransferHosted": "OpenBot'un barındırdığı bir sunucunun sahibi değiştirilemez.",
   "error.remote.ownerTransferInvalid":
     "Bu sahiplik devri artık geçerli değil. Sahibinden yeniden göndermesini isteyin.",
   "error.remote.channelsUnsupported": "Kanalları kullanmak için bu masaüstü sunucusunu güncelleyin.",

@@ -237,7 +237,6 @@ import {
 } from "./fixtures";
 import { mockAgentAnalytics, mockHostAnalytics } from "./mock-agent-analytics";
 import { createMockAuth, type MockAuthOptions } from "./mock-auth";
-import { createMockBilling, previewBillingServers } from "./mock-billing";
 import { createMockBitwardenConnector } from "./mock-bitwarden-connector";
 import { createMockBrowser, type MockBrowserOptions } from "./mock-browser";
 import { createMockChannels, type MockChannelSeed } from "./mock-channels";
@@ -250,7 +249,6 @@ import { createMockHostTimezone } from "./mock-host-timezone";
 import { createMockHostTurnLimits } from "./mock-host-turn-limits";
 import { createMockHostUpdate, type MockHostUpdateOptions } from "./mock-host-update";
 import { createMockHostVoiceModel } from "./mock-host-voice-model";
-import { createMockLicense } from "./mock-license";
 import { createMockLinkAccount } from "./mock-link-account";
 import { createMockMessaging } from "./mock-messaging";
 import { createMockOnePasswordConnector } from "./mock-onepassword-connector";
@@ -1286,7 +1284,6 @@ export function createMockOpenBot(options: MockOpenBotOptions = {}): MockOpenBot
       ? Promise.resolve(clone((routineRuns.get(routineId) ?? []).slice(0, limit)))
       : mockChannels.listChannelRoutineRuns({ channelId: owner.id, routineId, limit }),
   );
-  const billingPlans = previewBillingServers();
 
   async function createMockAgent(input: CreateAgentInput, welcome: boolean): Promise<ClientAgentSummary> {
     const agent = createAgentSummary({
@@ -1708,8 +1705,6 @@ export function createMockOpenBot(options: MockOpenBotOptions = {}): MockOpenBot
     bitwardenConnector: createMockBitwardenConnector(),
     passwordManagers: createMockPasswordManagers(),
     vault: createMockVault(),
-    billing: createMockBilling(billingPlans),
-    license: createMockLicense(),
     routineFeed: createMockRoutineFeed(),
     customProviders: {
       list: async () => clone(customProviders),

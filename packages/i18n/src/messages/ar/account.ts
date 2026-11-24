@@ -2,7 +2,6 @@ import type { PartialTranslation } from "../../message";
 import type { messages as source } from "../en/account";
 
 export const messages = {
-  "account.menu.billing": "الفوترة",
   "account.menu.sendFeedback": "إرسال ملاحظات",
   "account.menu.signOut": "تسجيل الخروج",
   "account.menu.signingOut": "جارٍ تسجيل الخروج…",

@@ -2,7 +2,6 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { Effect } from "effect";
-import { BillingSales } from "../src/server/billing-sales";
 import { enforceMarketplaceIngress } from "../src/server/marketplace-request-policy";
 import { RemoteControlPlane } from "../src/server/remote-control-plane";
 import type { AuthUser } from "../src/server/types";
@@ -472,38 +471,6 @@ async function theJwksNeverPublishesAPrivateKey() {
   );
 }
 
-async function aCheckoutReturnStaysOnTheAccountSite() {
-  const database = await migratedDatabase();
-  addUser(database, "buyer");
-  const sales = new BillingSales({
-    database: sqliteD1(database),
-    fetch: () => Promise.reject(new Error("No network in this test.")),
-    clientId: undefined,
-    clientSecret: undefined,
-  });
-  const checkout = (sessionId: string, returnUrl: string) =>
-    outcome(
-      sales.checkout({
-        sessionId,
-        returnToken: crypto.randomUUID(),
-        userId: "buyer",
-        serverId: "server-1",
-        plan: "starter",
-        interval: "month",
-        currency: "usd",
-        amount: 1_000,
-        returnUrl,
-        createdAt: Date.UTC(2026, 9, 17, 12),
-      }),
-    );
-  const sameSite = await checkout("cs_same_site", "/billing/return?server=server-1");
-  check("a checkout keeps a return path on the account site", sameSite === "ok", { outcome: sameSite });
-  for (const returnUrl of ["//evil.example/app", "/\\evil.example/app"]) {
-    const result = await checkout(`cs_${checks.length}`, returnUrl);
-    check(`a checkout refuses the return address ${returnUrl}`, result === "invalid_input", { outcome: result });
-  }
-}
-
 async function aRateLimitIgnoresForwardedFor() {
   const keys: string[] = [];
   const bindings = {
@@ -561,7 +528,6 @@ const scenarios = [
   aDemotionClosesTheInvitesOfTheAdmin,
   anOldInviteOfAFormerAdminCloses,
   theJwksNeverPublishesAPrivateKey,
-  aCheckoutReturnStaysOnTheAccountSite,
   aRateLimitIgnoresForwardedFor,
 ];
 for (const scenario of scenarios) {

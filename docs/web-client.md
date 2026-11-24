@@ -18,7 +18,7 @@ the web adapter uses the authenticated host connection. Browser drafts remain in
 Native-only actions are hidden. Remote browser transport uses the shared desktop browser
 panel through an explicit runtime. On a phone (touch pointer, and a narrow screen or a landscape
 height), the client first shows `WebPhoneAppScreen`, which links to the phone app in the App Store
-and Google Play. A link or a return in the address (invitation, plugin, billing, sign-in) skips
+and Google Play. A link or a return in the address (invitation, plugin, sign-in) skips
 that screen, because the client removes the link from the address when it reads it. After
 "Continue in browser", which the browser keeps, small screens switch between the existing
 conversation and workspace panes. That phone layout is kept, not extended. Desktop layout remains
@@ -46,17 +46,10 @@ mock. The separate web preview implements the browser runtime with that same moc
 
 ## Behavior and limits
 
-- `/api/browser/*` exposes only email start/verify, session read/logout, checkout attribution
-  (`checkout-attribution`), host list, owned host removal, host logo read,
+- `/api/browser/*` exposes only email start/verify, session read/logout, host list, owned host removal, host logo read,
   session start/ticket/end, invitation preview/accept and email, host member and invite
   administration, and the account's display name, avatar, and session list/revoke
-  (`v1/me/profile`, `v1/me/avatar`, `v1/me/sessions`), and billing (`v1/me/billing`,
-  `v1/me/billing/portal`, `v1/me/billing/storage`), and hosted servers (`v2/hosting/servers` list and create with
-  `{name, plan, interval, currency}`, `v2/hosting/plans`, `v2/hosting/servers/:id` delete, and
-  `v2/hosting/servers/:id/wake`, `/restart`, `/status`, `/lifecycle` and `/checkout`), and the
-  account's hosted site list/delete
-  (`v1/sites`), which the web client no longer calls: sites are in Server settings > Sites, through
-  the host's `hosted-sites-v1`. It is not a general account or host proxy.
+  (`v1/me/profile`, `v1/me/avatar`, `v1/me/sessions`). It is not a general account or host proxy.
   Every write needs the same origin and `X-OpenBot-Browser: 1`; all send JSON except the avatar
   upload, which sends the image bytes. A site delete also needs an `Idempotency-Key`. A host logo is
   given to a member of that host, for its current `logoKey` only.
@@ -64,8 +57,7 @@ mock. The separate web preview implements the browser runtime with that same moc
   and Help. More lists Routines and Tasks (when the host supports them), Schedule, and Usage, and
   each row has a pin that adds the page to the rail. Usage starts pinned. This browser keeps the
   pins (`openbot:rail-pins`). Settings opens a page with the desktop Profile tab
-  (with Sign out), Preferences (the interface language and the completion sound), and a Billing
-  button below the tabs. The server menu opens the Server settings page of the connected host.
+  (with Sign out), Preferences (the interface language and the completion sound). The server menu opens the Server settings page of the connected host.
   This browser keeps both preferences, also before sign-in (`web-language-preference.ts`,
   `completion-sound.ts`). A browser session is listed as Desktop, and it can disconnect any other
   session of the account, as the desktop app can. Providers & permissions and app updates stay
@@ -117,10 +109,7 @@ mock. The separate web preview implements the browser runtime with that same moc
   the `/join` page, and `?plugin=<slug>` from a plugin page. The client removes the fields after it
   reads them, so the invitation secret does not stay in the address bar or history. A link opens the
   preview, the join dialog or the listing; it never installs or joins without a press.
-- Billing opens a dialog with the same content as desktop Settings > Billing: the plan of each
-  server that the account pays for. Its actions open the Stripe Customer Portal in the same tab, only
-  at a `billing.stripe.com` URL. Stripe returns to `/app?billing=portal`. The client removes the field
-  and opens the dialog. The webhook can be later than the return, so the dialog loads again on focus.
+
 - The application Settings page (permissions, app updates), permissions review, and hosted site
   publishing are desktop only. Publishing sends a folder of this computer through a folder picker
   and local file reads in the main process. The browser can list and open the sites of the

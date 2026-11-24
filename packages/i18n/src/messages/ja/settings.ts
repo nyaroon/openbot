@@ -334,8 +334,6 @@ export const messages = {
   "settings.tab.agentDock.description": "ドックを表示する場所と、ドックに置くエージェントを選びます。",
   "settings.tab.updates.title": "アップデート",
   "settings.tab.updates.description": "このコンピューターの OpenBot を最新に保ちます。",
-  "settings.tab.billing.title": "お支払い",
-  "settings.tab.billing.description": "ライセンス、サーバーのプラン、支払い方法、請求書。",
   "settings.tab.appearance.description": "テーマ、色、言語、フォントを設定します。",
   "settings.tab.appBehavior.description": "このコンピューターでの OpenBot の起動と実行を設定します。",
   "settings.appearance.colorsTitle": "色",
@@ -569,7 +567,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "サーバーのメンバーからのアップデートを許可する",
   "settings.updates.allowRemote.description":
     "サインインしているすべてのサーバーメンバーは、このコンピューターがアイドル状態のときにアップデートを要求できます。オーナーと管理者は再起動を強制することもできます。",
-  "settings.hostedServers.plan.recommended": "おすすめ",
   "settings.voice.dictation.section": "音声入力",
   "settings.voice.model.parakeet.description": "高速です。ヨーロッパの 25 言語で、話している言語を自動で判別します。",
   "settings.voice.model.parakeetUnified.description":

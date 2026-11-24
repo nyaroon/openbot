@@ -70,10 +70,6 @@ export const messages = {
   "server.join.account": "Account",
   "server.join.emailBound": "Deze uitnodiging werkt alleen voor de ontvanger van de e-mail.",
   "server.join.unknownDate": "Onbekend",
-  "server.add.billing.label": "Factuurperiode",
-  "server.add.billing.monthly": "Maandelijks",
-  "server.add.billing.yearly": "Jaarlijks",
-  "server.add.billing.save": "Bespaar {percent}%",
   "server.add.otherOptions": "Andere opties",
   "server.local.createTitle": "Nieuwe server op deze computer",
   "server.local.createDescription": "De server heeft eigen agents, chats en bestanden. Hij draait op deze computer.",
@@ -108,11 +104,6 @@ export const messages = {
   "server.install.setUpWithAgent": "Instellen met een agent",
   "server.install.sshAgentPrompt":
     "Maak via SSH verbinding met mijn Linux-server en installeer OpenBot daarop als server.\n\nSSH-adres (user@host):",
-  "server.upsell.notNow": "Niet nu",
-  "server.upgrade.title": "Je agents hebben bijna geen ruimte meer",
-  "server.upgrade.description":
-    "{server} heeft weinig vrije ruimte over. Upgrade zodat je agents zonder onderbreking blijven werken.",
-  "server.upgrade.used": "{used} van {total} gebruikt",
   "server.hosted.open": "Open server",
   "server.role.admin": "Beheerder",
   "server.role.member": "Lid",

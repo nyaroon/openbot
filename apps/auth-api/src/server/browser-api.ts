@@ -1,24 +1,10 @@
 import { isAvatarMimeType } from "@openbot/contracts/avatar-images";
-import { parseBillingPortalRequest, parseBillingStorageRequest } from "@openbot/contracts/billing";
-import { parseBillingDetailsRequest } from "@openbot/contracts/billing-details";
-import {
-  LICENSE_UNAVAILABLE_STATE,
-  parseLicenseCheckoutRequest,
-  parseLicensePlanRequest,
-  parseLicenseRenewalRequest,
-  parseLicenseUsersRequest,
-} from "@openbot/contracts/license";
-import { parsePromotionCode } from "@openbot/contracts/promotion-code";
 import { type DynamicRecord, isBoolean, isNumber, isString } from "@openbot/contracts/runtime-values";
-import { sourceText } from "@openbot/i18n/source";
 import { Cause, Effect } from "effect";
-import { type AccountAttribution, requestFirstTouch } from "./account-attribution";
+import { requestFirstTouch } from "./account-attribution";
 import { type AuthService, AuthServiceError, readAnalyticsAnswer, readChatColor } from "./auth-service";
 import { AvatarUploadError, readAvatarUpload, removeAccountAvatar, storeAccountAvatar } from "./avatar-storage";
-import { BILLING_UNAVAILABLE_STATE, BillingError, type BillingService } from "./billing-service";
-import { withSuggestedCountry } from "./billing-tax";
 import { sha256 } from "./crypto";
-import type { CustomServerOffers } from "./custom-server-offers";
 import { runApiResponse } from "./effect-runtime";
 import { ExtensionSignInError, type ExtensionSignInService } from "./extension-sign-in";
 import type { readHostLogo } from "./host-logo";
@@ -73,15 +59,9 @@ export interface BrowserApiServices {
   >;
   extensionSignIn: () => ExtensionSignInService;
   hostLogo: (hostId: string, version: string) => ReturnType<typeof readHostLogo>;
-  customServerOffers: () => CustomServerOffers;
   inviteEmailDelivery: () => TeamInviteEmailDelivery | null;
   ownerTransferEmailDelivery: () => OwnerTransferEmailDelivery | null;
   schedule: (work: Effect.Effect<void>) => void;
-  attribution: () => Pick<AccountAttribution, "recordCheckout">;
-  billing: () => Pick<
-    BillingService,
-    "getState" | "createPortal" | "buyStorage" | "getBillingDetails" | "setBillingDetails" | "license"
-  > | null;
   avatarBucket: () => R2Bucket;
   sourceIp: (request: Request) => string;
   errorResponse: (error: unknown) => Response;
@@ -195,17 +175,6 @@ const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function*
     response.headers.set("Set-Cookie", `${COOKIE}=${result.sessionToken}; ${COOKIE_ATTRIBUTES}; Max-Age=34560000`);
     return response;
   }
-  if (path === "checkout-attribution" && request.method === "POST") {
-    const body = yield* readJsonObject(request);
-    const firstTouch = requestFirstTouch(body.firstTouch);
-    if (isString(body.sessionId) && firstTouch) {
-      yield* services
-        .attribution()
-        .recordCheckout(body.sessionId, firstTouch)
-        .pipe(Effect.catch(() => Effect.sync(() => console.warn("Account attribution save failed."))));
-    }
-    return json({ accepted: true });
-  }
   const token = browserSessionToken(request);
   const user = token ? yield* services.auth.authenticate(token) : null;
   if (path === "logout" && request.method === "POST") {
@@ -231,21 +200,6 @@ const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function*
   if (removedHostId !== undefined && request.method === "DELETE") {
     yield* services.remote.removeOwnedHost(user.id, decodeURIComponent(removedHostId));
     return new Response(null, { status: 204 });
-  }
-  const [, checkoutHostId] = /^v2\/remote\/hosts\/([^/]+)\/checkout$/u.exec(path) ?? [];
-  if (checkoutHostId !== undefined && request.method === "POST") {
-    const body = yield* readJsonObject(request);
-    return yield* Effect.map(
-      services
-        .customServerOffers()
-        .checkout(
-          user,
-          decodeURIComponent(checkoutHostId),
-          { target: "web", origin: new URL(request.url).origin },
-          { earlyStart: body.earlyStart },
-        ),
-      json,
-    ).pipe(refuseWith(BillingError));
   }
   const [, encodedLogoHostId] = /^v2\/remote\/hosts\/([^/]+)\/logo$/u.exec(path) ?? [];
   if (encodedLogoHostId !== undefined && request.method === "GET") {
@@ -340,8 +294,6 @@ const handleAccount = Effect.fn("BrowserApi.handleAccount")(function* (
     return json({ sessions: yield* services.auth.listAccountSessions(token) });
   if (path === "v2/server-claims" && request.method === "POST")
     return json(yield* services.auth.createServerClaimForUser(user.id));
-  if (path.startsWith("v1/me/billing") || path.startsWith("v1/me/license"))
-    return yield* handleBilling(request, path, user, services);
   const [, sessionId] = /^v1\/me\/sessions\/([^/]+)$/u.exec(path) ?? [];
   if (sessionId !== undefined && request.method === "DELETE") {
     yield* services.auth.revokeAccountSession(token, sessionId);
@@ -349,64 +301,6 @@ const handleAccount = Effect.fn("BrowserApi.handleAccount")(function* (
   }
   return null;
 });
-
-const handleBilling = Effect.fn("BrowserApi.handleBilling")(function* (
-  request: Request,
-  path: string,
-  user: AuthUser,
-  services: BrowserApiServices,
-) {
-  const origin = new URL(request.url).origin;
-  const billing = services.billing();
-  if (path === "v1/me/billing" && request.method === "GET")
-    return json(billing ? yield* billing.getState(user.id) : BILLING_UNAVAILABLE_STATE);
-  if (path === "v1/me/billing/details" && (request.method === "GET" || request.method === "PUT")) {
-    if (!billing) return failure(503, "billing_unavailable", "Billing is not available.");
-    if (request.method === "GET") return json(withSuggestedCountry(yield* billing.getBillingDetails(user.id), request));
-    const input = parseBillingDetailsRequest(yield* readJsonObject(request));
-    if (!input) return failure(400, "invalid_billing_details", sourceText("error.billing.detailsInvalid"));
-    return json(yield* billing.setBillingDetails(user, input));
-  }
-  if (path === "v1/me/billing/portal" && request.method === "POST") {
-    if (!billing) return failure(503, "billing_unavailable", "Billing is not available.");
-    const input = parseBillingPortalRequest(yield* readJsonObject(request));
-    if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
-    return json({ url: yield* billing.createPortal(user.id, input, "web", origin) });
-  }
-  if (path === "v1/me/billing/storage" && request.method === "POST") {
-    if (!billing) return failure(503, "billing_unavailable", "Billing is not available.");
-    const input = parseBillingStorageRequest(yield* readJsonObject(request));
-    if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
-    return json(yield* billing.buyStorage(user.id, input));
-  }
-  if (path === "v1/me/license" && request.method === "GET")
-    return json(billing ? yield* billing.license.getState(user.id) : LICENSE_UNAVAILABLE_STATE);
-  if (!path.startsWith("v1/me/license/") || request.method !== "POST") return null;
-  if (!billing) return failure(503, "billing_unavailable", "Billing is not available.");
-  const body = yield* readJsonObject(request);
-  if (path === "v1/me/license/checkout") {
-    const input = parseLicenseCheckoutRequest(body);
-    if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
-    const promotionCode = parsePromotionCode(body.promotionCode);
-    return json({ url: yield* billing.license.createCheckout(user, input, "web", origin, promotionCode) });
-  }
-  if (path === "v1/me/license/users") {
-    const input = parseLicenseUsersRequest(body);
-    if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
-    return json(yield* billing.license.setUsers(user.id, input.users));
-  }
-  if (path === "v1/me/license/plan") {
-    const input = parseLicensePlanRequest(body);
-    if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
-    return json(yield* billing.license.changePlan(user.id, input));
-  }
-  if (path === "v1/me/license/renewal") {
-    const input = parseLicenseRenewalRequest(body);
-    if (!input) return failure(400, "invalid_billing_request", "The billing request is invalid.");
-    return json(yield* billing.license.setRenewal(user.id, input.cancel));
-  }
-  return null;
-}, refuseWith(BillingError));
 
 const handleOwnerTransfer = Effect.fn("BrowserApi.handleOwnerTransfer")(function* (
   request: Request,

@@ -1,4 +1,3 @@
-import type { CustomServerPlan } from "./custom-server-plans";
 import { type AvatarColor, isAvatarColor } from "./ipc-agent-identity";
 import type { AvatarImageInput } from "./ipc-agents";
 import type { IceServer } from "./signal-protocol/messages";
@@ -83,9 +82,6 @@ export interface ServerSummary {
   active: boolean;
   memberLimit?: number;
   restartAvailable?: boolean;
-  storageGb?: number;
-  paymentRequired?: true;
-  customPlan?: CustomServerPlan;
   keyChangedAt?: number;
   thisComputer?: true;
   compatibility?: ServerCompatibility | null;

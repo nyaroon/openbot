@@ -1,4 +1,4 @@
-import { DEFAULT_TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
+import { TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
 import { router } from "expo-router";
 import { Typography } from "heroui-native";
 import type { LucideIcon } from "lucide-react-native";
@@ -115,7 +115,7 @@ export function ServerPeopleSection({ server }: { server: MobileServer }) {
             <TrailingValue
               value={t("mobile.server.settings.memberCount", {
                 count: memberCount,
-                limit: server.memberLimit ?? DEFAULT_TEAM_MEMBER_LIMIT,
+                limit: server.memberLimit ?? TEAM_MEMBER_LIMIT,
               })}
             />
           )

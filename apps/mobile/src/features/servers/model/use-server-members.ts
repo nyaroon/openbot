@@ -1,4 +1,4 @@
-import { DEFAULT_TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
+import { TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
 import { canAdministerServer } from "@openbot/contracts/ipc";
 import type { RemoteTeamInvite } from "@openbot/team-client";
 import { runTeamEffect } from "@openbot/team-client";
@@ -40,7 +40,7 @@ export function useServerMembers(serverId: string) {
   const now = Date.now();
   const activeMembers = members.data?.filter((member) => member.status === "active");
   const pendingInvites = invites.data?.filter((invite) => isPendingInvite(invite, now));
-  const memberLimit = server?.memberLimit ?? DEFAULT_TEAM_MEMBER_LIMIT;
+  const memberLimit = server?.memberLimit ?? TEAM_MEMBER_LIMIT;
   return {
     server,
     teamDirectory,

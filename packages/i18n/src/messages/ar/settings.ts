@@ -333,8 +333,6 @@ export const messages = {
   "settings.tab.agentDock.description": "اختر مكان ظهور الشريط والوكلاء الموجودين عليه.",
   "settings.tab.updates.title": "التحديثات",
   "settings.tab.updates.description": "إبقاء OpenBot محدّثًا على هذا الحاسوب.",
-  "settings.tab.billing.title": "الفوترة",
-  "settings.tab.billing.description": "الترخيص وخطط الخوادم وطريقة الدفع والفواتير.",
   "settings.tab.appearance.description": "اختر السمة والألوان واللغة والخطوط.",
   "settings.tab.appBehavior.description": "اختر كيف يبدأ OpenBot ويعمل على هذا الحاسوب.",
   "settings.appearance.colorsTitle": "الألوان",
@@ -583,7 +581,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "السماح بالتحديثات من أعضاء الخادم",
   "settings.updates.allowRemote.description":
     "يمكن لكل أعضاء الخادم المسجّلين طلب تحديث عندما يكون هذا الحاسوب في وضع الخمول. ويمكن للمالكين والمسؤولين أيضًا فرض إعادة التشغيل.",
-  "settings.hostedServers.plan.recommended": "أفضل قيمة",
   "settings.voice.dictation.section": "الإملاء",
   "settings.voice.model.parakeet.description": "سريع. يتعرّف على اللغة المنطوقة بنفسه، في 25 لغة أوروبية.",
   "settings.voice.model.parakeetUnified.description":

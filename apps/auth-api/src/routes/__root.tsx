@@ -3,7 +3,6 @@ import type { JSX } from "@solidjs/web";
 import { createRootRoute, type ErrorComponentProps, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
 import { createSignal, onSettled, Show } from "solid-js";
 import "@openbot/brand/logo.css";
-import { rememberPromotionCode } from "@openbot/contracts/promotion-code";
 import { installPointerFocusGuard } from "@openbot/ui/pointer-focus";
 import "../styles.css";
 import { NotFoundPage } from "../components/landing/NotFoundPage";
@@ -40,7 +39,6 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   onSettled(() => installPointerFocusGuard());
-  onSettled(() => rememberPromotionCode(() => window.localStorage, window.location.href, Date.now()));
   return <Outlet />;
 }
 

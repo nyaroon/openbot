@@ -23,52 +23,47 @@ export function WindowPageView() {
     servers().find((server) => server.id === serverId)?.name ?? t("app.page.serverFallback");
   return (
     <Show
-      when={windowPage.page() !== "pricing"}
-      fallback={<div class="window-page-portal" ref={windowPage.setPricingMount} />}
+      when={settingsKind() ? null : usage.state.serverId}
+      fallback={
+        <Show when={settingsKind()} keyed fallback={<SkillsMarketplace />}>
+          {(kind) => <SettingsPage kind={kind} />}
+        </Show>
+      }
     >
-      <Show
-        when={settingsKind() ? null : usage.state.serverId}
-        fallback={
-          <Show when={settingsKind()} keyed fallback={<SkillsMarketplace />}>
-            {(kind) => <SettingsPage kind={kind} />}
-          </Show>
-        }
-      >
-        {(serverId) => (
-          <Switch
-            fallback={
-              <Loading>
-                <AgentUsagePanel
-                  serverId={serverId()}
-                  hostName={hostName(serverId())}
-                  agentId={usage.state.agentId}
-                  onBack={usage.closeUsage}
-                  machine={<UsageMachine serverId={serverId()} />}
-                />
-              </Loading>
-            }
-          >
-            <Match when={usage.state.view === "schedule"}>
-              <SchedulePanel serverId={serverId()} hostName={hostName(serverId())} onBack={usage.closeUsage} />
-            </Match>
-            <Match when={usage.state.view === "workflows"}>
-              <Loading>
-                <WorkflowsPage serverId={serverId()} />
-              </Loading>
-            </Match>
-            <Match when={usage.state.view === "library"}>
-              <Loading>
-                <LibraryPanel serverId={serverId()} />
-              </Loading>
-            </Match>
-            <Match when={usage.state.view === "crm"}>
-              <Loading>
-                <CrmPage serverId={serverId()} />
-              </Loading>
-            </Match>
-          </Switch>
-        )}
-      </Show>
+      {(serverId) => (
+        <Switch
+          fallback={
+            <Loading>
+              <AgentUsagePanel
+                serverId={serverId()}
+                hostName={hostName(serverId())}
+                agentId={usage.state.agentId}
+                onBack={usage.closeUsage}
+                machine={<UsageMachine serverId={serverId()} />}
+              />
+            </Loading>
+          }
+        >
+          <Match when={usage.state.view === "schedule"}>
+            <SchedulePanel serverId={serverId()} hostName={hostName(serverId())} onBack={usage.closeUsage} />
+          </Match>
+          <Match when={usage.state.view === "workflows"}>
+            <Loading>
+              <WorkflowsPage serverId={serverId()} />
+            </Loading>
+          </Match>
+          <Match when={usage.state.view === "library"}>
+            <Loading>
+              <LibraryPanel serverId={serverId()} />
+            </Loading>
+          </Match>
+          <Match when={usage.state.view === "crm"}>
+            <Loading>
+              <CrmPage serverId={serverId()} />
+            </Loading>
+          </Match>
+        </Switch>
+      )}
     </Show>
   );
 }

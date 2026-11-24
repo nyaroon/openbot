@@ -95,16 +95,6 @@ function openAppFallbackText(t: AppTranslate, body: string) {
 
 export type OpenAppFallbackText = ReturnType<typeof openAppFallbackText>;
 
-export function billingReturnText(t: AppTranslate) {
-  return {
-    pageTitle: t("sitePage.billing.pageTitle"),
-    updatedTitle: t("sitePage.billing.updatedTitle"),
-    updatedBody: t("sitePage.billing.updatedBody"),
-    cancelledTitle: t("sitePage.billing.cancelledTitle"),
-    cancelledBody: t("sitePage.billing.cancelledBody"),
-  };
-}
-
 function pageErrorText(t: AppTranslate) {
   return {
     title: t("sitePage.error.title"),

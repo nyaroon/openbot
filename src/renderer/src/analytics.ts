@@ -1,5 +1,4 @@
 import { isKeyOnlyProvider } from "@openbot/contracts/agent-providers";
-import { BILLING_CURRENCIES, BILLING_INTERVALS, BILLING_PLAN_IDS } from "@openbot/contracts/billing";
 import {
   AGENT_PROVIDERS,
   AGENT_REASONING_EFFORTS,
@@ -249,27 +248,7 @@ interface DesktopAnalyticsEvents {
     result: AnalyticsResult;
     failure_code?: string;
   };
-  limit_reached: {
-    kind: "servers" | "members" | "license_users";
-    action: "shown" | "manage_clicked" | "confirmed" | "dismissed" | "contact_clicked";
-    role?: "admin" | "member";
-  };
-  license_action: {
-    action:
-      | "buy_opened"
-      | "checkout_opened"
-      | "users_change_requested"
-      | "plan_change_requested"
-      | "cancel_requested"
-      | "cancel_kept"
-      | "renewal_resumed"
-      | "over_limit_shown";
-    result?: AnalyticsOutcome;
-    direction?: "up" | "down";
-    failure_code?: string;
-  };
-  sales_contact_clicked: { entry_point: "add_server" | "license" | "members" };
-  billing_return_viewed: { outcome: "completed" | "cancelled"; kind?: "plan" | "license" | "portal" };
+  limit_reached: { kind: "servers" | "members"; action: "shown"; role?: "admin" | "member" };
   usage_limit_action: {
     action: "shown" | "model_switched" | "waited";
     from_provider?: AgentProviderId;
@@ -395,9 +374,6 @@ const EVENT_PROPERTY_ALLOWLIST = {
   speech_settings_action: ["action", "result", "voice", "failure_code"],
   reaction_action: ["action", "result", "failure_code"],
   limit_reached: ["kind", "action", "role"],
-  license_action: ["action", "result", "direction", "failure_code"],
-  sales_contact_clicked: ["entry_point"],
-  billing_return_viewed: ["outcome", "kind"],
   usage_limit_action: ["action", "from_provider", "to_provider", "to_model"],
   agent_template_action: ["action", "result", "entry_point", "failure_code"],
   mobile_connect_action: ["action", "result", "failure_code"],
@@ -490,9 +466,6 @@ const SAFE_FAILURE_CODES = new Set([
   "mcp_server_remove_failed",
   "mcp_server_toggle_failed",
   "member_limit_reached",
-  "license_users_full",
-  "payment_open_failed",
-  "checkout_failed",
   "export_failed",
   "import_failed",
   "copy_failed",
@@ -565,17 +538,7 @@ const EVENT_ACTIONS: Partial<Record<AnalyticsEventName, readonly string[]>> = {
   speech_model_action: ["download"],
   speech_settings_action: ["read_replies_on", "read_replies_off", "voice_changed"],
   reaction_action: ["add", "remove"],
-  limit_reached: ["shown", "manage_clicked", "confirmed", "dismissed", "contact_clicked"],
-  license_action: [
-    "buy_opened",
-    "checkout_opened",
-    "users_change_requested",
-    "plan_change_requested",
-    "cancel_requested",
-    "cancel_kept",
-    "renewal_resumed",
-    "over_limit_shown",
-  ],
+  limit_reached: ["shown"],
   onboarding_step: ["viewed", "next", "back", "skipped"],
   usage_limit_action: ["shown", "model_switched", "waited"],
   agent_template_action: ["published", "updated", "unpublished", "link_copied", "installed"],
@@ -593,9 +556,7 @@ const EVENT_ENUMS: Partial<Record<AnalyticsEventName, Readonly<Record<string, re
   team_action: { entry_point: ["in_app", "invite_deep_link"] },
   speech_model_action: { entry_point: ["settings", "voice_conversation"] },
   voice_conversation_action: { trigger: ["button", "voice"] },
-  limit_reached: { kind: ["servers", "members", "license_users"] },
-  sales_contact_clicked: { entry_point: ["add_server", "license", "members"] },
-  billing_return_viewed: { kind: ["plan", "license", "portal"] },
+  limit_reached: { kind: ["servers", "members"] },
   agent_template_action: { entry_point: ["deep_link", "in_app"] },
   usage_viewed: { scope: ["agent", "server"] },
   workflow_action: { node_kind: WORKFLOW_NODE_KINDS },
@@ -612,11 +573,6 @@ const PROPERTY_ENUMS: Readonly<Record<string, readonly string[]>> = {
   transcription: ["local", "cloud", "server"],
   trigger: ["voice_conversation", "dictation", "read_aloud"],
   voice: SPEECH_VOICES,
-  plan: BILLING_PLAN_IDS,
-  interval: BILLING_INTERVALS,
-  currency: BILLING_CURRENCIES,
-  direction: ["up", "down"],
-  outcome: ["completed", "cancelled"],
   step: ["existing", "choose", "plan", "computer", "language"],
   path: ["free", "plan", "existing"],
   connector: ["slack", "discord", "telegram", "whatsapp", "github", "onepassword", "bitwarden", "protonpass"],

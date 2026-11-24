@@ -4,16 +4,12 @@ import { isValidHostname as isSharedValidHostname } from "@openbot/contracts/val
 import { Effect, Fiber, Option, Result, Schema } from "effect";
 import {
   type ContactMessageEmailInput,
-  type LicenseEmailInput,
   type OwnerTransferEmailInput,
   type RenderedEmail,
   renderContactMessageEmail,
-  renderLicenseEmail,
   renderOwnerTransferEmail,
   renderSignInCodeEmail,
   renderTeamInviteEmail,
-  renderWelcomeEmail,
-  type WelcomeEmailInput,
 } from "./email-templates";
 
 interface EmailRelay {
@@ -46,12 +42,6 @@ export interface SmtpTeamInviteMessage {
 export type SmtpOwnerTransferMessage = OwnerTransferEmailInput & { email: string };
 
 export type SmtpContactMessage = ContactMessageEmailInput;
-
-export interface SmtpWelcomeMessage extends WelcomeEmailInput {
-  email: string;
-}
-
-export type SmtpLicenseMessage = LicenseEmailInput & { email: string };
 
 export interface PreparedEmailMessage {
   email: string;
@@ -186,25 +176,6 @@ export const prepareOwnerTransferEmail = Effect.fn("Email.prepareOwnerTransfer")
     }),
   };
 });
-
-export const prepareWelcomeEmail = Effect.fn("Email.prepareWelcome")(function* (
-  message: SmtpWelcomeMessage,
-): Effect.fn.Return<PreparedEmailMessage, SmtpFailure> {
-  yield* smtpValidate(() => {
-    if (
-      !message.serverName.trim() ||
-      message.serverName.length > INPUT_LIMITS.serverName ||
-      hasHeaderBreak(message.serverName)
-    ) {
-      throw new Error("smtp_invalid_server_name");
-    }
-  });
-  return { email: message.email, content: renderWelcomeEmail({ plan: message.plan, serverName: message.serverName }) };
-});
-
-export function prepareLicenseEmail(message: SmtpLicenseMessage): Effect.Effect<PreparedEmailMessage> {
-  return Effect.sync(() => ({ email: message.email, content: renderLicenseEmail(message) }));
-}
 
 export function prepareContactMessage(
   recipient: string,

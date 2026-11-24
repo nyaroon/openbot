@@ -13,7 +13,7 @@ import { basename, dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { avatarFileExtension, isAvatarMimeType, isValidAvatarImage } from "@openbot/contracts/avatar-images";
 import { type HostKeyHandover, hostKeyHandoverStatement } from "@openbot/contracts/host-key-handover";
-import { DEFAULT_TEAM_MEMBER_LIMIT, INPUT_LIMITS } from "@openbot/contracts/input-limits";
+import { INPUT_LIMITS, TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
 import { permanentInviteExpiresAt } from "@openbot/contracts/invite-links";
 import {
   type AvatarColor,
@@ -1674,8 +1674,8 @@ function requireNewMemberSeat(host: StoredTeam): void {
 }
 
 function requireMemberSeat(host: StoredTeam): void {
-  if (host.members.filter((member) => !member.disabled).length >= DEFAULT_TEAM_MEMBER_LIMIT) {
-    throw new TeamStoreError(sourceText("error.team.memberLimit", { limit: DEFAULT_TEAM_MEMBER_LIMIT }));
+  if (host.members.filter((member) => !member.disabled).length >= TEAM_MEMBER_LIMIT) {
+    throw new TeamStoreError(sourceText("error.team.memberLimit", { limit: TEAM_MEMBER_LIMIT }));
   }
 }
 

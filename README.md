@@ -419,9 +419,7 @@ See [web client delivery](docs/web-client.md) for the release gate and focused c
 | `bun run api:images` | Draw the article artwork into `apps/auth-api/content-art/` after you add an article or change a title. Commit the result; the site build fails until it matches. Needs Electron and a GPU, so run it on your own machine. |
 | `bun run api:migrate:local` | Apply D1 migrations to the local development database. |
 | `bun run api:migrate:remote` | Apply D1 migrations to the configured remote database. |
-| `bun run api:deploy` | Build and deploy the account API to Cloudflare Workers. It sets the Stripe, claim and OpenPanel secret sets that are in the production environment. A set that is not there keeps the value that the Worker has. |
-| `bun run api:stripe:bootstrap` | Create or update the Stripe plan catalog and the Customer Portal settings from `STRIPE_SECRET_KEY` in the encrypted `apps/auth-api/.env.dev` (shell values replace it). It refuses a live key unless you add `--live`. For local webhooks, run `stripe listen --forward-to localhost:<API port>/v1/stripe/webhook` and set the signing secret in `STRIPE_WEBHOOK_SECRET`. See [Billing](docs/architecture/servers.md#billing). |
-| `bun run hosting:setup --target=production\|test` | Set up the Stripe catalog, the Customer Portal, and the Stripe webhook of one account server, and store the webhook signing secrets: production in the `cloudflare-production` GitHub Environment, test in the encrypted `apps/auth-api/.env.dev`. See hosted servers. |
+| `bun run api:deploy` | Build and deploy the account API to Cloudflare Workers. It sets the claim and OpenPanel secret sets that are in the production environment. A set that is not there keeps the value that the Worker has. |
 | `bun run status:build` | Build the public status page in `apps/status/dist`. The `status-page` workflow adds `status.json` and `feed.xml` and publishes it to GitHub Pages at `status.openbot.run`. |
 | `bun run status:smoke` | Run the status page smoke test: update runs against a local fake service, the status webhooks against a local receiver, one read-only run against the live checks, and the built page in Chrome. It writes `.openbot-build/status-page/report.json`. |
 | `bun run remote:up` | Build and start the self-hosted Signal, coturn, and ACME stack. |
@@ -728,8 +726,7 @@ Copyright 2026 Synthetify Labs spółka z ograniczoną odpowiedzialnością.
 
 Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). You may use, modify, and
 distribute the code for permitted noncommercial purposes. Commercial use requires a separate license
-from the copyright owner. Buy a commercial license in Settings → Billing (Starter for 1 user, or
-Team for 2 to 10 users), or contact [licenses@openbot.run](mailto:licenses@openbot.run). Versions up to and including 0.1.11 remain
+from the copyright owner: contact [licenses@openbot.run](mailto:licenses@openbot.run). Versions up to and including 0.1.11 remain
 available under Apache-2.0.
 See [NOTICE](NOTICE) for attribution and third-party notices.
 

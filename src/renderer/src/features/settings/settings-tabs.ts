@@ -3,7 +3,6 @@ import type { AppTextKey } from "@openbot/i18n";
 import {
   Bell,
   CircleArrowDown,
-  CreditCard,
   Keyboard,
   Mic,
   MousePointer2,
@@ -28,7 +27,6 @@ export type SettingsTab =
   | "agent-dock"
   | "computer-use"
   | "profile"
-  | "billing"
   | "mobile-connect"
   | "updates";
 
@@ -148,14 +146,6 @@ export const navItems: ReadonlyArray<SettingsNavItem> = [
       { titleKey: "settings.profile.email.title", descriptionKey: "settings.profile.email.description" },
       { titleKey: "settings.profile.sessions.title", descriptionKey: "settings.profile.sessions.description" },
     ],
-  },
-  {
-    value: "billing",
-    titleKey: "settings.tab.billing.title",
-    descriptionKey: "settings.tab.billing.description",
-    icon: CreditCard,
-    group: "settings.sections.group.account",
-    rows: [],
   },
   {
     value: "mobile-connect",

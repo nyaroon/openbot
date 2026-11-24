@@ -329,8 +329,6 @@ export const messages = defineMessages("settings", {
   "settings.tab.agentDock.description": "Choose where the dock shows and which agents are on it.",
   "settings.tab.updates.title": "Updates",
   "settings.tab.updates.description": "Keep OpenBot current on this computer.",
-  "settings.tab.billing.title": "Billing",
-  "settings.tab.billing.description": "License, server plans, payment method and invoices.",
   "settings.tab.appearance.description": "Choose the theme, colors, language and fonts.",
   "settings.tab.appBehavior.description": "Choose how OpenBot starts and runs on this computer.",
   "settings.appearance.colorsTitle": "Colors",
@@ -560,7 +558,6 @@ export const messages = defineMessages("settings", {
   "settings.updates.allowRemote.title": "Allow updates from server members",
   "settings.updates.allowRemote.description":
     "All signed-in server members can request an update when this computer is idle. Owners and admins can also force a restart.",
-  "settings.hostedServers.plan.recommended": "Best value",
   "settings.voice.dictation.section": "Dictation",
   "settings.voice.model.parakeet.description": "Fast. Finds the spoken language itself, in 25 European languages.",
   "settings.voice.model.parakeetUnified.description":

@@ -1,4 +1,4 @@
-# Servers, storage, and billing
+# Servers and storage
 
 ## Storage and files
 
@@ -108,58 +108,28 @@ the metric furthest above its level in place of the storage card, which then doe
 above the level (95%, or 10 points above a higher level) it is red and cannot be closed. A closed card
 stays closed for that metric and level until the use goes below every level.
 
-### Hosted sites per server
+### Member limit per server
 
-A hosted site belongs to the server that published it (`hosted_sites.server_id`, D1 `0024`). The user
-stays the accountable owner, for abuse reports, blocks and account deletion. The desktop sends
-`OpenBot-Host-Id` and `OpenBot-Host-Token` (the machine token of `/v2/remote/hosts/register`) on each
-`/v1/sites` request when it is a registered server. The Worker checks the hash and that the host owner
-is the request user; a wrong token is refused with 401, never counted as unlinked. A server with a
-custom limit (see below) or an entitled plan (`siteLimitForPlan`: Starter 3, Standard 10, Pro 50) has its
-own active-site limit. The other servers of the account share one pool: 3 sites for each user of an
-entitled license (`LICENSE_SITES_PER_USER`), else 1 (`HOSTED_SITE_SHARED_FREE_LIMIT`). The pool is for
-the account, not for each server, so more self-hosted servers do not give more sites. An account has at
-most 300 active sites on its pool and plan servers (`HOSTED_SITE_LIMITS.accountSites`); sites on a
-custom-limit server do not count, so staff can lift the cap for one customer with a custom row. A
-license that lapses gives the free pool again and deletes nothing. A request with no server headers creates only into the account's
-unlinked bucket (limit 1, `server_id IS NULL`); with no `?scope=unlinked`, it still lists and deletes every site of the account,
-the released meaning of `/v1/sites`. Replace and delete in a server scope refuse a site of another
-bucket with 409 `site_other_server`. Every slot count is one SQL condition (`bucketHasRoomSql`,
-`holdsSiteSlotSql`) inside the insert or update that creates or activates the site, so two requests
-cannot take the same last slot, and each count reads the `hosted_sites_owner_status` index. A server's
-list returns its own sites as `used`, and as `limit` the sites it can have now: its own sites plus the
-free slots of its bucket and of the account cap. This keeps the meaning of the frozen `hosted-sites-v1`
-list. The optional `limitReason` tells why that limit can be lower than the bucket's own limit:
-`shared` for a server in the shared pool, `account` when the account cap is full. The desktop uses it
-only for the text of a `site_limit` error; the Team API list does not send it. A server that adopts unlinked sites at registration takes only the free slots of its bucket.
-A downgrade deletes nothing: a server above its limit cannot
-create a site, but it can replace one, and the extra sites end at their expiry. Removing a server moves its sites to the owner's unlinked bucket, so the owner's desktop can still delete them. A registered server updates a site that it published before registration in the unlinked scope.
-
-A row in the D1 table `server_site_limits` (`0048`) replaces the plan's site limit for one server, such
-as an enterprise customer's, from 1 to 1000. It has the rules of `server_member_limits` (see
-hosted servers): the row names the owner account and applies only while that
-account owns the server, it stays when the owner registers the host again, and it stops when the
-account is deleted. The unlinked bucket has no custom limit. No route writes the row; add, change or
-delete it by hand (`openbot-auth-test` for the test Worker):
+A server allows up to `TEAM_MEMBER_LIMIT` members (50, in `packages/contracts/src/input-limits.ts`).
+Invitations and joins succeed up to that number with no plan or licence check. A row in the D1 table
+`server_member_limits` replaces the number for one server, from 1 to 100 (the same hard cap as
+`INPUT_LIMITS.teamMembers`). The row names the owner account and applies only while that account owns
+the server, it stays when the owner registers the host again, and it stops when the account is
+deleted. No route writes the row; add, change or delete it by hand (`openbot-auth-test` for the test
+Worker):
 
 ```sh
 bunx wrangler d1 execute openbot-auth --cwd apps/auth-api --remote --command \
-  "INSERT INTO server_site_limits(server_id, owner_user_id, site_limit, created_at, updated_at)
-   SELECT host_id, owner_user_id, 200, unixepoch() * 1000, unixepoch() * 1000
+  "INSERT INTO server_member_limits(server_id, owner_user_id, member_limit, created_at, updated_at)
+   SELECT host_id, owner_user_id, 80, unixepoch() * 1000, unixepoch() * 1000
      FROM remote_hosts WHERE host_id = '<server id>'
    ON CONFLICT(server_id) DO UPDATE SET owner_user_id = excluded.owner_user_id,
-     site_limit = excluded.site_limit, updated_at = excluded.updated_at"
+     member_limit = excluded.member_limit, updated_at = excluded.updated_at"
 ```
 
-For a hosted server that has not published its host, read the owner from `hosted_servers`. Delete the
-row to go back to the plan's limit. A lower limit deletes no site, as a downgrade does. Clients see the
-new limit in the next `GET /v1/sites`.
-
-`hostedSites.list` and `hostedSites.delete` IPC are server-scoped; publish and replace stay local. The
-optional `hosted-sites-v1` capability exposes `POST /v1/hosted-sites/list` for every member and
-`POST /v1/hosted-sites/delete` for an owner or admin, with the frozen codec in
-`team-protocol/hosted-sites-v1.ts`. The host answers with its own account and credential, and only with the server's own sites: the owner's unlinked sites never reach a member, and the Team API has no fallback to delete one. Sites are
-managed in Server settings > Sites, on the desktop and in the browser.
+Delete the row to go back to 50. A lower limit removes nobody. The account service reads the limit in
+`#memberLimit` (`apps/auth-api/src/server/remote-control-plane.ts`); a server that only runs on one
+computer uses the constant in `src/main/team-store.ts`.
 
 ### Leaving a server
 
@@ -1268,13 +1238,9 @@ cannot get the request; then the owner runs `sudo openbot restart`.
 Members (desktop, web client and mobile). The owner enters an email; the account service stores a
 request in `remote_owner_transfers`, sends an email and an `account-servers-changed` event to that
 account, and the new owner accepts or declines in the app while signed in with that email. The
-request expires after 7 days, and a new request replaces it. A server with a `hosted_servers` row
-(OpenBot hosts it) is refused with `owner_transfer_hosted`, when the request is made and when it is
-accepted. Accept changes, in one D1 batch, `remote_hosts.owner_user_id`, the owner membership (the
-earlier owner is removed), the member and site limits, the hosted sites and the Slack, Discord,
-Telegram and webhook routes of the server, and it raises the auth epoch. A server plan stays with
-the earlier owner's Stripe subscription and still counts for the server
-(`subscriptionPaysForOwnerSql`) until someone cancels it. The host notices
+request expires after 7 days, and a new request replaces it. Accept changes, in one D1 batch, `remote_hosts.owner_user_id`, the owner membership (the
+earlier owner is removed), the member limit and the Slack, Discord,
+Telegram and webhook routes of the server, and it raises the auth epoch. The host notices
 the change when its account registration gets `host_owner_mismatch` or when a renewed Signal ticket
 names another account. It then asks `POST /v2/remote/hosts/:hostId/owner-session` with its machine
 token for a session of the new owner, which revokes the session of the earlier owner on the host,
@@ -1623,195 +1589,6 @@ server mute and per-agent notification settings apply. Unread state is unchanged
 has its own level and mute for each server, which the host applies to the notifications it sends to
 that phone (see [iPhone notifications](channels-and-messaging.md#iphone-notifications)). Mute
 settings are not synchronized between devices.
-
-## Billing
-
-Billing is per server. One account can pay for several servers; each server has its own Stripe
-subscription. The Account Worker (`apps/auth-api/src/server/billing-service.ts`) talks to the Stripe
-REST API with `fetch`; there is no Stripe SDK. The plan catalog in `packages/contracts/src/billing.ts`
-holds the plan IDs, storage, member and site limits, relative speed and lookup keys, and no amounts. The amounts are six Stripe Prices with the lookup
-keys `openbot_{plan}_{interval}`. `bun run api:stripe:bootstrap` (`scripts/stripe-bootstrap.ts`)
-creates them and the Customer Portal settings.
-
-- The add server dialog starts a plan. The hosting service
-  (`apps/auth-api/src/server/hosted-billing.ts`) makes the Stripe customer before the Checkout, so
-  two open Checkouts use one customer. The Checkout sets the subscription metadata
-  `openbot_user_id` and `openbot_server_id` (`BILLING_METADATA`). The billing service calls the
-  `onSubscriptionSynced` hook after each subscription sync; the hosting side uses it to provision,
-  stop and resume servers, so billing does not know about boat. See
-  hosted servers. The webhook links a new Stripe customer to the
-  account from `openbot_user_id`. It never moves a known
-  customer to another account, and it skips a subscription that names no account.
-- Desktop Settings → Billing and the web Billing dialog render `@openbot/ui/features/billing`: one
-  row for each open plan, with the server name, the plan, its price, and its renewal controls.
-  Hosted plans support cancellation that keeps data, Keep server, and explicit deletion now or
-  after the paid period. A stored deletion date and subscription ID drive the cron; a fresh
-  terminal Stripe state and a per-server operation lease guard deletion. See
-  server deletion. The price is the list price of the Stripe Price in the subscription's currency (from
-  `currency_options` when that is not the Price's base currency), before discounts and tax. The
-  webhook stores it with the subscription. The
-  account button opens the Customer Portal for the payment method and invoices.
-- Desktop calls the `billing` IPC group; the main process gets a Customer Portal URL from the Worker,
-  checks that it is a `billing.stripe.com` page, and opens it with `shell.openExternal`. The IPC takes
-  no URL. The web client does the same check before `location.assign`. Checkout URLs get the same
-  check for `checkout.stripe.com` (`isStripeCheckoutUrl`).
-- VAT does not use Stripe Tax. The seller is in Poland and is not in the EU One Stop Shop
-  (`apps/auth-api/src/server/billing-tax.ts`). Before a server or license Checkout, the client saves
-  the billing country and an optional EU VAT ID with `GET`/`PUT /v1/me/billing/details` (desktop IPC
-  `billing:get-details`/`billing:set-details`, shared form `BillingDetailsFields`). The Worker keeps
-  them on the Stripe customer: the address country, an `eu_vat` tax ID and `tax_exempt`. While no
-  country is saved, the `GET` adds `suggestedCountry`, the Cloudflare `CF-IPCountry` of the request
-  (not `XX` or `T1`). The form starts on it; only the country that the buyer sends is saved.
-  - A buyer in Poland, and a buyer in another EU country with no valid VAT ID, pay Polish VAT: the
-    Checkout and the license split subscription get the `default_tax_rates` of the Tax Rate with the
-    metadata `openbot_vat=pl_standard` (`VAT_TAX_RATE`, made by `api:stripe:bootstrap`).
-  - A VAT ID of another EU country gets reverse charge (`tax_exempt=reverse`, no Tax Rate) only after
-    the EU VIES REST service confirms it. An unknown ID returns 400 `vat_id_invalid`; no answer from
-    VIES returns 503 `vat_id_unverified`, and nothing changes. The optional setting
-    `VIES_REQUESTER_VAT_ID` (the seller's VAT ID) makes VIES return a consultation number, which the
-    customer metadata `openbot_vies_request` keeps as proof.
-  - A buyer outside the EU (also the UK, Norway and Switzerland) pays no VAT.
-  - A `PUT` of new details also sets the Tax Rate of each open subscription with the metadata
-    `openbot_vat_treatment`, so that the next invoice of a plan that runs gets the new VAT. Checkout,
-    the license split and `scripts/stripe-vat-migrate.ts` write that metadata. A plan from before VAT
-    has none and keeps its tax. The buyer declares the new country with no proof, so each subscription
-    whose VAT treatment changes writes a log line and sends a pool alert
-    with the customer, the subscription and the two countries.
-  - A customer with no country (a client from before this step) gets a Checkout with Stripe Tax
-    (`automatic_tax`, tax ID collection) and no VAT metadata, as before. With the Worker setting
-    `BILLING_COUNTRY_REQUIRED=true` it gets 409 `billing_country_required` and must update. Production
-    sets it in `wrangler.jsonc` since desktop 0.72.0; run `scripts/stripe-vat-migrate.ts` once more
-    after the deploy, for plans that older clients bought with Stripe Tax before it. Checkout requires the billing address; when its country differs from the saved
-    one, the webhook writes a log line and sends a pool alert
-    with the Checkout session ID and the two countries.
-  - Consumers in other EU countries pay Polish VAT only below the EU limit of EUR 10,000 a year.
-    `BillingOss` (`apps/auth-api/src/server/billing-oss.ts`) keeps the net euro amount of each paid
-    invoice of such a consumer in D1 (`billing_vat_oss_sales`) and sends one pool alert for a year at
-    EUR 9,000 (`billing_vat_oss_alerts`). It converts other currencies with the ECB rates of
-    `BillingUsd`. Refunds do not lower the total.
-  - `scripts/stripe-vat-migrate.ts` (a dry run by default; `--apply`, `--live`) moves the existing
-    subscriptions from Stripe Tax to the Tax Rate. A customer with no country, or in another EU
-    country with an EU VAT ID that no check confirmed, keeps Stripe Tax and is named for a manual check.
-- The change and cancel actions open the Portal flow of one subscription. The Worker first checks
-  that the subscription belongs to the account.
-- The server name comes only from a `remote_hosts` row that the same account owns. A plan whose
-  server was removed stays in the list, because Stripe bills it until the account cancels it.
-- The webhook (`/v1/stripe/webhook`) checks the Stripe signature, records the event ID to ignore a
-  repeat, and gets the subscription from Stripe again before it writes the D1 row. So the order of
-  events has no effect.
-- Without `STRIPE_SECRET_KEY` billing is off: the state is `available: false`, and the Portal route
-  and the webhook answer 503.
-
-Rule: plan limits read `getServerEntitlement` (`apps/auth-api/src/server/billing-entitlement.ts`)
-only. It decides which statuses and grace periods give a server a plan, and it counts a plan only
-for a server that the paying account owns. Do not read `billing_subscriptions` or a Stripe status in
-another place.
-
-### Commercial license
-
-The license is a second Stripe product next to the server plans
-(`packages/contracts/src/license.ts`). One account has at most one open license. Its subscription
-quantity is the number of users. There are two tiers, Starter and Team. Each tier has a monthly and a
-yearly price, and each of these has a bundle price for an account that pays for a hosted server. That
-gives 8 Stripe prices (`LICENSE_PLANS`):
-
-| Plan | Lookup key | Month (EUR) | Year (EUR) | Users |
-| --- | --- | --- | --- | --- |
-| Starter | `openbot_license_starter_{month,year}` | 10 | 96 | 1 |
-| Starter bundle | `openbot_license_starter_bundle_{month,year}` | 9 | 86.40 | 1 |
-| Team | `openbot_license_{month,year}` | 25 for 2 users, + 15 for each extra user | 240, + 144 | 2–10 |
-| Team bundle | `openbot_license_bundle_{month,year}` | 22.50, + 13.50 | 216, + 129.60 | 2–10 |
-
-A year is 12 months less 20% (`LICENSE_YEAR_DISCOUNT_PERCENT`). The bundle discount
-(`LICENSE_BUNDLE_DISCOUNT_PERCENT`: 10%) comes off after it. The amounts are
-in `LICENSE_PLAN_PRICES` (EUR is the base currency; USD and PLN are `currency_options` with their own
-amounts). Team prices are graduated; the 1-user prices are flat. `stripe-bootstrap.ts` creates each
-price with the metadata `openbot_license_tier`, `openbot_license_interval` and
-`openbot_license_bundle`, and `licensePlanFromPrice` reads them. A price with no metadata is Team monthly: the license from before
-the tiers used the same lookup key. The license terms allow 3 devices for each user
-(`LICENSE_DEVICES_PER_USER`); the app shows this and does not count devices.
-
-- A checkout names `tier: "starter" | "team"` and `interval`. A request with no tier is Team monthly,
-  as an app before the tiers sends. The Worker sells the bundle price when the account pays for any
-  hosted server plan (`accountHasServerPlan`: active, trialing, or past due in the grace period). The
-  `licenses` row stores `bundle`. After each server plan sync, `LicenseService.alignBundlePrice` moves
-  an open license to the price of its tier and interval with the bundle that the account now has, with
-  `proration: none`, so the change starts at the next renewal. It logs a Stripe failure and does not
-  fail the sync.
-- A server create can order a license (`license: {tier, users}` in `POST /v2/hosting/servers`). The
-  Worker refuses a Team license on a Starter server, and more Team users than the server plan has
-  members (400 `invalid_hosted_server_request`). An account with an open license gets 409
-  `license_exists`. Fewer users than the people in use get 409
-  `license_users_in_use`, as a license checkout does. One Checkout page then has 2 line items: the server price, and the license bundle
-  price for the same interval and currency, with the users as its quantity. The customer pays one
-  invoice. On the first sync of the paid subscription, `LicenseService.splitOrder` makes a license
-  subscription with the metadata `openbot_order_subscription` (the server subscription), anchored at
-  the server period end with `proration_behavior=none`, so its first invoice is 0. Then it deletes the
-  license item from the server subscription, also with no proration. Each later sync runs the split
-  again until it is done, and the metadata stops a second license subscription. The sales ledger
-  divides the order invoice into a server fact and a license fact, and ignores the 0 invoice of the
-  split. The Checkout session metadata keeps the order, so "Open the payment page again" makes a page
-  with the same license, unless the account has a license by then.
-- Promotion: the Worker setting `LICENSE_TRIAL_END` (ISO 8601, in `wrangler.jsonc`; empty turns it
-  off) makes each new license free until that time. `LicenseService.trialEnd()` gives it while it is
-  at least 49 hours away, because Stripe Checkout needs a `trial_end` 48 hours ahead; after that the
-  license sells at full price. `GET /v1/me/license` then has `trialEnd` (ms), and the app shows
-  "Free until" with the date in UTC. A license checkout sets `subscription_data[trial_end]`, so the
-  license is `trialing` and the first charge is on the trial end. A server order during the promotion
-  has no license item: the server is the only line, and the session and subscription metadata keep
-  the order (`openbot_order_license_{tier,users,interval,trial_end}`). `splitOrder` then makes the
-  license subscription at the bundle price with `trial_end` (at least 1 hour ahead, for a late
-  webhook) and removes the order metadata from the server subscription. The 0 trial invoice is a
-  `first_purchase` sales fact of 0, and the charge on the trial end is a `renewal`. Apps before the
-  promotion ignore `trialEnd`; Stripe Checkout still shows the trial.
-- The 1-user tier refuses `POST /v1/me/license/users` with 409 `license_one_user`.
-  `POST /v1/me/license/plan` sells upgrades only: Starter to Team monthly or yearly, and
-  Team monthly to yearly. It bills the difference now (`always_invoice`,
-  `payment_behavior=error_if_incomplete`). Any other change is 409 `license_plan_change`: to go down,
-  the owner cancels at the period end and buys again.
-- The `licenses` table stores `tier`, `billing_interval` and `bundle` (migration `0041`). NULL is Team
-  monthly.
-- Users are people, not servers or computers: the owner, plus each distinct account that is an
-  active member (`remote_memberships`) of a server that the owner owns. AI agents and chat-app
-  participants do not count.
-- While the license is open, it is a hard limit. `RemoteControlPlane` adds
-  `LICENSE_SEAT_AVAILABLE_SQL` to the member seat check of an invite accept and a reactivation, in the
-  same statement as the server plan limit. A full license refuses a new person with 409
-  `license_users_full`. A person that the license already counts can join another server of the
-  owner. Members who joined before are never removed. Without an open license, only the server plan
-  limit (`getServerEntitlement`) applies.
-- `apps/auth-api/src/server/license-service.ts` owns the `licenses` D1 table (migration `0038`).
-  The billing webhook gives a subscription with the license lookup key to `LicenseService.sync` and
-  writes nothing to `billing_subscriptions`. A Worker before the license sees an unknown plan and
-  skips the event, so an old Worker keeps working.
-- Routes: `GET /v1/me/license`, and `POST /v1/me/license/checkout`, `/users`, `/plan` and `/renewal`. The
-  state is `available: false` only when the Worker has no billing, and the app then shows nothing.
-  When Stripe has no active license price (it is archived to pause sales), checkout returns 503
-  `license_unavailable`, and the app shows a toast with the sales address. An app on a Worker
-  without these routes gets 404 and also shows nothing.
-- A Stripe customer pays in one currency, so a new license uses the currency of the account's open
-  subscriptions, and a server checkout in another currency gets 409 `billing_currency`. Add server
-  opens in that currency and does not let the user change it. Checkout cannot buy fewer users than are in use. An increase is charged at once
-  (`always_invoice`). A decrease starts at the next invoice and cannot go below the users in use or
-  below 5. The subscription metadata `openbot_paid_users` and `openbot_paid_period_end` keep the
-  users paid in the current period, so an increase after a decrease charges only the users above
-  that number.
-- Checkout keeps one open page that sells a license for each account: a license page, or a server
-  order page with a license. After it makes a page, it closes the older pages of the customer that
-  sell a license, so two requests at the same time return the same page. When a newer page sells a
-  license, the new page closes with `license_exists`. It then reads the customer's subscriptions in
-  Stripe, not only D1, so a license paid before its webhook, or a paid order before its split, stops
-  the new page with `license_exists`. A second open license can still come from the
-  Stripe Dashboard; `sync` logs a warning, and a person refunds it.
-- Refunds are by email only; the app and the Worker have no refund action. A customer emails
-  licenses@openbot.run within 24 hours of the first payment for a refund less a €3 / $3.60 /
-  13.20 zł fee, once per account. There are no refunds for later changes.
-- When the owner of a full license creates an invite, the members section asks to add 1 user and
-  shows the extra price, then adds the user and creates the invite. A 1-user license changes to Team
-  monthly for 5 users in place of the added user. At 25 users it shows "Contact
-  us" and creates no invite. Admins get no step; the join tells the person that the license is full.
-- Desktop calls the `license` IPC group; the web client calls the browser routes. Both render
-  `@openbot/ui/features/billing/LicenseSection` in the license slot of `BillingPanel`.
 
 ## Servers on this computer
 

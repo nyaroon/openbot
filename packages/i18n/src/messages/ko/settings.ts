@@ -331,8 +331,6 @@ export const messages = {
   "settings.tab.agentDock.description": "독이 표시되는 위치와 독에 둘 에이전트를 선택하세요.",
   "settings.tab.updates.title": "업데이트",
   "settings.tab.updates.description": "이 컴퓨터의 OpenBot을 최신 상태로 유지해요.",
-  "settings.tab.billing.title": "결제",
-  "settings.tab.billing.description": "라이선스, 서버 요금제, 결제 수단, 청구서예요.",
   "settings.tab.appearance.description": "테마, 색상, 언어, 글꼴을 설정해요.",
   "settings.tab.appBehavior.description": "이 컴퓨터에서 OpenBot이 시작하고 실행되는 방식을 설정해요.",
   "settings.appearance.colorsTitle": "색상",
@@ -562,7 +560,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "서버 멤버의 업데이트 허용",
   "settings.updates.allowRemote.description":
     "로그인한 모든 서버 멤버가 이 컴퓨터가 유휴 상태일 때 업데이트를 요청할 수 있어요. 소유자와 관리자는 강제로 다시 시작할 수도 있어요.",
-  "settings.hostedServers.plan.recommended": "가성비 최고",
   "settings.voice.dictation.section": "받아쓰기",
   "settings.voice.model.parakeet.description": "빨라요. 유럽 언어 25개에서 말하는 언어를 스스로 찾아내요.",
   "settings.voice.model.parakeetUnified.description":

@@ -1,19 +1,10 @@
-import { isOpenBillingStatus } from "@openbot/contracts/billing";
-import { DEFAULT_TEAM_MEMBER_LIMIT, INPUT_LIMITS } from "@openbot/contracts/input-limits";
+import { INPUT_LIMITS, TEAM_MEMBER_LIMIT } from "@openbot/contracts/input-limits";
 import type { InviteSummary, TeamInviteSummary, TeamPresenceMember, TeamRole } from "@openbot/contracts/ipc";
-import {
-  LICENSE_INCLUDED_USERS,
-  LICENSE_MAX_USERS,
-  type License,
-  licenseMonthlyAmount,
-  licensePlanOf,
-} from "@openbot/contracts/license";
 import {
   formatAccountIdentity,
   normalizeAccountIdentity,
   phoneFromIdentityEmail,
 } from "@openbot/contracts/phone-identity";
-import { normalizeEmailAddress } from "@openbot/contracts/validation";
 import type { AppTextKey } from "@openbot/i18n";
 import { sourceText } from "@openbot/i18n/source";
 import {
@@ -53,9 +44,7 @@ import {
   SwitchField,
   Text,
   Trash2,
-  UserRound,
 } from "@openbot/ui";
-import { formatMinorMoney } from "@openbot/ui/features/billing/LicenseSection";
 import { MemberRoleMenu } from "@openbot/ui/features/servers/ServerRoles";
 import { teamMemberName } from "@openbot/ui/features/team/TeamPersonAvatar";
 import { useText } from "@openbot/ui/text";
@@ -130,9 +119,6 @@ export function createServerMembersSection(
     offerRemoteDesktopSetup: false,
   });
   const [now, setNow] = createSignal(Date.now());
-  const [licenseStep, setLicenseStep] = createSignal<{ license: License; used: number; error: string | null } | null>(
-    null,
-  );
   let inviteLinkInput: HTMLInputElement | undefined;
   let inviteEmailInput: HTMLInputElement | undefined;
   let expiryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -168,7 +154,7 @@ export function createServerMembersSection(
       panels.invite.result && !panels.invite.result.permanent && Date.parse(panels.invite.result.expiresAt) <= now(),
     );
   const activeMembers = createMemo(() => props.members.filter((member) => !member.disabled));
-  const memberLimit = () => (permanentSupported() ? (props.server.memberLimit ?? DEFAULT_TEAM_MEMBER_LIMIT) : null);
+  const memberLimit = () => (permanentSupported() ? (props.server.memberLimit ?? TEAM_MEMBER_LIMIT) : null);
   const membersFull = () => {
     const limit = memberLimit();
     return limit !== null && activeMembers().length >= limit;
@@ -277,34 +263,13 @@ export function createServerMembersSection(
     }, duration);
   }
 
-  async function fullLicense(email: string | null): Promise<{ license: License; used: number } | null> {
-    const calls = props.license;
-    if (!calls || props.server.role !== "owner") return null;
-    const state = await calls.getState().catch(() => null);
-    const license = state?.license;
-    if (!state || !license || !isOpenBillingStatus(license.status) || state.used < license.users) return null;
-    if (email && state.users.some((user) => normalizeEmailAddress(user.email) === email)) return null;
-    return { license, used: state.used };
-  }
-
-  async function createInvite(licenseChecked = false): Promise<void> {
+  async function createInvite(): Promise<void> {
     const email = panels.invite.mode === "email" ? invitePhoneIdentity(panels.invite.email) : null;
     if (panels.invite.mode === "email" && !email) {
       setPanels((state) => {
         state.invite.emailError = t("server.invite.invalidEmail");
       });
       return;
-    }
-    if (!licenseChecked) {
-      const check: { full: { license: License; used: number } | null } = { full: null };
-      await run("invite", async () => {
-        check.full = await fullLicense(email);
-      });
-      if (check.full) {
-        setLicenseStep({ ...check.full, error: null });
-        desktopAnalytics.track("limit_reached", { kind: "license_users", action: "shown", role: panels.invite.role });
-        return;
-      }
     }
     let result: InviteSummary | undefined;
     const role = panels.invite.role;
@@ -655,7 +620,7 @@ export function createServerMembersSection(
             </Show>
             <Show when={membersFull()}>
               <Text variant="caption" tone="muted" class="server-settings-invite-hint">
-                {t("server.invite.full", { count: memberLimit() ?? DEFAULT_TEAM_MEMBER_LIMIT })}
+                {t("server.invite.full", { count: memberLimit() ?? TEAM_MEMBER_LIMIT })}
               </Text>
             </Show>
             <Show
@@ -854,7 +819,6 @@ export function createServerMembersSection(
         <RemoveDialog />
         <RoleDialog />
         <RevokeInviteDialog />
-        <LicenseUserDialog />
       </>
     );
   }
@@ -951,89 +915,6 @@ export function createServerMembersSection(
             }}
           />
         )}
-      </Show>
-    );
-  }
-
-  function LicenseUserDialog() {
-    const { errorMessage } = useText();
-    return (
-      <Show when={licenseStep()}>
-        {(step) => {
-          const plan = () => licensePlanOf(step().license);
-          const toTeam = () => plan().tier !== "team";
-          const next = () => Math.max(step().license.users, step().used) + 1;
-          const users = () => (toTeam() ? Math.max(LICENSE_INCLUDED_USERS, next()) : next());
-          const price = () =>
-            users() > LICENSE_MAX_USERS
-              ? null
-              : licenseMonthlyAmount(
-                  toTeam() ? { ...plan(), tier: "team" } : plan(),
-                  users(),
-                  step().license.currency,
-                ) - step().license.amount;
-          return (
-            <ConfirmDialog
-              open
-              tone="default"
-              icon={<UserRound />}
-              pending={busy() === "invite"}
-              title={t("billing.license.invite.title")}
-              description={
-                <Show when={price()} fallback={t("billing.license.invite.max", { count: LICENSE_MAX_USERS })}>
-                  {(amount) => {
-                    const money = formatMinorMoney(format, amount(), step().license.currency);
-                    return toTeam()
-                      ? t("billing.license.invite.oneUser", { users: format.number(users()), price: money })
-                      : t("billing.license.invite.description", { price: money });
-                  }}
-                </Show>
-              }
-              confirmLabel={
-                price() === null
-                  ? t("billing.license.contact.action")
-                  : toTeam()
-                    ? t("billing.license.invite.confirmTeam")
-                    : t("billing.license.invite.confirm")
-              }
-              error={step().error ?? undefined}
-              onCancel={() => {
-                setLicenseStep(null);
-                desktopAnalytics.track("limit_reached", { kind: "license_users", action: "dismissed" });
-              }}
-              onConfirm={async () => {
-                const calls = props.license;
-                if (price() === null) {
-                  setLicenseStep(null);
-                  desktopAnalytics.track("limit_reached", { kind: "license_users", action: "contact_clicked" });
-                  desktopAnalytics.track("sales_contact_clicked", { entry_point: "members" });
-                  props.onContactUs?.();
-                  return;
-                }
-                desktopAnalytics.track("limit_reached", { kind: "license_users", action: "confirmed" });
-                if (calls) {
-                  const action = toTeam() ? "plan_change_requested" : "users_change_requested";
-                  try {
-                    if (toTeam()) await calls.changePlan({ interval: plan().interval, users: users() });
-                    else await calls.setUsers({ users: users() });
-                    desktopAnalytics.track("license_action", { action, result: "succeeded", direction: "up" });
-                  } catch (error) {
-                    desktopAnalytics.track("license_action", {
-                      action,
-                      result: "failed",
-                      direction: "up",
-                      failure_code: "update_failed",
-                    });
-                    setLicenseStep({ ...step(), error: errorMessage(error, t("billing.license.actionFailed")) });
-                    return;
-                  }
-                }
-                setLicenseStep(null);
-                await createInvite(true);
-              }}
-            />
-          );
-        }}
       </Show>
     );
   }

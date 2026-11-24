@@ -1,4 +1,3 @@
-import { type CustomServerPlan, optionalCustomServerPayment } from "@openbot/contracts/custom-server-plans";
 import { type HostKeyHandover, optionalHostKeyHandovers } from "@openbot/contracts/host-key-handover";
 import {
   createInviteUrl,
@@ -47,10 +46,7 @@ export interface RemoteTeamHost {
   role: "owner" | "admin" | "member";
   memberLimit?: number;
   restartAvailable?: boolean;
-  storageGb?: number;
   keyChangedAt?: number;
-  paymentRequired?: true;
-  customPlan?: CustomServerPlan;
 }
 
 export interface RemoteTeamMember {
@@ -119,7 +115,6 @@ const DIRECTORY_ERROR_TEXT = new Map<string, string>([
   ["invite_already_used", sourceText("error.remote.inviteAlreadyUsed")],
   ["invite_not_found", sourceText("error.remote.inviteNotFound")],
   ["member_limit_reached", sourceText("error.remote.memberLimitReached")],
-  ["license_users_full", sourceText("error.remote.licenseUsersFull")],
   ["host_not_found", sourceText("error.remote.hostNotRegistered")],
   ["membership_not_found", sourceText("error.remote.membershipEnded")],
   ["membership_changed", sourceText("error.remote.membershipChanged")],
@@ -189,7 +184,6 @@ export class RemoteTeamDirectoryClient {
               return [];
             const memberLimit = candidate.memberLimit;
             const restartAvailable = candidate.restartAvailable;
-            const storageGb = candidate.storageGb;
             if (
               (memberLimit !== undefined &&
                 (!isNumber(memberLimit) || !Number.isSafeInteger(memberLimit) || memberLimit < 1)) ||
@@ -224,9 +218,7 @@ export class RemoteTeamDirectoryClient {
                 role: candidate.role,
                 ...(memberLimit === undefined ? {} : { memberLimit }),
                 ...(isBoolean(restartAvailable) ? { restartAvailable } : {}),
-                ...(isNumber(storageGb) && Number.isSafeInteger(storageGb) && storageGb >= 1 ? { storageGb } : {}),
                 ...(keyChangedAt === null ? {} : { keyChangedAt }),
-                ...optionalCustomServerPayment(candidate),
               },
             ];
           }),

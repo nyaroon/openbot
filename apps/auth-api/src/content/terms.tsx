@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/solid-router";
 
 const CONTACT_EMAIL = "hello@openbot.run";
-const PRICING_LABEL = "http://openbot.run/pricing";
 
 export function Terms() {
   return (
@@ -42,82 +41,12 @@ export function Terms() {
         <li>access supported browser automation and computer interaction features;</li>
         <li>discover, install, and share agents, plugins, and skills through the Marketplace;</li>
         <li>collaborate with other authorised users; and</li>
-        <li>operate OpenBot on their own devices or servers or through optional hosted server services.</li>
+        <li>operate OpenBot on their own devices or servers.</li>
       </ul>
       <p>OpenBot acts as a software environment for accessing and coordinating AI technologies.</p>
       <p>
         The availability of individual features may depend on the user's device, operating system, selected AI provider,
-        connected services, account configuration, and subscription plan.
-      </p>
-
-      <h2>Non-Commercial Use</h2>
-      <p>
-        OpenBot is available free of charge for personal and non-commercial use, subject to the software licence
-        applicable to the relevant version.
-      </p>
-      <p>
-        Users may operate OpenBot on their own computers without purchasing a Hosted Server or a Commercial License.
-      </p>
-
-      <h2>Commercial Use</h2>
-      <p>
-        Commercial Use of OpenBot requires a valid Commercial License, unless otherwise permitted under the applicable
-        software licence.
-      </p>
-      <p>OpenBot offers two Commercial License plans:</p>
-      <ul>
-        <li>Starter License – intended for one individual user (one Seat).</li>
-        <li>
-          Team License – intended for teams of at least two individual users (a minimum of two Seats), with the option
-          to purchase additional Seats.
-        </li>
-      </ul>
-      <p>
-        Each Seat is assigned to one individual and may not be shared between users. AI Agents do not count as Seats.
-      </p>
-      <p>
-        Commercial License subscriptions are available with monthly or annual billing periods. Current pricing and plan
-        details are available on the {PRICING_LABEL} page.
-      </p>
-      <p>
-        The detailed rules governing Commercial Licenses, including Seat assignments, additional Seats, renewals,
-        cancellations, and commercial usage rights, are set out in the separate{" "}
-        <Link to="/commercial-license">OpenBot Commercial License Agreement</Link>.
-      </p>
-
-      <h2>Hosted Server Services</h2>
-      <p>
-        OpenBot offers optional Hosted Server Services, allowing users to operate OpenBot on hosted infrastructure
-        instead of their own computers or independently managed servers.
-      </p>
-      <p>
-        The available Hosted Server plans include Starter, Standard, and Pro, which differ in their intended use,
-        available resources, storage capacity, performance, and other technical characteristics.
-      </p>
-      <p>A monthly data transfer limit of 10 TB applies per Hosted Server.</p>
-      <p>
-        Hosted Server Services are purchased separately from Commercial Licenses. Purchasing a Hosted Server does not
-        grant a Commercial License, and purchasing a Commercial License does not include a Hosted Server.
-      </p>
-      <p>
-        Hosted Server subscriptions are available with monthly or annual billing periods. Current pricing, available
-        plans, and their technical specifications are presented on the {PRICING_LABEL} page.
-      </p>
-
-      <h2>Pricing and Plan Selection</h2>
-      <p>
-        Users may select a Hosted Server plan and a Commercial License plan independently, according to their intended
-        use and applicable licensing requirements.
-      </p>
-      <p>
-        Discounts may be available for annual billing or for purchasing Hosted Server Services together with Commercial
-        Licenses. The applicable discounts and final charges are presented before completing the purchase.
-      </p>
-      <p>All payments for Commercial Licenses and Hosted Server subscriptions are processed through Stripe.</p>
-      <p>
-        The renewal, cancellation, and termination of Commercial Licenses are governed by the Commercial License
-        Agreement. The corresponding conditions for Hosted Server subscriptions are governed by the relevant provisions
-        of these Terms.
+        connected services, and account configuration.
       </p>
 
       <h2>Conclusion and Duration of the Agreement</h2>
@@ -125,21 +54,9 @@ export function Terms() {
         An agreement for the use of the OpenBot Platform is concluded when the User completes the registration process
         and accepts these Terms.
       </p>
-      <p>
-        The use of OpenBot software is subject to the licence applicable to the relevant software version. Commercial
-        Use is governed by the separate OpenBot Commercial License Agreement, which sets out the conditions for
-        obtaining, renewing, and terminating Commercial Licenses.
-      </p>
-      <p>
-        An agreement for paid Hosted Server Services is concluded upon completion of the applicable purchasing process.
-        The provision of Hosted Server Services begins following successful payment confirmation and activation of the
-        relevant server. Hosted Server subscriptions are separate from Commercial Licenses.
-      </p>
-      <p>
-        The agreement for access to the Platform remains in effect until terminated in accordance with these Terms. The
-        duration, renewal, and termination of Commercial Licenses and Hosted Server subscriptions are governed by their
-        respective contractual conditions.
-      </p>
+      <p>The use of OpenBot software is subject to the licence applicable to the relevant software version.</p>
+
+      <p>The agreement for access to the Platform remains in effect until terminated in accordance with these Terms.</p>
 
       <h2>Technical Requirements</h2>
       <p>
@@ -148,9 +65,8 @@ export function Terms() {
       </p>
       <p>
         An internet connection is required for account registration, authentication, and certain online functionalities,
-        including Hosted Server Services, remote access, and third-party integrations. Depending on the selected
-        configuration, certain functionalities may require additional software, compatible AI models, or access to
-        external services.
+        including remote access and third-party integrations. Depending on the selected configuration, certain
+        functionalities may require additional software, compatible AI models, or access to external services.
       </p>
       <p>
         Users operating OpenBot on their own devices or independently managed infrastructure are responsible for
@@ -207,11 +123,7 @@ export function Terms() {
         The Software is made available under the licence applicable to the relevant version. The applicable software
         licences are available through the official OpenBot source code repository.
       </p>
-      <p>
-        Commercial Use of OpenBot requires a valid Commercial License, unless otherwise permitted under the applicable
-        software licence. The relevant rights and conditions are governed by the separate OpenBot Commercial License
-        Agreement.
-      </p>
+
       <p>
         OpenBot and its associated intellectual property rights belong to Synthetify Labs sp. z o.o., except for
         third-party components, which remain subject to their respective licences.
@@ -345,10 +257,7 @@ export function Terms() {
         The availability, pricing, functionality, and technical requirements of third-party services are determined by
         their respective providers.
       </p>
-      <p>
-        Fees charged by external AI providers or connected services are separate from fees payable to OpenBot, unless
-        expressly stated otherwise.
-      </p>
+
       <p>
         OpenBot does not control the independent operation, commercial conditions, or availability of third-party
         services.
@@ -470,11 +379,8 @@ export function Terms() {
         available remedies.
       </p>
 
-      <h2>Local Use, Self-Hosting and Hosted Servers</h2>
-      <p>
-        OpenBot can operate on users' own devices, independently managed servers, or optional server environments
-        provided by OpenBot.
-      </p>
+      <h2>Local Use and Self-Hosting</h2>
+      <p>OpenBot can operate on users' own devices, or independently managed servers.</p>
 
       <h3>Local and Self-Hosted Environments</h3>
       <p>
@@ -489,187 +395,6 @@ export function Terms() {
         The availability and performance of independently managed environments depend on the user's infrastructure and
         configuration.
       </p>
-
-      <h3>OpenBot Hosted Servers</h3>
-      <p>
-        OpenBot offers optional hosted server services that provide an environment in which users may operate AI Agents
-        and collaborate with authorised team members.
-      </p>
-      <p>
-        Hosted Server Services are intended exclusively for hosting and operating the OpenBot application and do not
-        provide general-purpose server hosting.
-      </p>
-      <p>
-        Hosted server plans may differ in processing resources, storage capacity, permitted team size, and other
-        technical characteristics.
-      </p>
-      <p>
-        The features and limits applicable to a particular plan are described in the relevant service information and
-        purchasing interface.
-      </p>
-      <p>
-        Hosted server subscriptions cover the provision of the server environment. They do not include access to
-        third-party AI models or subscriptions unless expressly stated otherwise.
-      </p>
-      <p>
-        Hosted servers may automatically stop after a period of inactivity and restart when activated through supported
-        functionality. This may result in a delay before the relevant environment becomes available again.
-      </p>
-      <p>
-        Users are responsible for managing the content and activities within their hosted environments and for
-        maintaining appropriate copies of important information.
-      </p>
-      <p>
-        Deleting a hosted server removes the associated server environment and its contents, subject to any technical or
-        legal limitations described in the <Link to="/privacy-policy">Privacy Policy</Link>.
-      </p>
-      <p>
-        Where OpenBot provides individually agreed hosting arrangements or other business services, additional
-        contractual terms may apply.
-      </p>
-
-      <h2>Fees, Subscriptions and Payments</h2>
-      <p>
-        Certain OpenBot Services, including Commercial Licenses and Hosted Server Services, are available on a paid
-        subscription basis.
-      </p>
-      <p>
-        The applicable fees, billing periods, plan characteristics, and any additional charges are presented on the{" "}
-        OpenBot Pricing page and during the purchasing process.
-      </p>
-      <p>
-        Commercial Licenses are billed according to the number of Seats purchased and the applicable billing period, in
-        accordance with the OpenBot Commercial License Agreement. Hosted Server Services are billed separately according
-        to the selected hosting plan.
-      </p>
-      <p>
-        Subscriptions may be purchased on a monthly or annual basis. Unless cancelled in accordance with the applicable
-        contractual conditions, subscriptions automatically renew for successive billing periods.
-      </p>
-      <p>
-        All payments for Commercial Licenses and Hosted Server Services are processed through Stripe. The applicable
-        payment amount, currency, billing period, and taxes are presented before the purchase is completed.
-      </p>
-      <p>
-        Fees for Commercial Licenses are payable in accordance with the Commercial License Agreement. Fees for Hosted
-        Server Services are payable under the subscription conditions accepted by the User during purchase.
-      </p>
-      <p>
-        Failure to complete a required payment may result in the restriction or termination of the corresponding paid
-        Service or Commercial License, subject to the applicable contractual conditions and law.
-      </p>
-      <p>
-        Changes to Commercial License fees are governed by the Commercial License Agreement. Changes to Hosted Server
-        subscription fees are governed by the relevant provisions of these Terms.
-      </p>
-      <p>
-        Cancellation of a Commercial License does not automatically cancel a separately purchased Hosted Server
-        subscription, and cancellation of a Hosted Server subscription does not automatically terminate a Commercial
-        License.
-      </p>
-
-      <h3>Hosted Server Subscription Cancellation</h3>
-      <p>
-        Hosted Server subscriptions automatically renew for successive billing periods, either monthly or annually,
-        until cancelled by the User. The fee for each subsequent period is charged at the beginning of that period, in
-        accordance with the selected subscription plan.
-      </p>
-      <p>
-        Users may cancel their subscriptions at any time through the subscription management settings. Cancellation
-        disables automatic renewal, and the User retains access to the Hosted Server until the end of the paid billing
-        period. Once the subscription has been successfully cancelled, no further charges will be made for subsequent
-        billing periods.
-      </p>
-      <p>
-        If a payment for subscription renewal fails, access to the Hosted Server may be restricted after the end of the
-        paid billing period. The User will be informed of the payment issue and the available options for resolving it.
-      </p>
-      <p>
-        In the event of a change to subscription prices, OpenBot will inform the User sufficiently in advance of the
-        next billing period, allowing the User to accept the new pricing terms or cancel the subscription. Any price
-        change will not affect a subscription period that has already been paid for. If the User does not accept the new
-        price, the subscription will terminate at the end of the paid billing period.
-      </p>
-      <p>
-        In the event of an incorrectly charged fee, the User may submit a refund request using the contact details
-        provided in these Terms, including the email address associated with their account, the payment date, and a
-        brief description of the issue. OpenBot will respond to the request within 14 days of receipt.
-      </p>
-
-      <h3>Hosted Server Subscription Termination</h3>
-      <p>
-        Cancellation of automatic renewal does not, by itself, constitute a request to delete the Hosted Server or its
-        stored content.
-      </p>
-      <p>
-        Users may manage their Hosted Servers through the available billing functionality, including options to cancel
-        renewal, retain server data, delete a server immediately, or schedule its deletion at the end of the paid
-        billing period.
-      </p>
-      <p>Upon expiry of the paid subscription, the Hosted Server will be deactivated.</p>
-      <p>
-        Where the User has not requested deletion, the expiry of the subscription does not itself constitute an
-        instruction to delete the associated workspace data.
-      </p>
-      <p>
-        If the subscription is not renewed, the associated Hosted Server data will be retained for 14 days following the
-        expiry of the paid billing period. If the subscription is not renewed or reactivated within this period, the
-        associated Hosted Server data will be deleted.
-      </p>
-      <p>Users may renew or reactivate an eligible subscription through the available billing functionality.</p>
-      <p>
-        Where a User chooses to delete a Hosted Server, the associated server environment and its contents, including
-        agent workspaces, conversations, files, and related materials, are removed in accordance with the applicable
-        functionality.
-      </p>
-      <p>
-        In the case of a refund for a Hosted Server subscription, the associated Hosted Server, including its
-        environment and all stored content, will be deleted immediately upon approval of the refund request by us,
-        without the 14-day data retention period otherwise applicable following subscription expiry. Such deletion is
-        permanent, and the associated data cannot be recovered.
-      </p>
-      <p>
-        In the case of a payment dispute or chargeback for a Hosted Server subscription within 30 days of the start of
-        that subscription, the associated Hosted Server, including its environment and all stored content, will be
-        deleted immediately, without the 14-day data retention period. Such deletion is permanent, and the associated
-        data cannot be recovered.
-      </p>
-      <p>
-        Users are responsible for saving or exporting any content they wish to retain before deleting a Hosted Server.
-      </p>
-      <p>
-        The termination of a Hosted Server subscription does not automatically terminate the User's OpenBot account or
-        any separate agreements with third-party service providers.
-      </p>
-
-      <h2>Consumer Right of Withdrawal</h2>
-      <p>Nothing in these Terms limits or excludes any mandatory rights concerning withdrawal from a contract.</p>
-      <p>
-        If you submit a refund request by email to <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> within 2
-        hours of completing your purchase, OpenBot offers a refund of 90% of the amount paid, retaining the remaining
-        10% as an administrative handling fee, provided that this does not limit your mandatory statutory rights.
-      </p>
-      <p>
-        If you are a consumer residing in the European Union, the United Kingdom, or Turkey and exercise your statutory
-        right of withdrawal within 14 days of entering into a subscription agreement, you are entitled to a refund in
-        accordance with applicable law. Where the provision of Services has begun at your express request during the
-        withdrawal period, OpenBot may deduct an amount proportionate to the Services already provided, subject to
-        applicable legal requirements.
-      </p>
-      <p>
-        To exercise the right of withdrawal, the eligible User must inform OpenBot of their decision by an unequivocal
-        statement sent to <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
-      </p>
-      <p>
-        The statement should identify the agreement concerned and include sufficient information to identify the User
-        and the relevant purchase.
-      </p>
-      <p>
-        Where a valid withdrawal is exercised, OpenBot will reimburse the payments due under applicable law without
-        undue delay and, where the 14-day statutory reimbursement deadline applies, no later than 14 days after
-        receiving the withdrawal statement.
-      </p>
-      <p>Reimbursement will be made using the original payment method unless the User expressly agrees otherwise.</p>
 
       <h2>Complaints and Consumer Rights</h2>
       <p>
@@ -699,10 +424,7 @@ export function Terms() {
         <li>
           activities that may harm the Platform, compromise its security or integrity, or disrupt its proper operation.
         </li>
-        <li>
-          failure to fulfil payment obligations relating to paid Services, in accordance with the applicable contractual
-          conditions; or
-        </li>
+
         <li>compliance with applicable legal obligations or binding decisions of competent authorities.</li>
       </ul>
       <p>Any measures taken will be appropriate and proportionate to the circumstances, subject to applicable law.</p>
@@ -719,9 +441,8 @@ export function Terms() {
         third-party AI providers or external services.
       </p>
       <p>
-        Termination does not affect rights and obligations accrued before its effective date, including outstanding
-        payment obligations, intellectual property rights, and provisions that by their nature remain applicable after
-        termination.
+        Termination does not affect rights and obligations accrued before its effective date, including intellectual
+        property rights, and provisions that by their nature remain applicable after termination.
       </p>
 
       <h2>Service Availability and Limitations of Liability</h2>
@@ -762,10 +483,6 @@ export function Terms() {
       <p>
         Personal data processed in connection with the Services is handled in accordance with the{" "}
         <Link to="/privacy-policy">OpenBot Privacy Policy</Link>, available through the official OpenBot website.
-      </p>
-      <p>
-        Where required, the processing of personal data on behalf of a customer is additionally governed by a separate{" "}
-        <Link to="/dpa">Data Processing Agreement</Link>.
       </p>
       <p>
         These Terms regulate the contractual use of the Platform, while the Privacy Policy provides information about
@@ -821,38 +538,17 @@ export function Terms() {
         amendments take effect. Such notice will be provided by email and will specify the changes and their effective
         date.
       </p>
-      <p>
-        If you do not agree with the amended Terms, you may discontinue using the Platform and Services. If you hold a
-        Commercial License, you may terminate your licence agreement in accordance with the OpenBot Commercial License
-        Agreement and applicable law.
-      </p>
-      <p>
-        Changes to Commercial Licenses, including licence fees, billing arrangements, and licensing conditions, are
-        governed by the separate OpenBot Commercial License Agreement.
-      </p>
+      <p>If you do not agree with the amended Terms, you may discontinue using the Platform and Services.</p>
 
       <h2>Miscellaneous</h2>
       <p>These Terms govern access to and use of the OpenBot Platform and the Services provided under them.</p>
       <p>
         The rights to use, modify, or distribute the Software are governed by the software licence applicable to the
-        relevant version and, where applicable, the separate OpenBot Commercial License Agreement.
+        relevant version .
       </p>
+
       <p>
-        Commercial Licenses are governed by the OpenBot Commercial License Agreement and the relevant Order. Hosted
-        Server Services are governed by the applicable provisions of these Terms, unless separately agreed terms apply.
-      </p>
-      <p>
-        Where an individual Enterprise agreement or other separate written agreement has been concluded, its provisions
-        prevail over these Terms solely in relation to the subject matter expressly governed by that agreement.
-      </p>
-      <p>
-        In the event of a conflict between these Terms and the applicable Commercial License Agreement concerning
-        commercial licensing rights, Seat assignments, licence fees, or licence termination, the Commercial License
-        Agreement shall prevail.
-      </p>
-      <p>
-        These Terms do not replace or override any applicable software licence, Commercial License Agreement,{" "}
-        <Link to="/dpa">Data Processing Agreement</Link>, or individually negotiated agreement.
+        These Terms do not replace or override any applicable software licence or any individually negotiated agreement.
       </p>
       <p>
         If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions shall remain

@@ -21,7 +21,6 @@ import { AppLoadingScreen } from "@openbot/ui/features/account/AppLoadingScreen"
 import { currentText } from "@openbot/ui/text";
 import { Dynamic } from "@solidjs/web";
 import { createEffect, createSignal, createStore, onSettled, Show } from "solid-js";
-import type { DesktopAnalyticsProperties } from "../../analytics";
 import {
   configureWebReports,
   reportNotification,
@@ -47,7 +46,6 @@ import type { WebWorkspace } from "./WebWorkspace";
 import { createWebAccountCalls } from "./web-account";
 import { deleteSavedAgentPictures } from "./web-agent-pictures";
 import { createWebAppearancePreference } from "./web-appearance-preference";
-import { takeWebAppStart, WEB_APP_BILLING_PARAM, type WebAppStart } from "./web-billing";
 import { syncWebChatBackground } from "./web-chat-background";
 import type { WebRuntimeFactory } from "./web-client-context";
 import { extensionReturnUrl, forgetExtensionConnect, takeExtensionConnect } from "./web-extension-connect";
@@ -121,25 +119,6 @@ function takeMarketplaceLink(): MarketplaceListingLink | null {
   return link;
 }
 
-type BillingReturn = DesktopAnalyticsProperties<"billing_return_viewed">;
-
-function takeBillingReturn(): BillingReturn | null {
-  const url = new URL(window.location.href);
-  const kind = url.searchParams.get(WEB_APP_BILLING_PARAM);
-  if (kind === null) return null;
-  const outcome = url.searchParams.get("cancelled") === "1" ? "cancelled" : "completed";
-  for (const name of [WEB_APP_BILLING_PARAM, "cancelled"]) url.searchParams.delete(name);
-  window.history.replaceState(window.history.state, "", url);
-  return kind === "license" || kind === "portal" ? { outcome, kind } : { outcome };
-}
-
-function takeStartLink(): WebAppStart | null {
-  const url = new URL(window.location.href);
-  const start = takeWebAppStart(url);
-  if (url.href !== window.location.href) window.history.replaceState(window.history.state, "", url);
-  return start;
-}
-
 export function WebApp(props: { createRuntime?: WebRuntimeFactory } = {}) {
   return (
     <WindowBackdropBubbles>
@@ -171,9 +150,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       import("./web-analytics")
         .then((module) => {
           module.configureWebAnalytics(account);
-          if (!account || !billingReturnEvent) return;
-          module.trackBillingReturn(billingReturnEvent);
-          billingReturnEvent = null;
         })
         .catch(() => undefined);
     },
@@ -190,7 +166,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
   const [inviteUrl, setInviteUrl] = createSignal(takeInviteLink());
   const [pluginSlug, setPluginSlug] = createSignal(takePluginLink());
   const [marketplaceListing, setMarketplaceListing] = createSignal(takeMarketplaceLink());
-  const [startLink, setStartLink] = createSignal(takeStartLink());
   const extensionConnect = takeExtensionConnect();
   createEffect(
     () => state.loaded && !state.account,
@@ -200,17 +175,12 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       window.location.assign(extensionReturnUrl(extensionConnect, { error: "login_required" }));
     },
   );
-  const initialBillingReturn = takeBillingReturn();
-  const [billingReturn, setBillingReturn] = createSignal(initialBillingReturn !== null);
-  let billingReturnEvent: BillingReturn | null = initialBillingReturn;
   const addressHadLink =
     agentTemplateId() !== null ||
     inviteUrl() !== null ||
     pluginSlug() !== null ||
     marketplaceListing() !== null ||
-    startLink() !== null ||
-    extensionConnect !== null ||
-    initialBillingReturn !== null;
+    extensionConnect !== null;
   const [workspace, setWorkspace] = createSignal<typeof WebWorkspace>();
   async function showAccount(account: CentralAuthUser) {
     const view = await loadWorkspace();
@@ -598,10 +568,6 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
                       onPluginSlugConsumed={() => setPluginSlug(null)}
                       marketplaceListing={marketplaceListing()}
                       onMarketplaceListingConsumed={() => setMarketplaceListing(null)}
-                      start={startLink()}
-                      onStartConsumed={() => setStartLink(null)}
-                      billingReturn={billingReturn()}
-                      onBillingReturnConsumed={() => setBillingReturn(false)}
                       language={languagePreference.language()}
                       onChangeLanguage={languagePreference.setLanguage}
                       appearance={appearancePreference.appearance()}

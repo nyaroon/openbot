@@ -19,75 +19,14 @@ decrypted development settings, then generated defaults. An explicit empty value
 Shared settings do not replace the local ticket keys, auth webhook secret, report hash secret, or
 skills admin token. Shell values and saved overrides can replace these local values.
 
-The encrypted `.env.dev` holds the Stripe sandbox keys and the webhook secrets of the `test`
-Worker.
+The encrypted `.env.dev` holds the shared settings of the `test` Worker.
 Set `DOTENV_PRIVATE_KEY_DEV` in your shell profile to load the shared values in every worktree.
-Without this key, the Worker starts with generated local defaults and no Stripe keys. Shell
+Without this key, the Worker starts with generated local defaults. Shell
 values override shared values. Development commands do not read the root `.env.keys`; production
 commands continue to use that file.
 
-### Stripe sandbox
-
-`bun run api:stripe:bootstrap` creates the six plan Prices (lookup keys `openbot_{plan}_{month|year}`),
-the twelve storage add-on Prices (`openbot_storage_{plan}_{1|2}_{month|year}`, one Product for each
-plan), the license Prices, the Polish VAT Tax Rate and the Customer Portal settings in the Stripe account of
-`STRIPE_SECRET_KEY`.
-It is safe to run again: a changed amount makes a new Price and moves the lookup key to it. The Portal
-has no plan change (`subscription_update` is off); it cancels plans and updates payment methods.
-`POST /v1/me/billing/storage` (and `/api/browser/v1/me/billing/storage`) with
-`{subscriptionId, tier}` buys a storage tier for a server on a VPS of the operator.
-
-The optional Worker variable `VIES_REQUESTER_VAT_ID` is the seller's EU VAT ID (for example
-`PL1234567890`). With it, the EU VIES check of a buyer's VAT ID returns a consultation number, which the
-Stripe customer keeps as proof of the check. Without it, the check works and has no number.
-`bun scripts/stripe-vat-migrate.ts` moves the subscriptions that used Stripe Tax to the Tax Rate; it is
-a dry run unless you give `--apply`.
-The Worker variable `BILLING_COUNTRY_REQUIRED=true` refuses a Checkout of an account with no billing
-country (409 `billing_country_required`). `wrangler.jsonc` sets it, so production and local development
-refuse. With `false`, such an account gets a Stripe Tax Checkout, so that a desktop app older than 0.72.0
-can still buy. Set `BILLING_COUNTRY_REQUIRED=false` in the shell to try that path locally.
-
-For a local Worker, forward the webhooks and set the secret that `stripe listen` prints in your
-shell as `STRIPE_WEBHOOK_SECRET`:
-
-```bash
-stripe listen --forward-to http://127.0.0.1:3100/v1/stripe/webhook
-```
-
-For the `test` Worker, `bun run hosting:setup --target=test` makes or updates its Stripe
-webhook and writes their signing secrets to `.env.dev`. Run it with `DOTENV_PRIVATE_KEY_DEV`
-set in the shell. Then run `bun run api:deploy:test`.
-
-`scripts/stripe-flows-e2e.ts` checks the plan flows against the sandbox and a local Worker: renewal,
-failed renewal, cancel at the period end, plan change, renew, delete, another account's server, a
-deleted customer, a refund, a dispute, the welcome email of a first plan, and the storage tiers
-(`storage-tier`, which needs the storage Prices of the bootstrap). The `license-*`
-scenarios check the license: buy, Checkout, one open Checkout page, change users, the user count,
-renewal, failed renewal, currency, isolation from the server plans, and the user limit at a join. Each scenario uses a Stripe
-test clock and deletes it at the end. Start the Worker and forward the webhooks to it. Then, from the
-repository root:
-
-```bash
-bun scripts/stripe-flows-e2e.ts --api http://127.0.0.1:<port> [scenario ...]
-```
-
-The `promotion-link` scenario makes a coupon with two promotion codes in the sandbox and checks the
-Checkout pages of a discount link (`?promo=CODE`): an active code is applied, and a code that does not
-fit the order or does not exist gives the code field. A copy of the Brazil partner code (BRL server plans only)
-gives a discount on a BRL server page and the code field on a EUR server page and a license page. It deletes the
-coupons and turns off the codes at the end.
-
-The `invite` scenario checks the invite rewards: a referred friend gets the first-payment coupon only on the
-first purchase, the coupon goes after the first paid invoice, a yearly payment gives 12 credit parts 30 days
-apart, the cron (`/cdn-cgi/handler/scheduled`) sends the due parts, and a refund takes the newest unsent parts
-first and then the sent credit. The scenario moves `ready_at` in D1, because the parts use the Worker clock,
-not the Stripe test clock.
-
-The `portal` scenario prints a Customer Portal cancel page and waits until you use it. Then it checks
-that the plan change flow of an old app opens the Portal home, and that the Portal has no plan change. The report goes to `.openbot-build/stripe-flows-e2e.json`.
-
 `bun run api:deploy:test` loads the `.env.dev` values before `.env.production`. Shell
-values still win, so the test Worker gets the sandbox keys and never live keys.
+values still win, so the test Worker gets the development values.
 
 `.env.production` is the encrypted production file, and its private key stays in the ignored root
 `.env.keys`. Production commands decrypt it only in process memory. Development commands use the
@@ -164,21 +103,17 @@ EMAIL_SMTP_USERNAME=no_reply@openbot.run
 EMAIL_SMTP_PASSWORD=<PRIVATE_EMAIL_APP_PASSWORD>
 EMAIL_FROM=no_reply@openbot.run
 EMAIL_REPLY_TO=hello@openbot.run
-EMAIL_LICENSE_REPLY_TO=licenses@openbot.run
+
 ```
 
-Sign-in codes, invitations and welcome emails go from `EMAIL_FROM`, the `no_reply@openbot.run`
+Sign-in codes and invitations go from `EMAIL_FROM`, the `no_reply@openbot.run`
 mailbox, with `EMAIL_REPLY_TO` in `Reply-To`, so a reply goes to the team's inbox. An empty
 `EMAIL_REPLY_TO` uses `EMAIL_FROM` and adds no `Reply-To`. `EMAIL_SMTP_PASSWORD` is the password of
 the `EMAIL_SMTP_USERNAME` mailbox. The CI deploy reads it from the `EMAIL_SMTP_PASSWORD` secret of the
 `cloudflare-production` GitHub Environment, not from `.env.production`: when the mailbox changes,
 change both, at the time of the merge.
 
-License emails (the first payment, a failed renewal payment, and the end of a license) go from
-`EMAIL_LICENSE_FROM`. The SMTP account must be allowed to send as that address: on Private Email,
-make it an alias of the `EMAIL_SMTP_USERNAME` mailbox. An empty value uses `EMAIL_FROM`, as production
-does. A reply goes to `EMAIL_LICENSE_REPLY_TO` (`licenses@openbot.run` in production), or to the
-license sender when it is empty.
+
 
 `bun run env:set:smtp` encrypts the app password into `.env.production` only.
 
@@ -279,7 +214,7 @@ and it does not start with less than 2 seconds left, as after three SMTP timeout
 Cloudflare also fails, the answer stays the SMTP failure, so a sender limit keeps its 429. Each
 fallback sends an `email_fallback_sent` analytics event. Before the first deploy with the binding,
 onboard `openbot.run` in the Cloudflare dashboard under Email Sending, and keep
-`allowed_sender_addresses` equal to `EMAIL_FROM` and `EMAIL_LICENSE_FROM`. The preview and test
+`allowed_sender_addresses` equal to `EMAIL_FROM`. The preview and test
 Workers have no fallback.
 
 The contact form on `/contact` posts to `/v1/contact`. The Worker sends each message to
@@ -308,16 +243,6 @@ run `scripts/keep-previous-assets.ts`. It copies the files of the builds that we
 still load code. The site keeps the list of these files in `/asset-history.json`. When the list or a
 file cannot be read, the deploy continues with fewer files, and such a tab reloads when it next loads
 code.
-
-## Hosted sites
-
-`/v1/sites` takes two optional headers: `OpenBot-Host-Id` and `OpenBot-Host-Token`, the machine token
-of a registered server. With them, a request sees only that server's sites, and a new site counts
-against the server's limit: a `server_site_limits` row, else its plan's limit, else the account's shared
-pool (3 sites for each license user, else 1), within an account cap of 300. A wrong token gets 401
-`host_unauthorized`. Without them, a new site goes into the account's unlinked bucket of one site;
-`GET /v1/sites?scope=unlinked` lists only that bucket. `GET /v1/sites` returns `{ sites, limit, used }`, plus an optional `limitReason`: `shared` for a
-server in the shared pool, `account` when the account cap is full.
 
 ## Authentication data retention
 

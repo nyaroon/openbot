@@ -108,12 +108,7 @@ export async function loadTestDeploymentEnvironment(
     "REMOTE_TICKET_PRIVATE_JWK",
     "REMOTE_TICKET_PUBLIC_JWKS",
     "REMOTE_AUTH_WEBHOOK_SECRET",
-    "STRIPE_SECRET_KEY",
-    "STRIPE_WEBHOOK_SECRET",
   ]);
-  if (!/^(sk|rk)_test_/u.test(result.STRIPE_SECRET_KEY ?? "")) {
-    throw new Error("Test deployment requires a Stripe test key.");
-  }
   for (const names of [
     ["SLACK_CLIENT_ID", "SLACK_CLIENT_SECRET", "SLACK_STATE_SECRET"],
     ["SLACK_ROUTE_PRIVATE_JWK", "SLACK_ROUTE_KEY_ID"],
@@ -132,7 +127,7 @@ export function requireDevelopmentValues(environment: NodeJS.ProcessEnv, names: 
 }
 
 const ACCOUNT_SETTINGS =
-  /^(?:STRIPE_|EMAIL_|SKILLS_ADMIN_TOKEN$|APNS_|FCM_|GITHUB_APP_|GITHUB_WEBHOOK_SECRET$|SLACK_|DISCORD_|TELEGRAM_|REMOTE_TICKET_|REMOTE_AUTH_WEBHOOK_SECRET$|OPENPANEL_)/u;
+  /^(?:EMAIL_|SKILLS_ADMIN_TOKEN$|APNS_|FCM_|GITHUB_APP_|GITHUB_WEBHOOK_SECRET$|SLACK_|DISCORD_|TELEGRAM_|REMOTE_TICKET_|REMOTE_AUTH_WEBHOOK_SECRET$|OPENPANEL_)/u;
 const SIGNAL_SETTINGS = new Set([
   "REMOTE_TICKET_PUBLIC_JWKS",
   "REMOTE_TICKET_PUBLIC_KEYS",

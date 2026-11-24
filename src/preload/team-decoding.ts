@@ -1,4 +1,3 @@
-import { parseCustomServerPlan } from "@openbot/contracts/custom-server-plans";
 import {
   type DirectConversationPage,
   type DirectConversationReadState,
@@ -277,9 +276,6 @@ function server(summary: DynamicRecord): ServerSummary {
     hostRestart,
     memberLimit,
     restartAvailable,
-    storageGb,
-    paymentRequired,
-    customPlan,
     keyChangedAt,
     thisComputer,
     appearance,
@@ -292,9 +288,6 @@ function server(summary: DynamicRecord): ServerSummary {
     throw new Error("Invalid memberLimit.");
   }
   if (restartAvailable !== undefined && !isBoolean(restartAvailable)) throw new Error("Invalid restartAvailable.");
-  if (storageGb !== undefined && !(isNumber(storageGb) && Number.isSafeInteger(storageGb) && storageGb >= 1)) {
-    throw new Error("Invalid storageGb.");
-  }
   if (
     keyChangedAt !== undefined &&
     !(isNumber(keyChangedAt) && Number.isSafeInteger(keyChangedAt) && keyChangedAt >= 0)
@@ -302,9 +295,6 @@ function server(summary: DynamicRecord): ServerSummary {
     throw new Error("Invalid keyChangedAt.");
   }
   if (thisComputer !== undefined && thisComputer !== true) throw new Error("Invalid thisComputer.");
-  if (paymentRequired !== undefined && paymentRequired !== true) throw new Error("Invalid paymentRequired.");
-  const plan = customPlan === undefined ? undefined : parseCustomServerPlan(customPlan);
-  if (plan === null) throw new Error("Invalid customPlan.");
   if (capabilitiesPending !== undefined && capabilitiesPending !== true) {
     throw new Error("Invalid capabilitiesPending.");
   }
@@ -331,9 +321,6 @@ function server(summary: DynamicRecord): ServerSummary {
     ...(hostRestart === undefined ? {} : { hostRestart: hostRestart === null ? null : serverHostRestart(hostRestart) }),
     ...(memberLimit === undefined ? {} : { memberLimit }),
     ...(restartAvailable === undefined ? {} : { restartAvailable }),
-    ...(storageGb === undefined ? {} : { storageGb }),
-    ...(paymentRequired === undefined ? {} : { paymentRequired }),
-    ...(plan === undefined ? {} : { customPlan: plan }),
     ...(keyChangedAt === undefined ? {} : { keyChangedAt }),
     ...(thisComputer === undefined ? {} : { thisComputer }),
   };

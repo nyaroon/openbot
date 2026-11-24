@@ -3,10 +3,8 @@ import type {
   AppInfo,
   AvatarColor,
   AvatarImageInput,
-  BillingDesktopApi,
   CentralAuthUser,
   DynamicIslandGeometry,
-  LicenseDesktopApi,
   MobileConnectedDevice,
   MobileConnectLink,
   MobileConnectTicket,
@@ -26,10 +24,6 @@ import {
   Tabs,
   TriangleAlert,
 } from "@openbot/ui";
-import { BillingPanel } from "@openbot/ui/features/billing/BillingPanel";
-import { createBillingStore } from "@openbot/ui/features/billing/billing-store";
-import { LicenseSection } from "@openbot/ui/features/billing/LicenseSection";
-import { createLicenseStore } from "@openbot/ui/features/billing/license-store";
 import type { GeneralSettingsValue } from "@openbot/ui/features/settings/app-settings";
 import {
   SettingsDialogShell,
@@ -48,7 +42,6 @@ import { useI18n } from "../../i18n-context";
 import { ComputerUseSetup } from "../computer-use/ComputerUseSetup";
 import type { CodexLiveAccess } from "../speech/codex-live-access";
 import type { LiveVoiceAccountChoice } from "./LiveVoiceAccountRow";
-import { licenseContactUs, trackLicenseEvent } from "./license-analytics";
 import { createNotificationLevelsStore } from "./notification-levels-store";
 import { createProfileActivityStore } from "./profile-activity-store";
 import { renderProfileShareImage } from "./profile-share-image";
@@ -99,9 +92,6 @@ export interface SettingsModalProps {
   onRevokeAccountSession?: (sessionId: string) => Promise<void>;
   onSignOut?: (() => Promise<void>) | undefined;
   processAvatarFile?: (file: File) => Promise<AvatarImageInput>;
-  billingApi?: BillingDesktopApi;
-  licenseApi?: LicenseDesktopApi | undefined;
-  onContactUs?: (() => void) | undefined;
   codexLiveAccess?: CodexLiveAccess | undefined;
   liveVoiceAccount?: LiveVoiceAccountChoice | undefined;
   onConnectCodex?: (() => void) | undefined;
@@ -126,15 +116,6 @@ export function SettingsModal(props: SettingsModalProps) {
   );
   const mobileConnect = createSettingsMobileConnectStore(props, () => activeTab() === "mobile-connect");
   const updates = createSettingsUpdatesStore(props);
-  const billing = createBillingStore(
-    () => props.billingApi,
-    () => props.open && activeTab() === "billing",
-  );
-  const license = createLicenseStore(
-    () => props.licenseApi,
-    () => props.open && activeTab() === "billing",
-    trackLicenseEvent,
-  );
   const voice = createSettingsVoiceStore(() => props.open && activeTab() === "voice");
   const notificationLevels = createNotificationLevelsStore({
     visible: () => props.open && activeTab() === "notifications",
@@ -177,7 +158,6 @@ export function SettingsModal(props: SettingsModalProps) {
         (value === "agent-dock" && agentDockShown()) ||
         value === "computer-use" ||
         value === "profile" ||
-        value === "billing" ||
         value === "mobile-connect" ||
         value === "updates"
       ) {
@@ -370,21 +350,6 @@ export function SettingsModal(props: SettingsModalProps) {
             canListSessions={Boolean(props.onListAccountSessions)}
             canRevokeSession={Boolean(props.onRevokeAccountSession)}
             onSignOut={props.onSignOut}
-          />
-        </Tabs.Content>
-
-        <Tabs.Content value="billing" class="settings-modal-tab-panel" data-tab="billing">
-          <BillingPanel
-            store={billing}
-            available={Boolean(props.billingApi)}
-            license={
-              <LicenseSection
-                store={license}
-                onManagePayment={() => void billing.openPortal({ flow: "manage" })}
-                onContactUs={licenseContactUs(props.onContactUs)}
-                billingDetails={props.billingApi}
-              />
-            }
           />
         </Tabs.Content>
 

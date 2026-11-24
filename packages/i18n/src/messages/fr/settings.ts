@@ -344,8 +344,6 @@ export const messages = {
   "settings.tab.agentDock.description": "Choisissez où le dock s’affiche et quels agents il contient.",
   "settings.tab.updates.title": "Mises à jour",
   "settings.tab.updates.description": "Garder OpenBot à jour sur cet ordinateur.",
-  "settings.tab.billing.title": "Facturation",
-  "settings.tab.billing.description": "Licence, offres des serveurs, moyen de paiement et factures.",
   "settings.tab.appearance.description": "Choisir le thème, les couleurs, la langue et les polices.",
   "settings.tab.appBehavior.description": "Choisir comment OpenBot démarre et fonctionne sur cet ordinateur.",
   "settings.appearance.colorsTitle": "Couleurs",
@@ -586,7 +584,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "Autoriser les mises à jour par les membres du serveur",
   "settings.updates.allowRemote.description":
     "Tous les membres connectés du serveur peuvent demander une mise à jour quand cet ordinateur est inactif. Les propriétaires et les administrateurs peuvent aussi forcer un redémarrage.",
-  "settings.hostedServers.plan.recommended": "Meilleure offre",
   "settings.voice.dictation.section": "Dictée",
   "settings.voice.model.parakeet.description": "Rapide. Détecte seul la langue parlée, parmi 25 langues européennes.",
   "settings.voice.model.parakeetUnified.description":

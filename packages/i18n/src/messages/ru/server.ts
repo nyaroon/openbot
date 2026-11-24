@@ -68,10 +68,6 @@ export const messages = {
   "server.join.account": "Аккаунт",
   "server.join.emailBound": "Это приглашение работает только для получателя на указанную почту.",
   "server.join.unknownDate": "Неизвестно",
-  "server.add.billing.label": "Период оплаты",
-  "server.add.billing.monthly": "Помесячно",
-  "server.add.billing.yearly": "Ежегодно",
-  "server.add.billing.save": "Скидка {percent}%",
   "server.add.otherOptions": "Другие варианты",
   "server.local.createTitle": "Новый сервер на этом компьютере",
   "server.local.createDescription": "У сервера свои агенты, чаты и файлы. Он работает на этом компьютере.",
@@ -105,10 +101,6 @@ export const messages = {
   "server.install.setUpWithAgent": "Настроить с агентом",
   "server.install.sshAgentPrompt":
     "Подключись по SSH к моему серверу Linux и установи на него OpenBot как сервер.\n\nАдрес SSH (user@host):",
-  "server.upgrade.title": "У ваших агентов заканчивается место",
-  "server.upgrade.description":
-    "На {server} осталось мало свободного места. Перейдите на старший план, чтобы агенты работали без перерывов.",
-  "server.upgrade.used": "Занято {used} из {total}",
   "server.hosted.open": "Открыть сервер",
   "server.role.admin": "Администратор",
   "server.role.member": "Участник",

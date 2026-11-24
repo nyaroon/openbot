@@ -103,7 +103,7 @@ export const INPUT_LIMITS = {
   sessionsPerMember: 10,
 } as const;
 
-export const DEFAULT_TEAM_MEMBER_LIMIT = 3;
+export const TEAM_MEMBER_LIMIT = 50;
 
 export const ATTACHMENT_LIMITS = {
   fileBytes: 100 * 1024 * 1024,

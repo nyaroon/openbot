@@ -33,7 +33,6 @@ import {
   type ServerSummary,
   STORAGE_CAPABILITY,
 } from "@openbot/contracts/ipc";
-import type { PricingOrder } from "@openbot/contracts/license";
 import type { MarketplaceListingLink } from "@openbot/contracts/marketplace-links";
 import { AGENT_ACCESS_CAPABILITY } from "@openbot/contracts/team-protocol/agent-access-v1";
 import { AGENT_BACKUP_MODELS_ROUTES } from "@openbot/contracts/team-protocol/agent-backup-models-v1";
@@ -155,10 +154,6 @@ import type { AgentMessage, ComposerThreadMessageMatch } from "@openbot/ui/data"
 import { accountUsageProviderRows } from "@openbot/ui/features/account/account-usage-view";
 import { computeAgentAvatarMoods } from "@openbot/ui/features/agents/agent-avatar-mood";
 import { createFirstAgentDraft, type FirstAgentDraft } from "@openbot/ui/features/agents/FirstAgentSetup";
-import { BillingDialog } from "@openbot/ui/features/billing/BillingDialog";
-import { createBillingStore } from "@openbot/ui/features/billing/billing-store";
-import { LicenseSection } from "@openbot/ui/features/billing/LicenseSection";
-import { createLicenseStore } from "@openbot/ui/features/billing/license-store";
 import { unloadedHistory } from "@openbot/ui/features/conversation/ChatScrollRail";
 import { MAIN_THREAD_ID } from "@openbot/ui/features/conversation/threads/thread-types";
 import { LeaveServerDialog } from "@openbot/ui/features/servers/LeaveServerDialog";
@@ -311,7 +306,6 @@ import {
   serverUpdateBadge,
   showServerUpdate,
 } from "../servers/server-update-flow";
-import { trackLicenseEvent } from "../settings/license-analytics";
 import type { HostClaudeCompactWindowCalls } from "../settings/provider-claude-compact-window";
 import type { HostClaudeUserSetupCalls } from "../settings/provider-claude-user-setup";
 import type { HostProviderEnvironmentCalls } from "../settings/provider-environment";
@@ -346,7 +340,6 @@ import { createWebAgentImportCalls } from "./web-agent-import";
 import { createWebAgentThreads } from "./web-agent-threads";
 import { createWebAttachmentMedia } from "./web-attachment-media";
 import { openWebLink } from "./web-attachments";
-import { createWebBillingCalls, createWebLicenseCalls, type WebAppStart } from "./web-billing";
 import { webBitwardenConnectorPort } from "./web-bitwarden-connector";
 import { createWebChannelsPort } from "./web-channels-runtime";
 import { createWebChatHistory, type WebChatHistoryEntry } from "./web-chat-history";
@@ -428,10 +421,6 @@ type WebWorkspaceProps = {
   onPluginSlugConsumed?: () => void;
   marketplaceListing?: MarketplaceListingLink | null;
   onMarketplaceListingConsumed?: () => void;
-  start?: WebAppStart | null;
-  onStartConsumed?: () => void;
-  billingReturn?: boolean;
-  onBillingReturnConsumed?: () => void;
   language: AppLanguage;
   onChangeLanguage: (language: AppLanguage) => void;
   appearance: AppAppearance;
@@ -611,9 +600,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
         ...(appearance === undefined ? {} : { appearance }),
         ...(host.memberLimit === undefined ? {} : { memberLimit: host.memberLimit }),
         ...(host.restartAvailable === undefined ? {} : { restartAvailable: host.restartAvailable }),
-        ...(host.storageGb === undefined ? {} : { storageGb: host.storageGb }),
-        ...(host.paymentRequired ? { paymentRequired: host.paymentRequired } : {}),
-        ...(host.customPlan ? { customPlan: host.customPlan } : {}),
         compatibility: {
           localAppVersion: "web",
           hostAppVersion: incompatibility?.hostAppVersion ?? null,
@@ -1353,12 +1339,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
       if (link) openMarketplace();
     },
   );
-  const [billingOpen, setBillingOpen] = createSignal(false);
-  const [licenseStart, setLicenseStart] = createSignal<{ order: PricingOrder | null } | null>(null);
-  const billingCalls = createWebBillingCalls(props.accountFetch);
-  const billing = createBillingStore(() => billingCalls, billingOpen);
-  const licenseCalls = createWebLicenseCalls(props.accountFetch);
-  const license = createLicenseStore(() => licenseCalls, billingOpen, trackLicenseEvent);
   const [leaveRequest, setLeaveRequest] = createSignal<{
     hostId: string;
     trigger: HTMLElement | null;
@@ -1408,23 +1388,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
     await runTeamEffect(requestHostRestart(hostRequest(hostId)).pipe(Effect.mapError((error) => error.cause)));
     workspace.restartRequested();
   }
-  createEffect(
-    () => props.billingReturn,
-    (billingReturn) => {
-      if (!billingReturn) return;
-      setBillingOpen(true);
-      props.onBillingReturnConsumed?.();
-    },
-  );
-  createEffect(
-    () => props.start,
-    (start) => {
-      if (!start) return;
-      setLicenseStart({ order: start.order });
-      setBillingOpen(true);
-      props.onStartConsumed?.();
-    },
-  );
   const saveFile = createWebFileSaver();
   const machineCalls = webMachineCalls(hostRequest, (capability) => workspace.state.capabilities.includes(capability));
   const storageCalls: FilesPort = {
@@ -2633,7 +2596,7 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
     const current = page();
     if (current === "agents") return "agents";
     if (current === "server-settings") return serverSettingsShownSection() === "providers" ? "providers" : null;
-    return current === "pricing" ? null : current;
+    return current;
   };
   const settingsKind = (): SettingsKind | null =>
     page() === "settings" ? "personal" : page() === "server-settings" ? "server" : null;
@@ -3243,7 +3206,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
                         onChangeLanguage={props.onChangeLanguage}
                         appearance={props.appearance}
                         onChangeAppearance={props.onChangeAppearance}
-                        onOpenBilling={() => setBillingOpen(true)}
                         onSignOut={signOut}
                         notifications={notificationSettings}
                         notificationFocusRequest={notificationFocusRequest()}
@@ -3290,7 +3252,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
                         onRotateHostKey={rotateHostKeyAction()}
                         onCreateInvite={serverSettings.createInvite}
                         ownerTransfer={ownerTransferCalls()}
-                        license={licenseCalls}
                         onUpdateMember={serverSettings.updateMember}
                         onRemoveMember={serverSettings.removeMember}
                         onRevokeInvite={serverSettings.revokeInvite}
@@ -3371,23 +3332,6 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
                     onClose={() => setRestartRequest(null)}
                     onRestart={restartHost}
                     restoreFocusTarget={restartRequest()?.trigger}
-                  />
-                  <BillingDialog
-                    open={billingOpen()}
-                    onOpenChange={(open) => {
-                      setBillingOpen(open);
-                      if (!open) setLicenseStart(null);
-                    }}
-                    store={billing}
-                    license={
-                      <LicenseSection
-                        store={license}
-                        onManagePayment={() => void billing.openPortal({ flow: "manage" })}
-                        startBuying={licenseStart() !== null}
-                        startOrder={licenseStart()?.order ?? undefined}
-                        billingDetails={billingCalls}
-                      />
-                    }
                   />
                   <ChannelCreateOverlay />
                   <GlobalSearchOverlay

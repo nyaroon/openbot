@@ -67,10 +67,6 @@ export const messages = defineMessages("server", {
   "server.join.account": "Account",
   "server.join.emailBound": "This invitation only works for its email recipient.",
   "server.join.unknownDate": "Unknown",
-  "server.add.billing.label": "Billing period",
-  "server.add.billing.monthly": "Monthly",
-  "server.add.billing.yearly": "Yearly",
-  "server.add.billing.save": "Save {percent}%",
   "server.add.otherOptions": "Other options",
   "server.local.createTitle": "New server on this computer",
   "server.local.createDescription": "The server has its own agents, chats and files. It runs on this computer.",
@@ -103,11 +99,6 @@ export const messages = defineMessages("server", {
   "server.install.setUpWithAgent": "Set up with an agent",
   "server.install.sshAgentPrompt":
     "Connect over SSH to my Linux server and install OpenBot on it as a server.\n\nSSH address (user@host):",
-  "server.upsell.notNow": "Not now",
-  "server.upgrade.title": "Your agents are running out of space",
-  "server.upgrade.description":
-    "{server} has little free space left. Upgrade to keep your agents working without interruptions.",
-  "server.upgrade.used": "{used} of {total} used",
   "server.hosted.open": "Open server",
   "server.role.admin": "Admin",
   "server.role.member": "Member",

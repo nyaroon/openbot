@@ -1,15 +1,5 @@
-import {
-  BILLING_CURRENCIES,
-  BILLING_INTERVALS,
-  BILLING_PLAN_IDS,
-  type BillingCurrency,
-  type BillingInterval,
-  type BillingPlanId,
-  isBillingAmount,
-} from "@openbot/contracts/billing";
 import { FIRST_TOUCH_CAMPAIGN_FIELDS, type FirstTouch, parseFirstTouch } from "@openbot/contracts/first-touch";
 import { isOneOf } from "@openbot/contracts/runtime-values";
-import { normalizeEmailAddress } from "@openbot/contracts/validation";
 import { Effect, Schema } from "effect";
 
 const OPENPANEL_API_URL = "https://analytics.openbot.run/api";
@@ -17,45 +7,12 @@ export const ACCOUNT_ANALYTICS_SCHEMA_VERSION = 18;
 const SEND_TIMEOUT_MS = 5_000;
 const ACCOUNT_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/u;
 
-const BILLING_ACTIONS = [
-  "checkout_started",
-  "checkout_expired",
-  "plan_started",
-  "payment_succeeded",
-  "payment_failed",
-  "plan_changed",
-  "cancel_scheduled",
-  "cancel_withdrawn",
-  "plan_ended",
-  "portal_opened",
-] as const;
-export type BillingAction = (typeof BILLING_ACTIONS)[number];
-const PAID_BILLING_ACTIONS = [
-  "plan_started",
-  "payment_succeeded",
-  "plan_changed",
-  "cancel_scheduled",
-  "cancel_withdrawn",
-] as const satisfies readonly BillingAction[];
-
-const PORTAL_FLOWS = ["manage", "update", "cancel"] as const;
-export const BILLING_PRODUCTS = ["server", "license"] as const;
-export type BillingProduct = (typeof BILLING_PRODUCTS)[number];
-export const PLAN_CHANGE_DIRECTIONS = ["up", "down"] as const;
-export type PlanChangeDirection = (typeof PLAN_CHANGE_DIRECTIONS)[number];
-const ANALYTICS_MAX_LICENSE_USERS = 10_000;
-
-export function isAnalyticsLicenseUsers(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value > 0 && value <= ANALYTICS_MAX_LICENSE_USERS;
-}
-const PLAN_END_REASONS = ["canceled", "unpaid"] as const;
-export type PlanEndReason = (typeof PLAN_END_REASONS)[number];
 const ACCOUNT_SURFACES = ["desktop", "mobile", "web"] as const;
 export type AccountSurface = (typeof ACCOUNT_SURFACES)[number];
-const ATTRIBUTION_SOURCES = ["sign_in", "checkout"] as const;
+const ATTRIBUTION_SOURCES = ["sign_in"] as const;
 export type AttributionSource = (typeof ATTRIBUTION_SOURCES)[number];
 
-const EMAIL_KINDS = ["sign_in_code", "team_invite", "contact", "welcome", "license", "owner_transfer"] as const;
+const EMAIL_KINDS = ["sign_in_code", "team_invite", "contact", "owner_transfer"] as const;
 export type EmailKind = (typeof EMAIL_KINDS)[number];
 const EMAIL_RESULTS = ["accepted", "rate_limited", "unknown", "failed"] as const;
 export type EmailResult = (typeof EMAIL_RESULTS)[number];
@@ -63,20 +20,6 @@ export type EmailResult = (typeof EMAIL_RESULTS)[number];
 type AnalyticsProperties = Record<string, string | number | boolean>;
 
 export type AccountAnalyticsEvent =
-  | {
-      name: "billing_action";
-      action: BillingAction;
-      product?: BillingProduct;
-      plan?: BillingPlanId;
-      users?: number;
-      direction?: PlanChangeDirection;
-      interval?: BillingInterval;
-      currency?: BillingCurrency;
-      amount?: number | null;
-      flow?: (typeof PORTAL_FLOWS)[number];
-      reactivated?: boolean;
-      endReason?: PlanEndReason;
-    }
   | { name: "account_created"; surface: AccountSurface; firstTouch: FirstTouch | null }
   | { name: "account_attributed"; via: AttributionSource; firstTouch: FirstTouch }
   | { name: "email_sent" | "email_fallback_sent"; kind: EmailKind; result: EmailResult };
@@ -92,21 +35,13 @@ export interface AccountAnalyticsOptions {
   clientSecret: string | undefined;
   fetch: (input: string, init: RequestInit) => Promise<Response>;
   schedule: (send: Effect.Effect<void>) => void;
-  database: D1Database;
 }
 
 class AnalyticsDeliveryError extends Schema.TaggedError<AnalyticsDeliveryError>()("AnalyticsDeliveryError", {}) {}
 
-type OpenPanelBody =
-  | { type: "track"; payload: { name: string; profileId?: string; properties: AnalyticsProperties } }
-  | { type: "identify"; payload: { profileId: string; email: string } };
-
-export async function readAccountEmail(database: D1Database, accountId: string): Promise<string | null> {
-  const row = await database
-    .prepare("SELECT email FROM users WHERE id = ?")
-    .bind(accountId)
-    .first<{ email: unknown }>();
-  return typeof row?.email === "string" ? normalizeEmailAddress(row.email) : null;
+interface OpenPanelBody {
+  type: "track";
+  payload: { name: string; profileId?: string; properties: AnalyticsProperties };
 }
 
 export function createAccountAnalytics(options: AccountAnalyticsOptions): AccountAnalytics {
@@ -129,17 +64,10 @@ export function createAccountAnalytics(options: AccountAnalyticsOptions): Accoun
       catch: () => new AnalyticsDeliveryError({}),
     });
     if (!response.ok) {
-      console.warn(body.type === "track" ? "Account analytics send failed." : "Account analytics identify failed.", {
+      console.warn("Account analytics send failed.", {
         status: response.status,
       });
     }
-  });
-  const identify = Effect.fn("AccountAnalytics.identify")(function* (accountId: string) {
-    const email = yield* Effect.tryPromise({
-      try: () => readAccountEmail(options.database, accountId),
-      catch: () => new AnalyticsDeliveryError({}),
-    });
-    if (email) yield* post({ type: "identify", payload: { profileId: accountId, email } });
   });
   return {
     track(accountId, event) {
@@ -149,20 +77,7 @@ export function createAccountAnalytics(options: AccountAnalyticsOptions): Accoun
         type: "track",
         payload: { name: event.name, ...(accountId === null ? {} : { profileId: accountId }), properties },
       }).pipe(Effect.catch(() => Effect.sync(() => console.warn("Account analytics send failed."))));
-      const paid = accountId !== null && event.name === "billing_action" && isOneOf(PAID_BILLING_ACTIONS, event.action);
-      options.schedule(
-        paid
-          ? Effect.all(
-              [
-                send,
-                identify(accountId).pipe(
-                  Effect.catch(() => Effect.sync(() => console.warn("Account analytics identify failed."))),
-                ),
-              ],
-              { concurrency: 2, discard: true },
-            )
-          : send,
-      );
+      options.schedule(send);
     },
   };
 }
@@ -173,27 +88,6 @@ function accountEventProperties(event: AccountAnalyticsEvent): AnalyticsProperti
     environment: "production",
     event_schema_version: ACCOUNT_ANALYTICS_SCHEMA_VERSION,
   };
-  if (event.name === "billing_action") {
-    if (!isOneOf(BILLING_ACTIONS, event.action)) return null;
-    properties.action = event.action;
-    const product = isOneOf(BILLING_PRODUCTS, event.product) ? event.product : "server";
-    properties.product = product;
-    if (product === "server" && isOneOf(BILLING_PLAN_IDS, event.plan)) properties.plan = event.plan;
-    if (product === "license" && isAnalyticsLicenseUsers(event.users)) properties.users = event.users;
-    if (event.action === "plan_changed" && isOneOf(PLAN_CHANGE_DIRECTIONS, event.direction))
-      properties.direction = event.direction;
-    if (isOneOf(BILLING_INTERVALS, event.interval)) properties.interval = event.interval;
-    if (isOneOf(BILLING_CURRENCIES, event.currency)) {
-      properties.currency = event.currency;
-      if (isBillingAmount(event.amount)) properties.amount = event.amount;
-    }
-    if (isOneOf(PORTAL_FLOWS, event.flow)) properties.flow = event.flow;
-    if (event.action === "plan_started" && typeof event.reactivated === "boolean")
-      properties.reactivated = event.reactivated;
-    if (event.action === "plan_ended" && isOneOf(PLAN_END_REASONS, event.endReason))
-      properties.end_reason = event.endReason;
-    return properties;
-  }
   if (event.name === "account_created") {
     if (!isOneOf(ACCOUNT_SURFACES, event.surface)) return null;
     return { ...properties, sign_in_surface: event.surface, ...firstTouchProperties(event.firstTouch) };

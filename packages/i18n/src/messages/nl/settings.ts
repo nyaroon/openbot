@@ -338,8 +338,6 @@ export const messages = {
   "settings.tab.agentDock.description": "Kies waar het dock verschijnt en welke agents erin staan.",
   "settings.tab.updates.title": "Updates",
   "settings.tab.updates.description": "Houd OpenBot op deze computer up-to-date.",
-  "settings.tab.billing.title": "Facturering",
-  "settings.tab.billing.description": "Licentie, serverabonnementen, betaalmethode en facturen.",
   "settings.tab.appearance.description": "Kies het thema, de kleuren, de taal en de lettertypen.",
   "settings.tab.appBehavior.description": "Bepaal hoe OpenBot op deze computer start en werkt.",
   "settings.appearance.colorsTitle": "Kleuren",
@@ -574,7 +572,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "Sta updates van serverleden toe",
   "settings.updates.allowRemote.description":
     "Alle ingelogde serverleden kunnen een update aanvragen wanneer deze computer inactief is. Eigenaars en beheerders kunnen ook een herstart afdwingen.",
-  "settings.hostedServers.plan.recommended": "Beste keuze",
   "settings.voice.dictation.section": "Dicteren",
   "settings.voice.model.parakeet.description": "Snel. Herkent zelf de gesproken taal, in 25 Europese talen.",
   "settings.voice.model.parakeetUnified.description":

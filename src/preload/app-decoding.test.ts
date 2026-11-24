@@ -21,7 +21,6 @@ import {
   decodeAppLanguagePreference,
   decodeApprovalAutomationPreference,
   decodeAppSetupState,
-  decodeBillingState,
   decodeCentralAuthState,
   decodeChatWindowTargets,
   decodeCustomAgentResult,
@@ -651,44 +650,5 @@ describe("pending Marketplace listing", () => {
     ["an id that is not text", { kind: "agent", id: 42 }],
   ])("refuses %s", (_name, value) => {
     expect(decodePendingMarketplaceListing(value)).toBeNull();
-  });
-});
-
-describe("server storage", () => {
-  const plan = {
-    subscriptionId: "sub_1",
-    serverId: "server-1",
-    serverName: "Server",
-    plan: "starter",
-    interval: "month",
-    currency: "eur",
-    amount: 900,
-    status: "active",
-    currentPeriodEnd: null,
-    cancelAtPeriodEnd: false,
-  };
-  const state = (storageGb?: unknown) => ({
-    available: true,
-    hasCustomer: true,
-    servers: [storageGb === undefined ? plan : { ...plan, storageGb }],
-  });
-
-  it("keeps the storage of a plan", () => {
-    expect(decodeBillingState(state(25))).toEqual(state(25));
-  });
-
-  it("keeps a plan from an account server that sends no storage", () => {
-    expect(decodeBillingState(state())).toEqual(state());
-  });
-
-  it.each([
-    ["zero", 0],
-    ["a negative number", -25],
-    ["a fraction", 25.5],
-    ["text", "25"],
-    ["null", null],
-    ["a number that is not safe", 2 ** 60],
-  ])("leaves out a storage that is %s", (_name, storageGb) => {
-    expect(decodeBillingState(state(storageGb))).toEqual(state());
   });
 });

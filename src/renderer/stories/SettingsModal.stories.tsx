@@ -17,7 +17,6 @@ import type { CodexLiveAccess } from "../src/features/speech/codex-live-access";
 import { LayoutProvider } from "../src/layout";
 import { PlatformProvider } from "../src/platform";
 import { STORY_AGENTS, STORY_SERVERS } from "../src/preview/fixtures";
-import { createMockBilling } from "../src/preview/mock-billing";
 import type { MockVoiceOptions } from "../src/preview/mock-voice";
 import { createMockOpenBot } from "./mock-openbot";
 import { SettingsPageStory } from "./settings-page-story";
@@ -97,7 +96,6 @@ function SettingsModalStory(props: {
   agentDock?: boolean;
 }) {
   const previousApi = window.openbot;
-  const billingApi = createMockBilling();
   const mock = createMockOpenBot(props.voice);
   window.openbot = mock.api;
   onCleanup(() => {
@@ -240,7 +238,6 @@ function SettingsModalStory(props: {
               onGetRemoteNetworkRoute={mock.api.getRemoteNetworkRoute}
               onSetRemoteNetworkRoute={(route) => mock.api.setRemoteNetworkRoute({ route })}
               onUpdateAction={runUpdateAction}
-              billingApi={billingApi}
               agentDock={props.agentDock ? storyAgentDock : undefined}
             />
           )}
@@ -380,10 +377,6 @@ export const MobileConnect: Story = {
 
 export const AgentDock: Story = {
   render: () => <SettingsModalStory initialOpen agentDock initialTab="agent-dock" />,
-};
-
-export const Billing: Story = {
-  render: () => <SettingsModalStory initialOpen initialTab="billing" />,
 };
 
 export const ScheduledRemoteUpdate: Story = {

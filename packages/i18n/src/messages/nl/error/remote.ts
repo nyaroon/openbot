@@ -207,8 +207,6 @@ export const messages = {
   "error.remote.directoryTimeout": "De OpenBot-service reageerde niet op tijd. Probeer het opnieuw.",
   "error.remote.inviteAlreadyUsed": "Deze uitnodiging is al gebruikt. Vraag om een nieuwe uitnodiging.",
   "error.remote.inviteNotFound": "Deze uitnodiging bestaat niet of is verlopen. Vraag om een nieuwe uitnodiging.",
-  "error.remote.licenseUsersFull":
-    "De licentie van de eigenaar van de server heeft geen vrije gebruiker. Vraag de eigenaar om een gebruiker aan de licentie toe te voegen.",
   "error.remote.memberLimitReached":
     "Deze host heeft het maximumaantal leden bereikt. Vraag de eigenaar om ruimte te maken.",
   "error.remote.hostNotRegistered": "Deze host is niet meer geregistreerd bij de OpenBot-service.",
@@ -220,10 +218,8 @@ export const messages = {
   "error.remote.remoteNotConfigured": "Externe verbindingen zijn niet ingesteld op deze OpenBot-service.",
   "error.remote.hostRefused": "De host heeft het verzoek geweigerd ({status}).",
   "error.remote.formUnavailable": "Dit formulier is niet meer beschikbaar.",
-  "error.remote.hostedServerRemoval": "Gebruik Facturering om een gehoste server te verwijderen.",
   "error.remote.hostRemoved": "De eigenaar heeft deze server uit het account verwijderd.",
   "error.remote.ownerTransferSelf": "Deze server is al van jou. Voer het e-mailadres van de nieuwe eigenaar in.",
-  "error.remote.ownerTransferHosted": "Een server die OpenBot host, kan niet van eigenaar wisselen.",
   "error.remote.ownerTransferInvalid":
     "Deze eigendomsoverdracht is niet meer beschikbaar. Vraag de eigenaar om hem opnieuw te sturen.",
   "error.remote.channelsUnsupported": "Werk deze desktopserver bij om kanalen te gebruiken.",

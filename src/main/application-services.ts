@@ -171,7 +171,6 @@ import { ApprovalAutomation, readApprovalAutomation } from "./approval-automatio
 import { AttachmentPreviews } from "./attachment-previews";
 import { AutomationServer } from "./automation-server";
 import { listBackgroundProcesses, stopBackgroundProcess } from "./background-processes";
-import { BillingDesktopService } from "./billing-service";
 import { managedBitwardenCli } from "./bitwarden-cli-installer";
 import { BitwardenConnectorService } from "./bitwarden-connector-service";
 import { BitwardenConnectorStore } from "./bitwarden-connector-store";
@@ -280,7 +279,6 @@ import { InterfaceSizeService } from "./interface-size-service";
 import { prepareToolRuntimeForTest } from "./ipc/mcp-server-handlers";
 import { LanguageService } from "./language-service";
 import { LibraryFoldersService } from "./library-folders-service";
-import { LicenseDesktopService } from "./license-service";
 import { LinkAccountService } from "./link-account-service";
 import { LinkAccountStore } from "./link-account-store";
 import { relaunchApp } from "./linux-appimage-relaunch";
@@ -734,8 +732,6 @@ export interface ApplicationServices {
   localServers: LocalServers | null;
   centralAuth: CentralAuthManager;
   skills: SkillMarketplaceService;
-  billing: BillingDesktopService;
-  license: LicenseDesktopService;
   routineFeed: RoutineFeedServer;
   events: HostEventsService;
   eventsRuntime: HostEventsRuntime;
@@ -1229,8 +1225,6 @@ export async function createApplicationServices({
     ),
   );
   performance.mark("openbot:services.skills");
-  const billing = new BillingDesktopService(centralAuth, openLink);
-  const license = new LicenseDesktopService(centralAuth, openLink);
   const serverClaims = new ServerClaimDesktopService(centralAuth, openLink, (expiresAt) =>
     serverClaimWatch.add(expiresAt),
   );
@@ -4236,8 +4230,6 @@ export async function createApplicationServices({
     localServers,
     centralAuth,
     skills,
-    billing,
-    license,
     routineFeed,
     events,
     eventsRuntime,

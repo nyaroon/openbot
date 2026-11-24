@@ -1,15 +1,11 @@
 import { Effect, Result } from "effect";
 import { type AuthRetentionResult, pruneExpiredAuthData } from "./auth-data-retention";
-import { BillingSales } from "./billing-sales";
-import { captureBillingSnapshot } from "./billing-snapshots";
 import { canonicalHostRedirect, permanentTrailingSlashRedirect } from "./canonical-redirect";
 import { runApiEffect } from "./effect-runtime";
 import { enforceMarketplaceIngress, MarketplaceRateLimitError } from "./marketplace-request-policy";
 import { observedD1 } from "./observed-d1";
-import { createOperatorAlert } from "./operator-alert";
 import { pageMarkdownResponse } from "./page-markdown";
 import { deliverPendingRemoteAuthEvents, type RemoteAuthEventBindings } from "./remote-control-plane";
-import { SalesAnalyticsDelivery } from "./sales-analytics-delivery";
 import { checkSignalEntry, SIGNAL_ENTRY_CRON, type SignalEntryBindings } from "./signal-entry-failover";
 import type { WorkerBindings } from "./types";
 
@@ -28,16 +24,12 @@ export function createWorkerHandler(
   return {
     async fetch(
       request: Request,
-      workerBindings: Pick<WorkerBindings, "MARKETPLACE_INGRESS_RATE_LIMITER"> &
-        Partial<Pick<WorkerBindings, "DB" | "OPENPANEL_CLIENT_ID" | "OPENPANEL_CLIENT_SECRET">>,
+      workerBindings: Pick<WorkerBindings, "MARKETPLACE_INGRESS_RATE_LIMITER"> & Partial<Pick<WorkerBindings, "DB">>,
       context?: WorkerExecutionContext,
     ) {
       const bindings = workerBindings.DB ? { ...workerBindings, DB: observedD1(workerBindings.DB) } : workerBindings;
       const hostRedirect = canonicalHostRedirect(request);
       if (hostRedirect) return hostRedirect;
-      if (request.method === "GET" && new URL(request.url).pathname === "/billing/checkout-return") {
-        return runApiEffect(checkoutReturnResponse(request, bindings));
-      }
       const earlyResponse = await runApiEffect(
         Effect.gen(function* () {
           yield* enforceMarketplaceIngress(request, bindings);
@@ -80,8 +72,7 @@ export function createWorkerHandler(
     },
     async scheduled(
       controller: Pick<ScheduledController, "scheduledTime"> & Partial<Pick<ScheduledController, "cron">>,
-      workerBindings: RemoteAuthEventBindings &
-        Partial<SignalEntryBindings & Pick<WorkerBindings, "OPENPANEL_CLIENT_ID" | "OPENPANEL_CLIENT_SECRET">>,
+      workerBindings: RemoteAuthEventBindings & Partial<SignalEntryBindings>,
     ) {
       const bindings = { ...workerBindings, DB: observedD1(workerBindings.DB) };
       if (controller.cron === SIGNAL_ENTRY_CRON) {
@@ -94,14 +85,9 @@ export function createWorkerHandler(
           [
             Effect.exit(isDailyRetentionRun(now) ? prune(bindings.DB, now) : Effect.succeed(null)),
             Effect.exit(deliverRemoteAuthEvents(bindings, now)),
-            Effect.exit(tickSalesAnalytics(bindings, now)),
           ],
           { concurrency: "unbounded" },
-        ).pipe(
-          Effect.flatMap(([retentionExit, deliveryExit, salesExit]) =>
-            Effect.all([retentionExit, deliveryExit, salesExit]),
-          ),
-        ),
+        ).pipe(Effect.flatMap(([retentionExit, deliveryExit]) => Effect.all([retentionExit, deliveryExit]))),
       );
       if (retention) log(retention);
     },
@@ -120,67 +106,6 @@ async function runSignalEntryCheck(bindings: Partial<SignalEntryBindings>): Prom
   if (check.status === "moved") console.warn("Signal entry moved.", check);
   else if (check.status === "kept" || check.status === "unknown") console.warn("Signal entry not changed.", check);
 }
-
-type SalesBindings = Pick<WorkerBindings, "DB"> &
-  Partial<
-    Pick<
-      WorkerBindings,
-      "STRIPE_SECRET_KEY" | "OPENPANEL_CLIENT_ID" | "OPENPANEL_CLIENT_SECRET" | "OPERATOR_ALERT_WEBHOOK_URL"
-    >
-  >;
-
-const tickSalesAnalytics = Effect.fn("SalesAnalytics.tick")(function* (bindings: SalesBindings, now: number) {
-  if (!bindings.OPENPANEL_CLIENT_ID?.trim() || !bindings.OPENPANEL_CLIENT_SECRET?.trim()) return;
-  const options = {
-    database: bindings.DB,
-    clientId: bindings.OPENPANEL_CLIENT_ID,
-    clientSecret: bindings.OPENPANEL_CLIENT_SECRET,
-    fetch: (input: string, init: RequestInit) => fetch(input, init),
-  };
-  const saleAlert = createOperatorAlert(bindings.OPERATOR_ALERT_WEBHOOK_URL, options.fetch);
-  const payments = yield* Effect.exit(new BillingSales({ ...options, saleAlert }).processPending());
-  const snapshot = yield* Effect.exit(captureBillingSnapshot(bindings, now));
-  const result = yield* new SalesAnalyticsDelivery(options).drain();
-  console.info("Sales analytics delivery completed.", result);
-  yield* payments;
-  yield* snapshot;
-});
-
-const checkoutReturnResponse = Effect.fn("BillingSales.returnResponse")(function* (
-  request: Request,
-  bindings: Partial<SalesBindings>,
-) {
-  const url = new URL(request.url);
-  const token = url.searchParams.get("token");
-  let destination = "/billing/return?kind=plan";
-  if (token && bindings.DB && bindings.OPENPANEL_CLIENT_ID && bindings.OPENPANEL_CLIENT_SECRET) {
-    const sales = new BillingSales({
-      database: bindings.DB,
-      clientId: bindings.OPENPANEL_CLIENT_ID,
-      clientSecret: bindings.OPENPANEL_CLIENT_SECRET,
-      fetch: (input, init) => fetch(input, init),
-    });
-    destination =
-      (yield* sales.returned(token).pipe(
-        Effect.catch(() =>
-          Effect.sync(() => {
-            console.warn("Checkout return analytics failed.");
-            return null;
-          }),
-        ),
-      )) ?? destination;
-  }
-  const location = new URL(destination, url.origin);
-  location.searchParams.set("cancelled", "1");
-  return new Response(null, {
-    status: 303,
-    headers: {
-      Location: location.href,
-      "Cache-Control": "no-store",
-      "Referrer-Policy": "no-referrer",
-    },
-  });
-});
 
 function isEmailSignInStart(request: Request): boolean {
   return (

@@ -5,7 +5,7 @@ import type { Effect } from "effect";
 import type { AuthStoreError } from "./d1-auth-repository";
 import type { EmailDeliveryError } from "./email-delivery";
 import { observedD1 } from "./observed-d1";
-import type { SmtpContactMessage, SmtpFailure, SmtpLicenseMessage, SmtpWelcomeMessage } from "./smtp-email-delivery";
+import type { SmtpContactMessage, SmtpFailure } from "./smtp-email-delivery";
 
 export interface WorkerBindings {
   DB: D1Database;
@@ -25,8 +25,6 @@ export interface WorkerBindings {
   EMAIL_SMTP_PASSWORD?: string;
   EMAIL_FROM?: string;
   EMAIL_REPLY_TO?: string;
-  EMAIL_LICENSE_FROM?: string;
-  EMAIL_LICENSE_REPLY_TO?: string;
   EMAIL_RELAY?: Fetcher;
   EMAIL_FALLBACK?: SendEmail;
   EMAIL_DELIVERY_WEBHOOK_URL?: string;
@@ -64,11 +62,6 @@ export interface WorkerBindings {
   DISCORD_DEV_PUBLIC_ORIGIN?: string;
   TELEGRAM_BOT_ID?: string;
   TELEGRAM_BOT_USERNAME?: string;
-  STRIPE_SECRET_KEY?: string;
-  STRIPE_WEBHOOK_SECRET?: string;
-  VIES_REQUESTER_VAT_ID?: string;
-  LICENSE_TRIAL_END?: string;
-  BILLING_COUNTRY_REQUIRED?: string;
   OPERATOR_ALERT_WEBHOOK_URL?: string;
   OPENPANEL_CLIENT_ID?: string;
   OPENPANEL_CLIENT_SECRET?: string;
@@ -192,14 +185,6 @@ export interface TeamInviteEmailDelivery {
     inviteUrl: string;
     role: "admin" | "member";
   }): Effect.Effect<void, EmailDeliveryError | SmtpFailure>;
-}
-
-export interface WelcomeEmailDelivery {
-  send(message: SmtpWelcomeMessage): Effect.Effect<void, EmailDeliveryError | SmtpFailure>;
-}
-
-export interface LicenseEmailDelivery {
-  send(message: SmtpLicenseMessage): Effect.Effect<void, EmailDeliveryError | SmtpFailure>;
 }
 
 export interface ContactMessageDelivery {

@@ -334,8 +334,6 @@ export const messages = {
   "settings.tab.agentDock.description": "Yuvanın nerede görüneceğini ve hangi ajanların yuvada olacağını seçin.",
   "settings.tab.updates.title": "Güncellemeler",
   "settings.tab.updates.description": "OpenBot'u bu bilgisayarda güncel tutun.",
-  "settings.tab.billing.title": "Faturalandırma",
-  "settings.tab.billing.description": "Lisans, sunucu planları, ödeme yöntemi ve faturalar.",
   "settings.tab.appearance.description": "Temayı, renkleri, dili ve yazı tiplerini seçin.",
   "settings.tab.appBehavior.description": "OpenBot'un bu bilgisayarda nasıl başlayıp çalışacağını seçin.",
   "settings.appearance.colorsTitle": "Renkler",
@@ -569,7 +567,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "Sunucu üyelerinin güncelleme yapmasına izin ver",
   "settings.updates.allowRemote.description":
     "Oturum açmış tüm sunucu üyeleri, bu bilgisayar boştayken güncelleme isteyebilir. Sahipler ve yöneticiler ayrıca yeniden başlatmayı zorlayabilir.",
-  "settings.hostedServers.plan.recommended": "En avantajlı",
   "settings.voice.dictation.section": "Dikte",
   "settings.voice.model.parakeet.description": "Hızlı. Konuşulan dili 25 Avrupa dili arasında kendisi bulur.",
   "settings.voice.model.parakeetUnified.description":

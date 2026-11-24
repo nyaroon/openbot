@@ -204,8 +204,6 @@ export const messages = {
   "error.remote.directoryTimeout": "Il servizio OpenBot non ha risposto in tempo. Riprova.",
   "error.remote.inviteAlreadyUsed": "Questo invito è già stato usato. Chiedi un nuovo invito.",
   "error.remote.inviteNotFound": "Questo invito non esiste o è scaduto. Chiedi un nuovo invito.",
-  "error.remote.licenseUsersFull":
-    "La licenza del proprietario del server non ha utenti liberi. Chiedi al proprietario di aggiungere un utente alla licenza.",
   "error.remote.memberLimitReached":
     "Questo host ha raggiunto il limite di membri. Chiedi al proprietario di fare spazio.",
   "error.remote.hostNotRegistered": "Questo host non è più registrato presso il servizio OpenBot.",
@@ -217,10 +215,8 @@ export const messages = {
   "error.remote.remoteNotConfigured": "Le connessioni remote non sono configurate su questo servizio OpenBot.",
   "error.remote.hostRefused": "L'host ha rifiutato la richiesta ({status}).",
   "error.remote.formUnavailable": "Questo modulo non è più disponibile.",
-  "error.remote.hostedServerRemoval": "Usa Fatturazione per eliminare un server ospitato.",
   "error.remote.hostRemoved": "Il proprietario ha rimosso questo server dall'account.",
   "error.remote.ownerTransferSelf": "Questo server è già tuo. Inserisci l'email del nuovo proprietario.",
-  "error.remote.ownerTransferHosted": "Un server ospitato da OpenBot non può cambiare proprietario.",
   "error.remote.ownerTransferInvalid":
     "Questo trasferimento di proprietà non è più disponibile. Chiedi al proprietario di inviarlo di nuovo.",
   "error.remote.channelsUnsupported": "Aggiorna questo server desktop per usare i canali.",

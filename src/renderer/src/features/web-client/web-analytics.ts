@@ -1,6 +1,6 @@
 import type { CentralAuthUser } from "@openbot/contracts/ipc";
 import { version } from "../../../../../package.json";
-import { type DesktopAnalyticsProperties, desktopAnalytics } from "../../analytics";
+import { desktopAnalytics } from "../../analytics";
 import {
   setWebAccountPending,
   setWebReportsEnabled,
@@ -13,10 +13,6 @@ import type { WebAccountCalls } from "./web-account";
 
 export function configureWebAnalytics(account: CentralAuthUser | null): void {
   desktopAnalytics.configureWeb({ version, user: account, enabled: webReportsEnabled() });
-}
-
-export function trackBillingReturn(event: DesktopAnalyticsProperties<"billing_return_viewed">): void {
-  desktopAnalytics.track("billing_return_viewed", event);
 }
 
 export function setWebAnalyticsEnabled(value: boolean): boolean {

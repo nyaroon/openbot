@@ -200,8 +200,6 @@ export const messages = {
   "error.remote.directoryTimeout": "OpenBot 서비스가 제때 응답하지 않았어요. 다시 시도해 주세요.",
   "error.remote.inviteAlreadyUsed": "이미 사용된 초대예요. 새 초대를 요청해 주세요.",
   "error.remote.inviteNotFound": "초대가 없거나 만료되었어요. 새 초대를 요청해 주세요.",
-  "error.remote.licenseUsersFull":
-    "서버 소유자의 라이선스에 남은 사용자 자리가 없어요. 소유자에게 라이선스에 사용자를 추가해 달라고 요청해 주세요.",
   "error.remote.memberLimitReached":
     "이 호스트의 멤버 한도에 도달했어요. 소유자에게 자리를 만들어 달라고 요청해 주세요.",
   "error.remote.hostNotRegistered": "이 호스트는 더 이상 OpenBot 서비스에 등록되어 있지 않아요.",
@@ -213,10 +211,8 @@ export const messages = {
   "error.remote.remoteNotConfigured": "이 OpenBot 서비스에는 원격 연결이 설정되어 있지 않아요.",
   "error.remote.hostRefused": "호스트가 요청을 거부했어요({status}).",
   "error.remote.formUnavailable": "이 양식은 더 이상 사용할 수 없어요.",
-  "error.remote.hostedServerRemoval": "호스팅 서버를 삭제하려면 결제에서 삭제해 주세요.",
   "error.remote.hostRemoved": "소유자가 이 서버를 계정에서 삭제했어요.",
   "error.remote.ownerTransferSelf": "이미 이 서버의 소유자예요. 새 소유자의 이메일을 입력하세요.",
-  "error.remote.ownerTransferHosted": "OpenBot이 호스팅하는 서버는 소유자를 바꿀 수 없어요.",
   "error.remote.ownerTransferInvalid":
     "이 소유권 이전은 더 이상 사용할 수 없어요. 소유자에게 다시 보내 달라고 요청하세요.",
   "error.remote.channelsUnsupported": "채널을 사용하려면 이 데스크톱 서버를 업데이트해 주세요.",

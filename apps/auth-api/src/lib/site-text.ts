@@ -118,7 +118,6 @@ export function siteText(t: AppTranslate) {
         license: t("sitePage.site.footer.license"),
         privacy: t("sitePage.site.footer.privacy"),
         terms: t("sitePage.site.footer.terms"),
-        commercialLicense: t("sitePage.site.footer.commercialLicense"),
         documentation,
         troubleshooting: t("sitePage.site.footer.troubleshooting"),
         status,

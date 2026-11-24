@@ -204,8 +204,6 @@ export const messages = {
   "error.remote.directoryTimeout": "Служба OpenBot не ответила вовремя. Повторите попытку.",
   "error.remote.inviteAlreadyUsed": "Это приглашение уже использовано. Попросите новое приглашение.",
   "error.remote.inviteNotFound": "Это приглашение не существует или истекло. Попросите новое приглашение.",
-  "error.remote.licenseUsersFull":
-    "В лицензии владельца сервера нет свободных пользователей. Попросите владельца добавить пользователя в лицензию.",
   "error.remote.memberLimitReached": "На этом хосте достигнут лимит участников. Попросите владельца освободить место.",
   "error.remote.hostNotRegistered": "Этот хост больше не зарегистрирован в службе OpenBot.",
   "error.remote.membershipEnded": "Вы больше не участник этого хоста. Попросите у владельца новое приглашение.",
@@ -216,10 +214,8 @@ export const messages = {
   "error.remote.remoteNotConfigured": "Удалённые подключения не настроены в этой службе OpenBot.",
   "error.remote.hostRefused": "Хост отклонил запрос ({status}).",
   "error.remote.formUnavailable": "Эта форма больше недоступна.",
-  "error.remote.hostedServerRemoval": "Чтобы удалить размещённый сервер, используйте раздел «Оплата».",
   "error.remote.hostRemoved": "Владелец удалил этот сервер из аккаунта.",
   "error.remote.ownerTransferSelf": "Этот сервер уже принадлежит вам. Введите email нового владельца.",
-  "error.remote.ownerTransferHosted": "Сервер, который размещает OpenBot, не может сменить владельца.",
   "error.remote.ownerTransferInvalid":
     "Эта передача владения больше недоступна. Попросите владельца отправить её снова.",
   "error.remote.channelsUnsupported": "Обновите этот сервер на компьютере, чтобы использовать каналы.",

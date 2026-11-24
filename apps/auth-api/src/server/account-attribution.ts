@@ -3,9 +3,6 @@ import { Effect, Schema } from "effect";
 import { safeScreenPath } from "../lib/analytics";
 import type { AccountAnalytics, AttributionSource } from "./account-analytics";
 
-const CHECKOUT_ATTRIBUTION_WINDOW_MS = 24 * 60 * 60_000;
-const CHECKOUT_SESSION_PATTERN = /^cs_[A-Za-z0-9_]{1,250}$/u;
-
 const CAMPAIGN_COLUMNS = {
   utmSource: "utm_source",
   utmMedium: "utm_medium",
@@ -81,22 +78,6 @@ export class AccountAttribution {
     const saved = result.meta.changes === 1;
     if (saved) this.#analytics.track(userId, { name: "account_attributed", via, firstTouch: touch });
     return saved;
-  }).bind(this);
-
-  readonly recordCheckout = Effect.fn("AccountAttribution.recordCheckout")(function* (
-    this: AccountAttribution,
-    sessionId: string,
-    touch: FirstTouch,
-  ): Effect.fn.Return<boolean, AccountAttributionError> {
-    if (!CHECKOUT_SESSION_PATTERN.test(sessionId)) return false;
-    const checkout = yield* d1(() =>
-      this.#database
-        .prepare("SELECT user_id FROM billing_sales_checkouts WHERE session_id = ? AND created_at > ?")
-        .bind(sessionId, this.#now() - CHECKOUT_ATTRIBUTION_WINDOW_MS)
-        .first<{ user_id: string }>(),
-    );
-    if (!checkout) return false;
-    return yield* this.record(checkout.user_id, touch, "checkout");
   }).bind(this);
 
   readonly read = Effect.fn("AccountAttribution.read")(function* (

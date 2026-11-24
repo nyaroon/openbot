@@ -14,7 +14,6 @@ import { LandingBeam } from "./LandingBeam";
 import { LandingFooter } from "./LandingFooter";
 import { LandingGlow } from "./LandingGlow";
 import { LandingTextProvider, useLandingText } from "./LandingText";
-import { PricingSection } from "./PricingSection";
 import { SiteHeader } from "./SiteHeader";
 import { useSitePath } from "./SiteText";
 import { TeamsSection } from "./TeamsSection";
@@ -175,7 +174,6 @@ function LandingPageContent() {
         </section>
         <AgentNetworkSection />
         <FeaturesSection />
-        <PricingSection />
         <TeamsSection />
         <FaqSection />
         <DownloadSection />

@@ -15,10 +15,8 @@ import {
   type PreparedEmailMessage,
   prepareContactMessage,
   prepareEmailCode,
-  prepareLicenseEmail,
   prepareOwnerTransferEmail,
   prepareTeamInvite,
-  prepareWelcomeEmail,
   RATE_LIMITED_DELIVERY_ERROR,
   type SmtpEmailConfig,
   type SmtpFailure,
@@ -27,10 +25,8 @@ import {
 import type {
   ContactMessageDelivery,
   EmailCodeDelivery,
-  LicenseEmailDelivery,
   OwnerTransferEmailDelivery,
   TeamInviteEmailDelivery,
-  WelcomeEmailDelivery,
   WorkerBindings,
 } from "./types";
 
@@ -44,8 +40,6 @@ export type EmailDeliveryBindings = Pick<
   | "EMAIL_SMTP_PASSWORD"
   | "EMAIL_FROM"
   | "EMAIL_REPLY_TO"
-  | "EMAIL_LICENSE_FROM"
-  | "EMAIL_LICENSE_REPLY_TO"
   | "EMAIL_RELAY"
   | "EMAIL_FALLBACK"
   | "EMAIL_DELIVERY_WEBHOOK_URL"
@@ -131,29 +125,6 @@ export function createContactMessageDelivery(
         send: (message) => deliver(analytics, "contact", senders, prepareContactMessage(senders.inbox, message)),
       }
     : null;
-}
-
-export function createWelcomeEmailDelivery(
-  bindings: EmailDeliveryBindings,
-  analytics: AccountAnalytics,
-): WelcomeEmailDelivery | null {
-  const senders = readEmailSenders(bindings);
-  return senders ? { send: (message) => deliver(analytics, "welcome", senders, prepareWelcomeEmail(message)) } : null;
-}
-
-export function createLicenseEmailDelivery(
-  bindings: EmailDeliveryBindings,
-  analytics: AccountAnalytics,
-): LicenseEmailDelivery | null {
-  const senders = readEmailSenders(bindings);
-  if (!senders) return null;
-  const from = bindings.EMAIL_LICENSE_FROM?.trim() || senders.smtp.from;
-  const licenseSenders = {
-    ...senders,
-    smtp: { ...senders.smtp, from },
-    inbox: bindings.EMAIL_LICENSE_REPLY_TO?.trim() || from,
-  };
-  return { send: (message) => deliver(analytics, "license", licenseSenders, prepareLicenseEmail(message)) };
 }
 
 const deliver = Effect.fn("EmailDelivery.deliver")(function* (

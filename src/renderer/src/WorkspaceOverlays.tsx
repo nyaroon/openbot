@@ -713,7 +713,6 @@ function ServerSettings() {
           onSetPublished={setServerPublished}
           onRotateHostKey={serverRotatesHostKey(server()) ? rotateHostKey : undefined}
           onCreateInvite={createServerInvite}
-          license={appPort().license}
           ownerTransfer={
             server().kind === "remote" && serverSupportsCapability(server(), OWNER_TRANSFER_CAPABILITY)
               ? appPort().servers
@@ -896,8 +895,6 @@ function AppSettings(props: AccountProps) {
         onListAccountSessions={auth.listAccountSessions}
         onRevokeAccountSession={auth.revokeAccountSession}
         onSignOut={platform.landingPreview ? undefined : auth.logoutCentralAccount}
-        billingApi={appPort().billing}
-        licenseApi={appPort().license}
         codexLiveAccess={codexLiveAccess()}
         liveVoiceAccount={liveVoiceAccount()}
         onConnectCodex={() => {

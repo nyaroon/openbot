@@ -77,8 +77,6 @@ export type FooterLink =
         | "/contact"
         | "/privacy-policy"
         | "/terms"
-        | "/commercial-license"
-        | "/dpa"
         | "/cla";
       readonly hash?: string;
     }
@@ -110,8 +108,6 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
       { label: { text: "license" }, external: true, href: OPENBOT_LINKS.license },
       { label: { text: "privacy" }, external: false, to: "/privacy-policy" },
       { label: { text: "terms" }, external: false, to: "/terms" },
-      { label: { text: "commercialLicense" }, external: false, to: "/commercial-license" },
-      { label: "DPA", external: false, to: "/dpa" },
       { label: "CLA", external: false, to: "/cla" },
     ],
   },

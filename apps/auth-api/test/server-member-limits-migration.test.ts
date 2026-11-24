@@ -1,6 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
 import { afterEach, describe, expect, it } from "vitest";
-import { SERVER_MEMBER_LIMIT_SQL } from "../src/server/billing-entitlement";
+import { SERVER_MEMBER_LIMIT_SQL } from "../src/server/member-limit";
 import { migratedDatabase, migration } from "./sqlite-d1";
 
 const databases: DatabaseSync[] = [];
@@ -51,7 +51,7 @@ describe("server member limits migration", () => {
 
     const customLimit = (serverId: string) => database.prepare(SERVER_MEMBER_LIMIT_SQL).get(serverId);
     expect(customLimit("host-1")).toEqual({ member_limit: 40 });
-    expect(customLimit("hosted-1")).toEqual({ member_limit: 60 });
+    expect(customLimit("hosted-1")).toBeUndefined();
 
     database.exec("DELETE FROM remote_hosts WHERE host_id = 'host-1'");
     expect(customLimit("host-1")).toBeUndefined();

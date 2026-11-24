@@ -68,10 +68,6 @@ export const messages = {
   "server.join.account": "アカウント",
   "server.join.emailBound": "この招待は、宛先のメールアドレスの受信者だけが使用できます。",
   "server.join.unknownDate": "不明",
-  "server.add.billing.label": "請求期間",
-  "server.add.billing.monthly": "月払い",
-  "server.add.billing.yearly": "年払い",
-  "server.add.billing.save": "{percent}% お得",
   "server.add.otherOptions": "その他のオプション",
   "server.local.createTitle": "このコンピューター上の新しいサーバー",
   "server.local.createDescription":
@@ -107,10 +103,6 @@ export const messages = {
   "server.install.setUpWithAgent": "エージェントで設定",
   "server.install.sshAgentPrompt":
     "SSH で私の Linux サーバーに接続し、OpenBot をサーバーとしてインストールしてください。\n\nSSH アドレス (user@host):",
-  "server.upgrade.title": "エージェントの空き容量が不足しています",
-  "server.upgrade.description":
-    "{server} の空き容量が残りわずかです。アップグレードすると、エージェントが中断なく動作し続けます。",
-  "server.upgrade.used": "{total} 中 {used} 使用",
   "server.hosted.open": "サーバーを開く",
   "server.role.admin": "管理者",
   "server.role.member": "メンバー",

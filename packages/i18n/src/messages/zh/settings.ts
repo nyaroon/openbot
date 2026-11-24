@@ -315,8 +315,6 @@ export const messages = {
   "settings.tab.agentDock.description": "选择停靠栏显示的位置，以及其中的智能体。",
   "settings.tab.updates.title": "更新",
   "settings.tab.updates.description": "让这台电脑上的 OpenBot 保持最新。",
-  "settings.tab.billing.title": "账单",
-  "settings.tab.billing.description": "许可证、服务器套餐、支付方式和发票。",
   "settings.tab.appearance.description": "选择主题、颜色、语言和字体。",
   "settings.tab.appBehavior.description": "选择 OpenBot 在这台电脑上的启动和运行方式。",
   "settings.appearance.colorsTitle": "颜色",
@@ -534,7 +532,6 @@ export const messages = {
   "settings.updates.allowRemote.title": "允许服务器成员触发更新",
   "settings.updates.allowRemote.description":
     "所有已登录的服务器成员都可以在这台电脑空闲时请求更新。所有者和管理员还可以强制重启。",
-  "settings.hostedServers.plan.recommended": "最划算",
   "settings.voice.dictation.section": "听写",
   "settings.voice.model.parakeet.description": "速度快，可自动识别语言，支持 25 种欧洲语言。",
   "settings.voice.model.parakeetUnified.description": "速度快，仅支持英语。会加标点，错误比 Parakeet TDT 少。",

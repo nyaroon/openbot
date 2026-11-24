@@ -40,9 +40,8 @@ and the cause codes `context_too_long`, `model_not_found`, `invalid_request`, `c
 `system_startup` event, and `queue_wait_ms`, `start_ms`, `provider_start_ms` and `first_output_ms` on
 `system_turn_completed`. Host generation 11 adds `system_workflow_run` and `workflow_count` on `system_inventory`.
 Desktop generation 12 adds `workflow_action`. Host generation 10 adds `provider_auth` on `system_turn_completed`. Desktop generation 11 adds `trigger` on the `interrupt` action of
-`voice_conversation_action`. Desktop generation 10 adds the billing, license and activation events
-(`limit_reached`, `license_action`, `sales_contact_clicked`,
-`billing_return_viewed`, `onboarding_step`, `usage_limit_action`, `agent_template_action`,
+`voice_conversation_action`. Desktop generation 10 adds the limit and activation events
+(`limit_reached`, `onboarding_step`, `usage_limit_action`, `agent_template_action`,
 `mobile_connect_action`, `connector_action`, `computer_use_action`, `help_link_opened`,
 `channel_action`, `server_transfer_action`, `usage_viewed` and `analytics_preference_changed`),
 `method` and four actions on `provider_action`, `attachment_kinds` on `message_send`, `path` and
@@ -56,16 +55,12 @@ which had no sender. Web generation 2 sends the desktop product events from `/ap
 properties of `system_turn_completed` and `system_token_usage`. Host generation 8 adds `system_resources`. Desktop and host generation 7 adds safe error causes and durable failure delivery. Generation 6 added the usage events below (`system_tool_used`,
 `system_site_visited`, `system_routine_run`, `system_inventory`), `agent_source` and `agent_listing`
 on host turn and input events, and `plugin` entities and `listing_slug` on `marketplace_action`.
-Account service generation 10 adds `account_created`, `account_attributed`, the `first_touch_*`
-properties on `payment_succeeded` and `revenue`, `reactivated` on `plan_started`, and `end_reason`
-on `plan_ended`. Account service generation 11 adds licenses to `billing_action` and `revenue`
-(`product` is `server` or `license`; a license adds `users`), `entry_point` on `checkout_started`,
-and the license fields of `billing_snapshot`. Account service generation 12 adds `email_sent`.
-Account service generation 13 adds the `license` kind of `email_sent`. Account service generation 14
-adds `email_fallback_sent`.
+Account service generation 10 adds `account_created` and `account_attributed`. Account service
+generation 12 adds `email_sent`. Account service generation 14 adds `email_fallback_sent`. Earlier
+account service generations also sent payment, plan and revenue events; this fork no longer sends them.
 
 Landing reports must filter to `event_schema_version = 10`. Generation 10 adds
-`billing_return_viewed` and `contact_form_submitted`. In generation 9, an iPhone or Android visitor
+`contact_form_submitted`. In generation 9, an iPhone or Android visitor
 reports `ios` or `android`, not `macos` or `linux`, and a phone app store link counts as a download.
 Generation 8 adds the article path to website
 `screen_view` and the content and download-selection events below, so generation 7 cannot answer a
@@ -80,19 +75,13 @@ be mixed into current conversion or reliability metrics.
 - A local host emits one lifecycle event under its owner's account.
 - Clients observing a remote host do not re-emit host lifecycle.
 - Landing, invitation, and pre-authentication events are anonymous.
-- The account service (`account_api`) sends account and billing events from the
-  Worker, with the account ID as `profileId`. Its events never contain an email, a Stripe ID, a server ID, a name or an
-  amount in another currency. It uses an OpenPanel server client (`OPENPANEL_CLIENT_ID` and
+- The account service (`account_api`) sends account events from the
+  Worker, with the account ID as `profileId`. Its events never contain an email, a server ID or a name. It uses an OpenPanel server client (`OPENPANEL_CLIENT_ID` and
   `OPENPANEL_CLIENT_SECRET`) of the same project, and only production has these secrets. The desktop
-  analytics preference does not apply to these events: the account service records a payment or a
+  analytics preference does not apply to these events: the account service records an account or
   server change, not a UI action on the computer. `email_sent` has no account, so it has no
-  `profileId`, as `billing_snapshot`.
-- A paying account is not anonymous. With a `billing_action` of `plan_started`, `plan_changed`,
-  `cancel_scheduled` or `cancel_withdrawn`, and with each payment (`payment_succeeded` and `revenue`
-  from the sales ledger, once per account in a drain), for a server plan or a license, the account service sends an OpenPanel `identify` with the account ID and the normalized account email from D1.
-  The app analytics preference does not stop it. The email stays a profile trait and is not in the
-  event. An account that paid before this change gets its email at its next payment or plan change;
-  the identity backfill below can set it earlier. `bun run test:paid-account-identity` checks this in `check:api`.
+  `profileId`.
+
 - The Signal host (`signal`) sends `signal_capacity` from its capacity reporter, with the same server
   client and no `profileId`. It has counts only: no account, address, session or room.
 - OpenPanel receives the central account ID as `profileId` and the normalized account email as the
@@ -168,10 +157,7 @@ off. Turning analytics off on any surface first sends one `analytics_preference_
 | `speech_model_action` | Does the voice model download? | `action` `download` returned a ready model. `entry_point` is `settings` or `voice_conversation`; `duration_ms`; failures `download_failed` or `cancelled` |
 | `speech_settings_action` | Is "Read replies aloud" used, and which voices? | The setting was saved. `action` is `read_replies_on`, `read_replies_off`, or `voice_changed` with `voice` (`F1`–`F5`, `M1`–`M5`) |
 | `reaction_action` | Are reactions used? | Reaction operation completed |
-| `limit_reached` | How often does a limit stop a user, and what do they do next? | `kind` is `servers`, `members` or `license_users`; `action` is `shown`, `manage_clicked`, `confirmed`, `dismissed`, or `contact_clicked`. Optional `role` of the invited member |
-| `license_action` | Do accounts buy and change licenses from the app? | UI steps only; the account service sends the billing result. `action`: `buy_opened`, `checkout_opened`, `users_change_requested`, `plan_change_requested`, `cancel_requested`, `cancel_kept`, `renewal_resumed`, or `over_limit_shown`. Optional `result`, `direction` (`up` or `down` for a users change) and `failure_code` |
-| `sales_contact_clicked` | Where do users ask to talk to sales? | A contact sales link was opened. `entry_point` is `add_server`, `license`, or `members` |
-| `billing_return_viewed` | Do users come back from Stripe with a completed payment? | The web app or the website showed the page after Stripe. `outcome` is `completed` or `cancelled`; `kind` is `plan`, `license` or `portal`. The website reads `kind` from the return address, which the account service sets from generation 11; an older return address has no `kind`. Its `screen_view` path is `/billing/return` with no query, so the Checkout Session ID is not sent. The page sends no `landing_viewed` and saves no first visit |
+| `limit_reached` | How often does a limit stop a user, and what do they do next? | `kind` is `servers` or `members`; `action` is `shown`. Optional `role` of the invited member |
 | `contact_form_submitted` | Does the website contact form reach us? | Website. `topic` is `setup`, `partnership`, `press` or `other` (an unknown topic is left out); `result` is `succeeded`, `failed` or `rate_limited`. The message, name and email are not sent |
 | `usage_limit_action` | What do users do when a provider usage limit stops a turn? | `action`: `shown`, `model_switched` (with `to_provider` and `to_model`), or `waited`; `from_provider`. A custom agent model, and a model of an OpenCode custom provider, is sent as `custom` |
 | `agent_template_action` | Are agent templates published, shared and installed? | `action`: `published`, `updated`, `unpublished`, `link_copied`, or `installed`; `result`; `entry_point` is `deep_link` or `in_app`. Mobile sends only `installed` with `entry_point: deep_link` |
@@ -185,21 +171,18 @@ off. Turning analytics off on any surface first sends one `analytics_preference_
 | `live_activity_action` | Are iPhone Live Activities used? | Mobile. `action` is `started` or `ended`. A Live Activity left from an earlier launch that the app ends also sends `ended` |
 | `usage_viewed` | Is the Usage view used? | Desktop and mobile. `scope` is `agent` or `server`. Desktop adds `range` (`7d`, `30d`, `90d`, `1y`) and `filtered` (an agent filter that the user selected); each change of these sends again |
 | `analytics_preference_changed` | How many users turn product analytics off? | Desktop, web and mobile. `enabled: false`, sent once before tracking stops. Turning analytics on sends nothing |
-| `screen_view` | Which public website routes and articles are viewed in a session? | One safe view for `/`, `/join`, `/contact`, `/teams`, `/pricing`, `/download`, a `/download/<os>` page, a collection index, or a published article path, with allowlisted campaign tags and no hash |
+| `screen_view` | Which public website routes and articles are viewed in a session? | One safe view for `/`, `/join`, `/contact`, `/teams`, `/download`, a `/download/<os>` page, a collection index, or a published article path, with allowlisted campaign tags and no hash |
 | `landing_viewed` | How much qualified landing traffic arrives? | Non-automation production page view |
 | `landing_download_clicked` | Which safe channel/placement drives downloads? | Allowlisted download link clicked |
-| `landing_link_clicked` | Which public resources are useful? | Allowlisted public link clicked. From the release with the download pages, the Download link in the content-page header reports `destination: download_page`, not `download_section`. From the release with the contact form, `destination: contact` is a Contact link to `/contact`, and the X link reports `destination: x`. Before, both reported `contact` and opened X. From the release with the OpenBot for Teams section, its Contact us button reports `placement: teams_section`. From the release with the For Teams page, a link to `/teams` reports `destination: teams`, and a link inside that page reports `placement: teams_page`. From the release with the pricing page, a link to `/pricing` reports `destination: pricing`, and a link inside that page reports `placement: pricing_page` |
+| `landing_link_clicked` | Which public resources are useful? | Allowlisted public link clicked. From the release with the download pages, the Download link in the content-page header reports `destination: download_page`, not `download_section`. From the release with the contact form, `destination: contact` is a Contact link to `/contact`, and the X link reports `destination: x`. Before, both reported `contact` and opened X. From the release with the OpenBot for Teams section, its Contact us button reports `placement: teams_section`. From the release with the For Teams page, a link to `/teams` reports `destination: teams`, and a link inside that page reports `placement: teams_page`.  |
 | `landing_download_selected` | Does the offered platform match the one taken? | The hero reports its detected platform once, then each manual change; `detected` separates the two |
 | `content_article_opened` | Which news article or guide does a reader choose, and from where? | A link to a published article was clicked; `placement` separates an index card from the related row |
 | `content_article_read` | Is an article read or abandoned? | The body reached `start`, `half`, or `end` in the viewport, at most once each per view. It measures position, not attention, and never elapsed time |
 | `join_page_action` | Does the invitation web flow reach the app? | Anonymous view, download, or app-open action |
 | `account_created` | How many new accounts start, and from which source? | The account service made a new account at a verified email sign-in. `sign_in_surface` is `desktop`, `mobile` or `web`. A web sign-in can add the `first_touch_*` properties |
-| `account_attributed` | Which first website visit brought an account? | The account service saved the first touch of an account for the first time. `recorded_via` is `sign_in` or `checkout`, with the `first_touch_*` properties. Sent at most once for each account |
-| `billing_action` | Do accounts start, pay for, change and keep paid plans? | `action`: `checkout_started`, `checkout_returned`, `checkout_expired`, `plan_started`, `payment_succeeded`, `payment_failed`, `payment_refunded`, `refund_failed`, `payment_disputed`, `dispute_lost`, `plan_changed`, `cancel_scheduled`, `cancel_withdrawn`, `plan_ended`, or `portal_opened`, as the account service stores it. Optional `plan`, `interval`, `currency`, `amount` (minor units of `currency`, from Stripe), `recovery`, and `flow` (Portal). `plan_started` can add `reactivated` (true when every earlier plan of the account had ended); `plan_ended` adds `end_reason` (`unpaid` after a failed payment, else `canceled`). `payment_succeeded` adds the `first_touch_*` properties when the account has a first touch at that time. The refund and dispute actions add `amount_usd`, `fx_rate` and `fx_date` (the rate of the refund or dispute date) when the amount is at least 1 USD cent. `refund_failed` comes only for a refund that was sent as `payment_refunded`. From account service generation 11, `product` is `server` or `license`. A server sends `plan`; a license sends `users` (1 to 10,000) and `interval: month`. `plan_changed` adds `direction` (`up` or `down`): a license by its users, a server by its monthly amount, or by the plan order when an amount is missing. `checkout_started` can add `entry_point` with the values of `hosted_server_plans_action`; a reopened Checkout that waits for payment sends `checkout_resume`. A license lifecycle event comes once for each stored change of the license, from a webhook or from the app's request, whichever stores it first. License payments and refunds come from Stripe invoices, as for servers |
-| `revenue` | How much did accounts pay for servers and licenses? | Verified paid invoices only. From account service generation 11, `product` is `server` or `license`, and a license adds `users`. `__revenue` and `amount_usd` in USD cents; `original_amount`, `original_currency`, `fx_rate`, `fx_date`, `plan`, `interval`, `payment_kind`, and optional `recovery` and `first_touch_*` properties. Zero-amount invoices do not emit revenue. |
-| `billing_snapshot` | What is recurring revenue at the sample time? | Daily aggregate without a profile. `snapshot_date`, `as_of`, `reported_at`, `currency`, `mrr`, `arr`, `overdue_mrr`, `paying_accounts`, `paid_servers`, `cancellations_scheduled`, `checkout_mature_accounts`, `checkout_converted_accounts`, `checkout_pending_accounts`, `skipped_subscriptions` (subscriptions left out because Stripe has no valid data for them). From account service generation 11, `mrr`, `arr`, `overdue_mrr` and `paying_accounts` count servers only; `license_mrr`, `license_accounts` and `licensed_users` count licenses; `total_mrr` and `total_arr` count both. `skipped_subscriptions` counts both. Money is USD cents. Never sum snapshots across days. |
+| `account_attributed` | Which first website visit brought an account? | The account service saved the first touch of an account for the first time. `recorded_via` is `sign_in`, with the `first_touch_*` properties. Sent at most once for each account |
 | `system_remote_connect` | How long does this computer take to connect to a remote server, and which step is slow? | From host generation 15, when a connection attempt to a remote server makes its first request (`outcome` `connected`), and for the first attempt that fails after a connection, a cancel or the start (`outcome` `failed`). Later failed attempts send nothing; the next connection counts them in `failed_attempts`. A cancel sends nothing. `connection`: `first` (no attempt to that server connected earlier in this process) or `reconnect`. `session_kind`: `new`, `stored` or `reused` session. `last_phase`: the last step that finished (`start`, `session`, `ticket`, `bridge`, `signal-socket`, `signal`, `channels`, `auth`, `compatibility`, `first-request`). `first_request`: `ok` or `error`. Milliseconds from the start of the attempt to the end of each step that finished: `session_ms`, `ticket_ms`, `bridge_ms`, `signal_socket_ms`, `signal_ms`, `channels_ms`, `auth_ms`, `compatibility_ms` and `first_request_ms` (the bridge runs beside the session and ticket requests, so the times are not in a fixed order). `total_ms` is the attempt; `wait_ms` is from the first of the counted failed attempts (the same as `total_ms` when none failed). `hosted_start_wait_ms` is from the time this computer asked a hosted server to start until the connection. From host generation 21, `signal_home` is the Signal home that the ticket names, after the ticket step: the home id of `REMOTE_SIGNAL_HOMES` (today `a`, `b`, `us`, `au` or `sg`), `entry` when the ticket names no home (a host without a home uses the entry address, `signal.openbot.run` in production; the entry failover can move that name to another machine, so read `openbot_remote_signal_entry` for the machine at that time) or `other` when the claim is not a short lowercase name. The account service picks the home from the host's location, so a report by `signal_home` and the client `country` shows where a connection from a country goes and which step fails there. Times have two significant digits. No server ID, address, session, ticket or key is sent |
-| `email_sent` | How much of the hourly quota of the SMTP mailbox (500 messages) does the account service use? | One event for each message that the account service tries to send by SMTP through the SMTP mailbox (`no_reply@openbot.run`; `hello@openbot.run` before the change to a no-reply sender), after its retries. The webhook delivery does not use the mailbox and sends none. `kind`: `sign_in_code`, `team_invite`, `contact`, `welcome` (the welcome email of the first server plan of an account), or, from account service generation 13, `license` (a license email, with replies to `licenses@openbot.run`: the first payment, a failed renewal payment, or the end of a license). `result`: `accepted`; `rate_limited` (the mail server refused it for its sender limit); `unknown` (the send stopped after the server may have taken the message); or `failed` (also a message that a check stopped before the connection). Count `accepted` and `unknown` against the quota. No `profileId`, address, name or content |
+| `email_sent` | How much of the hourly quota of the SMTP mailbox (500 messages) does the account service use? | One event for each message that the account service tries to send by SMTP through the SMTP mailbox (`no_reply@openbot.run`; `hello@openbot.run` before the change to a no-reply sender), after its retries. The webhook delivery does not use the mailbox and sends none. `kind`: `sign_in_code`, `team_invite`, `contact`, or `owner_transfer`. `result`: `accepted`; `rate_limited` (the mail server refused it for its sender limit); `unknown` (the send stopped after the server may have taken the message); or `failed` (also a message that a check stopped before the connection). Count `accepted` and `unknown` against the quota. No `profileId`, address, name or content |
 | `email_fallback_sent` | How often does Cloudflare Email Service send because the SMTP mailbox could not? | From account service generation 14. One event for each message that the account service sends through Cloudflare after its `email_sent` ended `rate_limited` or `failed` for a reason that any sender would not also refuse. It does not send after an `unknown` SMTP result, because the recipient can already have the message. `kind` as on `email_sent`. `result`: `accepted`; `unknown` (no answer before the deadline); or `failed`. These messages do not count against the mailbox quota. No `profileId`, address, name or content |
 | `signal_capacity` | How near is the TURN relay to its allocation quota (`total-quota` in `remote/coturn/turnserver.conf`)? | One event every 5 minutes from each Signal host. `turn_host` (`turn.openbot.run`, `turn2.openbot.run` on the second Signal machine, `turn-us.openbot.run` in San Jose or `turn-au.openbot.run` in Sydney); `turn_allocations`, and `turn_allocations_udp`, `_tcp` and `_tls` for the client transports (0 when a transport has none); `signal_sockets` and `signal_peer_connections`. From generation 2, the generic webhook answers of the 5 minutes before: `webhook_answers_<status>` for `200`, `202`, `400`, `401`, `404`, `413`, `415`, `429` and `503`, `webhook_waits` (requests that Signal sent to a host and waited for), `webhook_slow_waits` (waits of 5 s or more) and `webhook_wait_ms_avg` (only when there was a wait). The first sample after the reporter starts sends no webhook values; a Signal restart starts the counts again. From generation 3, `network_in_bytes` and `network_out_bytes`: the public traffic of the machine since the last sent event, from the kernel counters of the interface of the default route. They are not in the first event after the reporter starts, and a sample that is not sent adds its traffic to the next one. Add them up for the traffic of a day or a month |
 
@@ -253,14 +236,9 @@ and only a loopback `http:` origin is accepted.
    0.47.1 and earlier are too high: the first turn after a Claude process resumed a session counted
    the whole session again. Leave out `provider = claude` rows from those versions, or show them
    apart.
-7. Monetization funnel: account service `checkout_started` → `plan_started`, by `entry_point`. Add
-   `limit_reached` by `kind` and `action`, and `sales_contact_clicked` by `entry_point`. Client
-   steps use `surface` `desktop`, `web` and `mobile` at their current generations; the checkout
-   steps use `account_api` generation 11 and later.
-8. Licenses: `license_action` steps against account service `billing_action` with
-   `product = license` (`checkout_started`, `plan_started`, `plan_changed` by `direction`,
-   `cancel_scheduled`, `plan_ended`), license `revenue`, and the license fields of `billing_snapshot`.
-9. Activation steps: `onboarding_step` `viewed` per `step` over the first step, by `path` and
+7. Limits: `limit_reached` by `kind`. Client steps use `surface` `desktop`, `web` and `mobile` at
+   their current generations.
+8. Activation steps: `onboarding_step` `viewed` per `step` over the first step, by `path` and
    surface, then `onboarding_completed`, `provider_action` `connect_completed` by `method`, and the
    first `message_send`.
 10. Dev: `email_sent` with `result` `accepted` or `unknown` per hour by `kind`, against the
@@ -300,7 +278,7 @@ were recorded before this behavior shipped are not re-attributed.
 
 ## First-touch attribution
 
-A campaign session ends before most visitors make an account or pay. To link a payment to its first
+A campaign session ends before most visitors make an account. To link an account to its first
 visit, the website saves the first visit of each browser and the account service keeps it on the
 account.
 
@@ -308,13 +286,10 @@ account.
    the `acquisition_source`, the `source_platform`, the first screen path, the UTC day, and the
    allowlisted campaign tags of that visit. A later visit does not replace it. After 90 days it is not
    read, and the next visit replaces it.
-2. A sign-in in the web client (`/app`) sends it with the email code. A desktop checkout returns to
-   `/billing/return?checkout=<Checkout Session ID>`, and that page sends it with the session ID. The
-   account service accepts the session ID only for a checkout that it saved in the last 24 hours.
+2. A sign-in in the web client (`/app`) sends it with the email code.
 3. The account service checks every value again, saves the first value it gets for an account in the
    D1 table `account_attribution`, and sends `account_attributed`. It never replaces a saved value.
-4. Later `payment_succeeded` and `revenue` events copy the saved value as `first_touch_*`
-   properties.
+
 
 The `first_touch_*` properties are `first_touch_source`, `first_touch_platform`,
 `first_touch_landing_page`, `first_touch_date`, and the optional `first_touch_utm_source`,
@@ -323,15 +298,11 @@ The `first_touch_*` properties are `first_touch_source`, `first_touch_platform`,
 
 Limits:
 
-- A desktop or mobile sign-in has no browser storage, so it has no first touch until a desktop
-  checkout return page sends one. The phone app does not send one.
+- A desktop or mobile sign-in has no browser storage, so it has no first touch.
 - A browser that blocks storage, or a visitor who signs up in a different browser, gives no first
   touch.
-- The first payment can be processed before the checkout return page sends the first touch. Then that
-  `payment_succeeded` and `revenue` have no `first_touch_*` properties. Use `account_attributed`,
-  which has the same `profileId`, to join them.
-- An account made before generation 10 gets a first touch only at a later web sign-in or desktop
-  checkout, and that visit can be later than its real first visit.
+
+- An account made before generation 10 gets a first touch only at a later web sign-in, and that visit can be later than its real first visit.
 
 ## Business metric mapping
 
@@ -350,19 +321,6 @@ the OpenBot account ID. Filter each row by its `surface` and that surface's curr
 | First value action | First `system_turn_completed` with `origin = user` and `status = completed` for a `profileId` | The product metric |
 | Engagement work | `system_turn_completed`, `origin = user` | `status` gives success or failure |
 | `agent_action` | `agent_action` | `result` is `succeeded` or `failed`; `failure_code` on failure |
-| Trial started | None | OpenBot has no trial period |
-| Checkout started | `billing_action`, `action = checkout_started` | `product` is `server` or `license`; `entry_point` names where the plans were opened |
-| `subscription_started` | `billing_action`, `action = plan_started` | `reactivated = true` is a return after churn |
-| `subscription_canceled` | `billing_action`, `action = cancel_scheduled` | The plan stays open to the end of the period. `cancel_withdrawn` reverses it |
-| `subscription_expired` | `billing_action`, `action = plan_ended` | `end_reason` is `canceled` or `unpaid` |
-| `subscription_reactivated` | `billing_action`, `action = plan_started`, `reactivated = true` | |
-| `payment_succeeded` | `billing_action`, `action = payment_succeeded` | Minor units of `currency` |
-| Revenue | `revenue` | `__revenue` in USD cents, with `plan`, `interval`, `payment_kind` and `original_currency` |
-| Payment failed | `billing_action`, `action = payment_failed` | |
-| Refund | `billing_action`, `action = payment_refunded` | `amount_usd` in USD cents. A later `refund_failed` gives the same amount back. A refund that fails first sends neither |
-| Chargeback | `billing_action`, `action = payment_disputed`; `dispute_lost` when the bank keeps the money | Only `dispute_lost` and `payment_refunded` reduce revenue |
-| Net revenue | `revenue` minus `amount_usd` of `payment_refunded` and `dispute_lost`, plus `refund_failed` | `revenue` itself is never negative |
-| Attribution to payment | `account_attributed` joined on `profileId` to `revenue`, or `first_touch_*` on `revenue` | See "First-touch attribution" |
 
 ## Quality checks
 

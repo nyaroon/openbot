@@ -68,10 +68,6 @@ export const messages = {
   "server.join.account": "Hesap",
   "server.join.emailBound": "Bu davet yalnızca e-posta alıcısı için geçerlidir.",
   "server.join.unknownDate": "Bilinmiyor",
-  "server.add.billing.label": "Faturalandırma dönemi",
-  "server.add.billing.monthly": "Aylık",
-  "server.add.billing.yearly": "Yıllık",
-  "server.add.billing.save": "%{percent} tasarruf",
   "server.add.otherOptions": "Diğer seçenekler",
   "server.local.createTitle": "Bu bilgisayarda yeni sunucu",
   "server.local.createDescription":
@@ -107,10 +103,6 @@ export const messages = {
   "server.install.setUpWithAgent": "Bir ajanla kur",
   "server.install.sshAgentPrompt":
     "Linux sunucuma SSH ile bağlan ve OpenBot'u sunucu olarak oraya kur.\n\nSSH adresi (user@host):",
-  "server.upgrade.title": "Ajanlarınızın alanı tükeniyor",
-  "server.upgrade.description":
-    "{server} üzerinde az boş alan kaldı. Ajanlarınızın kesintisiz çalışmaya devam etmesi için planınızı yükseltin.",
-  "server.upgrade.used": "{total} alanın {used} kadarı kullanılıyor",
   "server.hosted.open": "Sunucuyu aç",
   "server.role.admin": "Yönetici",
   "server.role.member": "Üye",

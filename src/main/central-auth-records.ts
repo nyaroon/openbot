@@ -1,4 +1,3 @@
-import { type CustomServerPlan, optionalCustomServerPayment } from "@openbot/contracts/custom-server-plans";
 import { type HostKeyHandover, optionalHostKeyHandovers } from "@openbot/contracts/host-key-handover";
 import { inviteUseCount, isPermanentInvite } from "@openbot/contracts/invite-links";
 import {
@@ -35,9 +34,6 @@ export interface RemoteHostSummary {
   role: "owner" | "admin" | "member";
   memberLimit?: number;
   restartAvailable?: boolean;
-  storageGb?: number;
-  paymentRequired?: true;
-  customPlan?: CustomServerPlan;
 }
 
 export interface RemoteInviteRecord {
@@ -175,8 +171,6 @@ export function decodeRemoteHosts(value: unknown): RemoteHostSummary[] {
       throw new Error("Invalid remote host role.");
     const memberLimit = host.memberLimit;
     const validLimit = isNumber(memberLimit) && Number.isSafeInteger(memberLimit) && memberLimit >= 1;
-    const storageGb = host.storageGb;
-    const validStorage = isNumber(storageGb) && Number.isSafeInteger(storageGb) && storageGb >= 1;
     return {
       hostId: requiredString(host, "hostId"),
       name: requiredString(host, "name"),
@@ -189,8 +183,6 @@ export function decodeRemoteHosts(value: unknown): RemoteHostSummary[] {
       role: host.role,
       ...(validLimit ? { memberLimit } : {}),
       ...(isBoolean(host.restartAvailable) ? { restartAvailable: host.restartAvailable } : {}),
-      ...(validStorage ? { storageGb } : {}),
-      ...optionalCustomServerPayment(host),
     };
   });
 }

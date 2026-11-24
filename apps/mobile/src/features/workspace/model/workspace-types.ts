@@ -268,7 +268,6 @@ export interface MobileServer {
   role: "owner" | "admin" | "member";
   memberLimit?: number;
   hosted?: boolean;
-  storageGb?: number;
   restartAvailable?: boolean;
   keyChangedAt?: number;
 }
