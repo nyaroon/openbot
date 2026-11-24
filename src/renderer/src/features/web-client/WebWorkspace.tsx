@@ -2959,6 +2959,7 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
                                 models={models()}
                                 status={providerAdmin.status()}
                                 self={account().name ?? undefined}
+                                preference={serverSetupChoice()}
                                 agentProgress={(agentId) =>
                                   workflowAgentProgress(
                                     agentId,
