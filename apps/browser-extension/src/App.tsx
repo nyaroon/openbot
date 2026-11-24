@@ -327,8 +327,6 @@ function ServerView(props: { session: ExtensionSession; onSignOut: () => void; o
     };
   });
 
-  const sharing = () => (presence().sharing ? { tabs: presence().tabs.length, supported: canShare() } : null);
-
   function push(kind: Exclude<PushedScreen["kind"], "agent-settings">) {
     setScreen({ kind });
     setPushed(true);
@@ -388,7 +386,7 @@ function ServerView(props: { session: ExtensionSession; onSignOut: () => void; o
                   onStartThread={startThread}
                   onSelectHost={(hostId) => void open(hostId)}
                   onSignOut={() => props.onSignOut()}
-                  sharing={sharing()}
+                  sharing={presence().sharing}
                   canShare={canShare()}
                   onShareTabs={() => void startSharing()}
                   onManageSharing={() => push("browser-sharing")}
