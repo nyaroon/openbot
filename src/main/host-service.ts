@@ -158,6 +158,7 @@ interface HostServiceOptions {
   workflows?: ForwardedApiOptions["workflows"];
   workflowFolders?: ForwardedApiOptions["workflowFolders"];
   crm?: ForwardedApiOptions["crm"];
+  boards?: ForwardedApiOptions["boards"];
   hiddenAgents?: ForwardedApiOptions["hiddenAgents"];
   routineRunPlaces?: ForwardedApiOptions["routineRunPlaces"];
   agentNotificationLevels?: AgentNotificationLevelStore;
@@ -498,6 +499,7 @@ export class HostService extends EventEmitter<HostEvents> {
       ...(options.workflows === undefined ? {} : { workflows: options.workflows }),
       ...(options.workflowFolders === undefined ? {} : { workflowFolders: options.workflowFolders }),
       ...(options.crm === undefined ? {} : { crm: options.crm }),
+      ...(options.boards === undefined ? {} : { boards: options.boards }),
       ...(options.hiddenAgents === undefined ? {} : { hiddenAgents: options.hiddenAgents }),
       ...(options.routineRunPlaces === undefined ? {} : { routineRunPlaces: options.routineRunPlaces }),
       ...(options.agentNotificationLevels === undefined
@@ -2020,6 +2022,10 @@ export class HostService extends EventEmitter<HostEvents> {
       .some(
         (member) => member.role === "member" && !member.disabled && this.#api.agentLevel(member, agentId) !== "none",
       );
+  }
+
+  localMemberId(): string {
+    return this.#options.store.getOwnerMemberId() ?? "local";
   }
 
   personCanAdminister(personId: string): boolean {

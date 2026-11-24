@@ -26,6 +26,7 @@ import type {
 import type { Logger } from "@openbot/logging";
 import type { Effect } from "effect";
 import type { AgentService } from "../../backend/agent-service";
+import type { BoardsOperations } from "../../backend/boards/boards-handle";
 import type { BrowserHost } from "../../backend/browser-host";
 import type { ChannelService } from "../../backend/channel-service";
 import type { CrmPeopleOperations } from "../../backend/crm/crm-handle";
@@ -416,6 +417,8 @@ export type TeamApiWorkflows = Pick<
 
 export type TeamApiCrm = CrmPeopleOperations;
 
+export type TeamApiBoards = BoardsOperations;
+
 interface TeamApiDefaultProvider {
   get(): Effect.Effect<ProviderDefaultSetting, { readonly cause: unknown }>;
   set(input: SaveSetupInput): Effect.Effect<ProviderDefaultSetting, { readonly cause: unknown }>;
@@ -654,6 +657,7 @@ export interface TeamApiOptions {
   routineFlows?: TeamApiRoutineFlows;
   workflows?: TeamApiWorkflows;
   crm?: TeamApiCrm;
+  boards?: TeamApiBoards;
   hiddenAgents?: TeamApiHiddenAgents;
   routineRunPlaces?: TeamApiRoutineRunPlaces;
   agentNotificationLevels?: TeamApiAgentNotificationLevels;

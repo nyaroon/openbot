@@ -5,6 +5,7 @@ import { type AgentNotificationLevelsEvent, agentNotificationLevelsEvent } from 
 import { type AgentSessionSettingsEvent, agentSessionSettingsEvent } from "./agent-session-settings-v1";
 import { withAgentTaskEventUiBlocks } from "./agent-task-ui-blocks-v1";
 import { type AgentTasksEvent, agentTasksEvent } from "./agent-tasks-v1";
+import { type BoardsEvent, boardsEvent } from "./boards-v1";
 import { type BrowserPageStateEvent, browserPageStateEvent } from "./browser-page-state-v1";
 import { type BrowserProfilesEvent, browserProfilesEvent } from "./browser-profiles-events-v1";
 import { type BrowserUserControlEvent, browserUserControlEvent } from "./browser-user-control-v1";
@@ -56,7 +57,8 @@ export type OptionalTeamEvent =
   | VaultEvent
   | WorkflowsEvent
   | WorkflowFoldersEvent
-  | CrmEvent;
+  | CrmEvent
+  | BoardsEvent;
 
 export interface OptionalTeamEventOptions {
   agentTaskUiBlocks?: boolean;
@@ -91,7 +93,8 @@ export function optionalTeamEvent(value: unknown, options?: OptionalTeamEventOpt
     vaultEvent(value) ??
     workflowsEvent(value) ??
     workflowFoldersEvent(value) ??
-    crmEvent(value);
+    crmEvent(value) ??
+    boardsEvent(value);
   return event && options?.agentTaskUiBlocks ? withAgentTaskEventUiBlocks(event, value) : event;
 }
 

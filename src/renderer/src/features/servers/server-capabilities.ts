@@ -51,6 +51,7 @@ export function serverSupportsCapability(
       capability === "whatsapp-connector-v1" ||
       capability === "vault-v1" ||
       capability === "crm-v1" ||
+      capability === "boards-v1" ||
       capability === "mac-apps-limit-v1" ||
       capability === "ui-block-preview-edit-v1" ||
       capability === "vault-v2" ||

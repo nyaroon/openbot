@@ -206,6 +206,14 @@ import type {
 } from "./ipc-attachments";
 import type { BitwardenConnectorStatus, BitwardenHostConnectInput } from "./ipc-bitwarden-connector";
 import type {
+  BoardArchivedCards,
+  BoardDetail,
+  BoardIdInput,
+  BoardList,
+  BoardMutation,
+  BoardsChange,
+} from "./ipc-boards";
+import type {
   BrowserBounds,
   BrowserControlState,
   BrowserDisplayState,
@@ -1656,6 +1664,12 @@ export const IPC_ENDPOINTS = {
     folders: scopedQuery<WorkflowFoldersSnapshot>()("workflows:folders"),
     folderAction: scopedRequest<WorkflowFolderAction, WorkflowFoldersSnapshot>()("workflows:folder-action"),
   },
+  boards: {
+    list: scopedQuery<BoardList>()("boards:list"),
+    get: scopedRequest<BoardIdInput, BoardDetail>()("boards:get"),
+    archivedCards: scopedRequest<BoardIdInput, BoardArchivedCards>()("boards:archived-cards"),
+    apply: scopedRequest<BoardsChange, BoardMutation>()("boards:apply"),
+  },
   crm: {
     overview: scopedQuery<CrmOverview>()("crm:overview"),
     customers: scopedRequest<CrmCustomerPageInput, CrmCustomerPage>()("crm:customers"),
@@ -2029,6 +2043,7 @@ export const IPC_GROUP_PATHS = {
   universalVault: "universalVault",
   routineFeed: "routineFeed",
   workflows: "workflows",
+  boards: "boards",
   crm: "crm",
   routineResults: "routineResults",
   localServers: "localServers",

@@ -1,5 +1,6 @@
 import { isUpdateActivePhase } from "@openbot/contracts/ipc";
 import { AGENT_TASKS_CAPABILITY } from "@openbot/contracts/team-protocol/agent-tasks-v1";
+import { BOARDS_CAPABILITY } from "@openbot/contracts/team-protocol/boards-v1";
 import { CRM_CAPABILITY } from "@openbot/contracts/team-protocol/crm-v1";
 import { ServerMenu } from "@openbot/ui/features/servers/ServerMenu";
 import { PageRail, type PageRailPage } from "@openbot/ui/features/window/PageRail";
@@ -106,6 +107,7 @@ export function WorkspacePageRail(props: { hidden: boolean }) {
       onUsage={windowPage.openUsage}
       onLibrary={serverHasStorage(activeServer()) ? windowPage.openLibrary : undefined}
       onProviders={openProviders()}
+      onBoards={serverSupportsCapability(activeServer(), BOARDS_CAPABILITY) ? windowPage.openBoards : undefined}
       onCrm={crmRailAction()}
       onCrmConnectors={crmConnectorsAction()}
       onMarketplace={() => {

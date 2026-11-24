@@ -50,6 +50,7 @@ import { AGENT_TASKS_CAPABILITY } from "@openbot/contracts/team-protocol/agent-t
 import { AGENT_THREAD_FILES_CAPABILITY } from "@openbot/contracts/team-protocol/agent-thread-files-v1";
 import { AGENT_USAGE_LIMIT_CAPABILITY } from "@openbot/contracts/team-protocol/agent-usage-limit-v1";
 import { AGENT_WAITS_CAPABILITY } from "@openbot/contracts/team-protocol/agent-waits-v1";
+import { BOARDS_CAPABILITY } from "@openbot/contracts/team-protocol/boards-v1";
 import { BROWSER_PROFILES_CAPABILITY } from "@openbot/contracts/team-protocol/browser-profiles-v1";
 import { BROWSER_PROXIES_CAPABILITY } from "@openbot/contracts/team-protocol/browser-proxies-v1";
 import { TEAM_BROWSER_VIEW_CAPABILITY } from "@openbot/contracts/team-protocol/browser-view-v1";
@@ -146,7 +147,7 @@ import {
   stopHostBackgroundProcess,
   updateAgentAdminSettings,
 } from "@openbot/team-client/team-admin-requests";
-import { clearAgentContext, type TeamApiRequest } from "@openbot/team-client/team-api-requests";
+import { clearAgentContext, listAgentTasks, type TeamApiRequest } from "@openbot/team-client/team-api-requests";
 import { classifyFailure } from "@openbot/telemetry";
 import { toast } from "@openbot/ui";
 import type { GlobalSearchRoutine } from "@openbot/ui/components/GlobalSearch";
@@ -205,6 +206,7 @@ import { ProviderSignInDialogs } from "../../components/ProviderSignInDialogs";
 import { LayoutProvider, useLayout } from "../../layout";
 import {
   AgentUsagePanel,
+  BoardsScreen,
   CrmScreen,
   ScheduleView,
   ServerLibrary,
@@ -341,6 +343,7 @@ import { createWebAgentThreads } from "./web-agent-threads";
 import { createWebAttachmentMedia } from "./web-attachment-media";
 import { openWebLink } from "./web-attachments";
 import { webBitwardenConnectorPort } from "./web-bitwarden-connector";
+import { webBoardsHost } from "./web-boards";
 import { createWebChannelsPort } from "./web-channels-runtime";
 import { createWebChatHistory, type WebChatHistoryEntry } from "./web-chat-history";
 import { createWebWorkspace, type WebRuntimeFactory } from "./web-client-context";
@@ -400,7 +403,7 @@ async function reportedFailure(send: () => Promise<unknown>, options: PromptAnsw
   }
 }
 
-type HostPageView = "usage" | "schedule" | "tasks" | "workflows" | "library" | "crm";
+type HostPageView = "usage" | "schedule" | "tasks" | "workflows" | "library" | "crm" | "boards";
 
 type WebWorkspaceProps = {
   accountId: string;
@@ -1280,6 +1283,36 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
       if (!id) return;
       setCrmConnectorsRequest(id);
       void openHostPage(id, "crm", button);
+    };
+  }
+  const boardsSupported = () => workspace.state.capabilities.includes(BOARDS_CAPABILITY);
+  const boardsHost = webBoardsHost({
+    request: () => hostRequest(),
+    onHostEvent: workspace.onHostEvent,
+    threads: async (agentId) => {
+      const snapshot = await runTeamEffect(
+        listAgentTasks(hostRequest(), agentId).pipe(Effect.mapError((error) => error.cause)),
+      );
+      return snapshot.tasks.map((task) => ({ id: task.id, title: task.title }));
+    },
+  });
+  const boardsMembers = createMemo(() =>
+    (workspace.state.presence?.members ?? [])
+      .filter((member) => !member.disabled)
+      .map((member) => ({ id: member.id, name: member.name?.trim() || member.username })),
+  );
+  const boardsAgents = createMemo(() => workspace.profiles().map((agent) => ({ id: agent.id, name: agent.name })));
+  createEffect(
+    () => page() === "boards" && workspace.state.status === "online" && !boardsSupported(),
+    (unsupported) => {
+      if (unsupported) setHostPage(null);
+    },
+  );
+  function boardsRailAction(): ((button: HTMLElement) => void) | undefined {
+    if (!boardsSupported()) return undefined;
+    return (button) => {
+      const id = server()?.id;
+      if (id) void openHostPage(id, "boards", button);
     };
   }
   function workflowsRailAction(): (() => void) | undefined {
@@ -2721,6 +2754,7 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
               onLibrary={libraryRailAction()}
               onProviders={providersRailAction()}
               onCrm={crmRailAction()}
+              onBoards={boardsRailAction()}
               onCrmConnectors={crmConnectorsAction()}
               onUsage={(button) => {
                 const id = server()?.id;
@@ -2799,7 +2833,8 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
                     page() === "schedule" ||
                     page() === "workflows" ||
                     page() === "library" ||
-                    page() === "crm"
+                    page() === "crm" ||
+                    page() === "boards"
                       ? server()
                       : undefined
                   }
@@ -2965,6 +3000,28 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
                                 connectors={{
                                   requested: () => crmConnectorsRequest() === serverId,
                                   taken: () => setCrmConnectorsRequest(undefined),
+                                }}
+                              />
+                            </Loading>
+                          )}
+                        </Show>
+                      </Match>
+                      <Match when={page() === "boards"}>
+                        <Show when={target().id} keyed>
+                          {(serverId) => (
+                            <Loading>
+                              <BoardsScreen
+                                serverId={serverId}
+                                host={boardsHost}
+                                members={boardsMembers()}
+                                agents={boardsAgents()}
+                                currentMemberId={workspace.state.memberId ?? null}
+                                canDelete={canAdministerServer(workspace.state.host?.role)}
+                                openThread={(link) => {
+                                  agentThreads()?.tabs.open(link.agentId, link.threadId);
+                                  setHostPage(null);
+                                  setMobilePane("conversation");
+                                  void select(link.agentId);
                                 }}
                               />
                             </Loading>

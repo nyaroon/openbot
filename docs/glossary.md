@@ -17,6 +17,9 @@ table, IPC channel or product string, or when a term in the code disagrees with 
   `persist:openbot-browser-profile-<id>`). The built-in choices "Shared" and "Only this agent" (shown
   only to an agent that already uses it) are also profiles in the UI, but they have no row. It is not an **agent profile** (`AgentProfile`, the
   display data of an agent) or the account profile (`v1/me/profile`).
+- **board**: a project kanban board on the server host (`boards`, `board_columns`, `board_cards`,
+  `BoardSummary`, `boards-v1`, `boards-changed`), shared by every member. A **card** sits in one column and
+  may name an assignee and a linked agent thread. A board is the project; it is not a chat or a folder.
 - **bot**: do not use for new product code. Keep released names: Team API v1-v3
   `bot`/`botId`/`bots-changed` (`current-agent-keys.ts` translates), `bots.json`, `mailbox.json`,
   `legacy-import:bots:v1`, and readable `~/OpenBot/Bots` path prefixes. Accept `bot-<uuid>` IDs from

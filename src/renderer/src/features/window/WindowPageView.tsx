@@ -1,6 +1,6 @@
 import { useText } from "@openbot/ui/text";
 import { Loading, Match, Show, Switch } from "solid-js";
-import { AgentUsagePanel, CrmPage, LibraryPanel, WorkflowsPage } from "../../lazy-views";
+import { AgentUsagePanel, BoardsPage, CrmPage, LibraryPanel, WorkflowsPage } from "../../lazy-views";
 import { SkillsMarketplace } from "../../WorkspaceOverlays";
 import { SchedulePanel } from "../schedule/SchedulePanel";
 import { useServers } from "../servers/servers-context";
@@ -55,6 +55,11 @@ export function WindowPageView() {
           <Match when={usage.state.view === "library"}>
             <Loading>
               <LibraryPanel serverId={serverId()} />
+            </Loading>
+          </Match>
+          <Match when={usage.state.view === "boards"}>
+            <Loading>
+              <BoardsPage serverId={serverId()} />
             </Loading>
           </Match>
           <Match when={usage.state.view === "crm"}>

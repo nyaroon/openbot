@@ -329,6 +329,7 @@ import { type AgentThreadRecord, AgentThreadStore } from "./agent-threads/agent-
 import { AgentWaitStore } from "./agent-waits/agent-wait-store";
 import { AgentWaits } from "./agent-waits/agent-waits";
 import { automationRunCommand } from "./automation-command";
+import type { BoardsHandle } from "./boards/boards";
 import { channelSync, toChannelOperationError } from "./channel-effects";
 import { type ChannelImageFile, ChannelImages } from "./channel-images";
 import { ChannelRequestReturns } from "./channel-request-returns";
@@ -446,6 +447,7 @@ export interface AgentServiceOptions {
   browserProfiles?: (() => AgentBrowserProfiles | null) | undefined;
   clientBrowser?: ClientBrowser | null;
   crm?: (() => CrmHandle | null) | undefined;
+  boards?: (() => BoardsHandle | null) | undefined;
   crmAgentVisibleToMembers?: ((agentId: string) => boolean) | undefined;
   personCanAdminister?: ((personId: string) => boolean) | undefined;
   mcpServerOwners?: McpServerOwnerHooks | undefined;
@@ -2073,6 +2075,7 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       ...(options.clientBrowser === undefined ? {} : { clientBrowser: options.clientBrowser }),
       fromChrome: (deliveryId) => this.#fromChrome.has(deliveryId),
       ...(options.crm === undefined ? {} : { crm: options.crm }),
+      ...(options.boards === undefined ? {} : { boards: options.boards }),
       ...(options.crmAgentVisibleToMembers === undefined
         ? {}
         : { crmAgentVisibleToMembers: options.crmAgentVisibleToMembers }),
@@ -2770,6 +2773,10 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
 
   notifyRoutineFlowsChanged(agentId: string): void {
     this.#emit({ type: "routine-flows-changed", agentId });
+  }
+
+  notifyBoardsChanged(boardId: string): void {
+    this.#emit({ type: "boards-changed", boardId });
   }
 
   notifyCrmChanged(): void {

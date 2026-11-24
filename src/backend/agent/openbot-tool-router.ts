@@ -91,6 +91,7 @@ import type { AgentStore } from "../agent-store";
 import type { AgentTasks } from "../agent-tasks/agent-tasks";
 import type { AgentWaits } from "../agent-waits/agent-waits";
 import { attachmentCall, attachmentFailure } from "../attachment-effects";
+import type { BoardsHandle } from "../boards/boards";
 import { repairBrowserToolInput } from "../browser-tool-input";
 import { OPENBOT_BROWSER_NAMESPACE } from "../browser-tools";
 import type { ChannelService } from "../channel-service";
@@ -144,6 +145,7 @@ import { type ApprovalAutomationPolicy, NO_APPROVAL_AUTOMATION } from "./approva
 import type { AttachmentGateway } from "./attachment-gateway";
 import type { AttentionRegistry, CodexSubagentParent } from "./attention-registry";
 import { type AvatarImageDecoder, loadAvatarFile } from "./avatar-file";
+import { BOARDS_TOOL_NAMES, handleBoardsTool } from "./boards-tool";
 import {
   type AgentBrowserProfiles,
   agentBrowserProfileView,
@@ -497,6 +499,7 @@ export interface OpenBotToolRouterOptions {
   serverClaims?: AgentServerClaims | null | undefined;
   browserProfiles?: (() => AgentBrowserProfiles | null) | undefined;
   crm?: (() => CrmHandle | null) | undefined;
+  boards?: (() => BoardsHandle | null) | undefined;
   crmAgentVisibleToMembers?: ((agentId: string) => boolean) | undefined;
   personCanAdminister?: ((personId: string) => boolean) | undefined;
   mcpServerOwners?: McpServerOwnerHooks | undefined;
@@ -555,6 +558,7 @@ export class OpenBotToolRouter {
   readonly #serverClaims: AgentServerClaims | null;
   readonly #browserProfiles: () => AgentBrowserProfiles | null;
   readonly #crm: () => CrmHandle | null;
+  readonly #boards: () => BoardsHandle | null;
   readonly #crmAgentVisibleToMembers: (agentId: string) => boolean;
   readonly #personCanAdminister: (personId: string) => boolean;
   readonly #mcpServerOwners: McpServerOwnerHooks | null;
@@ -621,6 +625,7 @@ export class OpenBotToolRouter {
     this.#serverClaims = options.serverClaims ?? null;
     this.#browserProfiles = options.browserProfiles ?? (() => null);
     this.#crm = options.crm ?? (() => null);
+    this.#boards = options.boards ?? (() => null);
     this.#crmAgentVisibleToMembers = options.crmAgentVisibleToMembers ?? (() => true);
     this.#personCanAdminister = options.personCanAdminister ?? (() => true);
     this.#mcpServerOwners = options.mcpServerOwners ?? null;
@@ -1005,7 +1010,8 @@ export class OpenBotToolRouter {
               tool === "create_server_install_command";
             const correctable = (cause: unknown) =>
               correctableTool ||
-              ((WORKFLOW_TOOL_NAMES.has(tool) || CRM_TOOL_NAMES.has(tool)) && cause instanceof z.ZodError);
+              ((WORKFLOW_TOOL_NAMES.has(tool) || CRM_TOOL_NAMES.has(tool) || BOARDS_TOOL_NAMES.has(tool)) &&
+                cause instanceof z.ZodError);
             const response = this.#handleOpenBotTool(client, toolRequest, toolRequest.params).pipe(
               Effect.catch((failure) =>
                 correctable(failure.cause) ? correctableFailure(failure.cause) : Effect.fail(failure),
@@ -2319,6 +2325,25 @@ export class OpenBotToolRouter {
         (text) => this.#hooks.redactMcp(text),
       );
       if (crmResult) return crmResult;
+    }
+
+    if (BOARDS_TOOL_NAMES.has(params.tool)) {
+      if (
+        this.#messaging.store.linkForThread(executionThreadId) ||
+        this.#channels.store.channelForThread(executionThreadId)
+      )
+        return openBotToolFailure(
+          "Boards do not work in an external chat or a channel. Use them in your own OpenBot chat.",
+        );
+      const boardsResult = yield* handleBoardsTool(
+        params.tool,
+        params.arguments,
+        this.#boards(),
+        senderAgentId,
+        (agentId) => this.#hooks.listAgents().some((agent) => agent.id === agentId),
+        (text) => this.#hooks.redactMcp(text),
+      );
+      if (boardsResult) return boardsResult;
     }
 
     if (params.tool === WORKFLOW_ANSWER_TOOL)

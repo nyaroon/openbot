@@ -103,6 +103,20 @@ export const INPUT_LIMITS = {
   sessionsPerMember: 10,
 } as const;
 
+export const BOARD_LIMITS = {
+  boards: 50,
+  columns: 12,
+  activeCards: 2_000,
+  boardName: 80,
+  boardDescription: 2_000,
+  columnName: 60,
+  cardTitle: 200,
+  cardDescription: 8_000,
+  labels: 8,
+  label: 32,
+  archivedCards: 500,
+} as const;
+
 export const TEAM_MEMBER_LIMIT = 50;
 
 export const ATTACHMENT_LIMITS = {

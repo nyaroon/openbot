@@ -44,6 +44,7 @@
     "./agent-tasks": "./src/agent-tasks.ts",
     "./stored-files": "./src/stored-files.ts",
     "./workflow-decoding": "./src/workflow-decoding.ts",
+    "./boards-decoding": "./src/boards-decoding.ts",
     "./crm-decoding": "./src/crm-decoding.ts"
   },
   "scripts": {

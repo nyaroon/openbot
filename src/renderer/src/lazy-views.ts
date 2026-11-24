@@ -11,6 +11,9 @@ export const AgentUsagePanel = lazy(() =>
 export const LibraryPanel = lazy(() =>
   import("./features/files/LibraryPanel").then((module) => ({ default: module.LibraryPanel })),
 );
+export const BoardsPage = lazy(() =>
+  import("./features/boards/BoardsPage").then((module) => ({ default: module.BoardsPage })),
+);
 export const CrmPage = lazy(() => import("./features/crm/CrmPage").then((module) => ({ default: module.CrmPage })));
 export const CrmScreen = lazy(() =>
   import("./features/crm/CrmScreen").then((module) => ({ default: module.CrmScreen })),
@@ -79,4 +82,8 @@ export const TasksView = lazy(() =>
 );
 export const ServerOnboarding = lazy(() =>
   import("./features/onboarding/ServerOnboarding").then((module) => ({ default: module.ServerOnboarding })),
+);
+
+export const BoardsScreen = lazy(() =>
+  import("./features/boards/BoardsScreen").then((module) => ({ default: module.BoardsScreen })),
 );

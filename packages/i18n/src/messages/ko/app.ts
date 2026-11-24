@@ -56,6 +56,7 @@ export const messages = {
   "app.rail.library": "라이브러리",
   "app.rail.providers": "제공자",
   "app.rail.crm": "CRM",
+  "app.rail.boards": "보드",
   "app.rail.marketplace": "마켓플레이스",
   "app.rail.settings": "설정",
   "app.rail.settingsNotice": "설정. {notice}",

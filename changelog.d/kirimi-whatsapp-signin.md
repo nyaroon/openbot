@@ -4,6 +4,8 @@
 - Universal sync for MCP servers and skills. Turn on Universal for an MCP server or a skill and it follows your account, on every computer or only the computers you pick. Each computer has a name you can change in the Universal vault section, where you can also remove old computers and remove the whole Universal vault. The Universal checkbox is now in the add dialog of a Vault item too. OAuth sign-ins, working directories and agent scope never sync.
 - Owner-managed accounts and closed registration. When the account service has `OWNER_WHATSAPP_NUMBERS` set, only an owner number, a number that already has an account, or a number with a pending invitation can start sign-in. Other numbers get the message "This number has no account. Ask the owner to add it." Owners get an Accounts tab in Settings, on desktop and on the web, to create accounts by WhatsApp number and see the list. Without the setting, registration stays open.
 
+- Project boards. A Boards page in the page rail holds one kanban board per project, kept on the server and shared live by every member and device. Cards have an assignee (a member or an agent), a due date, labels and an optional linked agent thread. Drag cards between columns with the mouse or a finger, or use the card menu to move them with the keyboard. Agents can list boards and create, update and move cards. Assigning a card to an agent does not start a run. Available on desktop and the web, not on mobile.
+
 ### Changed
 
 - Sign-in and server invitations now use a WhatsApp number instead of an email address. With reverse sign-in, a person signs in by sending a prepared WhatsApp message to the business number.

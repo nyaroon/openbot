@@ -76,6 +76,7 @@ export type AgentEvent =
   | { type: "routine-flows-changed"; agentId: string }
   | { type: "workflows-changed"; workflowId: string; agentId?: string }
   | { type: "crm-changed" }
+  | { type: "boards-changed"; boardId: string }
   | { type: "vault-changed" }
   | { type: "browser-profiles-changed" }
   | { type: "library-folders-changed" }
@@ -218,6 +219,8 @@ export function isAgentEvent(value: unknown): value is AgentEvent {
     case "skills-changed":
     case "routine-flows-changed":
       return isIdentifier(value.agentId);
+    case "boards-changed":
+      return isIdentifier(value.boardId);
     case "workflows-changed":
       return isIdentifier(value.workflowId) && (value.agentId === undefined || isIdentifier(value.agentId));
     case "crm-changed":

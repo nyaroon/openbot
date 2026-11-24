@@ -82,6 +82,7 @@ import { AgentRoutineStore } from "../backend/agent-routine-store";
 import { AgentLifecycleFailed, AgentService } from "../backend/agent-service";
 import { AgentStore } from "../backend/agent-store";
 import { AgentThreadStore } from "../backend/agent-threads/agent-thread-store";
+import { type BoardsHandle, createBoards } from "../backend/boards/boards";
 import { type BrowserAgentChat, BrowserHost } from "../backend/browser-host";
 import { BrowserProfileStore } from "../backend/browser-profiles/browser-profile-store";
 import { BrowserProxyStore } from "../backend/browser-profiles/browser-proxy-store";
@@ -654,6 +655,8 @@ export interface ApplicationServices {
   workflowFiles: WorkflowFileExporter;
   workflowGitHub: WorkflowGitHubDirectory;
   crm: CrmHandle;
+  boards: BoardsHandle;
+  localMemberId: () => string;
   routineResults: RoutineResultsHandle;
   providerRuntimes: ProviderRuntimeManager;
   providerCredentials: ProviderCredentialStore;
@@ -1311,6 +1314,7 @@ export async function createApplicationServices({
   let browserProxyStatusChanged = () => {};
   let agentBrowserProfiles: BrowserProfileService | null = null;
   let crmHandle: CrmHandle | null = null;
+  let boardsHandle: BoardsHandle | null = null;
   const agentThreads = new AgentThreadStore(store.database);
   const agentMemoryOn = (agentId: string) => {
     const agent = store.get(agentId);
@@ -2171,6 +2175,7 @@ export async function createApplicationServices({
     browserProfiles: () => agentBrowserProfiles,
     clientBrowser,
     crm: () => crmHandle,
+    boards: () => boardsHandle,
     crmAgentVisibleToMembers: (agentId) => host.agentVisibleToMembers(agentId),
     personCanAdminister: (personId) => host.personCanAdminister(personId),
     mcpServerOwners: {
@@ -2471,6 +2476,11 @@ export async function createApplicationServices({
     }),
   );
   crmHandle = crm;
+  const boards = createBoards({
+    database: store.database,
+    changed: (boardId) => service.notifyBoardsChanged(boardId),
+  });
+  boardsHandle = boards;
   teardown.push(TEARDOWN_ORDER.crm, "the CRM", () => {
     crmHandle = null;
     return Effect.runPromise(crm.close());
@@ -3172,6 +3182,7 @@ export async function createApplicationServices({
       files: workflowFiles,
     },
     crm,
+    boards,
     hiddenAgents: service,
     routineRunPlaces: service.routineRecords,
     agentNotificationLevels,
@@ -4176,6 +4187,8 @@ export async function createApplicationServices({
     workflowFiles,
     workflowGitHub,
     crm,
+    boards,
+    localMemberId: () => host.localMemberId(),
     routineResults: routineResultRuntime,
     providerRuntimes,
     providerCredentials,

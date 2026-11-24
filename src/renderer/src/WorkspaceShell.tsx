@@ -1,5 +1,6 @@
 import type { CentralAuthUser } from "@openbot/contracts/ipc";
 import { AGENT_TASKS_CAPABILITY } from "@openbot/contracts/team-protocol/agent-tasks-v1";
+import { BOARDS_CAPABILITY } from "@openbot/contracts/team-protocol/boards-v1";
 import { CRM_CAPABILITY } from "@openbot/contracts/team-protocol/crm-v1";
 import {
   ConversationLoadNotice,
@@ -26,7 +27,7 @@ import { WorkspaceServerOnboarding } from "./features/onboarding/WorkspaceServer
 import { useRemoteDesktop } from "./features/remote-desktop/remote-desktop-context";
 import { createRoutineTimezonePrompt, desktopRoutineZoneTargets } from "./features/schedule/routine-timezone-prompt";
 import { createRemoteSyncMarks } from "./features/servers/remote-sync-marks";
-import { serverCanAdminister } from "./features/servers/server-capabilities";
+import { serverCanAdminister, serverSupportsCapability } from "./features/servers/server-capabilities";
 import { createServerConnectionToast } from "./features/servers/server-connection-toast";
 import { useServerScope } from "./features/servers/server-scope";
 import { followsServerUpdate, ServerUpdateDialogHost } from "./features/servers/server-update-flow";
@@ -121,6 +122,16 @@ export function WorkspaceShell(props: {
       const server = activeServer();
       if (usage.state.serverId === null || usage.state.view !== "library") return false;
       return !!server?.compatibility?.hostAppVersion && !serverHasStorage(server);
+    },
+    (unsupported) => {
+      if (unsupported) usage.closeUsage();
+    },
+  );
+  createEffect(
+    () => {
+      const server = activeServer();
+      if (usage.state.serverId === null || usage.state.view !== "boards") return false;
+      return !!server?.compatibility?.hostAppVersion && !serverSupportsCapability(server, BOARDS_CAPABILITY);
     },
     (unsupported) => {
       if (unsupported) usage.closeUsage();

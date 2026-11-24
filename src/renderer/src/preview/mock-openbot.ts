@@ -238,6 +238,7 @@ import {
 import { mockAgentAnalytics, mockHostAnalytics } from "./mock-agent-analytics";
 import { createMockAuth, type MockAuthOptions } from "./mock-auth";
 import { createMockBitwardenConnector } from "./mock-bitwarden-connector";
+import { mockBoards } from "./mock-boards";
 import { createMockBrowser, type MockBrowserOptions } from "./mock-browser";
 import { createMockChannels, type MockChannelSeed } from "./mock-channels";
 import { type MockCrmSeed, mockCrm } from "./mock-crm";
@@ -1694,6 +1695,7 @@ export function createMockOpenBot(options: MockOpenBotOptions = {}): MockOpenBot
       (workflowId) => emitAgentEvent({ type: "workflows-changed", workflowId }),
       () => emitAgentEvent({ type: "workflow-folders-changed" }),
     ),
+    boards: mockBoards(),
     crm: mockCrm(options.crm ?? {}, () => emitAgentEvent({ type: "crm-changed" })),
     routineResults: mockRoutineResults(routines, options, (agentId) =>
       emitAgentEvent({ type: "routines-changed", agentId }),

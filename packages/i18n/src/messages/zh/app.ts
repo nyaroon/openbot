@@ -57,6 +57,7 @@ export const messages = {
   "app.rail.library": "资料库",
   "app.rail.providers": "服务商",
   "app.rail.crm": "CRM",
+  "app.rail.boards": "看板",
   "app.rail.marketplace": "市场",
   "app.rail.settings": "设置",
   "app.rail.settingsNotice": "设置。{notice}",

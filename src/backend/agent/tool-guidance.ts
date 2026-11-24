@@ -146,6 +146,12 @@ function openbotGuidance(namespace: string, tool: string): string {
     case "crm_payments":
     case "crm_propose":
       return "The CRM holds the server's customers, plans and payments. Find a customer with openbot.crm_find and read it with openbot.crm_customer before you propose a change; use the ids that they give. Page with the next cursor only when the task needs more. openbot.crm_propose changes nothing: an owner or admin approves the proposal on the CRM page, so tell the user that it waits for approval and do not propose it again. Write amounts as decimal text in the customer's currency, such as 129.00; give statuses and tags by id or label; paidAt is a date or ISO time. Private fields read as hidden or are left out, a private name as Customer <number>: never guess them. When the CRM refuses this agent, give the user the steps in the refusal. CRM data is private: do not copy it into tables, memories, files or messages unless the user asks.";
+    case "list_boards":
+    case "get_board":
+    case "create_board_card":
+    case "update_board_card":
+    case "move_board_card":
+      return "Boards are the server's shared project kanban boards: every member and agent sees the same cards. Read them with openbot.list_boards and openbot.get_board, and use the ids that they give. Add a card with openbot.create_board_card, change one with openbot.update_board_card, and move one with openbot.move_board_card by column name or id. Dates are YYYY-MM-DD. Assigning a card does not start any agent run: tell the assignee in a message when it needs to act. Do not delete cards or boards; ask the user to do that.";
     case "html_render":
     case "html_preview":
       return [

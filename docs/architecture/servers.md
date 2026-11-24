@@ -705,6 +705,38 @@ routes are `POST /v1/crm/<name>`: `overview`, `customers`, `payments`, `activity
 - A host without the CRM service, or a client without the capability, gets 400 `serverTooOld`. The
   client hides the CRM page until the host confirms `crm-v1`. Mobile does not show the CRM.
 
+### Boards
+
+A project is a kanban board, kept on the server host in `openbot.db` and shared live by every member
+and device. Migration 0070 adds `boards` (name, description, optional colour, `position`, `archived_at`,
+a `revision` that every change bumps), `board_columns` (`name`, `position`, `done`) and `board_cards`
+(`column_id`, `position`, title, description, one optional assignee that is a member or an agent, an
+optional linked agent thread, `due_at`, `labels_json`, who created and last changed it, `archived_at`).
+Deleting a board cascades to its columns and cards. Limits (`BOARD_LIMITS` in `input-limits.ts`): 50
+boards, 12 columns per board, 2000 active cards per board, a card title of 200 characters, a
+description of 8000, 8 labels of 32.
+
+`boards-v1` serves the boards to a joined desktop and to the web client. Its routes are
+`POST /v1/boards/<name>`: `list` (boards with a card count per column), `get` (one board with its
+columns and active cards), `archived-cards`, and one route per change (`board-create`, `board-update`,
+`board-archive`, `board-delete`, `column-create`, `column-update`, `column-move`, `column-delete`,
+`card-create`, `card-update`, `card-archive`, `card-delete`, `card-move`). Every change returns the
+changed entity and the new board `revision`.
+
+- Any member reads boards and manages columns and cards. Only an owner or admin deletes a board.
+  The host records who made each change, a member or an agent.
+- Card order is a gapped integer `position` (step 1024). A move rewrites one row between its two
+  neighbours. When two neighbours have no gap left, the host renumbers that column once.
+- Deleting a column needs it to be empty, or a `moveCardsTo` column that takes its cards. A board always
+  keeps one column. A new board gets the four column names the creating client sends in its own language.
+- The agent event `boards-changed {boardId}` follows every change, including a change by an agent. A
+  client reads that board again. Nothing starts an agent run when a card is assigned to an agent.
+- Agents use `list_boards`, `get_board`, `create_board_card`, `update_board_card` and `move_board_card`
+  (by column name or id). A card made by an agent records the agent. The tools keep the guards of the
+  CRM tools that apply to shared data: an external chat or channel turn does not use them.
+- A host without the service, or a client without the capability, gets 400 `serverTooOld`. The clients
+  hide the Boards page until the host confirms `boards-v1`. Mobile does not show boards.
+
 ### History extent
 
 `history-extent-v1` lets the chat's scroll rail draw the history that is not loaded on a joined server.

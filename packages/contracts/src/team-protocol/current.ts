@@ -50,6 +50,7 @@ import { ANTIGRAVITY_CODE_SIGN_IN_CAPABILITY } from "./antigravity-code-sign-in-
 import { ATTACHMENT_PREVIEW_CAPABILITY } from "./attachment-preview-v1";
 import { BACKGROUND_PROCESSES_CAPABILITY } from "./background-processes-v1";
 import { BITWARDEN_CONNECTOR_CAPABILITY } from "./bitwarden-connector-v1";
+import { BOARDS_CAPABILITY } from "./boards-v1";
 import { BROWSER_EGRESS_CAPABILITY } from "./browser-egress-v1";
 import { TEAM_BROWSER_NAVIGATION_CAPABILITY } from "./browser-navigation-v1";
 import { BROWSER_PAGE_STATE_CAPABILITY } from "./browser-page-state-v1";
@@ -339,6 +340,7 @@ export {
   ATTACHMENT_PREVIEW_CAPABILITY,
   BACKGROUND_PROCESSES_CAPABILITY,
   BITWARDEN_CONNECTOR_CAPABILITY,
+  BOARDS_CAPABILITY,
   BROWSER_EGRESS_CAPABILITY,
   BROWSER_PAGE_STATE_CAPABILITY,
   BROWSER_PROFILES_CAPABILITY,
@@ -828,6 +830,7 @@ const TEAM_CAPABILITY_REGISTRY = [
   [WHATSAPP_READ_ONLY_CAPABILITY, V10],
   [VOICE_TRANSCRIPTION_CAPABILITY, V10],
   [CLIENT_BROWSER_CAPABILITY, V10],
+  [BOARDS_CAPABILITY, V10],
 ] as const satisfies readonly (readonly [string, TeamCapabilityPlacement])[];
 
 export const TEAM_CURRENT_CAPABILITIES = TEAM_CAPABILITY_REGISTRY.map(([capability]) => capability);

@@ -79,6 +79,7 @@ import { appIpcHandlers } from "./ipc/app-handlers";
 import { attachmentIpcHandlers } from "./ipc/attachment-handlers";
 import { backgroundProcessIpcHandlers } from "./ipc/background-process-handlers";
 import { bitwardenConnectorIpcHandlers } from "./ipc/bitwarden-connector-handlers";
+import { boardsIpcHandlers } from "./ipc/boards-handlers";
 import { browserDockIpcHandlers } from "./ipc/browser-dock-handlers";
 import { browserIpcHandlers } from "./ipc/browser-handlers";
 import { channelFolderIpcHandlers } from "./ipc/channel-folder-handlers";
@@ -801,6 +802,8 @@ function registerIpcHandlers({
   workflows,
   workflowGitHub,
   crm,
+  boards,
+  localMemberId,
   routineResults,
 }: ApplicationServices): void {
   const getDialogParent = () => windows.getChatWindows().find((window) => window.isFocused()) ?? windowHolder.current;
@@ -978,6 +981,7 @@ function registerIpcHandlers({
       translate: language.translate,
     }),
     ...crmIpcHandlers({ crm, remoteServers }),
+    ...boardsIpcHandlers({ boards, localMemberId, remoteServers }),
     ...routineResultIpcHandlers({ routineResults, remoteServers }),
     ...channelMemoryIpcHandlers({ service, remoteServers }),
     ...channelRoutineIpcHandlers({ service, remoteServers }),

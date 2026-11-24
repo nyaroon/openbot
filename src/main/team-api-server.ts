@@ -64,6 +64,7 @@ import { AGENT_THREAD_REQUESTS_CAPABILITY } from "@openbot/contracts/team-protoc
 import { AGENT_THREADS_CAPABILITY } from "@openbot/contracts/team-protocol/agent-threads-v1";
 import { ANTIGRAVITY_CODE_SIGN_IN_CAPABILITY } from "@openbot/contracts/team-protocol/antigravity-code-sign-in-v1";
 import { BACKGROUND_PROCESSES_CAPABILITY } from "@openbot/contracts/team-protocol/background-processes-v1";
+import { BOARDS_CAPABILITY } from "@openbot/contracts/team-protocol/boards-v1";
 import { BROWSER_EGRESS_CAPABILITY } from "@openbot/contracts/team-protocol/browser-egress-v1";
 import { BROWSER_PAGE_STATE_CAPABILITY } from "@openbot/contracts/team-protocol/browser-page-state-v1";
 import { BROWSER_PROFILES_EVENTS_CAPABILITY } from "@openbot/contracts/team-protocol/browser-profiles-events-v1";
@@ -408,6 +409,7 @@ import { routeAgentWaits } from "./team-api/route-agent-waits";
 import { routeAgents } from "./team-api/route-agents";
 import { routeBackgroundProcesses } from "./team-api/route-background-processes";
 import { routeBitwardenConnector } from "./team-api/route-bitwarden-connector";
+import { routeBoards } from "./team-api/route-boards";
 import { hiddenTabTest, routeBrowser, visibleControlState } from "./team-api/route-browser";
 import { routeBrowserProfiles } from "./team-api/route-browser-profiles";
 import { routeBrowserProxies } from "./team-api/route-browser-proxies";
@@ -1434,6 +1436,7 @@ export class TeamApiServer {
       )
         return;
       if ((await routeCrm(context, this.#options.crm)) === "handled") return;
+      if ((await routeBoards(context, this.#options.boards)) === "handled") return;
       if ((await this.#routeEvents(context)) === "handled") return;
       if ((await routeAgentImport(context, this.#options.agentImport, newAgentHidden)) === "handled") return;
       if ((await routeHermesImport(context, this.#options.hermesImport, newAgentHidden)) === "handled") return;
@@ -2902,6 +2905,7 @@ export class TeamApiServer {
         if (capability === WORKFLOW_FOLDERS_CAPABILITY)
           return this.#options.workflows !== undefined && this.#options.workflowFolders !== undefined;
         if (capability === CRM_CAPABILITY) return this.#options.crm !== undefined;
+        if (capability === BOARDS_CAPABILITY) return this.#options.boards !== undefined;
         if (capability === WORKFLOWS_GITHUB_CAPABILITY) return this.#options.workflows?.github !== undefined;
         if (capability === WORKFLOWS_MEDIA_CAPABILITY) return this.#options.workflows !== undefined;
         if (capability === WORKFLOWS_SUNRA_CAPABILITY) return this.#options.workflows !== undefined;
@@ -3132,6 +3136,7 @@ function eventCapability(event: AgentEvent): TeamCurrentCapability | null {
   if (event.type === "workflows-changed") return WORKFLOWS_CAPABILITY;
   if (event.type === "workflow-folders-changed") return WORKFLOW_FOLDERS_CAPABILITY;
   if (event.type === "crm-changed") return CRM_CAPABILITY;
+  if (event.type === "boards-changed") return BOARDS_CAPABILITY;
   if (event.type === "vault-changed") return VAULT_CAPABILITY;
   if (event.type === "browser-profiles-changed") return BROWSER_PROFILES_EVENTS_CAPABILITY;
   if (event.type === "library-folders-changed") return LIBRARY_FOLDERS_EVENTS_CAPABILITY;

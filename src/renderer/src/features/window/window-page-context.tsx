@@ -14,6 +14,7 @@ export type WindowPage =
   | "usage"
   | "library"
   | "crm"
+  | "boards"
   | "marketplace"
   | "settings"
   | "server-settings";
@@ -135,6 +136,10 @@ const context = createSimpleContext({
       openLibrary(source: HTMLElement | null) {
         const serverId = activeServerId();
         if (serverId) usage.openLibrary(serverId, source);
+      },
+      openBoards(source: HTMLElement | null) {
+        const serverId = activeServerId();
+        if (serverId) usage.openBoards(serverId, source);
       },
       openCrm(source: HTMLElement | null, connectors = false) {
         const serverId = activeServerId();

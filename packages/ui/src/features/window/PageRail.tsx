@@ -18,6 +18,7 @@ import {
   Plug,
   Settings,
   Sparkles,
+  SquareKanban,
   Store,
   Waypoints,
 } from "@openbot/ui";
@@ -400,6 +401,7 @@ export type PageRailPage =
   | "library"
   | "providers"
   | "crm"
+  | "boards"
   | "marketplace"
   | "settings";
 
@@ -411,6 +413,7 @@ export const PAGE_RAIL_PINNABLE_PAGES = [
   "library",
   "providers",
   "crm",
+  "boards",
 ] as const satisfies readonly PageRailPage[];
 export type PageRailPinnablePage = (typeof PAGE_RAIL_PINNABLE_PAGES)[number];
 
@@ -431,6 +434,7 @@ export interface PageRailProps {
   onUsage: (button: HTMLElement) => void;
   onLibrary?: ((button: HTMLElement) => void) | undefined;
   onProviders?: ((button: HTMLElement) => void) | undefined;
+  onBoards?: ((button: HTMLElement) => void) | undefined;
   onCrm?: ((button: HTMLElement) => void) | undefined;
   onCrmConnectors?: ((button: HTMLElement) => void) | undefined;
   onMarketplace?: (() => void) | undefined;
@@ -620,6 +624,10 @@ export function PageRail(props: PageRailProps) {
     const onProviders = props.onProviders;
     if (onProviders) {
       list.push({ id: "providers", label: t("app.rail.providers"), icon: Sparkles, open: onProviders });
+    }
+    const onBoards = props.onBoards;
+    if (onBoards) {
+      list.push({ id: "boards", label: t("app.rail.boards"), icon: SquareKanban, open: onBoards });
     }
     const onCrm = props.onCrm;
     if (onCrm) {

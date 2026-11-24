@@ -233,6 +233,7 @@ import {
   decodeWorkflowNotificationOpenedEvent,
 } from "./app-decoding";
 import { decodeBackgroundProcesses } from "./background-process-decoding";
+import { decodeBoardArchivedCards, decodeBoardDetail, decodeBoardList, decodeBoardMutation } from "./boards-decoding";
 import {
   decodeBrowserBounds,
   decodeBrowserControlState,
@@ -929,6 +930,12 @@ const openbotApi: OpenBotDesktopApi = {
     mediaPrice: decodeWorkflowMediaPrice,
     folders: decodeWorkflowFoldersSnapshotFromMain,
     folderAction: decodeWorkflowFoldersSnapshotFromMain,
+  }),
+  boards: bridgeGroup(IPC_ENDPOINTS.boards, {
+    list: decodeBoardList,
+    get: decodeBoardDetail,
+    archivedCards: decodeBoardArchivedCards,
+    apply: decodeBoardMutation,
   }),
   crm: bridgeGroup(IPC_ENDPOINTS.crm, {
     overview: decodeCrmOverview,
