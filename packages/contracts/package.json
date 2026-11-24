@@ -18,6 +18,7 @@
     "./attachment-files": "./src/attachment-files.ts",
     "./attachment-references": "./src/attachment-references.ts",
     "./avatar-images": "./src/avatar-images.ts",
+    "./cli-version": "./src/cli-version.ts",
     "./discord-app": "./src/discord-app.ts",
     "./discord-guild-grant": "./src/discord-guild-grant.ts",
     "./event-filter-value": "./src/event-filter-value.ts",
