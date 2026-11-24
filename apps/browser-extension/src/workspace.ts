@@ -125,6 +125,7 @@ const CHANNEL_READ_INTERVAL_MS = 250;
 const SHOWN_ITEM_TYPES: ReadonlySet<string | undefined> = new Set([
   undefined,
   "agentMessage",
+  "final_answer",
   "agent_attachment",
   "image_generation",
 ]);
