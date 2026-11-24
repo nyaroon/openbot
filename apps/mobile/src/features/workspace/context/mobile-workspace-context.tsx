@@ -231,7 +231,7 @@ import {
   withHostSidebarPins,
   withPhoneSidebarPins,
 } from "@/features/workspace/model/agent-pins";
-import { ConnectionWaits } from "@/features/workspace/model/connection-waits";
+import { ConnectionWaits, isConnectionStop } from "@/features/workspace/model/connection-waits";
 import { NO_CONTEXT_STATES, reduceContextStates } from "@/features/workspace/model/context-states";
 import { conversationMessageId, decodeConversationPage } from "@/features/workspace/model/conversation";
 import { MobileConversationStore } from "@/features/workspace/model/conversation-store";
@@ -1473,12 +1473,21 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
         return sameServerRecovery(server, next) ? current : current.map((item, at) => (at === index ? next : item));
       });
       connectionWaits.setResuming(hostId, resuming && status.phase !== "online");
-      if (status.phase === "online") connectionWaits.settle(hostId, null);
-      else if (!resuming && status.phase !== "connecting")
+      if (status.phase === "online") {
+        connectionWaits.settle(hostId, null);
+        void queryClient.refetchQueries(
+          {
+            queryKey: queryKeys.chatMediaFiles(hostId),
+            type: "active",
+            predicate: (query) => query.state.status === "error" && isConnectionStop(query.state.error),
+          },
+          { cancelRefetch: false },
+        );
+      } else if (!resuming && status.phase !== "connecting")
         connectionWaits.settle(hostId, new Error(sourceText("error.remote.selectedServerOffline")));
       if (status.phase === "online" && hostId === activeServerIdRef.current) setHold(null);
     },
-    [recoveryCountdowns, connectionWaits, limitFirstConnection, backgroundRefreshStatus],
+    [recoveryCountdowns, connectionWaits, limitFirstConnection, backgroundRefreshStatus, queryClient],
   );
   const focusUse = useMemo(
     () =>
