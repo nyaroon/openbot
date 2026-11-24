@@ -1,3 +1,4 @@
+import { X_AGENT_LISTING_ID, X_EXTENSION_URL } from "@openbot/contracts/browser-extension-x";
 import { INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import type {
   AddedAgent,
@@ -43,6 +44,7 @@ import { safeBrowserUrl } from "@openbot/ui/features/conversation/RichMessageTex
 import type {
   AgentListingState,
   GithubSkillRead,
+  MarketplaceAgent,
   MarketplaceApp,
   MarketplaceAppConnection,
   MarketplaceAppStatus,
@@ -55,7 +57,7 @@ import type {
   MarketplaceSkillRef,
   SkillRead,
 } from "@openbot/ui/features/marketplace/marketplace-model";
-import { pluginNeedsMac } from "@openbot/ui/features/marketplace/marketplace-model";
+import { pluginNeedsMac, X_APP_ID } from "@openbot/ui/features/marketplace/marketplace-model";
 import { serverAddress } from "@openbot/ui/features/marketplace/marketplace-view";
 import type { McpConnectSubject } from "@openbot/ui/features/settings/McpConnectShell";
 import {
@@ -122,6 +124,7 @@ export interface MarketplaceControllerProps {
   hostServerId?: string | undefined;
   agentServerId?: string | undefined;
   agentUpdateServerId?: string | undefined;
+  xApp?: boolean | undefined;
   githubSkills?: boolean | undefined;
   onRunPluginPrompt?: ((agentId: string, prompt: MarketplacePluginPrompt) => void) | undefined;
   connectors?: ConnectorRegistry | undefined;
@@ -857,6 +860,20 @@ export function createMarketplaceController(
     return entry?.access === "available" ? entry.controller : undefined;
   };
 
+  const xAgent = createMemo((): MarketplaceAgent | null => {
+    const copy = agents().find((agent) => agent.marketplaceSource?.listingId === X_AGENT_LISTING_ID);
+    return copy
+      ? {
+          id: copy.id,
+          name: copy.name,
+          title: copy.title,
+          avatarSeed: copy.avatarSeed,
+          avatarHue: copy.avatarHue,
+          avatarUrl: copy.avatarUrl,
+        }
+      : null;
+  });
+
   const apps = createMemo((): MarketplaceApp[] => {
     const plugins = localPlugins();
     return [
@@ -873,6 +890,20 @@ export function createMarketplaceController(
           status: status === "unavailable" ? "idle" : status,
         };
       }),
+      ...(props.xApp && X_EXTENSION_URL
+        ? [
+            {
+              kind: "x",
+              id: X_APP_ID,
+              name: t("marketplace.xApp.title"),
+              tagline: t("marketplace.xApp.tagline"),
+              category: "productivity",
+              status: xAgent() ? "connected" : "idle",
+              agent: xAgent(),
+              extensionUrl: X_EXTENSION_URL,
+            } satisfies MarketplaceApp,
+          ]
+        : []),
       ...plugins.map(
         (plugin): MarketplaceApp => ({
           kind: "plugin",
@@ -1703,7 +1734,7 @@ export function createMarketplaceController(
   const model: MarketplaceModel = {
     listAgents: async (query) => {
       const page = await calls().agents.list(agentQuery(query));
-      return { items: page.agents, nextCursor: page.nextCursor };
+      return { items: page.agents.filter((agent) => agent.id !== X_AGENT_LISTING_ID), nextCursor: page.nextCursor };
     },
     get agentHomeCache() {
       return agentHomeCache(calls());
