@@ -116,6 +116,7 @@ import { sharedTableIpcHandlers } from "./ipc/shared-table-handlers";
 import { skillIpcHandlers } from "./ipc/skill-handlers";
 import { storageIpcHandlers } from "./ipc/storage-handlers";
 import { teamIpcHandlers } from "./ipc/team-handlers";
+import { universalVaultIpcHandlers } from "./ipc/universal-vault-handlers";
 import { updateIpcHandlers } from "./ipc/update-handlers";
 import { vaultIpcHandlers } from "./ipc/vault-handlers";
 import { voiceIpcHandlers } from "./ipc/voice-handlers";
@@ -521,6 +522,7 @@ const {
   forwardBitwardenConnectorStatus,
   forwardPasswordManagerStatus,
   forwardVaultState,
+  forwardUniversalVaultState,
   forwardHostStatus,
   forwardRemoteDesktopSessions,
   forwardServers,
@@ -765,6 +767,7 @@ function registerIpcHandlers({
   bitwardenConnector,
   passwordManagers,
   vault,
+  universalVault,
   localServers,
   routineFeed,
   events,
@@ -899,6 +902,7 @@ function registerIpcHandlers({
     ...bitwardenConnectorIpcHandlers({ bitwardenConnector, remoteServers }),
     ...passwordManagersIpcHandlers({ passwordManagers, remoteServers, openExternal: openLink }),
     ...vaultIpcHandlers({ vault, getMainWindow: getDialogParent, translate: language.translate, remoteServers }),
+    ...universalVaultIpcHandlers({ universalVault }),
     ...routineFeedIpcHandlers({ routineFeed }),
     ...eventsIpcHandlers({ events, remoteServers }),
     ...localServerIpcHandlers({ localServers }),
@@ -1596,6 +1600,7 @@ if (!hasSingleInstanceLock) {
       built.bitwardenConnector.onChanged(forwardBitwardenConnectorStatus);
       built.passwordManagers.onChanged(forwardPasswordManagerStatus);
       built.vault.onChanged(forwardVaultState);
+      built.universalVault.onChanged(forwardUniversalVaultState);
       remoteServers.on("changed", forwardServers);
       remoteServers.on("directoryInvalidated", forwardOwnerTransfersChanged);
       remoteServers.on("agent", (serverId, event, bufferedLive) => {

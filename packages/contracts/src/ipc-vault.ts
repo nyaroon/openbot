@@ -16,6 +16,7 @@ export interface VaultItemOrigin {
 
 export interface VaultItemScope {
   agents?: string[];
+  universal?: true;
 }
 
 export interface VaultSaveScope {
@@ -428,11 +429,12 @@ function hostAddedBy(item: DynamicRecord): VaultItemOrigin {
 }
 
 function hostScope(item: DynamicRecord): VaultItemScope {
-  if (item.agents === undefined) return {};
+  const universal = item.universal === true ? { universal: true as const } : {};
+  if (item.agents === undefined) return universal;
   const { agents } = item;
   if (!Array.isArray(agents) || agents.length > VAULT_AGENT_SCOPE_LIMIT || !agents.every(isString))
     throw new Error("Invalid Vault response.");
-  return { agents: [...agents] };
+  return { agents: [...agents], ...universal };
 }
 
 function hostVaultItem(item: DynamicRecord): VaultItemSummary {

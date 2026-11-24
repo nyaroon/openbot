@@ -281,3 +281,41 @@
 .vault-two-step-check {
   text-align: center;
 }
+
+.vault-universal {
+  display: grid;
+  gap: var(--openbot-space-2);
+  margin-bottom: var(--openbot-space-3);
+}
+
+.vault-universal-form {
+  display: grid;
+  gap: var(--openbot-space-3);
+  padding: var(--openbot-space-3);
+}
+
+.vault-universal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--openbot-space-2);
+  justify-content: flex-end;
+  padding: 0 var(--openbot-space-3) var(--openbot-space-3);
+}
+
+.vault-universal-form > .vault-universal-actions {
+  padding: 0;
+}
+
+.vault-universal-choice {
+  display: grid;
+  height: auto;
+  justify-items: start;
+  padding: var(--openbot-space-3);
+  text-align: start;
+}
+
+.vault-universal-toggle {
+  display: flex;
+  gap: var(--openbot-space-3);
+  align-items: flex-start;
+}

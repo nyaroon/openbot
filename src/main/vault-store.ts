@@ -12,6 +12,10 @@ const addedBy = Schema.optionalKey(Schema.String);
 
 const agents = Schema.optionalKey(Schema.Array(Schema.String));
 
+const universal = Schema.optionalKey(
+  Schema.Struct({ revision: Schema.Number, pending: Schema.optionalKey(Schema.Literal(true)) }),
+);
+
 const loginSchema = Schema.Struct({
   id: Schema.String,
   website: Schema.String,
@@ -21,6 +25,7 @@ const loginSchema = Schema.Struct({
   twoStepKey: Schema.optionalKey(Schema.String),
   addedBy,
   agents,
+  universal,
 });
 
 const cardSchema = Schema.Struct({
@@ -37,6 +42,7 @@ const cardSchema = Schema.Struct({
   ),
   addedBy,
   agents,
+  universal,
 });
 
 const contactSchema = Schema.Struct({
@@ -53,6 +59,7 @@ const contactSchema = Schema.Struct({
   email: Schema.String,
   addedBy,
   agents,
+  universal,
 });
 
 const apiKeySchema = Schema.Struct({
@@ -62,6 +69,14 @@ const apiKeySchema = Schema.Struct({
   notes: Schema.String,
   addedBy,
   agents,
+  universal,
+});
+
+const removedSchema = Schema.Struct({
+  id: Schema.String,
+  kind: Schema.Literals(["login", "card", "contact", "apiKey"]),
+  revision: Schema.Number,
+  mode: Schema.Literals(["deleted", "unshared"]),
 });
 
 const recordSchema = Schema.Struct({
@@ -69,13 +84,25 @@ const recordSchema = Schema.Struct({
   cards: Schema.Array(cardSchema),
   contacts: Schema.Array(contactSchema),
   apiKeys: Schema.Array(apiKeySchema).pipe(Schema.withDecodingDefaultKey(Effect.succeed([]))),
+  universalAccount: Schema.optionalKey(Schema.String),
+  universalRemoved: Schema.optionalKey(Schema.Array(removedSchema)),
+  universalIgnored: Schema.optionalKey(Schema.Array(Schema.String)),
 });
+
+export const decodeStoredItem = {
+  login: Schema.decodeUnknownSync(loginSchema),
+  card: Schema.decodeUnknownSync(cardSchema),
+  contact: Schema.decodeUnknownSync(contactSchema),
+  apiKey: Schema.decodeUnknownSync(apiKeySchema),
+};
 
 export type StoredLogin = typeof loginSchema.Type;
 export type StoredCard = typeof cardSchema.Type;
 export type StoredContact = typeof contactSchema.Type;
 export type StoredApiKey = typeof apiKeySchema.Type;
 export type VaultRecord = typeof recordSchema.Type;
+export type UniversalMark = NonNullable<StoredLogin["universal"]>;
+export type UniversalRemoval = typeof removedSchema.Type;
 
 const EMPTY_VAULT_RECORD: VaultRecord = { logins: [], cards: [], contacts: [], apiKeys: [] };
 

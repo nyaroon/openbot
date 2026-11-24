@@ -45,9 +45,10 @@ function addedBy(item: DynamicRecord): { addedBy?: string } {
   return { addedBy: item.addedBy };
 }
 
-function agents(item: DynamicRecord): { agents?: string[] } {
-  if (item.agents === undefined) return {};
-  return { agents: decodeAgents(item.agents) };
+function agents(item: DynamicRecord): { agents?: string[]; universal?: true } {
+  const universal = item.universal === true ? { universal: true as const } : {};
+  if (item.agents === undefined) return universal;
+  return { agents: decodeAgents(item.agents), ...universal };
 }
 
 function vaultItem(item: DynamicRecord): VaultItemSummary {

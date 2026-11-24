@@ -60,6 +60,7 @@ import { useUpdates } from "./features/updates/updates-context";
 import { useWhatsNew } from "./features/updates/whats-new-context";
 import { usePlanLimitRows } from "./features/usage/plan-limit-rows";
 import { createLinkAccountStore } from "./features/vault/stores/link-account-store";
+import { createUniversalVaultStore } from "./features/vault/stores/universal-vault-store";
 import { createVaultStore } from "./features/vault/stores/vault-store";
 import { desktopVaultCalls, hostVaultCalls } from "./features/vault/vault-port";
 import { useWindowPage } from "./features/window/window-page-context";
@@ -474,6 +475,7 @@ function ServerSettings() {
       apiKeys: vaultApiKeys(),
       twoStep: vaultTwoStep(),
       link: local ? createLinkAccountStore() : undefined,
+      universal: local ? createUniversalVaultStore() : undefined,
       listAgents: () => appPort().agent.listAgents(serverId),
     };
   });

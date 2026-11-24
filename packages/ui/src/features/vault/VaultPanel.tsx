@@ -31,8 +31,10 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Badge,
   Button,
   buttonVariants,
+  Checkbox,
   ChevronDown,
   ConfirmDialog,
   Copy,
@@ -74,6 +76,7 @@ import type { UserErrorDetails } from "@openbot/user-errors";
 import type { JSX } from "@solidjs/web";
 import { createMemo, createSignal, createStore, For, Match, Show, Switch, untrack } from "solid-js";
 import { useText } from "../../text";
+import { UniversalUnshareDialog, UniversalVault, type UniversalVaultPanelProps } from "./UniversalVault";
 import { type VaultAgentChoice, type VaultAgentScope, VaultAgentsButton } from "./VaultAgents";
 import { VaultLinkAccount, type VaultLinkAccountProps } from "./VaultLinkAccount";
 import {
@@ -99,6 +102,7 @@ export interface VaultPanelProps {
   onReset: () => Promise<void>;
   menuMount?: HTMLElement | undefined;
   link?: Omit<VaultLinkAccountProps, "menuMount"> | undefined;
+  universal?: UniversalVaultPanelProps | undefined;
   agents?: readonly VaultAgentChoice[] | undefined;
 }
 
@@ -372,9 +376,18 @@ export function VaultPanel(props: VaultPanelProps) {
     deleting: VaultItemSummary | null;
     importing: boolean;
     resetting: boolean;
+    unsharing: { id: string; kind: VaultItemKind } | null;
     failure: UserErrorDetails | null;
     notice: string | null;
-  }>({ editing: null, deleting: null, importing: false, resetting: false, failure: null, notice: null });
+  }>({
+    editing: null,
+    deleting: null,
+    importing: false,
+    resetting: false,
+    unsharing: null,
+    failure: null,
+    notice: null,
+  });
 
   const { countryName, countries } = useCountries();
   const contactLine = (contact: VaultContactFields) =>
@@ -414,6 +427,22 @@ export function VaultPanel(props: VaultPanelProps) {
   const visible = (kind: Filter) =>
     props.state.items.filter((item) => (kind === "all" || item.kind === kind) && itemMatches(item, query()));
   const empty = () => props.state.items.length === 0;
+  const editingUniversal = () => {
+    const universal = props.universal;
+    const item = ui.editing?.item;
+    if (!universal || !item) return undefined;
+    const checked = props.state.items.some((current) => current.id === item.id && current.universal === true);
+    return {
+      checked,
+      onToggle: (value: boolean) => {
+        if (value) void run(() => universal.onSetItem(item.id, item.kind, true));
+        else
+          setUi((draft) => {
+            draft.unsharing = { id: item.id, kind: item.kind };
+          });
+      },
+    };
+  };
   const agentChoices = () => (props.state.agentScope && props.agents?.length ? props.agents : undefined);
   const saveAgents = (item: VaultItemSummary, agents: VaultAgentScope) =>
     run(() => props.onSave(saveInput(draftOf(item.kind, item), item.id, agents)));
@@ -508,6 +537,7 @@ export function VaultPanel(props: VaultPanelProps) {
           </Alert>
         </Match>
       </Switch>
+      <Show when={props.universal}>{(universal) => <UniversalVault {...universal()} />}</Show>
       <Show when={ready()}>
         <SlidingTabs.Root value={filter()} onChange={(value) => isFilter(value) && setFilter(value)}>
           <SettingsSection
@@ -620,6 +650,9 @@ export function VaultPanel(props: VaultPanelProps) {
                                 <ItemDescription class="vault-truncate">{itemSummary(item)}</ItemDescription>
                               </ItemContent>
                               <ItemActions class="integrations-hub-actions">
+                                <Show when={item.universal}>
+                                  <Badge variant="primary-light">{t("vault.universal.badge")}</Badge>
+                                </Show>
                                 <Show when={agentChoices()}>
                                   {(agents) => (
                                     <VaultAgentsButton
@@ -685,6 +718,7 @@ export function VaultPanel(props: VaultPanelProps) {
             twoStep={props.onCodes !== undefined}
             agents={agentChoices()}
             savedCode={editingCode()}
+            universal={editingUniversal()}
             onCopyCode={copyCode}
             onSave={(input) => props.onSave(input)}
             onReveal={props.onReveal}
@@ -695,13 +729,33 @@ export function VaultPanel(props: VaultPanelProps) {
       <ConfirmDialog
         open={ui.deleting !== null}
         title={t("vault.deleteTitle", { name: ui.deleting ? itemTitle(ui.deleting) : "" })}
-        description={t("vault.deleteDescription")}
+        description={
+          ui.deleting?.universal
+            ? `${t("vault.deleteDescription")} ${t("vault.universal.deleteNote")}`
+            : t("vault.deleteDescription")
+        }
         confirmLabel={t("common.delete")}
         error={ui.deleting && ui.failure ? <FailureText failure={ui.failure} /> : undefined}
         onCancel={closeDialogs}
         onConfirm={async () => {
           const item = ui.deleting;
           if (item && (await run(() => props.onDelete(item.id)))) closeDialogs();
+        }}
+      />
+      <UniversalUnshareDialog
+        open={ui.unsharing !== null}
+        onCancel={() =>
+          setUi((draft) => {
+            draft.unsharing = null;
+          })
+        }
+        onChoose={(scope) => {
+          const target = ui.unsharing;
+          const universal = props.universal;
+          setUi((draft) => {
+            draft.unsharing = null;
+          });
+          if (target && universal) void run(() => universal.onSetItem(target.id, target.kind, false, scope));
         }}
       />
       <ConfirmDialog
@@ -1068,6 +1122,7 @@ function ItemDialog(props: {
   twoStep?: boolean | undefined;
   agents?: readonly VaultAgentChoice[] | undefined;
   savedCode?: LiveTwoStepCode | undefined;
+  universal?: { checked: boolean; onToggle: (value: boolean) => void } | undefined;
   onCopyCode?: ((code: string) => void) | undefined;
   onSave: (input: VaultSaveInput) => Promise<void>;
   onReveal: (request: VaultSecretRequest) => Promise<string>;
@@ -1491,6 +1546,21 @@ function ItemDialog(props: {
                     )}
                   </Match>
                 </Switch>
+                <Show when={props.universal && props.item}>
+                  <label class="vault-universal-toggle" for="vault-universal-toggle">
+                    <Checkbox
+                      id="vault-universal-toggle"
+                      checked={props.universal?.checked ?? false}
+                      onChange={(event) => props.universal?.onToggle(event.currentTarget.checked)}
+                    />
+                    <span>
+                      {t("vault.universal.toggle")}
+                      <Text variant="caption" tone="muted">
+                        {t("vault.universal.toggleHint")}
+                      </Text>
+                    </span>
+                  </label>
+                </Show>
                 <Show when={failure()}>
                   {(current) => (
                     <Text tone="danger" variant="caption" role="alert">

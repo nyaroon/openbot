@@ -2,8 +2,8 @@ import { isString } from "@openbot/contracts/runtime-values";
 import { createFileRoute } from "@tanstack/solid-router";
 import { Effect } from "effect";
 import { normalizeMobileDevice } from "../../../../server/auth-service";
-import { ExtensionSignInError } from "../../../../server/extension-sign-in";
 import { runApiResponse } from "../../../../server/effect-runtime";
+import { ExtensionSignInError } from "../../../../server/extension-sign-in";
 import { readJsonObject } from "../../../../server/json-body";
 import { apiError, extensionSignInErrorResponse, json, requestExtensionSignIn } from "../../../../server/request-auth";
 

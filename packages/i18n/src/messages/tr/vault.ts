@@ -1,4 +1,42 @@
 import type { PartialTranslation } from "../../message";
 import type { messages as source } from "../en/vault";
 
-export const messages = {} as const satisfies PartialTranslation<typeof source>;
+export const messages = {
+  "vault.universal.title": "Evrensel kasa",
+  "vault.universal.intro":
+    "Evrensel olarak işaretlediğiniz öğeler bu bilgisayarda şifrelenir ve hesabınızda oturum açmış her bilgisayarla eşitlenir. Hesap hizmeti bunları da parola ifadenizi de asla görmez.",
+  "vault.universal.signedOut": "Evrensel kasayı kullanmak için OpenBot hesabınızda oturum açın.",
+  "vault.universal.passphrase": "Parola ifadesi",
+  "vault.universal.passphraseHint": "En az 10 karakter kullanın. Kaybederseniz eşitlenen öğeler kurtarılamaz.",
+  "vault.universal.setUp": "Kur",
+  "vault.universal.unlock": "Kilidi aç",
+  "vault.universal.lockedHint": "Bu bilgisayarda evrensel kasanın kilidini açmak için parola ifadenizi girin.",
+  "vault.universal.syncing": "Eşitleniyor…",
+  "vault.universal.upToDate": "Güncel",
+  "vault.universal.neverSynced": "Henüz eşitlenmedi",
+  "vault.universal.pending": {
+    one: "{count} değişiklik eşitlenmeyi bekliyor",
+    other: "{count} değişiklik eşitlenmeyi bekliyor",
+  },
+  "vault.universal.issueOffline": "Hesap hizmetine ulaşılamıyor. OpenBot yeniden deneyecek.",
+  "vault.universal.issueLimit": "Evrensel kasa dolu. Daha fazla öğe eklemek için bazı öğelerin eşitlenmesini durdurun.",
+  "vault.universal.issueData": "Bazı öğeler eşitlenemedi.",
+  "vault.universal.syncNow": "Şimdi eşitle",
+  "vault.universal.changePassphrase": "Parola ifadesini değiştir",
+  "vault.universal.currentPassphrase": "Geçerli parola ifadesi",
+  "vault.universal.newPassphrase": "Yeni parola ifadesi",
+  "vault.universal.applyChange": "Değiştir",
+  "vault.universal.dismiss": "İptal",
+  "vault.universal.forget": "Bu cihazda unut",
+  "vault.universal.toggle": "Evrensel",
+  "vault.universal.toggleHint": "Bu öğeyi tüm bilgisayarlarınızla eşitle",
+  "vault.universal.badge": "Evrensel",
+  "vault.universal.unshareTitle": "Bu öğenin eşitlenmesi durdurulsun mu?",
+  "vault.universal.unshareBody": "Diğer bilgisayarlarınızdaki kopyalara ne olacağını seçin.",
+  "vault.universal.unshareEverywhere": "Her yerde eşitlemeyi durdur",
+  "vault.universal.unshareEverywhereHint": "Her bilgisayar kendi kopyasını korur.",
+  "vault.universal.unshareHere": "Bu bilgisayarda eşitlemeyi durdur",
+  "vault.universal.unshareHereHint": "Diğer bilgisayarlar eşitlemeye devam eder.",
+  "vault.universal.deleteNote": "Bu evrensel öğe tüm bilgisayarlarınızda silinecek.",
+  "vault.universal.conflictCopy": "(çakışma kopyası)",
+} as const satisfies PartialTranslation<typeof source>;

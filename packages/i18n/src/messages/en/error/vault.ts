@@ -23,4 +23,12 @@ export const messages = defineMessages("error.vault", {
   "error.vault.agentsRequired": "Choose at least one agent.",
   "error.vault.csvInvalid": "This file is not a password export in CSV format.",
   "error.vault.csvTooLarge": "The CSV file is too large.",
+  "error.vault.universalWrongPassphrase": "That passphrase is not correct.",
+  "error.vault.universalPassphraseShort": "Use a passphrase with at least 10 characters.",
+  "error.vault.universalSignIn": "Sign in to your OpenBot account to use the Universal vault.",
+  "error.vault.universalNotSetUp": "The Universal vault is not set up yet.",
+  "error.vault.universalLocked": "Unlock the Universal vault first.",
+  "error.vault.universalExists": "This account has a Universal vault already. Unlock it with its passphrase.",
+  "error.vault.universalChanged": "The passphrase changed on another computer. Try again.",
+  "error.vault.universalUnavailable": "The Universal vault could not be read on this computer.",
 });

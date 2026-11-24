@@ -40,9 +40,18 @@ import type {
   VaultItems,
   VaultTypedLogin,
 } from "../backend/vault-items";
+import { markLocalChanges } from "./universal-vault-items";
 import { parseLoginCsv } from "./vault-csv";
 import { decodeVaultSaveInput, vaultWebsite } from "./vault-inputs";
-import type { StoredApiKey, StoredCard, StoredContact, StoredLogin, VaultRecord, VaultStore } from "./vault-store";
+import type {
+  StoredApiKey,
+  StoredCard,
+  StoredContact,
+  StoredLogin,
+  UniversalMark,
+  VaultRecord,
+  VaultStore,
+} from "./vault-store";
 
 type VaultErrorKey = Extract<keyof SourceMessages, `error.vault.${string}`>;
 
@@ -115,8 +124,15 @@ function scope(
   return agents === undefined ? {} : { agents: [...agents] };
 }
 
-function listedScope(item: { readonly agents?: readonly string[] }): VaultItemScope {
-  return item.agents === undefined ? {} : { agents: [...item.agents] };
+function listedScope(item: { readonly agents?: readonly string[]; readonly universal?: object }): VaultItemScope {
+  return {
+    ...(item.agents === undefined ? {} : { agents: [...item.agents] }),
+    ...(item.universal === undefined ? {} : { universal: true }),
+  };
+}
+
+function carried(existing: { readonly universal?: UniversalMark } | undefined): { universal?: UniversalMark } {
+  return existing?.universal === undefined ? {} : { universal: existing.universal };
 }
 
 function onlyFor(item: { readonly agents?: readonly string[] }, agentId: string): boolean {
@@ -242,7 +258,7 @@ function summary(record: VaultRecord): VaultItemSummary[] {
       }),
     ),
     ...record.contacts.map((item): VaultItemSummary => {
-      const { agents: _agents, ...contact } = item;
+      const { agents: _agents, universal: _universal, ...contact } = item;
       return { ...contact, ...listedScope(item), kind: "contact" };
     }),
     ...record.apiKeys.map(
@@ -308,6 +324,7 @@ export class VaultService {
   readonly #canPersist: () => boolean;
   #status: VaultStatus = "ready";
   readonly #listeners = new Set<(state: VaultState) => void>();
+  readonly #localListeners = new Set<() => void>();
 
   constructor(options: VaultServiceOptions) {
     this.#store = options.store;
@@ -774,6 +791,7 @@ export class VaultService {
           id: existing?.id ?? randomUUID(),
           ...origin(existing, addedBy),
           ...scope(existing, { agents }),
+          ...carried(existing),
         };
         return { record: { ...record, contacts: replaceOrAdd(record.contacts, contact) }, id: contact.id };
       }
@@ -786,6 +804,7 @@ export class VaultService {
 
   #without(record: VaultRecord, id: string): VaultRecord {
     return {
+      ...record,
       logins: record.logins.filter((login) => login.id !== id),
       cards: record.cards
         .filter((card) => card.id !== id)
@@ -813,6 +832,7 @@ export class VaultService {
       ...(twoStepKey ? { twoStepKey } : {}),
       ...origin(existing, addedBy),
       ...scope(existing, input),
+      ...carried(existing),
     };
   }
 
@@ -840,6 +860,7 @@ export class VaultService {
       ...(fillSites.length > 0 ? { fillSites } : {}),
       ...origin(existing, addedBy),
       ...scope(existing, input),
+      ...carried(existing),
     };
   }
 
@@ -864,6 +885,7 @@ export class VaultService {
       notes: input.notes,
       ...origin(existing, addedBy),
       ...agents,
+      ...carried(existing),
     };
   }
 
@@ -880,15 +902,35 @@ export class VaultService {
   readonly #change = Effect.fn("VaultService.change")(function* (
     this: VaultService,
     change: (record: VaultRecord) => VaultRecord,
+    remote = false,
   ) {
     if (this.#status === "unavailable") return yield* vaultError("error.vault.unavailable");
     if (this.#status === "unreadable") return yield* vaultError("error.vault.unreadable");
     const before = this.#store.read();
-    const next = yield* this.#store.update(change);
+    const next = yield* this.#store.update(remote ? change : (record) => markLocalChanges(record, change(record)));
     if (next === before) return;
     registerSecrets(next);
     this.#emit();
+    if (!remote) for (const listener of this.#localListeners) listener();
   });
+
+  readonly applyUniversal = Effect.fn("VaultService.applyUniversal")(function* (
+    this: VaultService,
+    change: (record: VaultRecord) => VaultRecord,
+  ) {
+    yield* this.#change(change, true);
+  });
+
+  universalRecord(): VaultRecord | null {
+    return this.#status === "ready" ? this.#store.read() : null;
+  }
+
+  onLocalChange(listener: () => void): () => void {
+    this.#localListeners.add(listener);
+    return () => {
+      this.#localListeners.delete(listener);
+    };
+  }
 
   #emit(): void {
     const state = this.state();

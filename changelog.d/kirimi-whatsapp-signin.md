@@ -1,5 +1,6 @@
 ### Added
 
+- Universal vault. Tick Universal on a Vault login, card, contact or API key and it syncs to every computer signed in to your account. Items are encrypted on the computer with a passphrase-protected key before upload, so the account service never sees them or the passphrase. Unsharing can leave each computer's copy or stop syncing on one computer only.
 - Owner-managed accounts and closed registration. When the account service has `OWNER_WHATSAPP_NUMBERS` set, only an owner number, a number that already has an account, or a number with a pending invitation can start sign-in. Other numbers get the message "This number has no account. Ask the owner to add it." Owners get an Accounts tab in Settings, on desktop and on the web, to create accounts by WhatsApp number and see the list. Without the setting, registration stays open.
 
 ### Changed

@@ -17,4 +17,12 @@ export const messages = {
   "error.vault.contactMissing": "该账单联系人已不在保险库中。",
   "error.vault.csvInvalid": "该文件不是 CSV 格式的密码导出文件。",
   "error.vault.csvTooLarge": "CSV 文件过大。",
+  "error.vault.universalWrongPassphrase": "口令不正确。",
+  "error.vault.universalPassphraseShort": "请使用至少 10 个字符的口令。",
+  "error.vault.universalSignIn": "请登录你的 OpenBot 账户以使用通用保险库。",
+  "error.vault.universalNotSetUp": "通用保险库尚未设置。",
+  "error.vault.universalLocked": "请先解锁通用保险库。",
+  "error.vault.universalExists": "此账户已有通用保险库。请使用其口令解锁。",
+  "error.vault.universalChanged": "口令已在另一台电脑上更改。请重试。",
+  "error.vault.universalUnavailable": "无法在此电脑上读取通用保险库。",
 } as const satisfies PartialTranslation<typeof source>;

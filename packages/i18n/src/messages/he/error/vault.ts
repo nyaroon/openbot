@@ -21,4 +21,12 @@ export const messages = {
   "error.vault.apiKeyNameTaken": "בכספת כבר יש מפתח API עם שם המשתנה הזה.",
   "error.vault.csvInvalid": "הקובץ הזה אינו ייצוא סיסמאות בפורמט CSV.",
   "error.vault.csvTooLarge": "קובץ ה-CSV גדול מדי.",
+  "error.vault.universalWrongPassphrase": "ביטוי הסיסמה הזה אינו נכון.",
+  "error.vault.universalPassphraseShort": "השתמשו בביטוי סיסמה של 10 תווים לפחות.",
+  "error.vault.universalSignIn": "היכנסו לחשבון OpenBot כדי להשתמש בכספת האוניברסלית.",
+  "error.vault.universalNotSetUp": "הכספת האוניברסלית עדיין לא הוגדרה.",
+  "error.vault.universalLocked": "בטלו קודם את נעילת הכספת האוניברסלית.",
+  "error.vault.universalExists": "לחשבון הזה כבר יש כספת אוניברסלית. בטלו את נעילתה באמצעות ביטוי הסיסמה שלה.",
+  "error.vault.universalChanged": "ביטוי הסיסמה שונה במחשב אחר. נסו שוב.",
+  "error.vault.universalUnavailable": "לא ניתן היה לקרוא את הכספת האוניברסלית במחשב הזה.",
 } as const satisfies PartialTranslation<typeof source>;

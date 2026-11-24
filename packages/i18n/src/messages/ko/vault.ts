@@ -1,4 +1,39 @@
 import type { PartialTranslation } from "../../message";
 import type { messages as source } from "../en/vault";
 
-export const messages = {} as const satisfies PartialTranslation<typeof source>;
+export const messages = {
+  "vault.universal.title": "범용 보관함",
+  "vault.universal.intro":
+    "‘범용’으로 표시한 항목은 이 컴퓨터에서 암호화되어 계정에 로그인한 모든 컴퓨터와 동기화됩니다. 계정 서비스는 항목도, 암호 문구도 절대 볼 수 없습니다.",
+  "vault.universal.signedOut": "범용 보관함을 사용하려면 OpenBot 계정에 로그인하세요.",
+  "vault.universal.passphrase": "암호 문구",
+  "vault.universal.passphraseHint": "10자 이상을 사용하세요. 분실하면 동기화된 항목을 복구할 수 없습니다.",
+  "vault.universal.setUp": "설정",
+  "vault.universal.unlock": "잠금 해제",
+  "vault.universal.lockedHint": "이 컴퓨터에서 범용 보관함의 잠금을 해제하려면 암호 문구를 입력하세요.",
+  "vault.universal.syncing": "동기화 중…",
+  "vault.universal.upToDate": "최신 상태",
+  "vault.universal.neverSynced": "아직 동기화되지 않음",
+  "vault.universal.pending": { other: "변경 사항 {count}개가 동기화를 기다리고 있습니다" },
+  "vault.universal.issueOffline": "계정 서비스에 연결할 수 없습니다. OpenBot이 다시 시도합니다.",
+  "vault.universal.issueLimit": "범용 보관함이 가득 찼습니다. 더 추가하려면 일부 항목의 동기화를 중지하세요.",
+  "vault.universal.issueData": "일부 항목을 동기화하지 못했습니다.",
+  "vault.universal.syncNow": "지금 동기화",
+  "vault.universal.changePassphrase": "암호 문구 변경",
+  "vault.universal.currentPassphrase": "현재 암호 문구",
+  "vault.universal.newPassphrase": "새 암호 문구",
+  "vault.universal.applyChange": "변경",
+  "vault.universal.dismiss": "취소",
+  "vault.universal.forget": "이 기기에서 지우기",
+  "vault.universal.toggle": "범용",
+  "vault.universal.toggleHint": "이 항목을 모든 컴퓨터와 동기화",
+  "vault.universal.badge": "범용",
+  "vault.universal.unshareTitle": "이 항목의 동기화를 중지할까요?",
+  "vault.universal.unshareBody": "다른 컴퓨터에 있는 사본을 어떻게 할지 선택하세요.",
+  "vault.universal.unshareEverywhere": "모든 곳에서 동기화 중지",
+  "vault.universal.unshareEverywhereHint": "각 컴퓨터가 자신의 사본을 유지합니다.",
+  "vault.universal.unshareHere": "이 컴퓨터에서만 동기화 중지",
+  "vault.universal.unshareHereHint": "다른 컴퓨터는 계속 동기화합니다.",
+  "vault.universal.deleteNote": "이 범용 항목은 모든 컴퓨터에서 삭제됩니다.",
+  "vault.universal.conflictCopy": "(충돌 사본)",
+} as const satisfies PartialTranslation<typeof source>;

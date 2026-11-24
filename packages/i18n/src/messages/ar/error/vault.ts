@@ -21,4 +21,12 @@ export const messages = {
   "error.vault.apiKeyNameTaken": "تحتوي الخزنة بالفعل على مفتاح API باسم المتغير هذا.",
   "error.vault.csvInvalid": "هذا الملف ليس تصدير كلمات مرور بتنسيق CSV.",
   "error.vault.csvTooLarge": "ملف CSV كبير جدًا.",
+  "error.vault.universalWrongPassphrase": "عبارة المرور هذه غير صحيحة.",
+  "error.vault.universalPassphraseShort": "استخدم عبارة مرور من 10 أحرف على الأقل.",
+  "error.vault.universalSignIn": "سجّل الدخول إلى حساب OpenBot لاستخدام الخزنة العامة.",
+  "error.vault.universalNotSetUp": "لم يتم إعداد الخزنة العامة بعد.",
+  "error.vault.universalLocked": "افتح قفل الخزنة العامة أولًا.",
+  "error.vault.universalExists": "لدى هذا الحساب خزنة عامة بالفعل. افتح قفلها بعبارة المرور الخاصة بها.",
+  "error.vault.universalChanged": "تم تغيير عبارة المرور على كمبيوتر آخر. حاول مرة أخرى.",
+  "error.vault.universalUnavailable": "تعذّرت قراءة الخزنة العامة على هذا الكمبيوتر.",
 } as const satisfies PartialTranslation<typeof source>;

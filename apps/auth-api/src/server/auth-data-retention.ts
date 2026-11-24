@@ -1,4 +1,5 @@
 import { Context, Effect, Layer, Schema } from "effect";
+import { VAULT_TOMBSTONE_RETENTION_MS } from "./account-vault";
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60_000;
 
@@ -12,6 +13,7 @@ export interface AuthRetentionResult {
   mobileConnectLinks: number;
   serverClaims: number;
   extensionSignIn: number;
+  vaultTombstones: number;
 }
 
 interface AuthRetentionOperation {
@@ -82,6 +84,11 @@ function authRetentionOperations(now: number): AuthRetentionOperation[] {
       sql: "DELETE FROM company_sign_in_codes WHERE expires_at <= ? OR redeemed_at IS NOT NULL",
       cutoff: now,
     },
+    {
+      name: "vaultTombstones",
+      sql: "DELETE FROM account_vault_items WHERE deleted_at IS NOT NULL AND deleted_at <= ?",
+      cutoff: now - VAULT_TOMBSTONE_RETENTION_MS,
+    },
   ];
 }
 
@@ -110,6 +117,7 @@ const prune = Effect.fn("AuthRetention.prune")(function* (now: number) {
     mobileConnectLinks: 0,
     serverClaims: 0,
     extensionSignIn: 0,
+    vaultTombstones: 0,
   };
   for (const [index, operation] of operations.entries()) {
     deleted[operation.name] += results[index]?.meta.changes ?? 0;

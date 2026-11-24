@@ -371,6 +371,7 @@ import {
   decodeTeamPresenceSnapshot,
   decodeTeamSessions,
 } from "./team-decoding";
+import { decodeUniversalVaultState } from "./universal-vault-decoding";
 import { decodeVaultCodes, decodeVaultImportResult, decodeVaultSecret, decodeVaultState } from "./vault-decoding";
 import {
   decodeWorkflowDetail,
@@ -1072,6 +1073,17 @@ const openbotApi: OpenBotDesktopApi = {
     hostStatus: decodeBitwardenConnectorStatus,
     hostConnect: decodeBitwardenConnectorStatus,
     hostDisconnect: decodeBitwardenConnectorStatus,
+  }),
+  universalVault: bridgeGroup(IPC_ENDPOINTS.universalVault, {
+    status: decodeUniversalVaultState,
+    setUp: decodeUniversalVaultState,
+    unlock: decodeUniversalVaultState,
+    changePassphrase: decodeUniversalVaultState,
+    forgetOnThisDevice: decodeUniversalVaultState,
+    syncNow: decodeUniversalVaultState,
+    setUniversal: decodeUniversalVaultState,
+    removeUniversalVault: decodeUniversalVaultState,
+    changed: decodeUniversalVaultState,
   }),
   vault: bridgeGroup(IPC_ENDPOINTS.vault, {
     list: decodeVaultState,

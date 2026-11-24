@@ -53,6 +53,7 @@ export type SkillsDesktopApi = GroupApi<IpcEndpoints["skills"]>;
 
 export type GitHubConnectorDesktopApi = GroupApi<IpcEndpoints["githubConnector"]>;
 export type LinkAccountDesktopApi = GroupApi<IpcEndpoints["linkAccount"]>;
+export type UniversalVaultDesktopApi = GroupApi<IpcEndpoints["universalVault"]>;
 export type OnePasswordConnectorDesktopApi = GroupApi<IpcEndpoints["onePasswordConnector"]>;
 export type RoutineFeedDesktopApi = GroupApi<IpcEndpoints["routineFeed"]>;
 

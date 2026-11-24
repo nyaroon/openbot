@@ -444,6 +444,7 @@ import { TeamWebRtcClientTransport } from "./team-webrtc-client-transport";
 import type { TeardownRegistry } from "./teardown-registry";
 import { THEME_PALETTE_DIRECTORY } from "./theme-palette-files";
 import { TraceFile } from "./trace-file";
+import { UniversalVaultService } from "./universal-vault-service";
 import {
   macShipItDirectory,
   readNotInstalledUpdate,
@@ -545,6 +546,7 @@ const ONEPASSWORD_CONNECTOR_FILE = "openbot-onepassword-connector-v1.json";
 const BITWARDEN_CONNECTOR_FILE = "openbot-bitwarden-connector-v1.json";
 const PROTONPASS_CONNECTOR_FILE = "openbot-protonpass-connector-v1.json";
 const VAULT_FILE = "openbot-vault-v1.json";
+const UNIVERSAL_VAULT_KEY_FILE = "openbot-universal-vault-key-v1.json";
 const HERMES_IMPORT_LINKS_FILE = "openbot-hermes-imports-v1.json";
 
 const PACKAGED_BUNDLE_IDENTIFIER = "app.openbot.desktop";
@@ -607,6 +609,7 @@ const TEARDOWN_ORDER = {
   cuaDriver: 110.5,
   mcpOAuth: 111,
   analytics: 112,
+  universalVault: 114,
   centralAuth: 115,
   trace: 120,
   providerLog: 121,
@@ -662,6 +665,7 @@ export interface ApplicationServices {
   bitwardenConnector: BitwardenConnectorService;
   passwordManagers: PasswordManagersService;
   vault: VaultService;
+  universalVault: UniversalVaultService;
   mailbox: MailboxStore;
   storageUsage: StorageUsageService;
   libraryFoldersService: LibraryFoldersService;
@@ -1761,6 +1765,15 @@ export async function createApplicationServices({
     canPersist: secretCipher.canPersist,
   });
   await Effect.runPromise(vault.load());
+  const universalVault = new UniversalVaultService({
+    auth: centralAuth,
+    vault,
+    keyPath: join(app.getPath("userData"), UNIVERSAL_VAULT_KEY_FILE),
+    cipher: secretCipher,
+    conflictSuffix: () => language.translate("vault.universal.conflictCopy"),
+  });
+  void Effect.runPromise(universalVault.start());
+  teardown.push(TEARDOWN_ORDER.universalVault, "the Universal vault", () => universalVault.dispose());
 
   const onePasswordCliTarget = runtimeTarget(process.platform, process.arch);
   const onePasswordConnector = new OnePasswordConnectorService({
@@ -4160,6 +4173,7 @@ export async function createApplicationServices({
     bitwardenConnector,
     passwordManagers,
     vault,
+    universalVault,
     mailbox,
     storageUsage,
     libraryFoldersService,

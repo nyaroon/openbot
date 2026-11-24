@@ -123,6 +123,7 @@ import { Route as V1MeAnalyticsRouteImport } from './routes/v1/me/analytics'
 import { Route as V1MeAvatarRouteImport } from './routes/v1/me/avatar'
 import { Route as V1MeChatColorRouteImport } from './routes/v1/me/chat-color'
 import { Route as V1MeProfileRouteImport } from './routes/v1/me/profile'
+import { Route as V1MeVaultRouteImport } from './routes/v1/me/vault'
 import { Route as V1MobileAuthDevicesRouteImport } from './routes/v1/mobile-auth/devices'
 import { Route as V1MobileAuthLinkRouteImport } from './routes/v1/mobile-auth/link'
 import { Route as V1MobileAuthRedeemRouteImport } from './routes/v1/mobile-auth/redeem'
@@ -153,6 +154,7 @@ import { Route as V1AuthWhatsappStatusRouteImport } from './routes/v1/auth/whats
 import { Route as V1MarketplaceAgentsIndexRouteImport } from './routes/v1/marketplace/agents/index'
 import { Route as V1MarketplaceAgentsAgentIdRouteImport } from './routes/v1/marketplace/agents/$agentId'
 import { Route as V1MarketplaceAgentsMineRouteImport } from './routes/v1/marketplace/agents/mine'
+import { Route as V1MeVaultItemsRouteImport } from './routes/v1/me/vault/items'
 import { Route as V1MobileAuthDevicesSessionIdRouteImport } from './routes/v1/mobile-auth/devices/$sessionId'
 import { Route as V1MobileAuthEmailVerifyRouteImport } from './routes/v1/mobile-auth/email/verify'
 import { Route as V1SkillsSkillIdCardRouteImport } from './routes/v1/skills/$skillId/card'
@@ -182,6 +184,7 @@ import { Route as V1MarketplaceAgentsAgentIdCardRouteImport } from './routes/v1/
 import { Route as V1MarketplaceAgentsAgentIdInstallRouteImport } from './routes/v1/marketplace/agents/$agentId/install'
 import { Route as V1MarketplaceAgentsAgentIdListingRouteImport } from './routes/v1/marketplace/agents/$agentId/listing'
 import { Route as V1MarketplaceAgentsAdminSubmissionsRouteImport } from './routes/v1/marketplace/agents/admin/submissions'
+import { Route as V1MeVaultItemsItemIdRouteImport } from './routes/v1/me/vault/items/$itemId'
 import { Route as V1SkillsSkillIdVersionsVersionIdRouteImport } from './routes/v1/skills/$skillId/versions/$versionId'
 import { Route as V1SkillsAdminCardsVersionIdRouteImport } from './routes/v1/skills/admin/cards/$versionId'
 import { Route as V1SkillsAdminFeaturedSkillIdRouteImport } from './routes/v1/skills/admin/featured/$skillId'
@@ -794,6 +797,11 @@ const V1MeProfileRoute = V1MeProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => V1MeRoute,
 } as any)
+const V1MeVaultRoute = V1MeVaultRouteImport.update({
+  id: '/vault',
+  path: '/vault',
+  getParentRoute: () => V1MeRoute,
+} as any)
 const V1MobileAuthDevicesRoute = V1MobileAuthDevicesRouteImport.update({
   id: '/v1/mobile-auth/devices',
   path: '/v1/mobile-auth/devices',
@@ -947,6 +955,11 @@ const V1MarketplaceAgentsMineRoute = V1MarketplaceAgentsMineRouteImport.update({
   id: '/v1/marketplace/agents/mine',
   path: '/v1/marketplace/agents/mine',
   getParentRoute: () => rootRouteImport,
+} as any)
+const V1MeVaultItemsRoute = V1MeVaultItemsRouteImport.update({
+  id: '/items',
+  path: '/items',
+  getParentRoute: () => V1MeVaultRoute,
 } as any)
 const V1MobileAuthDevicesSessionIdRoute =
   V1MobileAuthDevicesSessionIdRouteImport.update({
@@ -1109,6 +1122,11 @@ const V1MarketplaceAgentsAdminSubmissionsRoute =
     path: '/v1/marketplace/agents/admin/submissions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const V1MeVaultItemsItemIdRoute = V1MeVaultItemsItemIdRouteImport.update({
+  id: '/$itemId',
+  path: '/$itemId',
+  getParentRoute: () => V1MeVaultItemsRoute,
+} as any)
 const V1SkillsSkillIdVersionsVersionIdRoute =
   V1SkillsSkillIdVersionsVersionIdRouteImport.update({
     id: '/versions/$versionId',
@@ -1447,6 +1465,7 @@ export interface FileRoutesByFullPath {
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
   '/v1/me/profile': typeof V1MeProfileRoute
+  '/v1/me/vault': typeof V1MeVaultRouteWithChildren
   '/v1/mobile-auth/devices': typeof V1MobileAuthDevicesRouteWithChildren
   '/v1/mobile-auth/link': typeof V1MobileAuthLinkRoute
   '/v1/mobile-auth/redeem': typeof V1MobileAuthRedeemRoute
@@ -1478,6 +1497,7 @@ export interface FileRoutesByFullPath {
   '/v1/auth/whatsapp/status': typeof V1AuthWhatsappStatusRoute
   '/v1/marketplace/agents/$agentId': typeof V1MarketplaceAgentsAgentIdRouteWithChildren
   '/v1/marketplace/agents/mine': typeof V1MarketplaceAgentsMineRoute
+  '/v1/me/vault/items': typeof V1MeVaultItemsRouteWithChildren
   '/v1/mobile-auth/devices/$sessionId': typeof V1MobileAuthDevicesSessionIdRoute
   '/v1/mobile-auth/email/verify': typeof V1MobileAuthEmailVerifyRoute
   '/v1/skills/$skillId/card': typeof V1SkillsSkillIdCardRoute
@@ -1508,6 +1528,7 @@ export interface FileRoutesByFullPath {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
+  '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
   '/v1/skills/admin/featured/$skillId': typeof V1SkillsAdminFeaturedSkillIdRoute
@@ -1657,6 +1678,7 @@ export interface FileRoutesByTo {
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
   '/v1/me/profile': typeof V1MeProfileRoute
+  '/v1/me/vault': typeof V1MeVaultRouteWithChildren
   '/v1/mobile-auth/devices': typeof V1MobileAuthDevicesRouteWithChildren
   '/v1/mobile-auth/link': typeof V1MobileAuthLinkRoute
   '/v1/mobile-auth/redeem': typeof V1MobileAuthRedeemRoute
@@ -1688,6 +1710,7 @@ export interface FileRoutesByTo {
   '/v1/auth/whatsapp/status': typeof V1AuthWhatsappStatusRoute
   '/v1/marketplace/agents/$agentId': typeof V1MarketplaceAgentsAgentIdRouteWithChildren
   '/v1/marketplace/agents/mine': typeof V1MarketplaceAgentsMineRoute
+  '/v1/me/vault/items': typeof V1MeVaultItemsRouteWithChildren
   '/v1/mobile-auth/devices/$sessionId': typeof V1MobileAuthDevicesSessionIdRoute
   '/v1/mobile-auth/email/verify': typeof V1MobileAuthEmailVerifyRoute
   '/v1/skills/$skillId/card': typeof V1SkillsSkillIdCardRoute
@@ -1718,6 +1741,7 @@ export interface FileRoutesByTo {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
+  '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
   '/v1/skills/admin/featured/$skillId': typeof V1SkillsAdminFeaturedSkillIdRoute
@@ -1871,6 +1895,7 @@ export interface FileRoutesById {
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
   '/v1/me/profile': typeof V1MeProfileRoute
+  '/v1/me/vault': typeof V1MeVaultRouteWithChildren
   '/v1/mobile-auth/devices': typeof V1MobileAuthDevicesRouteWithChildren
   '/v1/mobile-auth/link': typeof V1MobileAuthLinkRoute
   '/v1/mobile-auth/redeem': typeof V1MobileAuthRedeemRoute
@@ -1902,6 +1927,7 @@ export interface FileRoutesById {
   '/v1/auth/whatsapp/status': typeof V1AuthWhatsappStatusRoute
   '/v1/marketplace/agents/$agentId': typeof V1MarketplaceAgentsAgentIdRouteWithChildren
   '/v1/marketplace/agents/mine': typeof V1MarketplaceAgentsMineRoute
+  '/v1/me/vault/items': typeof V1MeVaultItemsRouteWithChildren
   '/v1/mobile-auth/devices/$sessionId': typeof V1MobileAuthDevicesSessionIdRoute
   '/v1/mobile-auth/email/verify': typeof V1MobileAuthEmailVerifyRoute
   '/v1/skills/$skillId/card': typeof V1SkillsSkillIdCardRoute
@@ -1932,6 +1958,7 @@ export interface FileRoutesById {
   '/v1/marketplace/agents/$agentId/install': typeof V1MarketplaceAgentsAgentIdInstallRoute
   '/v1/marketplace/agents/$agentId/listing': typeof V1MarketplaceAgentsAgentIdListingRoute
   '/v1/marketplace/agents/admin/submissions': typeof V1MarketplaceAgentsAdminSubmissionsRouteWithChildren
+  '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
   '/v1/skills/admin/featured/$skillId': typeof V1SkillsAdminFeaturedSkillIdRoute
@@ -2083,6 +2110,7 @@ export interface FileRouteTypes {
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
     | '/v1/me/profile'
+    | '/v1/me/vault'
     | '/v1/mobile-auth/devices'
     | '/v1/mobile-auth/link'
     | '/v1/mobile-auth/redeem'
@@ -2114,6 +2142,7 @@ export interface FileRouteTypes {
     | '/v1/auth/whatsapp/status'
     | '/v1/marketplace/agents/$agentId'
     | '/v1/marketplace/agents/mine'
+    | '/v1/me/vault/items'
     | '/v1/mobile-auth/devices/$sessionId'
     | '/v1/mobile-auth/email/verify'
     | '/v1/skills/$skillId/card'
@@ -2144,6 +2173,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
+    | '/v1/me/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
     | '/v1/skills/admin/featured/$skillId'
@@ -2293,6 +2323,7 @@ export interface FileRouteTypes {
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
     | '/v1/me/profile'
+    | '/v1/me/vault'
     | '/v1/mobile-auth/devices'
     | '/v1/mobile-auth/link'
     | '/v1/mobile-auth/redeem'
@@ -2324,6 +2355,7 @@ export interface FileRouteTypes {
     | '/v1/auth/whatsapp/status'
     | '/v1/marketplace/agents/$agentId'
     | '/v1/marketplace/agents/mine'
+    | '/v1/me/vault/items'
     | '/v1/mobile-auth/devices/$sessionId'
     | '/v1/mobile-auth/email/verify'
     | '/v1/skills/$skillId/card'
@@ -2354,6 +2386,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
+    | '/v1/me/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
     | '/v1/skills/admin/featured/$skillId'
@@ -2506,6 +2539,7 @@ export interface FileRouteTypes {
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
     | '/v1/me/profile'
+    | '/v1/me/vault'
     | '/v1/mobile-auth/devices'
     | '/v1/mobile-auth/link'
     | '/v1/mobile-auth/redeem'
@@ -2537,6 +2571,7 @@ export interface FileRouteTypes {
     | '/v1/auth/whatsapp/status'
     | '/v1/marketplace/agents/$agentId'
     | '/v1/marketplace/agents/mine'
+    | '/v1/me/vault/items'
     | '/v1/mobile-auth/devices/$sessionId'
     | '/v1/mobile-auth/email/verify'
     | '/v1/skills/$skillId/card'
@@ -2567,6 +2602,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/$agentId/install'
     | '/v1/marketplace/agents/$agentId/listing'
     | '/v1/marketplace/agents/admin/submissions'
+    | '/v1/me/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
     | '/v1/skills/admin/featured/$skillId'
@@ -3555,6 +3591,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1MeProfileRouteImport
       parentRoute: typeof V1MeRoute
     }
+    '/v1/me/vault': {
+      id: '/v1/me/vault'
+      path: '/vault'
+      fullPath: '/v1/me/vault'
+      preLoaderRoute: typeof V1MeVaultRouteImport
+      parentRoute: typeof V1MeRoute
+    }
     '/v1/mobile-auth/devices': {
       id: '/v1/mobile-auth/devices'
       path: '/v1/mobile-auth/devices'
@@ -3765,6 +3808,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1MarketplaceAgentsMineRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/v1/me/vault/items': {
+      id: '/v1/me/vault/items'
+      path: '/items'
+      fullPath: '/v1/me/vault/items'
+      preLoaderRoute: typeof V1MeVaultItemsRouteImport
+      parentRoute: typeof V1MeVaultRoute
+    }
     '/v1/mobile-auth/devices/$sessionId': {
       id: '/v1/mobile-auth/devices/$sessionId'
       path: '/$sessionId'
@@ -3967,6 +4017,13 @@ declare module '@tanstack/solid-router' {
       fullPath: '/v1/marketplace/agents/admin/submissions'
       preLoaderRoute: typeof V1MarketplaceAgentsAdminSubmissionsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/v1/me/vault/items/$itemId': {
+      id: '/v1/me/vault/items/$itemId'
+      path: '/$itemId'
+      fullPath: '/v1/me/vault/items/$itemId'
+      preLoaderRoute: typeof V1MeVaultItemsItemIdRouteImport
+      parentRoute: typeof V1MeVaultItemsRoute
     }
     '/v1/skills/$skillId/versions/$versionId': {
       id: '/v1/skills/$skillId/versions/$versionId'
@@ -4366,11 +4423,36 @@ const V1FeedbackRouteWithChildren = V1FeedbackRoute._addFileChildren(
   V1FeedbackRouteChildren,
 )
 
+interface V1MeVaultItemsRouteChildren {
+  V1MeVaultItemsItemIdRoute: typeof V1MeVaultItemsItemIdRoute
+}
+
+const V1MeVaultItemsRouteChildren: V1MeVaultItemsRouteChildren = {
+  V1MeVaultItemsItemIdRoute: V1MeVaultItemsItemIdRoute,
+}
+
+const V1MeVaultItemsRouteWithChildren = V1MeVaultItemsRoute._addFileChildren(
+  V1MeVaultItemsRouteChildren,
+)
+
+interface V1MeVaultRouteChildren {
+  V1MeVaultItemsRoute: typeof V1MeVaultItemsRouteWithChildren
+}
+
+const V1MeVaultRouteChildren: V1MeVaultRouteChildren = {
+  V1MeVaultItemsRoute: V1MeVaultItemsRouteWithChildren,
+}
+
+const V1MeVaultRouteWithChildren = V1MeVaultRoute._addFileChildren(
+  V1MeVaultRouteChildren,
+)
+
 interface V1MeRouteChildren {
   V1MeAnalyticsRoute: typeof V1MeAnalyticsRoute
   V1MeAvatarRoute: typeof V1MeAvatarRoute
   V1MeChatColorRoute: typeof V1MeChatColorRoute
   V1MeProfileRoute: typeof V1MeProfileRoute
+  V1MeVaultRoute: typeof V1MeVaultRouteWithChildren
 }
 
 const V1MeRouteChildren: V1MeRouteChildren = {
@@ -4378,6 +4460,7 @@ const V1MeRouteChildren: V1MeRouteChildren = {
   V1MeAvatarRoute: V1MeAvatarRoute,
   V1MeChatColorRoute: V1MeChatColorRoute,
   V1MeProfileRoute: V1MeProfileRoute,
+  V1MeVaultRoute: V1MeVaultRouteWithChildren,
 }
 
 const V1MeRouteWithChildren = V1MeRoute._addFileChildren(V1MeRouteChildren)

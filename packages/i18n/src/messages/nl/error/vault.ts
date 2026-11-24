@@ -18,4 +18,12 @@ export const messages = {
   "error.vault.contactMissing": "Het factuurcontact staat niet meer in de Kluis.",
   "error.vault.csvInvalid": "Dit bestand is geen wachtwoordexport in CSV-indeling.",
   "error.vault.csvTooLarge": "Het CSV-bestand is te groot.",
+  "error.vault.universalWrongPassphrase": "Die wachtwoordzin is niet juist.",
+  "error.vault.universalPassphraseShort": "Gebruik een wachtwoordzin van minstens 10 tekens.",
+  "error.vault.universalSignIn": "Meld je aan bij je OpenBot-account om de universele kluis te gebruiken.",
+  "error.vault.universalNotSetUp": "De universele kluis is nog niet ingesteld.",
+  "error.vault.universalLocked": "Ontgrendel eerst de universele kluis.",
+  "error.vault.universalExists": "Dit account heeft al een universele kluis. Ontgrendel hem met zijn wachtwoordzin.",
+  "error.vault.universalChanged": "De wachtwoordzin is op een andere computer gewijzigd. Probeer het opnieuw.",
+  "error.vault.universalUnavailable": "De universele kluis kon op deze computer niet worden gelezen.",
 } as const satisfies PartialTranslation<typeof source>;

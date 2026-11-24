@@ -590,6 +590,12 @@ import type {
   UpdateHostIdentityInput,
   UpdateTeamMemberInput,
 } from "./ipc-team-host";
+import type {
+  UniversalVaultChangePassphraseInput,
+  UniversalVaultSetItemInput,
+  UniversalVaultSetUpInput,
+  UniversalVaultState,
+} from "./ipc-universal-vault";
 import type { VaultImportResult, VaultSaveInput, VaultSecretRequest, VaultState, VaultTwoStepCodes } from "./ipc-vault";
 import type {
   HostVoiceModel,
@@ -1312,6 +1318,19 @@ export const IPC_ENDPOINTS = {
     disconnect: request<undefined, LinkAccountStatus>()("link-account:disconnect"),
     changed: event<LinkAccountStatus>()("link-account:changed"),
   },
+  universalVault: {
+    status: request<undefined, UniversalVaultState>()("universal-vault:status"),
+    setUp: request<UniversalVaultSetUpInput, UniversalVaultState>()("universal-vault:set-up"),
+    unlock: request<UniversalVaultSetUpInput, UniversalVaultState>()("universal-vault:unlock"),
+    changePassphrase: request<UniversalVaultChangePassphraseInput, UniversalVaultState>()(
+      "universal-vault:change-passphrase",
+    ),
+    forgetOnThisDevice: request<undefined, UniversalVaultState>()("universal-vault:forget"),
+    syncNow: request<undefined, UniversalVaultState>()("universal-vault:sync-now"),
+    setUniversal: request<UniversalVaultSetItemInput, UniversalVaultState>()("universal-vault:set-item"),
+    removeUniversalVault: request<undefined, UniversalVaultState>()("universal-vault:remove"),
+    changed: event<UniversalVaultState>()("universal-vault:changed"),
+  },
   vault: {
     list: request<undefined, VaultState>()("vault:list"),
     save: request<VaultSaveInput, VaultState>()("vault:save"),
@@ -1995,6 +2014,7 @@ export const IPC_GROUP_PATHS = {
   passwordManagers: "passwordManagers",
   linkAccount: "linkAccount",
   vault: "vault",
+  universalVault: "universalVault",
   routineFeed: "routineFeed",
   workflows: "workflows",
   crm: "crm",

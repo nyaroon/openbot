@@ -877,3 +877,30 @@ Chrome Web Store permission notes (for the store listing):
 The Team API E2E (`scripts/team-api-routes-e2e.ts`, "A member's shared Chrome tabs") checks the
 capability, presence, delivery to one session, foreign and late answers, denial, timeout, refusals,
 and the end of a presence.
+
+## Universal vault
+
+A Vault item ticked Universal syncs to every computer signed in to the same account. The device
+encrypts it with AES-256-GCM under a random data key (`src/main/universal-vault-crypto.ts`). A key
+derived from a passphrase with scrypt (N 2^17, r 8, p 1) wraps the data key. The ciphertext is bound
+to the user id, the item id and the kind as associated data. The account service
+(`apps/auth-api/src/server/account-vault.ts`, migration `0071_account_vault.sql`) stores the wrapped
+key and the ciphertext. It never sees plaintext, the passphrase or the key. The unlocked key stays on
+the device in a file that is bound to the account and encrypted with the OS keystore.
+
+- Routes: `GET`/`PUT`/`DELETE /v1/me/vault`, `GET /v1/me/vault/items?since=`, and
+  `PUT`/`DELETE /v1/me/vault/items/:itemId`. Every write names the revision it is based on; a stale
+  write gets `vault_item_conflict` or `vault_conflict`. A per-user `change_seq` is the pull cursor.
+- Limits: 64 KiB of ciphertext per item and 2000 live items. Removed items stay as tombstones for 90
+  days, then the retention job purges them. Deleting the account deletes the vault.
+- Desktop: `UniversalVaultService` follows the sign-in state, pulls on sign-in, unlock, a manual sync
+  and every five minutes, and pushes after a local change through `VaultService.onLocalChange`. Every
+  write path, including team and agent writes, goes through `VaultService.#change`, so one hook covers
+  them all. Changes made while offline or locked stay queued and retry.
+- Merge: a pending local edit beats a remote delete. If both sides changed an item, the local content
+  is kept as a conflict copy. An item that arrives from another computer has no `agents` list, so it follows the Vault's
+  default of being available to every agent until the user narrows it. A contact that a Universal card
+  uses as its billing contact syncs with it.
+- Unshare: "all devices" keeps every computer's copy and records an `unshared` tombstone. "This
+  device" only stops syncing here. Deleting a Universal item records a `deleted` tombstone and removes
+  it everywhere.

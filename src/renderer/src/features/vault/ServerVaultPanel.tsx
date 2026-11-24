@@ -3,6 +3,7 @@ import { useText } from "@openbot/ui/text";
 import { createEffect, createSignal, onSettled, Show } from "solid-js";
 import { actionToast } from "../../action-toast";
 import type { LinkAccountStore } from "./stores/link-account-store";
+import type { UniversalVaultStore } from "./stores/universal-vault-store";
 import type { VaultStore } from "./stores/vault-store";
 
 export interface ServerVaultOptions {
@@ -10,6 +11,7 @@ export interface ServerVaultOptions {
   apiKeys: boolean;
   twoStep: boolean;
   link?: LinkAccountStore | undefined;
+  universal?: UniversalVaultStore | undefined;
   listAgents?: (() => Promise<readonly VaultAgentChoice[]>) | undefined;
 }
 
@@ -37,9 +39,13 @@ export function ServerVaultPanel(props: ServerVaultOptions & { menuMount: HTMLEl
     const link = props.link;
     const stopLink = link?.subscribe();
     link?.refresh().catch((error: unknown) => actionToast.error(errorMessage(error, t("vault.link.failed"))));
+    const universal = props.universal;
+    const stopUniversal = universal?.subscribe();
+    universal?.refresh().catch((error: unknown) => actionToast.error(errorMessage(error, t("vault.loadFailed"))));
     return () => {
       unsubscribe();
       stopLink?.();
+      stopUniversal?.();
     };
   });
   const linkAccount = () => {
@@ -50,6 +56,19 @@ export function ServerVaultPanel(props: ServerVaultOptions & { menuMount: HTMLEl
       onConnect: link.connect,
       onCancel: link.cancel,
       onDisconnect: link.disconnect,
+    };
+  };
+  const universalVault = () => {
+    const universal = props.universal;
+    if (!universal) return undefined;
+    return {
+      state: universal.state.vault,
+      onSetUp: universal.setUp,
+      onUnlock: universal.unlock,
+      onChangePassphrase: universal.changePassphrase,
+      onForget: universal.forget,
+      onSyncNow: universal.syncNow,
+      onSetItem: universal.setItem,
     };
   };
   const onCodes = () => (props.twoStep ? props.store.codes : undefined);
@@ -76,6 +95,7 @@ export function ServerVaultPanel(props: ServerVaultOptions & { menuMount: HTMLEl
           onReset={props.store.reset}
           menuMount={props.menuMount}
           link={linkAccount()}
+          universal={universalVault()}
         />
       )}
     </Show>

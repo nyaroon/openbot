@@ -4,6 +4,7 @@ import { isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import { Effect } from "effect";
 import { type AccountAnalytics, createAccountAnalytics } from "./account-analytics";
 import { AccountAttribution } from "./account-attribution";
+import { AccountVault, AccountVaultError } from "./account-vault";
 import { adminTokenMatches } from "./admin-token";
 import { AgentMarketplace, AgentMarketplaceError } from "./agent-marketplace";
 import { AgentTemplates } from "./agent-templates";
@@ -387,6 +388,17 @@ export function requestDiscordApp(): DiscordAppService {
 
 export function discordAppErrorResponse(error: unknown): Response {
   if (error instanceof DiscordAppError) return apiError(error.status, error.code, error.message);
+  return authErrorResponse(error);
+}
+
+export function requestAccountVault(): AccountVault {
+  return new AccountVault(requireWorkerBindings(env).DB);
+}
+
+export function accountVaultErrorResponse(error: unknown): Response {
+  if (error instanceof AccountVaultError) {
+    return json({ error: { code: error.code, message: error.message, ...error.details } }, error.status);
+  }
   return authErrorResponse(error);
 }
 
