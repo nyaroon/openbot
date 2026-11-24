@@ -3,6 +3,7 @@ import { type AvatarColor, isAvatarColor } from "@openbot/contracts/ipc";
 import type { MobileConnectHostBinding } from "@openbot/contracts/mobile-connect";
 import {
   normalizeAccountIdentity,
+  normalizePhoneNumber,
   phoneFromIdentityEmail,
   phoneIdentityEmail,
 } from "@openbot/contracts/phone-identity";
@@ -20,6 +21,7 @@ import type { AccountAttribution } from "./account-attribution";
 import { randomToken, sha256 } from "./crypto";
 import type { AuthStoreError } from "./d1-auth-repository";
 import { type IncomingWhatsAppMessage, reverseSignInUrl, signInCodesInText } from "./kirimi-delivery";
+import { OPEN_REGISTRATION, type OwnerPolicy } from "./owner-accounts";
 import type { RemoteFailure } from "./remote-control-plane";
 import { PERSISTENT_SESSION_EXPIRES_AT } from "./session-policy";
 import {
@@ -28,6 +30,7 @@ import {
   RATE_LIMITED_DELIVERY_ERROR,
 } from "./smtp-email-delivery";
 import type {
+  AccountSummary,
   AuthRepository,
   AuthUser,
   EmailChallengeRecord,
@@ -46,6 +49,7 @@ const MOBILE_CONNECT_SERVER_ID = "00000000-0000-4000-8000-000000000002";
 const MOBILE_CONNECT_HOST_ID_PATTERN = /^[A-Za-z0-9-]{1,128}$/u;
 const RATE_WINDOW_MS = 15 * 60_000;
 const DELIVERY_RATE_LIMIT_RETRY_SECONDS = 5 * 60;
+const ACCOUNT_LIST_LIMIT = 500;
 
 interface AuthServiceOptions {
   repository: AuthRepository;
@@ -56,6 +60,7 @@ interface AuthServiceOptions {
   profileChanged?: (userId: string) => Effect.Effect<void, RemoteFailure>;
   analytics?: AccountAnalytics;
   attribution?: AccountAttribution;
+  ownerPolicy?: OwnerPolicy;
 }
 
 export interface EmailSignInStart {
@@ -90,6 +95,7 @@ class AuthDependencies extends Context.Service<
     profileChanged: (userId: string) => Effect.Effect<void, RemoteFailure>;
     analytics: AccountAnalytics;
     attribution: AccountAttribution | null;
+    ownerPolicy: OwnerPolicy;
   }
 >()("@openbot/auth-api/AuthDependencies") {}
 
@@ -114,6 +120,7 @@ export function readChatColor(body: DynamicRecord): AvatarColor | null | undefin
 export class AuthService {
   readonly #layer: Layer.Layer<AuthDependencies>;
   readonly #configured: boolean;
+  readonly #ownerPolicy: OwnerPolicy;
 
   constructor(options: AuthServiceOptions) {
     this.#configured = options.delivery !== null || (options.exposeDevelopmentCode ?? false);
@@ -126,7 +133,17 @@ export class AuthService {
       profileChanged: options.profileChanged ?? (() => Effect.void),
       analytics: options.analytics ?? NO_ACCOUNT_ANALYTICS,
       attribution: options.attribution ?? null,
+      ownerPolicy: options.ownerPolicy ?? OPEN_REGISTRATION,
     });
+    this.#ownerPolicy = options.ownerPolicy ?? OPEN_REGISTRATION;
+  }
+
+  isOwner(user: Pick<AuthUser, "email">): boolean {
+    return this.#ownerPolicy.owners.has(user.email);
+  }
+
+  withOwnerFlag<User extends Pick<AuthUser, "email">>(user: User): User & { isOwner: boolean } {
+    return { ...user, isOwner: this.isOwner(user) };
   }
 
   get configured(): boolean {
@@ -174,6 +191,8 @@ export class AuthService {
         const existing = yield* dependencies.repository.findEmailChallenge(challengeHash);
         if (existing) return yield* this.#replayEmailSignIn(existing, email, challengeId, now);
       }
+
+      yield* this.#requireRegisteredAccount(email, now);
 
       const latestChallenge = yield* dependencies.repository.latestEmailChallengeAt(email);
       if (latestChallenge !== null && latestChallenge > now - RESEND_COOLDOWN_MS) {
@@ -249,6 +268,76 @@ export class AuthService {
         resendAt: now + RESEND_COOLDOWN_MS,
         ...(dependencies.exposeDevelopmentCode ? { developmentCode: code } : {}),
       };
+    },
+    (operation) => operation.pipe(Effect.mapError(authFailure), Effect.provide(this.#layer)),
+  ).bind(this);
+
+  readonly #requireRegisteredAccount = Effect.fn("AuthService.requireRegisteredAccount")(function* (
+    this: AuthService,
+    email: string,
+    now: number,
+  ): Effect.fn.Return<void, AuthWorkflowFailure, AuthDependencies> {
+    const { ownerPolicy, repository } = yield* AuthDependencies;
+    if (!ownerPolicy.closed || ownerPolicy.owners.has(email)) return;
+    if (yield* repository.signInAllowed(email, now)) return;
+    return yield* new AuthServiceError(
+      403,
+      "account_not_registered",
+      "This number has no account. Ask the owner to add it.",
+    );
+  });
+
+  readonly #requireOwner = Effect.fn("AuthService.requireOwner")(function* (
+    this: AuthService,
+    sessionToken: string,
+  ): Effect.fn.Return<AuthUser, AuthWorkflowFailure, AuthDependencies> {
+    const user = yield* this.authenticate(sessionToken);
+    if (!user) return yield* new AuthServiceError(401, "unauthorized", "The session is invalid.");
+    if (!this.isOwner(user)) return yield* new AuthServiceError(403, "forbidden", "Only an owner can manage accounts.");
+    return user;
+  });
+
+  readonly listAccounts = Effect.fn("AuthService.listAccounts")(
+    function* (
+      this: AuthService,
+      sessionToken: string,
+    ): Effect.fn.Return<AccountSummary[], AuthWorkflowFailure, AuthDependencies> {
+      const dependencies = yield* AuthDependencies;
+      yield* this.#requireOwner(sessionToken);
+      return yield* dependencies.repository.listAccounts(ACCOUNT_LIST_LIMIT);
+    },
+    (operation) => operation.pipe(Effect.mapError(authFailure), Effect.provide(this.#layer)),
+  ).bind(this);
+
+  readonly createAccount = Effect.fn("AuthService.createAccount")(
+    function* (
+      this: AuthService,
+      sessionToken: string,
+      input: { phone: string; name?: string | undefined },
+    ): Effect.fn.Return<AccountSummary, AuthWorkflowFailure, AuthDependencies> {
+      const dependencies = yield* AuthDependencies;
+      const owner = yield* this.#requireOwner(sessionToken);
+      const phone = normalizePhoneNumber(input.phone);
+      if (!phone) return yield* new AuthServiceError(400, "invalid_phone", "Enter a valid WhatsApp number.");
+      let name: string | null = null;
+      if (input.name?.trim()) {
+        const validation = validateProfileName(input.name);
+        if (validation.error) {
+          return yield* new AuthServiceError(400, "invalid_profile_name", "Enter a valid display name.");
+        }
+        name = validation.name;
+      }
+      const now = dependencies.now();
+      yield* this.#enforceRateLimit(`admin:accounts:${owner.id}`, 60, now);
+      const account = yield* dependencies.repository.createAccount({
+        email: phoneIdentityEmail(phone),
+        name,
+        now,
+      });
+      if (!account) {
+        return yield* new AuthServiceError(409, "account_exists", "This number already has an account.");
+      }
+      return account;
     },
     (operation) => operation.pipe(Effect.mapError(authFailure), Effect.provide(this.#layer)),
   ).bind(this);

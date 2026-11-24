@@ -295,6 +295,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
       avatarUrl: isString(value.user.avatarUrl) ? value.user.avatarUrl : null,
       analyticsEnabled: isBoolean(value.user.analyticsEnabled) ? value.user.analyticsEnabled : null,
       chatColor: isAvatarColor(value.user.chatColor) ? value.user.chatColor : null,
+      ...(value.user.isOwner === true ? { isOwner: true } : {}),
     };
   }
   async function followAccountAnalytics(answer: boolean | null | undefined) {
@@ -555,6 +556,7 @@ function WebAppContent(props: { createRuntime?: WebRuntimeFactory }) {
                       accountName={state.account?.name ?? null}
                       accountAvatarUrl={state.account?.avatarUrl ?? null}
                       accountChatColor={state.account?.chatColor ?? null}
+                      accountIsOwner={state.account?.isOwner === true}
                       accountFetch={accountFetch}
                       onSessionCheck={checkSession}
                       accountSessionEnded={() => sessionEnded}

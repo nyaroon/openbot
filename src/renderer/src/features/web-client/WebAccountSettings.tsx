@@ -15,6 +15,7 @@ import {
   SwitchField,
   Tabs,
   toast,
+  UserPlus,
   UserRound,
 } from "@openbot/ui";
 import { documentColorScheme } from "@openbot/ui/document-color-scheme";
@@ -26,10 +27,12 @@ import { OwnChatColorTrigger } from "@openbot/ui/features/settings/ChatColorSett
 import { LanguageSelect } from "@openbot/ui/features/settings/LanguageSelect";
 import { NotificationMatrix, NotificationScopeTitle } from "@openbot/ui/features/settings/NotificationMatrix";
 import { SendShortcutSelect } from "@openbot/ui/features/settings/SendShortcutSelect";
+import { SettingsAccountsTab } from "@openbot/ui/features/settings/SettingsAccountsTab";
 import { SettingsDialogShell, type SettingsPagePlacement } from "@openbot/ui/features/settings/SettingsDialogShell";
 import { SettingsProfileTab } from "@openbot/ui/features/settings/SettingsProfileTab";
 import { SidebarChatOrderSelect } from "@openbot/ui/features/settings/SidebarChatOrderSelect";
 import { SoundChoiceSelect } from "@openbot/ui/features/settings/SoundChoiceSelect";
+import { createSettingsAccountsStore } from "@openbot/ui/features/settings/stores/accounts-store";
 import { createSettingsProfileStore } from "@openbot/ui/features/settings/stores/profile-store";
 import { TalkKeyRecorder } from "@openbot/ui/features/settings/TalkKeyRecorder";
 import { useText } from "@openbot/ui/text";
@@ -53,7 +56,7 @@ import { setWebChatBackground, useWebChatBackground } from "./web-chat-backgroun
 import { setWebLiveVoice, useWebLiveVoice } from "./web-live-voice";
 import type { WebNotificationSettings } from "./web-notification-settings";
 
-const TABS = ["profile", "preferences", "keyboard"] as const;
+const TABS = ["profile", "accounts", "preferences", "keyboard"] as const;
 type WebAccountSettingsTab = (typeof TABS)[number];
 
 const TAB_ITEMS = {
@@ -61,6 +64,11 @@ const TAB_ITEMS = {
     titleKey: "settings.tab.profile.title",
     descriptionKey: "settings.tab.profile.description",
     icon: UserRound,
+  },
+  accounts: {
+    titleKey: "settings.tab.accounts.title",
+    descriptionKey: "settings.tab.accounts.description",
+    icon: UserPlus,
   },
   preferences: {
     titleKey: "webClient.settings.preferences.title",
@@ -135,6 +143,17 @@ export default function WebAccountSettings(props: WebAccountSettingsProps) {
     },
     () => activeTab() === "profile",
   );
+  const accounts = createSettingsAccountsStore(
+    {
+      get open() {
+        return props.open;
+      },
+      onListOwnerAccounts: () => props.calls.listOwnerAccounts(),
+      onCreateOwnerAccount: (input) => props.calls.createOwnerAccount(input),
+    },
+    () => activeTab() === "accounts",
+  );
+  const visibleTabs = () => TABS.filter((tab) => tab !== "accounts" || props.account.isOwner === true);
   const navItem = () => TAB_ITEMS[activeTab()];
   createEffect(
     () => (props.open ? props.notificationFocusRequest : null),
@@ -153,7 +172,7 @@ export default function WebAccountSettings(props: WebAccountSettingsProps) {
     <Tabs.Root
       value={activeTab()}
       onChange={(value: string) => {
-        const tab = TABS.find((candidate) => candidate === value);
+        const tab = visibleTabs().find((candidate) => candidate === value);
         if (tab) setActiveTab(tab);
       }}
       orientation="vertical"
@@ -170,7 +189,7 @@ export default function WebAccountSettings(props: WebAccountSettingsProps) {
         onContentElement={(element) => (modalElement = element)}
         sidebar={
           <Tabs.List class="settings-modal-nav" aria-label={t("settings.sections.label")}>
-            {TABS.map((tab) => {
+            {visibleTabs().map((tab) => {
               const item = TAB_ITEMS[tab];
               const NavIcon = item.icon;
               return (
@@ -196,6 +215,12 @@ export default function WebAccountSettings(props: WebAccountSettingsProps) {
             onSignOut={props.onSignOut}
           />
         </Tabs.Content>
+
+        <Show when={props.account.isOwner === true}>
+          <Tabs.Content value="accounts" class="settings-modal-tab-panel" data-tab="accounts">
+            <SettingsAccountsTab store={accounts} canList canCreate />
+          </Tabs.Content>
+        </Show>
 
         <Tabs.Content value="keyboard" class="settings-modal-tab-panel" data-tab="keyboard">
           <SettingsKeyboardTab />

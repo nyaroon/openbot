@@ -6,11 +6,13 @@ export interface AccountPort {
     OpenBotDesktopApi["auth"],
     | "cancelMobileConnect"
     | "createMobileConnect"
+    | "createOwnerAccount"
     | "createMobileConnectLink"
     | "getMobileConnectLink"
     | "getState"
     | "listAccountSessions"
     | "listMobileConnectedDevices"
+    | "listOwnerAccounts"
     | "logout"
     | "onEvent"
     | "requestEmailCode"

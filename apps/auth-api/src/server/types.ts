@@ -35,6 +35,7 @@ export interface WorkerBindings {
   KIRIMI_API_URL?: string;
   KIRIMI_WABA_NUMBER?: string;
   KIRIMI_WEBHOOK_SECRET?: string;
+  OWNER_WHATSAPP_NUMBERS?: string;
   SKILLS_ADMIN_TOKEN?: string;
   REMOTE_TICKET_PRIVATE_JWK?: string;
   REMOTE_TICKET_PUBLIC_JWKS?: string;
@@ -205,7 +206,22 @@ export interface EmailChallengeRecord {
   deliveryState: EmailChallengeDeliveryState;
 }
 
+export interface AccountSummary {
+  id: string;
+  email: string;
+  name: string | null;
+  createdAt: number;
+  lastSignInAt: number | null;
+}
+
 export interface AuthRepository {
+  signInAllowed(email: string, now: number): Effect.Effect<boolean, AuthStoreError>;
+  listAccounts(limit: number): Effect.Effect<AccountSummary[], AuthStoreError>;
+  createAccount(input: {
+    email: string;
+    name: string | null;
+    now: number;
+  }): Effect.Effect<AccountSummary | null, AuthStoreError>;
   listAccountSessions(
     userId: string,
     currentToken: string,

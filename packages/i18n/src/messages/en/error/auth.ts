@@ -6,6 +6,7 @@ export const messages = defineMessages("error.auth", {
   "error.auth.sessionTimeout": "OpenBot did not answer in time. Check your internet connection, then try again.",
   "error.auth.networkBlocked":
     "A firewall or proxy on this network blocked OpenBot from reaching {host}. Ask your network administrator to allow {host}, then try again.",
+  "error.auth.accountNotRegistered": "This number has no account. Ask the owner to add it.",
   "error.auth.signInFirst": "Sign in to OpenBot first.",
   "error.auth.signInRequired": "Sign in is required.",
   "error.auth.chatColorUnavailable": "The account service does not support chat colors yet. Try again later.",

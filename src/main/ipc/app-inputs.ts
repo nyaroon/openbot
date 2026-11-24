@@ -18,6 +18,7 @@ import type {
   BusyMessageModePreference,
   ChatBackgroundColor,
   ChatWindowTarget,
+  CreateOwnerAccountInput,
   DynamicIslandAction,
   DynamicIslandPreference,
   DynamicIslandPresentation,
@@ -455,6 +456,13 @@ export function parseEmailCodeVerification(input: unknown): VerifyEmailCodeInput
     challengeId: requireString(input.challengeId, "challengeId", INPUT_LIMITS.identifier),
     code: requireString(input.code, "code", 32),
   };
+}
+
+export function parseOwnerAccountInput(input: unknown): CreateOwnerAccountInput {
+  if (!isObject(input)) throw new Error("Account details are required.");
+  const phone = requireString(input.phone, "phone", INPUT_LIMITS.accountName);
+  if (input.name === undefined) return { phone };
+  return { phone, name: requireString(input.name, "name", INPUT_LIMITS.accountName) };
 }
 
 export function parseProfileName(input: unknown): string {

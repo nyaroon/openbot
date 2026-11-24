@@ -22,6 +22,7 @@ import {
   type CentralAuthUser,
   type ChatBackgroundColor,
   type ChatWindowTarget,
+  type CreateOwnerAccountResult,
   CUSTOM_AGENT_LIMITS,
   type CustomAgentCheckResult,
   type CustomAgentResult,
@@ -91,6 +92,7 @@ import {
   type NotificationOpenedEvent,
   type NotificationPreference,
   type OnePasswordConnectorStatus,
+  type OwnerAccount,
   type ProviderDetectionSettings,
   parseGitHubConnectorRepositories,
   parseGitHubConnectorStatus,
@@ -344,6 +346,7 @@ function decodeCentralAuthUser(value: unknown): CentralAuthUser {
     avatarUrl: nullableString(user, "avatarUrl"),
     ...optionalAnalyticsEnabled(user),
     ...optionalChatColor(user),
+    ...(user.isOwner === true ? { isOwner: true } : {}),
   };
 }
 
@@ -421,6 +424,30 @@ export function decodeAccountSessions(value: unknown): AccountSession[] {
       lastActiveAt: requiredNumber(session, "lastActiveAt"),
     };
   });
+}
+
+export function decodeOwnerAccounts(value: unknown): OwnerAccount[] {
+  return decodeList(value, "owner account list", decodeOwnerAccountRecord);
+}
+
+function decodeOwnerAccountRecord(value: DynamicRecord): OwnerAccount {
+  const { name, lastSignInAt } = value;
+  if (name !== null && !isString(name)) throw new Error("Invalid name.");
+  if (lastSignInAt !== null && !isNumber(lastSignInAt)) throw new Error("Invalid lastSignInAt.");
+  return {
+    id: requiredString(value, "id"),
+    email: requiredString(value, "email"),
+    name,
+    createdAt: requiredNumber(value, "createdAt"),
+    lastSignInAt,
+  };
+}
+
+export function decodeCreateOwnerAccountResult(value: unknown): CreateOwnerAccountResult {
+  const result = decodeRecord(value, "owner account result");
+  if (result.status === "exists") return { status: "exists" };
+  if (result.status !== "created") throw new Error("Invalid status.");
+  return { status: "created", account: decodeOwnerAccountRecord(decodeRecord(result.account, "owner account")) };
 }
 
 export function decodeUpdateStatus(value: unknown): UpdateStatus {

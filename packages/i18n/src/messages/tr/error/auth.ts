@@ -8,6 +8,7 @@ export const messages = {
     "OpenBot zamanında yanıt vermedi. İnternet bağlantınızı kontrol edin, ardından yeniden deneyin.",
   "error.auth.networkBlocked":
     "Bu ağdaki bir güvenlik duvarı veya proxy, OpenBot'un {host} adresine ulaşmasını engelledi. Ağ yöneticinizden {host} adresine izin vermesini isteyin, ardından tekrar deneyin.",
+  "error.auth.accountNotRegistered": "Bu numaranın hesabı yok. Sahibinden eklemesini iste.",
   "error.auth.signInFirst": "Önce OpenBot'ta oturum açın.",
   "error.auth.signInRequired": "Oturum açılması gerekiyor.",
   "error.auth.chatColorUnavailable": "Hesap hizmeti henüz sohbet renklerini desteklemiyor. Daha sonra yeniden deneyin.",

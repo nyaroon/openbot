@@ -32,6 +32,9 @@ export interface BrowserApiServices {
     | "listAccountSessions"
     | "revokeAccountSession"
     | "createServerClaimForUser"
+    | "listAccounts"
+    | "createAccount"
+    | "withOwnerFlag"
   >;
   remote: Pick<
     RemoteControlPlane,
@@ -171,7 +174,7 @@ const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function*
       const user = yield* services.auth.authenticate(previous);
       if (user) yield* services.remote.endAccountSession(user.id, yield* sha256(previous));
     }
-    const response = json({ user: result.user });
+    const response = json({ user: services.auth.withOwnerFlag(result.user) });
     response.headers.set("Set-Cookie", `${COOKIE}=${result.sessionToken}; ${COOKIE_ATTRIBUTES}; Max-Age=34560000`);
     return response;
   }
@@ -184,7 +187,7 @@ const handleBrowserOperation = Effect.fn("BrowserApi.handleOperation")(function*
     return response;
   }
   if (!token || !user) return failure(401, "sign_in_required", "Sign in is required.");
-  if (path === "session" && request.method === "GET") return json({ user });
+  if (path === "session" && request.method === "GET") return json({ user: services.auth.withOwnerFlag(user) });
   if (path === "extension/code" && request.method === "POST") {
     const body = yield* readJsonObject(request);
     const extensionId = yield* requiredString(body, "extensionId");
@@ -290,6 +293,18 @@ const handleAccount = Effect.fn("BrowserApi.handleAccount")(function* (
   }
   if (path === AVATAR_PATH && request.method === "DELETE")
     return json(yield* removeAccountAvatar(services.auth, services.avatarBucket(), token, user));
+  if (path === "v1/admin/accounts" && request.method === "GET")
+    return json({ accounts: yield* services.auth.listAccounts(token) });
+  if (path === "v1/admin/accounts" && request.method === "POST") {
+    const body = yield* readJsonObject(request);
+    const name = body.name;
+    if (!isString(body.phone))
+      return yield* new AuthServiceError(400, "invalid_phone", "Enter a valid WhatsApp number.");
+    if (name !== undefined && !isString(name)) {
+      return yield* new AuthServiceError(400, "invalid_profile_name", "Enter a valid display name.");
+    }
+    return json(yield* services.auth.createAccount(token, { phone: body.phone, name }), 201);
+  }
   if (path === "v1/me/sessions" && request.method === "GET")
     return json({ sessions: yield* services.auth.listAccountSessions(token) });
   if (path === "v2/server-claims" && request.method === "POST")

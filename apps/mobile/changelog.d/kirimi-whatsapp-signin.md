@@ -1,3 +1,7 @@
+### Added
+
+- Sign-in shows "This number has no account. Ask the owner to add it." when the server only allows accounts that an owner created.
+
 ### Changed
 
 - Sign-in and server invitations now use a WhatsApp number instead of an email address. With reverse sign-in, you sign in by sending a prepared WhatsApp message.

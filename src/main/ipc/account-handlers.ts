@@ -3,7 +3,7 @@ import { runCauseEffect } from "../../backend/effect-boundary";
 import type { CentralAuthManager } from "../central-auth-manager";
 import type { HostService } from "../host-service";
 import { createHostedMobileConnect, createHostedMobileConnectLink } from "../mobile-connect-host";
-import { parseChatColor, parseEmailCodeVerification, parseProfileName } from "./app-inputs";
+import { parseChatColor, parseEmailCodeVerification, parseOwnerAccountInput, parseProfileName } from "./app-inputs";
 import { parseAvatarImage } from "./avatar-inputs";
 import { handler, type IpcGroupHandlers, payloadHandler } from "./define-ipc-group";
 import { stringPayload } from "./validation";
@@ -47,6 +47,10 @@ export function accountIpcHandlers({
       listAccountSessions: handler(() => runCauseEffect(centralAuth.listAccountSessions())),
       revokeAccountSession: payloadHandler(stringPayload("sessionId", INPUT_LIMITS.identifier), (sessionId) =>
         runCauseEffect(centralAuth.revokeAccountSession(sessionId)),
+      ),
+      listOwnerAccounts: handler(() => runCauseEffect(centralAuth.listOwnerAccounts())),
+      createOwnerAccount: payloadHandler(parseOwnerAccountInput, (input) =>
+        runCauseEffect(centralAuth.createOwnerAccount(input)),
       ),
       revokeMobileConnectedDevice: payloadHandler(stringPayload("sessionId", INPUT_LIMITS.identifier), (sessionId) =>
         runCauseEffect(centralAuth.revokeMobileConnectedDevice(sessionId)),

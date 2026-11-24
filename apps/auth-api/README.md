@@ -171,6 +171,18 @@ code; a development API (`AUTH_EXPOSE_DEVELOPMENT_CODE`) accepts any extension i
 unpacked extension gets its id from its folder. It is not a secret: set it in `wrangler.jsonc` `vars`
 when the store gives the extension its id.
 
+`OWNER_WHATSAPP_NUMBERS` lists the owner WhatsApp numbers, separated by commas (international form, or a
+national number that starts with 0). It is a plain Worker variable, not a secret, and it is empty by
+default. While it is empty, anyone can register by signing in. While it has a value, registration is
+closed: a sign-in starts only for an owner number, for a number that has an account (a `users` row), or for
+a number with a pending invitation to a server (`remote_invites.email`). Any other number gets 403
+`account_not_registered`, and no challenge or WhatsApp message is made. A value with no valid number closes
+registration for everyone but accounts that exist. An owner reads `isOwner` in `GET /v1/me`, lists accounts
+with `GET /v1/admin/accounts` (newest first, at most 500), and adds one with
+`POST /v1/admin/accounts` `{ phone, name? }`: 201 with the account, 409 `account_exists` when the number
+has one. Other accounts get 403 `forbidden`. Adding an account sends no message. The web client has the
+same two routes under `/api/browser/v1/admin/accounts`.
+
 `GET /v1/browser-extension/x-rules?hash=<hex>` answers the CSS selectors that the extension uses on
 X (`server/browser-extension-x-rules.ts`) as `{ hash, rules }`, with `rules: null` when the extension
 already has that hash. When X changes its page, put new selectors in that file and deploy: extensions

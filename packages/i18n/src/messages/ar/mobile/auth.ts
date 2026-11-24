@@ -62,6 +62,7 @@ export const messages = {
   "mobile.auth.email.whatsappSent": "أرسلتُ الرسالة",
   "mobile.auth.email.error.invalidEmail": "أدخل رقم واتساب صالحًا مع رمز البلد.",
   "mobile.auth.email.error.wait": "انتظر قبل طلب رمز آخر.",
+  "mobile.auth.email.error.accountNotRegistered": "لا يوجد حساب لهذا الرقم. اطلب من المالك إضافته.",
   "mobile.auth.email.error.deliveryUnconfirmed":
     "تعذّر على OpenBot تأكيد إرسال الرمز. تحقق من التسليم قبل إرسال رمز آخر.",
   "mobile.auth.email.error.sendFailed": "تعذّر على OpenBot إرسال الرمز. أعد المحاولة.",

@@ -8,6 +8,7 @@ export const messages = {
     "OpenBot が時間内に応答しませんでした。インターネット接続を確認してから、もう一度お試しください。",
   "error.auth.networkBlocked":
     "このネットワークのファイアウォールまたはプロキシが、OpenBot から {host} への接続をブロックしました。ネットワーク管理者に {host} の許可を依頼してから、再試行してください。",
+  "error.auth.accountNotRegistered": "この番号にはアカウントがありません。オーナーに追加を依頼してください。",
   "error.auth.signInFirst": "先に OpenBot にサインインしてください。",
   "error.auth.signInRequired": "サインインが必要です。",
   "error.auth.chatColorUnavailable":

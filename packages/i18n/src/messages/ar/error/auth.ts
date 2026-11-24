@@ -7,6 +7,7 @@ export const messages = {
   "error.auth.sessionTimeout": "لم يستجب OpenBot في الوقت المحدد. تحقق من اتصالك بالإنترنت، ثم حاول مرة أخرى.",
   "error.auth.networkBlocked":
     "منع جدار حماية أو وكيل شبكة في هذه الشبكة OpenBot من الوصول إلى {host}. اطلب من مسؤول الشبكة السماح بـ {host}، ثم أعد المحاولة.",
+  "error.auth.accountNotRegistered": "لا يوجد حساب لهذا الرقم. اطلب من المالك إضافته.",
   "error.auth.signInFirst": "سجّل الدخول إلى OpenBot أولًا.",
   "error.auth.signInRequired": "تسجيل الدخول مطلوب.",
   "error.auth.chatColorUnavailable": "خدمة الحساب لا تدعم ألوان الدردشة بعد. حاول مرة أخرى لاحقًا.",

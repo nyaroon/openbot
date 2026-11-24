@@ -1,3 +1,7 @@
+### Added
+
+- Owner-managed accounts and closed registration. When the account service has `OWNER_WHATSAPP_NUMBERS` set, only an owner number, a number that already has an account, or a number with a pending invitation can start sign-in. Other numbers get the message "This number has no account. Ask the owner to add it." Owners get an Accounts tab in Settings, on desktop and on the web, to create accounts by WhatsApp number and see the list. Without the setting, registration stays open.
+
 ### Changed
 
 - Sign-in and server invitations now use a WhatsApp number instead of an email address. With reverse sign-in, a person signs in by sending a prepared WhatsApp message to the business number.

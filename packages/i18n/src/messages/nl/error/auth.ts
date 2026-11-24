@@ -8,6 +8,7 @@ export const messages = {
     "OpenBot reageerde niet op tijd. Controleer je internetverbinding en probeer het daarna opnieuw.",
   "error.auth.networkBlocked":
     "Een firewall of proxy op dit netwerk blokkeert de verbinding van OpenBot met {host}. Vraag je netwerkbeheerder om {host} toe te staan en probeer het opnieuw.",
+  "error.auth.accountNotRegistered": "Dit nummer heeft geen account. Vraag de eigenaar het toe te voegen.",
   "error.auth.signInFirst": "Log eerst in bij OpenBot.",
   "error.auth.signInRequired": "Inloggen is verplicht.",
   "error.auth.chatColorUnavailable": "De accountservice ondersteunt nog geen chatkleuren. Probeer het later opnieuw.",

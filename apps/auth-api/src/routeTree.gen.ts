@@ -108,6 +108,7 @@ import { Route as MarketplaceSkillsIndexRouteImport } from './routes/marketplace
 import { Route as MarketplaceSkillsSlugRouteImport } from './routes/marketplace/skills/$slug'
 import { Route as NewsOgOpenbotVsGrokbotDotpngRouteImport } from './routes/news/og/openbot-vs-grokbot[.]png'
 import { Route as PluginsIconSlugRouteImport } from './routes/plugins/icon/$slug'
+import { Route as V1AdminAccountsRouteImport } from './routes/v1/admin/accounts'
 import { Route as V1AgentTemplatesIndexRouteImport } from './routes/v1/agent-templates/index'
 import { Route as V1AgentTemplatesTemplateIdRouteImport } from './routes/v1/agent-templates/$templateId'
 import { Route as V1AgentTemplatesMineRouteImport } from './routes/v1/agent-templates/mine'
@@ -713,6 +714,11 @@ const NewsOgOpenbotVsGrokbotDotpngRoute =
 const PluginsIconSlugRoute = PluginsIconSlugRouteImport.update({
   id: '/plugins/icon/$slug',
   path: '/plugins/icon/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const V1AdminAccountsRoute = V1AdminAccountsRouteImport.update({
+  id: '/v1/admin/accounts',
+  path: '/v1/admin/accounts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const V1AgentTemplatesIndexRoute = V1AgentTemplatesIndexRouteImport.update({
@@ -1427,6 +1433,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/skills/$slug': typeof MarketplaceSkillsSlugRoute
   '/news/og/openbot-vs-grokbot.png': typeof NewsOgOpenbotVsGrokbotDotpngRoute
   '/plugins/icon/$slug': typeof PluginsIconSlugRoute
+  '/v1/admin/accounts': typeof V1AdminAccountsRoute
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
@@ -1636,6 +1643,7 @@ export interface FileRoutesByTo {
   '/marketplace/skills/$slug': typeof MarketplaceSkillsSlugRoute
   '/news/og/openbot-vs-grokbot.png': typeof NewsOgOpenbotVsGrokbotDotpngRoute
   '/plugins/icon/$slug': typeof PluginsIconSlugRoute
+  '/v1/admin/accounts': typeof V1AdminAccountsRoute
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
@@ -1849,6 +1857,7 @@ export interface FileRoutesById {
   '/marketplace/skills/$slug': typeof MarketplaceSkillsSlugRoute
   '/news/og/openbot-vs-grokbot.png': typeof NewsOgOpenbotVsGrokbotDotpngRoute
   '/plugins/icon/$slug': typeof PluginsIconSlugRoute
+  '/v1/admin/accounts': typeof V1AdminAccountsRoute
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
@@ -2060,6 +2069,7 @@ export interface FileRouteTypes {
     | '/marketplace/skills/$slug'
     | '/news/og/openbot-vs-grokbot.png'
     | '/plugins/icon/$slug'
+    | '/v1/admin/accounts'
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
@@ -2269,6 +2279,7 @@ export interface FileRouteTypes {
     | '/marketplace/skills/$slug'
     | '/news/og/openbot-vs-grokbot.png'
     | '/plugins/icon/$slug'
+    | '/v1/admin/accounts'
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
@@ -2481,6 +2492,7 @@ export interface FileRouteTypes {
     | '/marketplace/skills/$slug'
     | '/news/og/openbot-vs-grokbot.png'
     | '/plugins/icon/$slug'
+    | '/v1/admin/accounts'
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
@@ -2649,6 +2661,7 @@ export interface RootRouteChildren {
   MarketplaceSkillsSlugRoute: typeof MarketplaceSkillsSlugRoute
   NewsOgOpenbotVsGrokbotDotpngRoute: typeof NewsOgOpenbotVsGrokbotDotpngRoute
   PluginsIconSlugRoute: typeof PluginsIconSlugRoute
+  V1AdminAccountsRoute: typeof V1AdminAccountsRoute
   V1AgentTemplatesTemplateIdRoute: typeof V1AgentTemplatesTemplateIdRouteWithChildren
   V1AgentTemplatesMineRoute: typeof V1AgentTemplatesMineRoute
   V1AppMinimumVersionRoute: typeof V1AppMinimumVersionRoute
@@ -3435,6 +3448,13 @@ declare module '@tanstack/solid-router' {
       path: '/plugins/icon/$slug'
       fullPath: '/plugins/icon/$slug'
       preLoaderRoute: typeof PluginsIconSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v1/admin/accounts': {
+      id: '/v1/admin/accounts'
+      path: '/v1/admin/accounts'
+      fullPath: '/v1/admin/accounts'
+      preLoaderRoute: typeof V1AdminAccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v1/agent-templates/': {
@@ -4534,6 +4554,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceSkillsSlugRoute: MarketplaceSkillsSlugRoute,
   NewsOgOpenbotVsGrokbotDotpngRoute: NewsOgOpenbotVsGrokbotDotpngRoute,
   PluginsIconSlugRoute: PluginsIconSlugRoute,
+  V1AdminAccountsRoute: V1AdminAccountsRoute,
   V1AgentTemplatesTemplateIdRoute: V1AgentTemplatesTemplateIdRouteWithChildren,
   V1AgentTemplatesMineRoute: V1AgentTemplatesMineRoute,
   V1AppMinimumVersionRoute: V1AppMinimumVersionRoute,

@@ -8,6 +8,7 @@ export const messages = {
     "OpenBot не ответил вовремя. Проверьте подключение к интернету, затем повторите попытку.",
   "error.auth.networkBlocked":
     "Брандмауэр или прокси в этой сети не дал OpenBot подключиться к {host}. Попросите сетевого администратора разрешить {host} и повторите попытку.",
+  "error.auth.accountNotRegistered": "У этого номера нет аккаунта. Попросите владельца добавить его.",
   "error.auth.signInFirst": "Сначала войдите в OpenBot.",
   "error.auth.signInRequired": "Требуется вход.",
   "error.auth.chatColorUnavailable": "Служба учётных записей пока не поддерживает цвета чата. Повторите попытку позже.",

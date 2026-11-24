@@ -7,6 +7,7 @@ export const messages = {
   "error.auth.sessionTimeout": "OpenBot이 제시간에 응답하지 않았습니다. 인터넷 연결을 확인한 다음 다시 시도하세요.",
   "error.auth.networkBlocked":
     "이 네트워크의 방화벽 또는 프록시가 OpenBot의 {host} 접속을 막았어요. 네트워크 관리자에게 {host} 허용을 요청한 후 다시 시도해 주세요.",
+  "error.auth.accountNotRegistered": "이 번호에는 계정이 없습니다. 소유자에게 추가를 요청하세요.",
   "error.auth.signInFirst": "먼저 OpenBot에 로그인해 주세요.",
   "error.auth.signInRequired": "로그인이 필요해요.",
   "error.auth.chatColorUnavailable": "계정 서비스가 아직 채팅 색상을 지원하지 않아요. 나중에 다시 시도해 주세요.",

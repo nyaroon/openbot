@@ -4,6 +4,7 @@ import {
   type AvatarColor,
   type AvatarImageInput,
   type CentralAuthState,
+  type CreateOwnerAccountInput,
   keepUsageCredits,
   withReadCredits,
 } from "@openbot/contracts/ipc";
@@ -290,6 +291,8 @@ const Auth = createSimpleContext({
       revokeMobileConnectedDevice,
       listAccountSessions: () => accountPort().auth.listAccountSessions(),
       revokeAccountSession: (sessionId: string) => accountPort().auth.revokeAccountSession(sessionId),
+      listOwnerAccounts: () => accountPort().auth.listOwnerAccounts(),
+      createOwnerAccount: (input: CreateOwnerAccountInput) => accountPort().auth.createOwnerAccount(input),
     };
   },
 });

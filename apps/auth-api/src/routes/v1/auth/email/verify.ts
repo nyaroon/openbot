@@ -16,14 +16,14 @@ export const Route = createFileRoute("/v1/auth/email/verify")({
             if (!isString(body.challengeId) || !isString(body.code)) {
               return apiError(400, "invalid_sign_in_code", "The sign-in code is invalid.");
             }
-            return json(
-              yield* requestAuthService().verifyEmailCode({
-                challengeId: body.challengeId,
-                code: body.code,
-                sourceIp: requestSourceIp(request),
-                surface: "desktop",
-              }),
-            );
+            const service = requestAuthService();
+            const session = yield* service.verifyEmailCode({
+              challengeId: body.challengeId,
+              code: body.code,
+              sourceIp: requestSourceIp(request),
+              surface: "desktop",
+            });
+            return json({ ...session, user: service.withOwnerFlag(session.user) });
           }),
           (error) => {
             if (error instanceof SyntaxError) {

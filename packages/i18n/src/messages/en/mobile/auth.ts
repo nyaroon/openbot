@@ -62,6 +62,7 @@ export const messages = defineMessages("mobile.auth", {
   "mobile.auth.email.whatsappSent": "I sent the message",
   "mobile.auth.email.error.invalidEmail": "Enter a valid WhatsApp number with the country code.",
   "mobile.auth.email.error.wait": "Wait before you request another code.",
+  "mobile.auth.email.error.accountNotRegistered": "This number has no account. Ask the owner to add it.",
   "mobile.auth.email.error.deliveryUnconfirmed":
     "OpenBot could not confirm that the code was sent. Check delivery before you send another code.",
   "mobile.auth.email.error.sendFailed": "OpenBot could not send the code. Try again.",

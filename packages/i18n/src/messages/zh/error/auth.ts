@@ -6,6 +6,7 @@ export const messages = {
   "error.auth.sessionTimeout": "OpenBot 未及时响应。请检查网络连接，然后重试。",
   "error.auth.networkBlocked":
     "该网络中的防火墙或代理阻止了 OpenBot 访问 {host}。请让网络管理员放行 {host}，然后重试。",
+  "error.auth.accountNotRegistered": "此号码没有账户。请让所有者添加。",
   "error.auth.signInFirst": "请先登录 OpenBot。",
   "error.auth.signInRequired": "需要先登录。",
   "error.auth.chatColorUnavailable": "账户服务暂不支持聊天颜色。请稍后重试。",

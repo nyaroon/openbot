@@ -113,7 +113,11 @@ export function SettingsPage(props: { kind: SettingsKind }) {
     props.kind === "personal" ? setPersonalQuery(value) : windowPage.setServerSettingsQuery(value);
   onCleanup(() => windowPage.setServerSettingsQuery(""));
   const tabShown = (tab: SettingsTab) =>
-    settingsTabShown(tab, { platform: platform.appInfo()?.platform, chatWindow: platform.chatWindow !== null });
+    settingsTabShown(tab, {
+      platform: platform.appInfo()?.platform,
+      chatWindow: platform.chatWindow !== null,
+      owner: signedInAccount()?.isOwner === true,
+    });
   const searchRows = (): SearchRow[] => {
     const server = activeServer();
     const personal = SEARCH_ROWS.filter(

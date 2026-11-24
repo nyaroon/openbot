@@ -62,6 +62,7 @@ export const messages = {
   "mobile.auth.email.whatsappSent": "메시지를 보냈습니다",
   "mobile.auth.email.error.invalidEmail": "국가 번호를 포함한 올바른 WhatsApp 번호를 입력하세요.",
   "mobile.auth.email.error.wait": "다른 코드를 요청하기 전에 잠시 기다려 주세요.",
+  "mobile.auth.email.error.accountNotRegistered": "이 번호에는 계정이 없습니다. 소유자에게 추가를 요청하세요.",
   "mobile.auth.email.error.deliveryUnconfirmed":
     "OpenBot이 코드가 전송되었는지 확인할 수 없어요. 다른 코드를 보내기 전에 전송 여부를 확인해 주세요.",
   "mobile.auth.email.error.sendFailed": "OpenBot이 코드를 보낼 수 없어요. 다시 시도해 주세요.",

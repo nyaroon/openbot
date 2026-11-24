@@ -6,6 +6,7 @@ export const messages = {
   "error.auth.sessionTimeout": "OpenBot לא ענה בזמן. בדקו את החיבור לאינטרנט, ואז נסו שוב.",
   "error.auth.networkBlocked":
     "חומת אש או שרת proxy ברשת הזו חסמו את הגישה של OpenBot אל {host}. יש לבקש ממנהל הרשת לאפשר את {host} ולנסות שוב.",
+  "error.auth.accountNotRegistered": "למספר הזה אין חשבון. בקש מהבעלים להוסיף אותו.",
   "error.auth.signInFirst": "יש להתחבר תחילה ל-OpenBot.",
   "error.auth.signInRequired": "נדרשת התחברות.",
   "error.auth.chatColorUnavailable": "שירות החשבון עדיין אינו תומך בצבעי צ'אט. יש לנסות שוב מאוחר יותר.",

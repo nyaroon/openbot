@@ -7,6 +7,7 @@ export const messages = {
   "error.auth.sessionTimeout": "OpenBot n’a pas répondu à temps. Vérifiez votre connexion internet, puis réessayez.",
   "error.auth.networkBlocked":
     "Un pare-feu ou un proxy de ce réseau a empêché OpenBot de joindre {host}. Demandez à votre administrateur réseau d’autoriser {host}, puis réessayez.",
+  "error.auth.accountNotRegistered": "Ce numéro n’a pas de compte. Demandez au propriétaire de l’ajouter.",
   "error.auth.signInFirst": "Connectez-vous d’abord à OpenBot.",
   "error.auth.signInRequired": "Une connexion est requise.",
   "error.auth.chatColorUnavailable":

@@ -12,6 +12,7 @@ import {
   Power,
   Settings,
   Smartphone,
+  UserPlus,
   UserRound,
 } from "@openbot/ui";
 import { SHORTCUT_COMMANDS, SHORTCUT_TITLES } from "@openbot/ui/features/settings/keyboard-shortcuts";
@@ -27,6 +28,7 @@ export type SettingsTab =
   | "agent-dock"
   | "computer-use"
   | "profile"
+  | "accounts"
   | "mobile-connect"
   | "updates";
 
@@ -148,6 +150,17 @@ export const navItems: ReadonlyArray<SettingsNavItem> = [
     ],
   },
   {
+    value: "accounts",
+    titleKey: "settings.tab.accounts.title",
+    descriptionKey: "settings.tab.accounts.description",
+    icon: UserPlus,
+    group: "settings.sections.group.account",
+    rows: [
+      { titleKey: "settings.accounts.create.title", descriptionKey: "settings.accounts.create.description" },
+      { titleKey: "settings.accounts.list.title", descriptionKey: "settings.accounts.list.description" },
+    ],
+  },
+  {
     value: "mobile-connect",
     titleKey: "settings.tab.mobileConnect.title",
     descriptionKey: "settings.tab.mobileConnect.description",
@@ -250,8 +263,9 @@ export function navItem(tab: SettingsTab): SettingsNavItem {
 
 export function settingsTabShown(
   tab: SettingsTab,
-  window: { platform: AppInfo["platform"] | undefined; chatWindow: boolean },
+  window: { platform: AppInfo["platform"] | undefined; chatWindow: boolean; owner?: boolean },
 ): boolean {
+  if (tab === "accounts") return window.owner === true;
   if (tab === "dynamic-island") return dynamicIslandSettingsShown(window.platform, window.chatWindow);
   if (tab === "agent-dock") return window.platform !== undefined && !window.chatWindow;
   return true;

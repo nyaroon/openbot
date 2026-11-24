@@ -64,6 +64,7 @@ export const messages = {
   "mobile.auth.email.whatsappSent": "Bericht verstuurd",
   "mobile.auth.email.error.invalidEmail": "Voer een geldig WhatsApp-nummer met landcode in.",
   "mobile.auth.email.error.wait": "Wacht even voordat je een nieuwe code aanvraagt.",
+  "mobile.auth.email.error.accountNotRegistered": "Dit nummer heeft geen account. Vraag de eigenaar het toe te voegen.",
   "mobile.auth.email.error.deliveryUnconfirmed":
     "OpenBot kan niet bevestigen dat de code is verstuurd. Controleer de bezorging voordat je een nieuwe code stuurt.",
   "mobile.auth.email.error.sendFailed": "OpenBot kan de code niet versturen. Probeer opnieuw.",

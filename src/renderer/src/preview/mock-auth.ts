@@ -4,6 +4,7 @@ import type {
   CentralAuthUser,
   MobileConnectLink,
   OpenBotDesktopApi,
+  OwnerAccount,
 } from "@openbot/contracts/ipc";
 import type { OwnerTransfer } from "@openbot/contracts/owner-transfer";
 import { sourceText } from "@openbot/i18n/source";
@@ -26,6 +27,15 @@ export function createMockAuth(options: MockAuthOptions, { emit }: MockRuntime) 
   };
   let authState = clone<CentralAuthState>(options.authState ?? defaultAuthState);
   let mobileConnectLink: MobileConnectLink | null = null;
+  let ownerAccounts: OwnerAccount[] = [
+    {
+      id: "user-1",
+      email: "6281234567890@wa.invalid",
+      name: "Norbert",
+      createdAt: Date.now() - 864_000_000,
+      lastSignInAt: Date.now() - 3_600_000,
+    },
+  ];
   let accountSessions: AccountSession[] = [
     {
       sessionId: "22222222-2222-4222-8222-222222222222",
@@ -149,6 +159,21 @@ export function createMockAuth(options: MockAuthOptions, { emit }: MockRuntime) 
     listAccountSessions: async () => clone(accountSessions),
     revokeAccountSession: async (sessionId) => {
       accountSessions = accountSessions.filter((session) => session.sessionId !== sessionId);
+    },
+    listOwnerAccounts: async () => clone(ownerAccounts),
+    createOwnerAccount: async ({ phone, name }) => {
+      const digits = phone.replace(/D/gu, "");
+      const email = `${digits}@wa.invalid`;
+      if (ownerAccounts.some((account) => account.email === email)) return { status: "exists" };
+      const account: OwnerAccount = {
+        id: `user-${ownerAccounts.length + 1}`,
+        email,
+        name: name ?? null,
+        createdAt: Date.now(),
+        lastSignInAt: null,
+      };
+      ownerAccounts = [account, ...ownerAccounts];
+      return { status: "created", account: clone(account) };
     },
     logout: async () => {
       authState = { status: "signed_out" };

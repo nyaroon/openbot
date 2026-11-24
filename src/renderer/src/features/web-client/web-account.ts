@@ -1,4 +1,11 @@
-import type { AccountSession, AvatarColor, AvatarImageInput } from "@openbot/contracts/ipc";
+import type {
+  AccountSession,
+  AvatarColor,
+  AvatarImageInput,
+  CreateOwnerAccountInput,
+  CreateOwnerAccountResult,
+  OwnerAccount,
+} from "@openbot/contracts/ipc";
 import { isBoolean, isDynamicRecord, isNumber, isString } from "@openbot/contracts/runtime-values";
 import { parseServerClaim, type ServerClaim } from "@openbot/contracts/server-install";
 import { currentText } from "@openbot/ui/text";
@@ -11,6 +18,8 @@ export interface WebAccountCalls {
   listSessions: () => Promise<AccountSession[]>;
   revokeSession: (sessionId: string) => Promise<void>;
   createServerClaim: () => Promise<ServerClaim>;
+  listOwnerAccounts: () => Promise<OwnerAccount[]>;
+  createOwnerAccount: (input: CreateOwnerAccountInput) => Promise<CreateOwnerAccountResult>;
 }
 
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -21,7 +30,7 @@ export function createWebAccountCalls(
 ): WebAccountCalls {
   async function request(
     path: string,
-    init: { method: string; body?: BodyInit; contentType?: string } = { method: "GET" },
+    init: { method: string; body?: BodyInit; contentType?: string; allowConflict?: boolean } = { method: "GET" },
   ): Promise<Response> {
     const response = await accountFetch(`/api/browser/${path}`, {
       method: init.method,
@@ -39,7 +48,9 @@ export function createWebAccountCalls(
     }).catch(() => {
       throw new Error(errorMessage(null));
     });
-    if (!response.ok) throw new Error(errorMessage(await response.json().catch(() => null)));
+    if (!response.ok && !(init.allowConflict === true && response.status === 409)) {
+      throw new Error(errorMessage(await response.json().catch(() => null)));
+    }
     return response;
   }
 
@@ -79,6 +90,20 @@ export function createWebAccountCalls(
       if (!claim) throw new Error(errorMessage(null));
       return claim;
     },
+    async listOwnerAccounts() {
+      const value = await (await request("v1/admin/accounts")).json().catch(() => null);
+      if (!isDynamicRecord(value) || !Array.isArray(value.accounts)) throw new Error(errorMessage(null));
+      return value.accounts.map(decodeOwnerAccount);
+    },
+    async createOwnerAccount(input) {
+      const response = await request("v1/admin/accounts", {
+        method: "POST",
+        body: JSON.stringify(input),
+        allowConflict: true,
+      });
+      if (response.status === 409) return { status: "exists" };
+      return { status: "created", account: decodeOwnerAccount(await response.json().catch(() => null)) };
+    },
     async revokeSession(sessionId) {
       await request(`v1/me/sessions/${encodeURIComponent(sessionId)}`, { method: "DELETE", body: "{}" });
     },
@@ -89,6 +114,25 @@ function errorMessage(value: unknown): string {
   if (isDynamicRecord(value) && isDynamicRecord(value.error) && isString(value.error.message))
     return value.error.message;
   return currentText().t("webClient.error.requestFailed");
+}
+
+function decodeOwnerAccount(value: unknown): OwnerAccount {
+  if (
+    !isDynamicRecord(value) ||
+    !isString(value.id) ||
+    !isString(value.email) ||
+    (value.name !== null && !isString(value.name)) ||
+    !isNumber(value.createdAt) ||
+    (value.lastSignInAt !== null && !isNumber(value.lastSignInAt))
+  )
+    throw new Error(errorMessage(null));
+  return {
+    id: value.id,
+    email: value.email,
+    name: value.name,
+    createdAt: value.createdAt,
+    lastSignInAt: value.lastSignInAt,
+  };
 }
 
 function decodeSession(value: unknown): AccountSession {

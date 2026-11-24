@@ -7,6 +7,7 @@ export const messages = {
   "error.auth.sessionTimeout": "OpenBot non ha risposto in tempo. Controlla la connessione a internet, poi riprova.",
   "error.auth.networkBlocked":
     "Un firewall o un proxy di questa rete ha impedito a OpenBot di raggiungere {host}. Chiedi all'amministratore di rete di consentire {host}, poi riprova.",
+  "error.auth.accountNotRegistered": "Questo numero non ha un account. Chiedi al proprietario di aggiungerlo.",
   "error.auth.signInFirst": "Accedi prima a OpenBot.",
   "error.auth.signInRequired": "Serve l'accesso.",
   "error.auth.chatColorUnavailable": "Il servizio account non supporta ancora i colori della chat. Riprova più tardi.",

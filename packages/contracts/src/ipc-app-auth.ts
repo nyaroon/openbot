@@ -185,7 +185,23 @@ export interface CentralAuthUser {
   avatarUrl: string | null;
   analyticsEnabled?: boolean | null;
   chatColor?: AvatarColor | null;
+  isOwner?: boolean;
 }
+
+export interface OwnerAccount {
+  id: string;
+  email: string;
+  name: string | null;
+  createdAt: number;
+  lastSignInAt: number | null;
+}
+
+export interface CreateOwnerAccountInput {
+  phone: string;
+  name?: string;
+}
+
+export type CreateOwnerAccountResult = { status: "created"; account: OwnerAccount } | { status: "exists" };
 
 export interface CentralAuthIssue {
   code: string;

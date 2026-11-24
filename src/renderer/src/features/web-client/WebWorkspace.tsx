@@ -408,6 +408,7 @@ type WebWorkspaceProps = {
   accountName?: string | null;
   accountAvatarUrl?: string | null;
   accountChatColor?: AvatarColor | null;
+  accountIsOwner?: boolean;
   accountFetch: typeof fetch;
   onSessionCheck: () => Promise<void>;
   accountSessionEnded?: () => boolean;
@@ -558,6 +559,7 @@ function WebWorkspaceFrame(props: WebWorkspaceProps) {
     name: props.accountName ?? null,
     avatarUrl: props.accountAvatarUrl ?? null,
     chatColor: props.accountChatColor ?? null,
+    ...(props.accountIsOwner === true ? { isOwner: true } : {}),
   }));
   const accountCalls = createWebAccountCalls(props.accountFetch, props.onSessionCheck);
   const [accountSettingsOpen, setAccountSettingsOpen] = createSignal(false);

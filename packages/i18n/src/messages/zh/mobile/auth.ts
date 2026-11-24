@@ -60,6 +60,7 @@ export const messages = {
   "mobile.auth.email.whatsappSent": "我已发送消息",
   "mobile.auth.email.error.invalidEmail": "请输入带国家代码的有效 WhatsApp 号码。",
   "mobile.auth.email.error.wait": "请稍后再请求新的验证码。",
+  "mobile.auth.email.error.accountNotRegistered": "此号码没有账户。请让所有者添加。",
   "mobile.auth.email.error.deliveryUnconfirmed":
     "OpenBot 无法确认验证码是否已发送。请先检查发送状态，再发送新的验证码。",
   "mobile.auth.email.error.sendFailed": "OpenBot 无法发送验证码，请重试。",

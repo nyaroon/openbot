@@ -4,10 +4,13 @@ import type {
   AvatarColor,
   AvatarImageInput,
   CentralAuthUser,
+  CreateOwnerAccountInput,
+  CreateOwnerAccountResult,
   DynamicIslandGeometry,
   MobileConnectedDevice,
   MobileConnectLink,
   MobileConnectTicket,
+  OwnerAccount,
   RemoteNetworkRoute,
   RemoteNetworkRouteState,
   ServerNotificationLevel,
@@ -25,6 +28,7 @@ import {
   TriangleAlert,
 } from "@openbot/ui";
 import type { GeneralSettingsValue } from "@openbot/ui/features/settings/app-settings";
+import { SettingsAccountsTab } from "@openbot/ui/features/settings/SettingsAccountsTab";
 import {
   SettingsDialogShell,
   SettingsNavGroupLabel,
@@ -34,6 +38,7 @@ import type { MobileInstallRequest } from "@openbot/ui/features/settings/Setting
 import { SettingsMobileConnectTab } from "@openbot/ui/features/settings/SettingsMobileConnectTab";
 import { SettingsProfileTab } from "@openbot/ui/features/settings/SettingsProfileTab";
 import { SettingsUpdatesTab } from "@openbot/ui/features/settings/SettingsUpdatesTab";
+import { createSettingsAccountsStore } from "@openbot/ui/features/settings/stores/accounts-store";
 import { createSettingsMobileConnectStore } from "@openbot/ui/features/settings/stores/mobile-connect-store";
 import { createSettingsProfileStore } from "@openbot/ui/features/settings/stores/profile-store";
 import { createSettingsUpdatesStore } from "@openbot/ui/features/settings/stores/updates-store";
@@ -90,6 +95,8 @@ export interface SettingsModalProps {
   onSetRemoteNetworkRoute?: (route: RemoteNetworkRoute) => Promise<RemoteNetworkRouteState>;
   onListAccountSessions?: () => Promise<AccountSession[]>;
   onRevokeAccountSession?: (sessionId: string) => Promise<void>;
+  onListOwnerAccounts?: () => Promise<OwnerAccount[]>;
+  onCreateOwnerAccount?: (input: CreateOwnerAccountInput) => Promise<CreateOwnerAccountResult>;
   onSignOut?: (() => Promise<void>) | undefined;
   processAvatarFile?: (file: File) => Promise<AvatarImageInput>;
   codexLiveAccess?: CodexLiveAccess | undefined;
@@ -110,6 +117,20 @@ export function SettingsModal(props: SettingsModalProps) {
   const [activeTab, setActiveTab] = createSignal<SettingsTab>(untrack(() => props.initialTab) ?? "general");
   let modalElement: HTMLElement | undefined;
   const profile = createSettingsProfileStore(props, () => activeTab() === "profile");
+  const accounts = createSettingsAccountsStore(
+    {
+      get open() {
+        return props.open;
+      },
+      get onListOwnerAccounts() {
+        return props.onListOwnerAccounts;
+      },
+      get onCreateOwnerAccount() {
+        return props.onCreateOwnerAccount;
+      },
+    },
+    () => activeTab() === "accounts",
+  );
   const profileActivity = createProfileActivityStore(
     () => props.open && activeTab() === "profile",
     (stats) => renderProfileShareImage(props.account, stats),
@@ -121,6 +142,7 @@ export function SettingsModal(props: SettingsModalProps) {
     visible: () => props.open && activeTab() === "notifications",
     servers: () => props.servers ?? [],
   });
+  const owner = () => props.account.isOwner === true;
   const dynamicIslandShown = () => dynamicIslandSettingsShown(props.appInfo?.platform, props.chatWindow === true);
   createEffect(
     () => (props.open ? props.openTab : undefined),
@@ -135,7 +157,11 @@ export function SettingsModal(props: SettingsModalProps) {
   const visibleNavItems = () =>
     navItems.filter(
       (item) =>
-        settingsTabShown(item.value, { platform: props.appInfo?.platform, chatWindow: props.chatWindow === true }) &&
+        settingsTabShown(item.value, {
+          platform: props.appInfo?.platform,
+          chatWindow: props.chatWindow === true,
+          owner: owner(),
+        }) &&
         (item.value !== "agent-dock" || props.agentDock !== undefined),
     );
 
@@ -158,6 +184,7 @@ export function SettingsModal(props: SettingsModalProps) {
         (value === "agent-dock" && agentDockShown()) ||
         value === "computer-use" ||
         value === "profile" ||
+        (value === "accounts" && owner()) ||
         value === "mobile-connect" ||
         value === "updates"
       ) {
@@ -352,6 +379,16 @@ export function SettingsModal(props: SettingsModalProps) {
             onSignOut={props.onSignOut}
           />
         </Tabs.Content>
+
+        <Show when={owner()}>
+          <Tabs.Content value="accounts" class="settings-modal-tab-panel" data-tab="accounts">
+            <SettingsAccountsTab
+              store={accounts}
+              canList={Boolean(props.onListOwnerAccounts)}
+              canCreate={Boolean(props.onCreateOwnerAccount)}
+            />
+          </Tabs.Content>
+        </Show>
 
         <Tabs.Content value="mobile-connect" class="settings-modal-tab-panel" data-tab="mobile-connect">
           <SettingsMobileConnectTab

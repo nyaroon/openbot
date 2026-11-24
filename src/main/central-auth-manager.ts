@@ -9,6 +9,8 @@ import type {
   CentralAuthIssue,
   CentralAuthState,
   CentralAuthUser,
+  CreateOwnerAccountInput,
+  CreateOwnerAccountResult,
   MobileConnectedDevice,
   MobileConnectLink,
   MobileConnectTicket,
@@ -63,6 +65,8 @@ import {
   decodeEmailChallenge,
   decodeMobileConnectedDevices,
   decodeMobileConnectLinkResponse,
+  decodeOwnerAccount,
+  decodeOwnerAccountList,
   decodeRecordHealth,
   decodeRegisteredRemoteHost,
   decodeRemoteHosts,
@@ -557,6 +561,37 @@ export class CentralAuthManager extends EventEmitter<CentralAuthEvents> {
         `/v1/mobile-auth/devices/${encodeURIComponent(sessionId)}?includeDesktop=true`,
         { method: "DELETE" },
         () => undefined,
+      );
+    },
+    (operation) => this.#owned(operation),
+  ).bind(this);
+
+  readonly listOwnerAccounts = Effect.fn("CentralAuth.listOwnerAccounts")(
+    function* (this: CentralAuthManager) {
+      return yield* this.#authorizedRequestEffect("/v1/admin/accounts", { method: "GET" }, decodeOwnerAccountList);
+    },
+    (operation) => this.#owned(operation),
+  ).bind(this);
+
+  readonly createOwnerAccount = Effect.fn("CentralAuth.createOwnerAccount")(
+    function* (
+      this: CentralAuthManager,
+      input: CreateOwnerAccountInput,
+    ): Effect.fn.Return<CreateOwnerAccountResult, CentralAuthOperationError, CentralAuthTransport> {
+      return yield* this.#authorizedRequestEffect(
+        "/v1/admin/accounts",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(input),
+        },
+        (value): CreateOwnerAccountResult => ({ status: "created", account: decodeOwnerAccount(value) }),
+      ).pipe(
+        Effect.catch((error) =>
+          error.cause instanceof AuthApiError && error.cause.code === "account_exists"
+            ? Effect.succeed<CreateOwnerAccountResult>({ status: "exists" })
+            : Effect.fail(error),
+        ),
       );
     },
     (operation) => this.#owned(operation),
@@ -2441,7 +2476,7 @@ function authApiIssue(error: AuthApiError): CentralAuthIssue {
   const reference = error.reference ?? referenceFrom("auth", "http", error.status, error.code);
   return {
     code: error.code,
-    message: error.message,
+    message: error.code === "account_not_registered" ? sourceText("error.auth.accountNotRegistered") : error.message,
     ...(error.retryAfterSeconds === undefined ? {} : { retryAfterSeconds: error.retryAfterSeconds }),
     ...(reference === null ? {} : { reference }),
   };

@@ -37,6 +37,7 @@ import {
   type MarketplaceMutationKind,
   MarketplaceRateLimitError,
 } from "./marketplace-request-policy";
+import { readOwnerPolicy } from "./owner-accounts";
 import {
   deliverPendingRemoteAuthEvents,
   notifyAccountProfileChanged,
@@ -79,6 +80,7 @@ export function requestAuthService(): AuthService {
     profileChanged: (userId) => notifyAccountProfileChanged(bindings, userId, schedule),
     analytics,
     attribution: new AccountAttribution({ database: bindings.DB, analytics }),
+    ownerPolicy: readOwnerPolicy(bindings.OWNER_WHATSAPP_NUMBERS),
   });
 }
 

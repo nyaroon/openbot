@@ -239,6 +239,7 @@ const EMAIL_SIGN_IN_ERRORS = new Map<string, MobileTextKey>([
   ["invalid_sign_in_code", "mobile.auth.email.error.codeIncorrect"],
   ["sign_in_code_expired", "mobile.auth.email.error.codeExpired"],
   ["too_many_code_attempts", "mobile.auth.email.error.tooManyAttempts"],
+  ["account_not_registered", "mobile.auth.email.error.accountNotRegistered"],
 ]);
 
 function errorCode(body: DynamicRecord | null): string {

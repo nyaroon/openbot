@@ -3,6 +3,7 @@ import type { AccountSession, MobileConnectHostBinding } from "@openbot/contract
 import { Context, Effect, Layer, Schema } from "effect";
 import { sha256 } from "./crypto";
 import type {
+  AccountSummary,
   AuthRepository,
   AuthUser,
   EmailChallengeDeliveryState,
@@ -319,6 +320,80 @@ export class D1AuthRepository implements AuthRepository {
       );
       const count = row?.attempts ?? limit + 1;
       return { allowed: count <= limit, count, windowStart };
+    },
+    (operation) => operation.pipe(Effect.provide(this.#layer)),
+  ).bind(this);
+
+  readonly signInAllowed = Effect.fn("D1AuthRepository.signInAllowed")(
+    function* (
+      this: D1AuthRepository,
+      email: string,
+      now: number,
+    ): Effect.fn.Return<boolean, AuthStoreError, AuthDatabase> {
+      const database = yield* AuthDatabase;
+      const row = yield* storeCall(() =>
+        database
+          .prepare(
+            `SELECT 1 AS allowed FROM users WHERE email = ?
+         UNION ALL
+         SELECT 1 FROM remote_invites
+          WHERE email = ? AND revoked_at IS NULL AND used_at IS NULL AND expires_at > ?
+            AND EXISTS(
+              SELECT 1 FROM remote_memberships
+               WHERE host_id = remote_invites.host_id AND user_id = remote_invites.created_by_user_id
+                 AND status = 'active' AND role IN ('owner', 'admin')
+            )
+         LIMIT 1`,
+          )
+          .bind(email, email, now)
+          .first<{ allowed: number }>(),
+      );
+      return row !== null;
+    },
+    (operation) => operation.pipe(Effect.provide(this.#layer)),
+  ).bind(this);
+
+  readonly listAccounts = Effect.fn("D1AuthRepository.listAccounts")(
+    function* (
+      this: D1AuthRepository,
+      limit: number,
+    ): Effect.fn.Return<AccountSummary[], AuthStoreError, AuthDatabase> {
+      const database = yield* AuthDatabase;
+      const rows = yield* storeCall(() =>
+        database
+          .prepare(
+            `SELECT id, email, name, created_at,
+                (SELECT MAX(last_used_at) FROM auth_sessions WHERE user_id = users.id) AS last_sign_in_at
+         FROM users ORDER BY created_at DESC, id DESC LIMIT ?`,
+          )
+          .bind(limit)
+          .all<{
+            id: string;
+            email: string;
+            name: string | null;
+            created_at: number;
+            last_sign_in_at: number | null;
+          }>(),
+      );
+      return rows.results.map((row) => ({
+        id: row.id,
+        email: row.email,
+        name: row.name,
+        createdAt: row.created_at,
+        lastSignInAt: row.last_sign_in_at,
+      }));
+    },
+    (operation) => operation.pipe(Effect.provide(this.#layer)),
+  ).bind(this);
+
+  readonly createAccount = Effect.fn("D1AuthRepository.createAccount")(
+    function* (
+      this: D1AuthRepository,
+      input: { email: string; name: string | null; now: number },
+    ): Effect.fn.Return<AccountSummary | null, AuthStoreError, AuthDatabase> {
+      const { user, created } = yield* this.#upsertEmailUserEffect(input.email, input.now, input.name);
+      if (!created) return null;
+      return { id: user.id, email: user.email, name: user.name, createdAt: input.now, lastSignInAt: null };
     },
     (operation) => operation.pipe(Effect.provide(this.#layer)),
   ).bind(this);
@@ -1158,6 +1233,7 @@ export class D1AuthRepository implements AuthRepository {
     this: D1AuthRepository,
     email: string,
     now: number,
+    name: string | null = null,
   ): Effect.fn.Return<{ user: AuthUser; created: boolean }, AuthStoreError, AuthDatabase> {
     const database = yield* AuthDatabase;
     const existing = yield* storeCall(() =>
@@ -1173,12 +1249,12 @@ export class D1AuthRepository implements AuthRepository {
         .prepare(
           `INSERT INTO users(
           id, identity_key, email, name, avatar_url, created_at, updated_at
-        ) VALUES (?, ?, ?, NULL, NULL, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, NULL, ?, ?)`,
         )
-        .bind(id, `email:${email}`, email, now, now)
+        .bind(id, `email:${email}`, email, name, now, now)
         .run(),
     );
-    return { user: { id, email, name: null, avatarUrl: null, analyticsEnabled: null, chatColor: null }, created: true };
+    return { user: { id, email, name, avatarUrl: null, analyticsEnabled: null, chatColor: null }, created: true };
   });
 }
 

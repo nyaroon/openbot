@@ -5,6 +5,7 @@ import {
   type CentralAuthUser,
   isAvatarColor,
   type MobileConnectedDevice,
+  type OwnerAccount,
 } from "@openbot/contracts/ipc";
 import { decodeRecord, requiredString } from "@openbot/contracts/ipc-decoding";
 import { readWhatsAppSignIn, type WhatsAppSignIn } from "@openbot/contracts/phone-identity";
@@ -99,7 +100,26 @@ export function decodeCentralAuthUser(value: unknown): CentralAuthUser {
     avatarUrl,
     analyticsEnabled,
     ...optionalChatColor(record.chatColor),
+    ...(record.isOwner === true ? { isOwner: true } : {}),
   };
+}
+
+export function decodeOwnerAccount(value: unknown): OwnerAccount {
+  const record = decodeRecord(value, "owner account");
+  const name = record.name ?? null;
+  const lastSignInAt = record.lastSignInAt ?? null;
+  if (name !== null && !isString(name)) throw new Error("Invalid account name.");
+  if (lastSignInAt !== null && !(isNumber(lastSignInAt) && Number.isFinite(lastSignInAt)))
+    throw new Error("Invalid last sign-in time.");
+  const createdAt = record.createdAt;
+  if (!(isNumber(createdAt) && Number.isFinite(createdAt))) throw new Error("Invalid account creation time.");
+  return { id: requiredString(record, "id"), email: requiredString(record, "email"), name, createdAt, lastSignInAt };
+}
+
+export function decodeOwnerAccountList(value: unknown): OwnerAccount[] {
+  const record = decodeRecord(value, "owner account list");
+  if (!Array.isArray(record.accounts)) throw new Error("Invalid owner account list.");
+  return record.accounts.map(decodeOwnerAccount);
 }
 
 function optionalChatColor(value: unknown): { chatColor?: AvatarColor | null } {

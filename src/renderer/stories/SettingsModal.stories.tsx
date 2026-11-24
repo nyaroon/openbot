@@ -232,6 +232,8 @@ function SettingsModalStory(props: {
               onListMobileConnectedDevices={async () => mobileDevices()}
               onListAccountSessions={mock.api.auth.listAccountSessions}
               onRevokeAccountSession={mock.api.auth.revokeAccountSession}
+              onListOwnerAccounts={mock.api.auth.listOwnerAccounts}
+              onCreateOwnerAccount={mock.api.auth.createOwnerAccount}
               onRevokeMobileConnectedDevice={async (sessionId) => {
                 setMobileDevices((current) => current.filter((device) => device.sessionId !== sessionId));
               }}

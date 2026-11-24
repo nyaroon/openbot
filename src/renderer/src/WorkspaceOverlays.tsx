@@ -894,6 +894,8 @@ function AppSettings(props: AccountProps) {
         onSetRemoteNetworkRoute={(route) => settingsPort().setRemoteNetworkRoute({ route })}
         onListAccountSessions={auth.listAccountSessions}
         onRevokeAccountSession={auth.revokeAccountSession}
+        onListOwnerAccounts={auth.listOwnerAccounts}
+        onCreateOwnerAccount={auth.createOwnerAccount}
         onSignOut={platform.landingPreview ? undefined : auth.logoutCentralAccount}
         codexLiveAccess={codexLiveAccess()}
         liveVoiceAccount={liveVoiceAccount()}

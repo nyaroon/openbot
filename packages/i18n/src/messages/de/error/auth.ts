@@ -8,6 +8,7 @@ export const messages = {
     "OpenBot hat nicht rechtzeitig geantwortet. Prüfe deine Internetverbindung und versuche es dann erneut.",
   "error.auth.networkBlocked":
     "Eine Firewall oder ein Proxy in diesem Netzwerk hat den Zugriff von OpenBot auf {host} blockiert. Bitte deinen Netzwerkadministrator, {host} zu erlauben, und versuche es erneut.",
+  "error.auth.accountNotRegistered": "Zu dieser Nummer gibt es kein Konto. Bitte den Eigentümer, sie hinzuzufügen.",
   "error.auth.signInFirst": "Melde dich zuerst bei OpenBot an.",
   "error.auth.signInRequired": "Eine Anmeldung ist erforderlich.",
   "error.auth.chatColorUnavailable": "Der Kontodienst unterstützt noch keine Chatfarben. Versuche es später erneut.",
