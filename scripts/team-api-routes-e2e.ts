@@ -1178,9 +1178,9 @@ function libraryScan(): StorageUsage {
   };
 }
 const libraryStorage: LibraryFoldersSources["storage"] = {
-  usage: (input) =>
+  hostFiles: () =>
     Effect.sync(() => {
-      record("libraryScan", input);
+      record("libraryScan");
       return libraryScan();
     }),
   invalidate: () => {
@@ -15696,7 +15696,6 @@ try {
           placement: { "file-ada-1": "folder-campaign" },
         }) &&
         scans() === 1 &&
-        isDeepStrictEqual(callsOf("libraryScan")[0], [{ scope: "host" }]) &&
         invalidations() === 0,
       summary(created),
     );
