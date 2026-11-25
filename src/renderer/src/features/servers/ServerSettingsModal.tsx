@@ -93,7 +93,7 @@ import { type ServerTransferOptions, ServerTransferPanel } from "./ServerTransfe
 import type { ServerTurnLimitsOptions } from "./ServerTurnLimitsSetting";
 import { type ServerUpdateOptions, ServerUpdatePanel } from "./ServerUpdatePanel";
 import type { ServerVoiceModelOptions } from "./ServerVoiceModelSetting";
-import { PROVIDER_SEARCH_NAMES, serverCanAdminister, serverRoleCanAdminister } from "./server-capabilities";
+import { PROVIDER_SEARCH_NAMES, serverCanAdminister } from "./server-capabilities";
 import type { ServerSettingsSectionHost } from "./server-settings-section";
 
 export interface ServerSettingsModalProps {
