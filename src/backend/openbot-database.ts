@@ -624,8 +624,9 @@ export class OpenBotDatabase {
     changes: MailboxProjectionChanges,
     eventType: string,
     fileDeletions: string[] = [],
+    writeIdempotency = true,
   ): boolean {
-    return this.#mailbox.applyMailboxChanges(commandId, state, changes, eventType, fileDeletions);
+    return this.#mailbox.applyMailboxChanges(commandId, state, changes, eventType, fileDeletions, writeIdempotency);
   }
 
   pendingFileDeletions(): Array<{ id: string; path: string }> {

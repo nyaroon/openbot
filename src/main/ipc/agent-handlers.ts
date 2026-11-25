@@ -455,7 +455,7 @@ export function agentIpcHandlers({
         },
       }),
       getHostAnalytics: scopedHandler(parseHostAnalyticsInput, {
-        local: (input) => service.getHostAnalytics(input),
+        local: (input) => runCauseEffect(service.getHostAnalytics(input)),
         remote: (input, serverId) =>
           remoteServers.supportsCapability(serverId, "host-analytics")
             ? runCauseEffect(

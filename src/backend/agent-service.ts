@@ -349,6 +349,7 @@ import type { BundledProviderExecutables } from "./cli";
 import type { ConversationMarkerExclusions } from "./conversation-read-store";
 import type { CrmHandle } from "./crm/crm";
 import type { ProviderSession } from "./database/provider-sessions";
+import { readUsageReportInWorker } from "./database/usage-report-reader";
 import { reportOriginalFailure } from "./effect-boundary";
 import type { HostMemory } from "./host-memory";
 import type { SignInRegion } from "./kimi-region";
@@ -448,6 +449,7 @@ export interface AgentServiceOptions {
   avatarDecoder?: AvatarImageDecoder | null;
   prepareMcpTest?: (config: McpServerConfig) => Effect.Effect<void, unknown>;
   mcpAgentAccess?: (mcpServerId: string, agentId: string | null) => boolean;
+  usageReportWorkerPath?: string | null;
   hiddenModels?: (provider: AgentProvider) => ReadonlySet<string> | undefined;
   marketplaceAppServer?: (appId: string) => MarketplaceAppServer | null;
   passwordManagerConnected?: (manager: PasswordManagerId) => boolean;
@@ -580,6 +582,7 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
   readonly #mcp: McpGateway;
   readonly #mediaCatalog: WorkflowMediaCatalogCache;
   readonly #mcpAgentAccess: AgentServiceOptions["mcpAgentAccess"];
+  readonly #usageReportWorkerPath: string | null;
   readonly #hiddenModels: AgentServiceOptions["hiddenModels"];
   readonly #clearPictureBackground: AgentServiceOptions["clearPictureBackground"];
   readonly #providers: ProviderRuntime;
@@ -634,6 +637,7 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
   constructor(options: AgentServiceOptions) {
     super();
     this.#mcpAgentAccess = options.mcpAgentAccess;
+    this.#usageReportWorkerPath = options.usageReportWorkerPath ?? null;
     this.#hiddenModels = options.hiddenModels;
     this.#clearPictureBackground = options.clearPictureBackground;
     const {
@@ -2246,15 +2250,25 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
     return this.#store.database.usage.read(input);
   }
 
-  getHostAnalytics(input: HostAnalyticsInput) {
-    if (
-      input.agentId &&
-      input.agentId !== WORKFLOWS_USAGE_ID &&
-      !this.listAgents().some((agent) => agent.id === input.agentId)
-    )
-      throw new Error(sourceText("error.team.agentNotFound"));
-    return this.#store.database.usage.readHost(input);
-  }
+  readonly getHostAnalytics = Effect.fn("AgentService.getHostAnalytics")(function* (
+    this: AgentService,
+    input: HostAnalyticsInput,
+  ) {
+    yield* lifecycleStep("find usage report agent", () => {
+      if (
+        input.agentId &&
+        input.agentId !== WORKFLOWS_USAGE_ID &&
+        !this.listAgents().some((agent) => agent.id === input.agentId)
+      )
+        throw new Error(sourceText("error.team.agentNotFound"));
+    });
+    const readOnMain = lifecycleStep("read usage report", () => this.#store.database.usage.readHost(input));
+    const workerPath = this.#usageReportWorkerPath;
+    if (!workerPath) return yield* readOnMain;
+    return yield* readUsageReportInWorker({ databasePath: this.#store.database.path, workerPath }, input).pipe(
+      Effect.catch(() => readOnMain),
+    );
+  }).bind(this);
 
   getTurnUsage(agentId: string, turnId: string, since: string) {
     return this.#store.database.usage.readTurn(agentId, turnId, since);
