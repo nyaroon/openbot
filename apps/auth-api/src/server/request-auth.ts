@@ -40,6 +40,7 @@ import {
   MarketplaceRateLimitError,
 } from "./marketplace-request-policy";
 import { type ObjectBucket, StorageNotConfiguredError } from "./object-storage";
+import { OrganizationError, Organizations } from "./organizations";
 import { readOwnerPolicy } from "./owner-accounts";
 import {
   deliverPendingRemoteAuthEvents,
@@ -404,6 +405,22 @@ export function requestAccountVaultBlobs(): AccountVaultBlobs {
 
 export function accountVaultErrorResponse(error: unknown): Response {
   if (error instanceof AccountVaultError) {
+    return json({ error: { code: error.code, message: error.message, ...error.details } }, error.status);
+  }
+  return authErrorResponse(error);
+}
+
+export function requestOrganizations(): Organizations {
+  const bindings = requireWorkerBindings(env);
+  return new Organizations({
+    database: bindings.DB,
+    ownerEmails: readOwnerPolicy(bindings.OWNER_WHATSAPP_NUMBERS).owners,
+    vaultKey: bindings.ORG_VAULT_KEY,
+  });
+}
+
+export function organizationErrorResponse(error: unknown): Response {
+  if (error instanceof OrganizationError) {
     return json({ error: { code: error.code, message: error.message, ...error.details } }, error.status);
   }
   return authErrorResponse(error);
