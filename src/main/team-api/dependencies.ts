@@ -569,6 +569,7 @@ export type TeamApiBrowser = Pick<
   | "startView"
   | "dispatchViewInput"
   | "copyViewSelection"
+  | "answerViewDialog"
 >;
 export type TeamApiBrowserView = Pick<
   BrowserViewGateway,
