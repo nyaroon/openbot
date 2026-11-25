@@ -43,6 +43,7 @@ import { BACKGROUND_PROCESSES_CODECS } from "./background-processes-v1";
 import { BITWARDEN_CONNECTOR_CODECS } from "./bitwarden-connector-v1";
 import { BOARDS_CODECS } from "./boards-v1";
 import { BROWSER_PAGE_STATE_CODECS } from "./browser-page-state-v1";
+import { BROWSER_PERMISSIONS_CODECS } from "./browser-permissions-v1";
 import { BROWSER_PROFILES_CODECS } from "./browser-profiles-v1";
 import { BROWSER_PROXIES_CODECS } from "./browser-proxies-v1";
 import { BROWSER_SECRET_VAULT_CODECS } from "./browser-secret-vault-v1";
@@ -336,6 +337,7 @@ const CODECS: ReadonlyMap<string, OptionalRouteCodec> = new Map([
   ...BROWSER_USER_CONTROL_CODECS,
   ...BROWSER_TEACH_CODECS,
   ...BROWSER_PAGE_STATE_CODECS,
+  ...BROWSER_PERMISSIONS_CODECS,
   ...BROWSER_SIGN_IN_CODECS,
   ...BROWSER_SIGN_IN_STORAGE_CODECS,
   ...AGENT_TASKS_CODECS,
