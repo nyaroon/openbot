@@ -316,6 +316,8 @@ export const messages = {
   "error.backend.mcpServerDownloadFailed":
     "Сервер не запустился, потому что его загрузка не удалась. Проверьте подключение к интернету и попробуйте снова.",
   "error.backend.mcpServerFailedToStart": "Сервер не запустился: {reason}",
+  "error.backend.mcpServerProgramMissing":
+    "OpenBot не может запустить MCP-сервер {name}, потому что его программа не установлена на компьютере, где работает OpenBot. Установите на этот компьютер приложение, которое даёт {name}, или выключите {name} в разделе Каталог, Приложения.",
   "error.backend.mcpServerStartAbandoned":
     "{provider} перестал ждать до запуска сервера, поэтому его агенты не получают инструменты этого сервера.",
   "error.backend.mcpServerStoppedDuringCall": "MCP-сервер остановился, не ответив на этот вызов.",

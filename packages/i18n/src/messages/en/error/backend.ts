@@ -306,6 +306,8 @@ export const messages = defineMessages("error.backend", {
   "error.backend.mcpServerDownloadFailed":
     "The server did not start, because its download failed. Check the internet connection, then try again.",
   "error.backend.mcpServerFailedToStart": "The server did not start: {reason}",
+  "error.backend.mcpServerProgramMissing":
+    "OpenBot could not start the MCP server {name}, because its program is not installed on the computer that runs OpenBot. Install the app that gives {name} on that computer, or turn {name} off in Marketplace, Apps.",
   "error.backend.mcpServerStartAbandoned":
     "{provider} stopped waiting before the server started, so its agents do not get the tools of this server.",
   "error.backend.mcpServerStoppedDuringCall": "The MCP server stopped before it answered this call.",
