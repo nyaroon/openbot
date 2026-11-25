@@ -14,6 +14,7 @@ import {
   Switch,
   Text,
 } from "@openbot/ui";
+import { McpSignInLinkCopy } from "@openbot/ui/features/settings/McpSignInDialog";
 import { UniversalResourceControl } from "@openbot/ui/features/vault/UniversalResourceControl";
 import { useText } from "@openbot/ui/text";
 import { createEffect, createMemo, createStore, Show } from "solid-js";
@@ -283,6 +284,19 @@ export function McpServerControls(props: { tools: McpServerTools; id: string }) 
                 />
               </ItemActions>
             </Item>
+            <Show when={waiting() ? props.tools.signIn()?.copyLink : undefined}>
+              {(copy) => (
+                <Item class="settings-modal-row">
+                  <ItemContent class="server-mcp-sign-in-link">
+                    <McpSignInLinkCopy
+                      onCopy={copy()}
+                      onPaste={props.tools.signIn()?.pasteAddress}
+                      waitingNote={false}
+                    />
+                  </ItemContent>
+                </Item>
+              )}
+            </Show>
           </ItemGroup>
           <Show when={props.tools.universal}>
             {(universal) => (
