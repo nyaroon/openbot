@@ -253,6 +253,7 @@ import { createMockHostVoiceModel } from "./mock-host-voice-model";
 import { createMockLinkAccount } from "./mock-link-account";
 import { createMockMessaging } from "./mock-messaging";
 import { createMockOnePasswordConnector } from "./mock-onepassword-connector";
+import { createMockOrganizations } from "./mock-organizations";
 import { createMockPasswordManagers } from "./mock-password-managers";
 import { createMockProviderRuntimes, type MockProviderRuntimeOptions } from "./mock-provider-runtimes";
 import { mockRoutineCalendar } from "./mock-routine-calendar";
@@ -1708,6 +1709,7 @@ export function createMockOpenBot(options: MockOpenBotOptions = {}): MockOpenBot
     bitwardenConnector: createMockBitwardenConnector(),
     passwordManagers: createMockPasswordManagers(),
     universalVault: createMockUniversalVault(),
+    organizations: createMockOrganizations(),
     vault: createMockVault(),
     routineFeed: createMockRoutineFeed(),
     customProviders: {

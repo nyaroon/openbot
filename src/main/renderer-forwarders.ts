@@ -611,6 +611,10 @@ export function createRendererForwarders({
     for (const window of appWindows()) sendToRenderer(window, IPC_ENDPOINTS.universalVault.changed, state);
   }
 
+  function forwardOrganizationsState(state: import("@openbot/contracts/ipc").OrganizationsState): void {
+    for (const window of appWindows()) sendToRenderer(window, IPC_ENDPOINTS.organizations.changed, state);
+  }
+
   function forwardHostStatus(status: import("@openbot/contracts/ipc").HostStatus): void {
     const remoteServers = getRemoteServerManager();
     const servers = remoteServers ? withLocalHostSummary(remoteServers.list(), status) : null;
@@ -702,6 +706,7 @@ export function createRendererForwarders({
     forwardPasswordManagerStatus,
     forwardVaultState,
     forwardUniversalVaultState,
+    forwardOrganizationsState,
     forwardHostStatus,
     forwardRemoteDesktopSessions,
     forwardServers,

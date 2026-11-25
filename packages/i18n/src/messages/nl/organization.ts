@@ -1,0 +1,63 @@
+import type { PartialTranslation } from "../../message";
+import type { messages as source } from "../en/organization";
+
+export const messages = {
+  "organization.tab": "Organisaties",
+  "organization.title": "Organisaties",
+  "organization.intro":
+    "Teams waar je bij hoort. Items die een organisatie deelt, verschijnen in je kluis met de naam van de organisatie en kunnen daar niet worden gewijzigd.",
+  "organization.signedOut": "Meld je aan bij je OpenBot-account om je organisaties te zien.",
+  "organization.empty": "Je zit nog in geen enkele organisatie.",
+  "organization.refresh": "Vernieuwen",
+  "organization.syncing": "Synchroniseren…",
+  "organization.counts": "Leden {members} · Gedeelde items {items}",
+  "organization.issue.offline":
+    "De accountservice is niet bereikbaar. De laatst gesynchroniseerde gegevens worden getoond.",
+  "organization.issue.notConfigured":
+    "De gedeelde kluis is op de accountservice nog niet ingesteld. Organisaties en leden werken, maar gedeelde items zijn niet beschikbaar.",
+  "organization.issue.data": "Sommige gedeelde items konden niet worden gelezen en zijn overgeslagen.",
+  "organization.role.owner": "Eigenaar",
+  "organization.role.admin": "Beheerder",
+  "organization.role.member": "Lid",
+  "organization.role.platformOwner": "Platformeigenaar",
+  "organization.badgeHint": "Gedeeld door {name}. Het kan hier niet worden gewijzigd.",
+  "organization.new": "Nieuwe organisatie",
+  "organization.nameLabel": "Naam",
+  "organization.ownerNumberLabel": "WhatsApp-nummer van de eigenaar",
+  "organization.ownerNumberHint": "Voeg de landcode toe, bijvoorbeeld +628123456789.",
+  "organization.create": "Maken",
+  "organization.open": "{name} openen",
+  "organization.back": "Terug naar organisaties",
+  "organization.save": "Opslaan",
+  "organization.delete": "Organisatie verwijderen",
+  "organization.deleteTitle": "{name} verwijderen?",
+  "organization.deleteBody":
+    "Hiermee verdwijnen de organisatie, haar leden en haar gedeelde kluis voor iedereen. Dit kan niet ongedaan worden gemaakt.",
+  "organization.leave": "Organisatie verlaten",
+  "organization.leaveTitle": "{name} verlaten?",
+  "organization.leaveBody": "De gedeelde items verdwijnen uit je kluis. Een eigenaar kan je opnieuw toevoegen.",
+  "organization.members": "Leden",
+  "organization.memberRole": "Rol van {name}",
+  "organization.memberRemove": "{name} verwijderen",
+  "organization.memberRemoveTitle": "{name} verwijderen?",
+  "organization.memberRemoveBody": "Deze persoon verliest de toegang tot deze organisatie en haar gedeelde items.",
+  "organization.addMember": "Lid toevoegen",
+  "organization.addMemberNumber": "WhatsApp-nummer",
+  "organization.addMemberRole": "Rol",
+  "organization.vault.title": "Organisatiekluis",
+  "organization.vault.intro":
+    "Kopieer items uit je kluis naar deze organisatie. Alleen items die je met het team deelt, verschijnen in de kluis van elk lid.",
+  "organization.vault.managersOnly": "Alleen eigenaren en beheerders beheren deze kluis.",
+  "organization.vault.empty": "Deze organisatie heeft nog geen items in de kluis.",
+  "organization.vault.share": "Delen met team",
+  "organization.vault.shareHint": "Leden zien dit item in hun kluis en hun agents kunnen het gebruiken.",
+  "organization.vault.remove": "{name} uit de organisatiekluis verwijderen",
+  "organization.vault.removeTitle": "{name} verwijderen?",
+  "organization.vault.removeBody":
+    "Het verdwijnt uit de organisatiekluis en uit de kluis van elk lid. Je eigen kopie verandert niet.",
+  "organization.vault.add": "Toevoegen uit mijn kluis",
+  "organization.vault.addPick": "Kies een item",
+  "organization.vault.addEmpty": "Je kluis heeft geen items om toe te voegen.",
+  "organization.vault.addConfirm": "Toevoegen",
+  "organization.failed": "Er ging iets mis. Probeer het opnieuw.",
+} as const satisfies PartialTranslation<typeof source>;

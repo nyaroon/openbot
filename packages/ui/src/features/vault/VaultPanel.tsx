@@ -638,13 +638,15 @@ export function VaultPanel(props: VaultPanelProps) {
                         <For each={visible(tab.value)}>
                           {(item) => (
                             <Item class="settings-modal-row integrations-hub-row">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                class="integrations-hub-hitarea"
-                                aria-label={t("vault.edit", { name: itemTitle(item) })}
-                                onClick={() => openEdit(item.kind, item)}
-                              />
+                              <Show when={!item.organization}>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  class="integrations-hub-hitarea"
+                                  aria-label={t("vault.edit", { name: itemTitle(item) })}
+                                  onClick={() => openEdit(item.kind, item)}
+                                />
+                              </Show>
                               <ItemMedia>
                                 <ItemLogo item={item} />
                               </ItemMedia>
@@ -656,7 +658,17 @@ export function VaultPanel(props: VaultPanelProps) {
                                 <Show when={item.universal}>
                                   <Badge variant="primary-light">{t("vault.universal.badge")}</Badge>
                                 </Show>
-                                <Show when={agentChoices()}>
+                                <Show when={item.organization}>
+                                  {(organization) => (
+                                    <Badge
+                                      variant="primary-light"
+                                      title={t("organization.badgeHint", { name: organization().name })}
+                                    >
+                                      {organization().name}
+                                    </Badge>
+                                  )}
+                                </Show>
+                                <Show when={!item.organization ? agentChoices() : undefined}>
                                   {(agents) => (
                                     <VaultAgentsButton
                                       name={itemTitle(item)}
@@ -680,6 +692,7 @@ export function VaultPanel(props: VaultPanelProps) {
                                 </Show>
                                 <ItemMenu
                                   item={item}
+                                  readOnly={item.organization !== undefined}
                                   title={itemTitle(item)}
                                   address={item.kind === "contact" ? contactLine(item) : ""}
                                   mount={props.menuMount}
@@ -950,6 +963,7 @@ function DraftLogo(props: { draft: Draft; saved: VaultItemSummary | null }) {
 
 function ItemMenu(props: {
   item: VaultItemSummary;
+  readOnly: boolean;
   title: string;
   address: string;
   mount: HTMLElement | undefined;
@@ -977,10 +991,12 @@ function ItemMenu(props: {
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal mount={props.mount ?? document.body}>
         <DropdownMenu.Content>
-          <DropdownMenu.Item onSelect={() => props.onEdit()}>
-            <Pencil aria-hidden="true" />
-            {t("common.edit")}
-          </DropdownMenu.Item>
+          <Show when={!props.readOnly}>
+            <DropdownMenu.Item onSelect={() => props.onEdit()}>
+              <Pencil aria-hidden="true" />
+              {t("common.edit")}
+            </DropdownMenu.Item>
+          </Show>
           <Show when={username()}>
             {(value) => (
               <DropdownMenu.Item onSelect={() => props.onCopyText(value())}>
@@ -1013,11 +1029,13 @@ function ItemMenu(props: {
               </DropdownMenu.Item>
             )}
           </Show>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Item class="ui-action-menu-danger" onSelect={() => props.onDelete()}>
-            <Trash2 aria-hidden="true" />
-            {t("common.delete")}
-          </DropdownMenu.Item>
+          <Show when={!props.readOnly}>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item class="ui-action-menu-danger" onSelect={() => props.onDelete()}>
+              <Trash2 aria-hidden="true" />
+              {t("common.delete")}
+            </DropdownMenu.Item>
+          </Show>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

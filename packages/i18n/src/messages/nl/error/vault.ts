@@ -28,4 +28,5 @@ export const messages = {
   "error.vault.universalUnavailable": "De universele kluis kon op deze computer niet worden gelezen.",
   "error.vault.universalSkillUnsupported":
     "Deze vaardigheid kan niet worden gedeeld. Ingebouwde vaardigheden en vaardigheden uit de thuismap blijven op deze computer.",
+  "error.vault.sharedReadOnly": "Dit item wordt door een organisatie gedeeld en kan hier niet worden gewijzigd.",
 } as const satisfies PartialTranslation<typeof source>;

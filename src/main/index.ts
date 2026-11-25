@@ -105,6 +105,7 @@ import { memoryIpcHandlers } from "./ipc/memory-handlers";
 import { messagingIpcHandlers } from "./ipc/messaging-handlers";
 import { notificationIpcHandlers } from "./ipc/notification-handlers";
 import { onePasswordConnectorIpcHandlers } from "./ipc/onepassword-connector-handlers";
+import { organizationIpcHandlers } from "./ipc/organization-handlers";
 import { passwordManagersIpcHandlers } from "./ipc/password-managers-handlers";
 import { pluginIpcHandlers } from "./ipc/plugin-handlers";
 import { providerAdminIpcHandlers } from "./ipc/provider-admin-handlers";
@@ -524,6 +525,7 @@ const {
   forwardPasswordManagerStatus,
   forwardVaultState,
   forwardUniversalVaultState,
+  forwardOrganizationsState,
   forwardHostStatus,
   forwardRemoteDesktopSessions,
   forwardServers,
@@ -769,6 +771,7 @@ function registerIpcHandlers({
   passwordManagers,
   vault,
   universalVault,
+  organizations,
   localServers,
   routineFeed,
   events,
@@ -906,6 +909,7 @@ function registerIpcHandlers({
     ...passwordManagersIpcHandlers({ passwordManagers, remoteServers, openExternal: openLink }),
     ...vaultIpcHandlers({ vault, getMainWindow: getDialogParent, translate: language.translate, remoteServers }),
     ...universalVaultIpcHandlers({ universalVault }),
+    ...organizationIpcHandlers({ organizations }),
     ...routineFeedIpcHandlers({ routineFeed }),
     ...eventsIpcHandlers({ events, remoteServers }),
     ...localServerIpcHandlers({ localServers }),
@@ -1605,6 +1609,7 @@ if (!hasSingleInstanceLock) {
       built.passwordManagers.onChanged(forwardPasswordManagerStatus);
       built.vault.onChanged(forwardVaultState);
       built.universalVault.onChanged(forwardUniversalVaultState);
+      built.organizations.onChanged(forwardOrganizationsState);
       remoteServers.on("changed", forwardServers);
       remoteServers.on("directoryInvalidated", forwardOwnerTransfersChanged);
       remoteServers.on("agent", (serverId, event, bufferedLive) => {

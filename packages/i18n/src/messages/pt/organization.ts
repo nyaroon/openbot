@@ -1,0 +1,64 @@
+import type { PartialTranslation } from "../../message";
+import type { messages as source } from "../en/organization";
+
+export const messages = {
+  "organization.tab": "Organizações",
+  "organization.title": "Organizações",
+  "organization.intro":
+    "Equipes de que você faz parte. Os itens que uma organização compartilha aparecem no seu cofre com o nome da organização e não podem ser alterados lá.",
+  "organization.signedOut": "Entre na sua conta OpenBot para ver suas organizações.",
+  "organization.empty": "Você ainda não faz parte de nenhuma organização.",
+  "organization.refresh": "Atualizar",
+  "organization.syncing": "Sincronizando…",
+  "organization.counts": "Membros {members} · Itens compartilhados {items}",
+  "organization.issue.offline":
+    "Não foi possível acessar o serviço de contas. Mostrando o que foi sincronizado por último.",
+  "organization.issue.notConfigured":
+    "O cofre compartilhado ainda não está configurado no serviço de contas. As organizações e os membros funcionam, mas os itens compartilhados não estão disponíveis.",
+  "organization.issue.data": "Alguns itens compartilhados não puderam ser lidos e foram ignorados.",
+  "organization.role.owner": "Proprietário",
+  "organization.role.admin": "Administrador",
+  "organization.role.member": "Membro",
+  "organization.role.platformOwner": "Proprietário da plataforma",
+  "organization.badgeHint": "Compartilhado por {name}. Não pode ser alterado aqui.",
+  "organization.new": "Nova organização",
+  "organization.nameLabel": "Nome",
+  "organization.ownerNumberLabel": "Número de WhatsApp do proprietário",
+  "organization.ownerNumberHint": "Inclua o código do país, por exemplo +628123456789.",
+  "organization.create": "Criar",
+  "organization.open": "Abrir {name}",
+  "organization.back": "Voltar às organizações",
+  "organization.save": "Salvar",
+  "organization.delete": "Excluir organização",
+  "organization.deleteTitle": "Excluir {name}?",
+  "organization.deleteBody":
+    "Isso remove a organização, seus membros e seu cofre compartilhado para todos. Não é possível desfazer.",
+  "organization.leave": "Sair da organização",
+  "organization.leaveTitle": "Sair de {name}?",
+  "organization.leaveBody":
+    "Os itens compartilhados dela somem do seu cofre. Um proprietário pode adicionar você de novo.",
+  "organization.members": "Membros",
+  "organization.memberRole": "Função de {name}",
+  "organization.memberRemove": "Remover {name}",
+  "organization.memberRemoveTitle": "Remover {name}?",
+  "organization.memberRemoveBody": "A pessoa perde o acesso a esta organização e aos itens compartilhados dela.",
+  "organization.addMember": "Adicionar membro",
+  "organization.addMemberNumber": "Número de WhatsApp",
+  "organization.addMemberRole": "Função",
+  "organization.vault.title": "Cofre da organização",
+  "organization.vault.intro":
+    "Copie itens do seu cofre para esta organização. Só os itens que você compartilha com a equipe aparecem no cofre de cada membro.",
+  "organization.vault.managersOnly": "Somente proprietários e administradores gerenciam este cofre.",
+  "organization.vault.empty": "Esta organização ainda não tem itens no cofre.",
+  "organization.vault.share": "Compartilhar com a equipe",
+  "organization.vault.shareHint": "Os membros veem este item no cofre deles e os agentes deles podem usá-lo.",
+  "organization.vault.remove": "Remover {name} do cofre da organização",
+  "organization.vault.removeTitle": "Remover {name}?",
+  "organization.vault.removeBody":
+    "Ele some do cofre da organização e do cofre de cada membro. A sua própria cópia não muda.",
+  "organization.vault.add": "Adicionar do meu cofre",
+  "organization.vault.addPick": "Escolha um item",
+  "organization.vault.addEmpty": "Seu cofre não tem itens para adicionar.",
+  "organization.vault.addConfirm": "Adicionar",
+  "organization.failed": "Algo deu errado. Tente de novo.",
+} as const satisfies PartialTranslation<typeof source>;

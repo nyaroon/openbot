@@ -12,4 +12,5 @@ export const messages = {
   "error.vault.universalUnavailable": "No se pudo leer la bóveda universal en este equipo.",
   "error.vault.universalSkillUnsupported":
     "Esta habilidad no se puede compartir. Las habilidades integradas y las de la carpeta personal se quedan en este ordenador.",
+  "error.vault.sharedReadOnly": "Este elemento lo comparte una organización y no se puede cambiar aquí.",
 } as const satisfies PartialTranslation<typeof source>;

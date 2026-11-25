@@ -16,7 +16,7 @@ import {
   requiredNumber,
   requiredString,
 } from "@openbot/contracts/ipc-decoding";
-import { type DynamicRecord, isOneOf, isString } from "@openbot/contracts/runtime-values";
+import { type DynamicRecord, isDynamicRecord, isOneOf, isString } from "@openbot/contracts/runtime-values";
 
 const STATUSES: readonly VaultStatus[] = ["ready", "unavailable", "unreadable"];
 const BRANDS: readonly VaultCardBrand[] = ["visa", "mastercard", "amex", "discover"];
@@ -45,10 +45,22 @@ function addedBy(item: DynamicRecord): { addedBy?: string } {
   return { addedBy: item.addedBy };
 }
 
-function agents(item: DynamicRecord): { agents?: string[]; universal?: true } {
+function organization(item: DynamicRecord): { organization?: { id: string; name: string } } {
+  const { organization: value } = item;
+  if (value === undefined) return {};
+  if (!isDynamicRecord(value) || !isString(value.id) || !isString(value.name)) throw new Error("Invalid organization.");
+  return { organization: { id: value.id, name: value.name } };
+}
+
+function agents(item: DynamicRecord): {
+  agents?: string[];
+  universal?: true;
+  organization?: { id: string; name: string };
+} {
   const universal = item.universal === true ? { universal: true as const } : {};
-  if (item.agents === undefined) return universal;
-  return { agents: decodeAgents(item.agents), ...universal };
+  const badge = organization(item);
+  if (item.agents === undefined) return { ...universal, ...badge };
+  return { agents: decodeAgents(item.agents), ...universal, ...badge };
 }
 
 function vaultItem(item: DynamicRecord): VaultItemSummary {

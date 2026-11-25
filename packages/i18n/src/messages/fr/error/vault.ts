@@ -12,4 +12,5 @@ export const messages = {
   "error.vault.universalUnavailable": "Le coffre universel n’a pas pu être lu sur cet ordinateur.",
   "error.vault.universalSkillUnsupported":
     "Cette compétence ne peut pas être partagée. Les compétences intégrées et celles du dossier personnel restent sur cet ordinateur.",
+  "error.vault.sharedReadOnly": "Cet élément est partagé par une organisation et ne peut pas être modifié ici.",
 } as const satisfies PartialTranslation<typeof source>;

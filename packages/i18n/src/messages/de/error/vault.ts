@@ -13,4 +13,5 @@ export const messages = {
   "error.vault.universalUnavailable": "Der Universelle Tresor konnte auf diesem Computer nicht gelesen werden.",
   "error.vault.universalSkillUnsupported":
     "Diese Fähigkeit kann nicht geteilt werden. Integrierte Fähigkeiten und Fähigkeiten aus dem Home-Ordner bleiben auf diesem Computer.",
+  "error.vault.sharedReadOnly": "Dieses Element wird von einer Organisation geteilt und lässt sich hier nicht ändern.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -12,4 +12,5 @@ export const messages = {
   "error.vault.universalUnavailable": "Impossibile leggere la cassaforte universale su questo computer.",
   "error.vault.universalSkillUnsupported":
     "Questa skill non può essere condivisa. Le skill integrate e quelle della cartella home restano su questo computer.",
+  "error.vault.sharedReadOnly": "Questo elemento è condiviso da un'organizzazione e qui non si può modificare.",
 } as const satisfies PartialTranslation<typeof source>;

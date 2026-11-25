@@ -26,4 +26,5 @@ export const messages = {
   "error.vault.universalChanged": "口令已在另一台电脑上更改。请重试。",
   "error.vault.universalUnavailable": "无法在此电脑上读取通用保险库。",
   "error.vault.universalSkillUnsupported": "无法共享此技能。内置技能和主目录中的技能会保留在这台电脑上。",
+  "error.vault.sharedReadOnly": "此项目由组织共享，无法在此更改。",
 } as const satisfies PartialTranslation<typeof source>;

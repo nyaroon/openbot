@@ -12,4 +12,5 @@ export const messages = {
   "error.vault.universalUnavailable": "Não foi possível ler o cofre universal neste computador.",
   "error.vault.universalSkillUnsupported":
     "Esta habilidade não pode ser compartilhada. Habilidades integradas e da pasta pessoal ficam neste computador.",
+  "error.vault.sharedReadOnly": "Este item é compartilhado por uma organização e não pode ser alterado aqui.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -14,6 +14,7 @@ import {
   Smartphone,
   UserPlus,
   UserRound,
+  UsersRound,
 } from "@openbot/ui";
 import { SHORTCUT_COMMANDS, SHORTCUT_TITLES } from "@openbot/ui/features/settings/keyboard-shortcuts";
 
@@ -29,6 +30,7 @@ export type SettingsTab =
   | "computer-use"
   | "profile"
   | "accounts"
+  | "organizations"
   | "mobile-connect"
   | "updates";
 
@@ -158,6 +160,18 @@ export const navItems: ReadonlyArray<SettingsNavItem> = [
     rows: [
       { titleKey: "settings.accounts.create.title", descriptionKey: "settings.accounts.create.description" },
       { titleKey: "settings.accounts.list.title", descriptionKey: "settings.accounts.list.description" },
+    ],
+  },
+  {
+    value: "organizations",
+    titleKey: "organization.tab",
+    descriptionKey: "organization.intro",
+    icon: UsersRound,
+    group: "settings.sections.group.account",
+    rows: [
+      { titleKey: "organization.title", descriptionKey: "organization.intro" },
+      { titleKey: "organization.members" },
+      { titleKey: "organization.vault.title", descriptionKey: "organization.vault.intro" },
     ],
   },
   {

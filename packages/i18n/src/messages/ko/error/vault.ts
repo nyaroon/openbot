@@ -12,4 +12,5 @@ export const messages = {
   "error.vault.universalUnavailable": "이 컴퓨터에서 범용 보관함을 읽을 수 없습니다.",
   "error.vault.universalSkillUnsupported":
     "이 스킬은 공유할 수 없습니다. 기본 제공 스킬과 홈 폴더 스킬은 이 컴퓨터에 남습니다.",
+  "error.vault.sharedReadOnly": "이 항목은 조직이 공유한 것이라 여기서 변경할 수 없습니다.",
 } as const satisfies PartialTranslation<typeof source>;

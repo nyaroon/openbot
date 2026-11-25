@@ -10,6 +10,7 @@ import {
   type VaultImportResult,
   type VaultItemScope,
   type VaultItemSummary,
+  type VaultOrganizationBadge,
   type VaultSaveInput,
   type VaultSaveScope,
   type VaultSecretRequest,
@@ -40,7 +41,7 @@ import type {
   VaultItems,
   VaultTypedLogin,
 } from "../backend/vault-items";
-import { markLocalChanges } from "./universal-vault-items";
+import { markLocalChanges, type TaggedItem } from "./universal-vault-items";
 import { parseLoginCsv } from "./vault-csv";
 import { decodeVaultSaveInput, vaultWebsite } from "./vault-inputs";
 import type {
@@ -312,6 +313,37 @@ function replaceOrAdd<T extends { id: string }>(items: readonly T[], item: T): T
     : [...items, item];
 }
 
+/** A shared organization item shown beside the personal ones. It is never written to the personal store. */
+export interface LinkedVaultItem {
+  organization: VaultOrganizationBadge;
+  tagged: TaggedItem;
+}
+
+function linkedRecord(linked: readonly LinkedVaultItem[]): VaultRecord {
+  const record: VaultRecord = { logins: [], cards: [], contacts: [], apiKeys: [] };
+  const logins: StoredLogin[] = [];
+  const cards: StoredCard[] = [];
+  const contacts: StoredContact[] = [];
+  const apiKeys: StoredApiKey[] = [];
+  for (const { tagged } of linked) {
+    switch (tagged.kind) {
+      case "login":
+        logins.push(tagged.item);
+        break;
+      case "card":
+        cards.push(tagged.item);
+        break;
+      case "contact":
+        contacts.push(tagged.item);
+        break;
+      case "apiKey":
+        apiKeys.push(tagged.item);
+        break;
+    }
+  }
+  return { ...record, logins, cards, contacts, apiKeys };
+}
+
 export const VAULT_CSV_LIMIT = 4 * 1024 * 1024;
 
 export interface VaultServiceOptions {
@@ -325,6 +357,7 @@ export class VaultService {
   #status: VaultStatus = "ready";
   readonly #listeners = new Set<(state: VaultState) => void>();
   readonly #localListeners = new Set<() => void>();
+  #linked: readonly LinkedVaultItem[] = [];
 
   constructor(options: VaultServiceOptions) {
     this.#store = options.store;
@@ -341,10 +374,45 @@ export class VaultService {
     registerSecrets(this.#store.read());
   });
 
+  /** The personal items followed by the shared organization items, which are read-only. */
+  #view(): VaultRecord {
+    const record = this.#store.read();
+    if (this.#linked.length === 0) return record;
+    const known = new Set(
+      [...record.logins, ...record.cards, ...record.contacts, ...record.apiKeys].map(({ id }) => id),
+    );
+    const extra = linkedRecord(this.#linked.filter(({ tagged }) => !known.has(tagged.item.id)));
+    return {
+      ...record,
+      logins: [...record.logins, ...extra.logins],
+      cards: [...record.cards, ...extra.cards],
+      contacts: [...record.contacts, ...extra.contacts],
+      apiKeys: [...record.apiKeys, ...extra.apiKeys],
+    };
+  }
+
+  #isLinked(id: string): boolean {
+    return this.#linked.some(({ tagged }) => tagged.item.id === id) && !itemName(this.#store.read(), id);
+  }
+
+  /** Replaces the shared organization items. Called by the organization service after each sync. */
+  setLinked(items: readonly LinkedVaultItem[]): void {
+    this.#linked = items;
+    registerSecrets(this.#view());
+    this.#emit();
+  }
+
   state(): VaultState {
+    const badges = new Map(this.#linked.map(({ organization, tagged }) => [tagged.item.id, organization]));
     return {
       status: this.#status,
-      items: this.#status === "ready" ? summary(this.#store.read()) : [],
+      items:
+        this.#status === "ready"
+          ? summary(this.#view()).map((item) => {
+              const organization = this.#isLinked(item.id) ? badges.get(item.id) : undefined;
+              return organization ? { ...item, organization } : item;
+            })
+          : [],
       agentScope: true,
     };
   }
@@ -355,11 +423,13 @@ export class VaultService {
   }
 
   readonly save = Effect.fn("VaultService.save")(function* (this: VaultService, input: VaultSaveInput) {
+    if (input.id !== null && this.#isLinked(input.id)) return yield* vaultError("error.vault.sharedReadOnly");
     yield* this.#change((record) => this.#putNew(record, input, () => true, undefined).record);
     return this.state();
   });
 
   readonly delete = Effect.fn("VaultService.delete")(function* (this: VaultService, id: string) {
+    if (this.#isLinked(id)) return yield* vaultError("error.vault.sharedReadOnly");
     yield* this.#change((record) =>
       itemName(record, id) ? this.#without(record, id) : refuse("error.vault.itemMissing"),
     );
@@ -368,7 +438,7 @@ export class VaultService {
 
   reveal({ id, field }: VaultSecretRequest): string {
     this.#requireReady();
-    const record = this.#store.read();
+    const record = this.#view();
     switch (field) {
       case "password": {
         const login = record.logins.find((item) => item.id === id);
@@ -462,7 +532,7 @@ export class VaultService {
     if (this.#status !== "ready") return { codes: [] };
     const at = Date.now();
     const codes: VaultTwoStepCode[] = [];
-    for (const login of this.#store.read().logins) {
+    for (const login of this.#view().logins) {
       const key = login.twoStepKey ? parseTwoStepKey(login.twoStepKey) : null;
       if (!key) continue;
       const code = yield* makeCode(key, at);
@@ -472,12 +542,11 @@ export class VaultService {
   });
 
   readonly logins: PasswordVault = {
-    connected: () => this.#status === "ready" && this.#store.read().logins.length > 0,
+    connected: () => this.#status === "ready" && this.#view().logins.length > 0,
     loginsFor: (origin, agentId) =>
       Effect.sync(() => {
         if (this.#status !== "ready") return null;
-        return this.#store
-          .read()
+        return this.#view()
           .logins.filter(
             (login) =>
               this.#allows(login, agentId) &&
@@ -493,7 +562,7 @@ export class VaultService {
     secretFor: (loginId, origin, kind, agentId) =>
       Effect.suspend(() => {
         if (this.#status !== "ready") return Effect.succeed(null);
-        const login = this.#store.read().logins.find((item) => item.id === loginId);
+        const login = this.#view().logins.find((item) => item.id === loginId);
         if (
           !login ||
           !this.#allows(login, agentId) ||
@@ -674,7 +743,7 @@ export class VaultService {
     apiKeys: (agentId) => {
       if (this.#status !== "ready") return [];
       const keys = new Map<string, { value: string; own: boolean }>();
-      const { apiKeys } = this.#store.read();
+      const { apiKeys } = this.#view();
       for (const item of apiKeys) if (item.agents === undefined) keys.set(item.name, { value: item.key, own: false });
       for (const item of apiKeys)
         if (item.agents?.includes(agentId)) keys.set(item.name, { value: item.key, own: onlyFor(item, agentId) });
@@ -682,18 +751,17 @@ export class VaultService {
     },
     sharedApiKeys: () =>
       this.#status === "ready"
-        ? this.#store
-            .read()
+        ? this.#view()
             .apiKeys.filter((item) => item.agents === undefined)
             .map((item) => ({ name: item.name, value: item.key }))
         : [],
     hasCards: (agentId) =>
-      this.#status === "ready" && this.#store.read().cards.some((item) => vaultItemAllows(item, agentId)),
+      this.#status === "ready" && this.#view().cards.some((item) => vaultItemAllows(item, agentId)),
     hasContacts: (agentId) =>
-      this.#status === "ready" && this.#store.read().contacts.some((item) => vaultItemAllows(item, agentId)),
+      this.#status === "ready" && this.#view().contacts.some((item) => vaultItemAllows(item, agentId)),
     listForAgent: (agentId) => {
       if (this.#status !== "ready") return { logins: [], cards: [], contacts: [] };
-      const record = this.#forAgent(this.#store.read(), agentId);
+      const record = this.#forAgent(this.#view(), agentId);
       return {
         logins: record.logins.map((login) => ({
           id: login.id,
@@ -718,7 +786,7 @@ export class VaultService {
     },
     cardSecret: (cardId, agentId): VaultCardSecret | null => {
       if (this.#status !== "ready") return null;
-      const card = this.#forAgent(this.#store.read(), agentId).cards.find((item) => item.id === cardId);
+      const card = this.#forAgent(this.#view(), agentId).cards.find((item) => item.id === cardId);
       return card
         ? {
             number: card.number,

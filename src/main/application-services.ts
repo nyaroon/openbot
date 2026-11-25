@@ -354,6 +354,8 @@ import { ModelReleaseCatalog, ModelVisibility } from "./model-visibility";
 import { NotificationPreferenceStore } from "./notification-preference-store";
 import { OnePasswordConnectorService } from "./onepassword-connector-service";
 import { OnePasswordConnectorStore } from "./onepassword-connector-store";
+import { OrganizationService } from "./organization-service";
+import { OrganizationStore } from "./organization-store";
 import { EncryptedRecordStore } from "./password-managers/encrypted-record-store";
 import { PasswordManagersService } from "./password-managers/password-managers-service";
 import { managedProtonPassCli } from "./password-managers/proton-pass-cli-installer";
@@ -550,6 +552,7 @@ const BITWARDEN_CONNECTOR_FILE = "openbot-bitwarden-connector-v1.json";
 const PROTONPASS_CONNECTOR_FILE = "openbot-protonpass-connector-v1.json";
 const VAULT_FILE = "openbot-vault-v1.json";
 const UNIVERSAL_VAULT_KEY_FILE = "openbot-universal-vault-key-v1.json";
+const ORGANIZATIONS_FILE = "openbot-organizations-v1.json";
 const UNIVERSAL_RESOURCES_FILE = "openbot-universal-resources-v1.json";
 const HERMES_IMPORT_LINKS_FILE = "openbot-hermes-imports-v1.json";
 
@@ -614,6 +617,7 @@ const TEARDOWN_ORDER = {
   mcpOAuth: 111,
   analytics: 112,
   universalVault: 114,
+  organizations: 113,
   centralAuth: 115,
   trace: 120,
   providerLog: 121,
@@ -672,6 +676,7 @@ export interface ApplicationServices {
   passwordManagers: PasswordManagersService;
   vault: VaultService;
   universalVault: UniversalVaultService;
+  organizations: OrganizationService;
   mailbox: MailboxStore;
   storageUsage: StorageUsageService;
   libraryFoldersService: LibraryFoldersService;
@@ -1781,6 +1786,14 @@ export async function createApplicationServices({
   });
   void Effect.runPromise(universalVault.start());
   teardown.push(TEARDOWN_ORDER.universalVault, "the Universal vault", () => universalVault.dispose());
+  const organizations = new OrganizationService({
+    auth: centralAuth,
+    vault,
+    store: new OrganizationStore(join(app.getPath("userData"), ORGANIZATIONS_FILE), secretCipher),
+  });
+  universalVault.onCycle(() => organizations.syncSoon());
+  void Effect.runPromise(organizations.start());
+  teardown.push(TEARDOWN_ORDER.organizations, "the organizations", () => organizations.dispose());
 
   const onePasswordCliTarget = runtimeTarget(process.platform, process.arch);
   const onePasswordConnector = new OnePasswordConnectorService({
@@ -4204,6 +4217,7 @@ export async function createApplicationServices({
     passwordManagers,
     vault,
     universalVault,
+    organizations,
     mailbox,
     storageUsage,
     libraryFoldersService,

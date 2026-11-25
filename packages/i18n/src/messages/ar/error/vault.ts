@@ -31,4 +31,5 @@ export const messages = {
   "error.vault.universalUnavailable": "تعذّرت قراءة الخزنة العامة على هذا الكمبيوتر.",
   "error.vault.universalSkillUnsupported":
     "لا يمكن مشاركة هذه المهارة. تبقى المهارات المدمجة ومهارات المجلد الرئيسي على هذا الجهاز.",
+  "error.vault.sharedReadOnly": "هذا العنصر تشاركه مؤسسة ولا يمكن تغييره هنا.",
 } as const satisfies PartialTranslation<typeof source>;

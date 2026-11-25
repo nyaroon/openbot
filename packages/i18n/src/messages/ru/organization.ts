@@ -1,0 +1,63 @@
+import type { PartialTranslation } from "../../message";
+import type { messages as source } from "../en/organization";
+
+export const messages = {
+  "organization.tab": "Организации",
+  "organization.title": "Организации",
+  "organization.intro":
+    "Команды, в которых вы состоите. Элементы, которыми делится организация, появляются в вашем хранилище с названием организации, и изменить их там нельзя.",
+  "organization.signedOut": "Войдите в аккаунт OpenBot, чтобы увидеть свои организации.",
+  "organization.empty": "Вы пока не состоите ни в одной организации.",
+  "organization.refresh": "Обновить",
+  "organization.syncing": "Синхронизация…",
+  "organization.counts": "Участники {members} · Общие элементы {items}",
+  "organization.issue.offline":
+    "Не удалось связаться со службой аккаунтов. Показаны последние синхронизированные данные.",
+  "organization.issue.notConfigured":
+    "Общее хранилище ещё не настроено в службе аккаунтов. Организации и участники работают, но общие элементы недоступны.",
+  "organization.issue.data": "Некоторые общие элементы не удалось прочитать, и они были пропущены.",
+  "organization.role.owner": "Владелец",
+  "organization.role.admin": "Администратор",
+  "organization.role.member": "Участник",
+  "organization.role.platformOwner": "Владелец платформы",
+  "organization.badgeHint": "Общий доступ дал(а) {name}. Здесь это изменить нельзя.",
+  "organization.new": "Новая организация",
+  "organization.nameLabel": "Название",
+  "organization.ownerNumberLabel": "Номер WhatsApp владельца",
+  "organization.ownerNumberHint": "Укажите код страны, например +628123456789.",
+  "organization.create": "Создать",
+  "organization.open": "Открыть {name}",
+  "organization.back": "К списку организаций",
+  "organization.save": "Сохранить",
+  "organization.delete": "Удалить организацию",
+  "organization.deleteTitle": "Удалить {name}?",
+  "organization.deleteBody":
+    "Организация, её участники и общее хранилище будут удалены для всех. Это действие нельзя отменить.",
+  "organization.leave": "Покинуть организацию",
+  "organization.leaveTitle": "Покинуть {name}?",
+  "organization.leaveBody": "Её общие элементы исчезнут из вашего хранилища. Владелец сможет добавить вас снова.",
+  "organization.members": "Участники",
+  "organization.memberRole": "Роль: {name}",
+  "organization.memberRemove": "Исключить: {name}",
+  "organization.memberRemoveTitle": "Исключить {name}?",
+  "organization.memberRemoveBody": "Этот человек потеряет доступ к организации и её общим элементам.",
+  "organization.addMember": "Добавить участника",
+  "organization.addMemberNumber": "Номер WhatsApp",
+  "organization.addMemberRole": "Роль",
+  "organization.vault.title": "Хранилище организации",
+  "organization.vault.intro":
+    "Скопируйте элементы из своего хранилища в эту организацию. В хранилище каждого участника появятся только те элементы, которыми вы делитесь с командой.",
+  "organization.vault.managersOnly": "Это хранилище ведут только владельцы и администраторы.",
+  "organization.vault.empty": "В хранилище этой организации пока нет элементов.",
+  "organization.vault.share": "Поделиться с командой",
+  "organization.vault.shareHint": "Участники видят этот элемент в своём хранилище, и их агенты могут его использовать.",
+  "organization.vault.remove": "Убрать {name} из хранилища организации",
+  "organization.vault.removeTitle": "Убрать {name}?",
+  "organization.vault.removeBody":
+    "Элемент исчезнет из хранилища организации и из хранилища каждого участника. Ваша собственная копия не изменится.",
+  "organization.vault.add": "Добавить из моего хранилища",
+  "organization.vault.addPick": "Выберите элемент",
+  "organization.vault.addEmpty": "В вашем хранилище нет элементов для добавления.",
+  "organization.vault.addConfirm": "Добавить",
+  "organization.failed": "Что-то пошло не так. Повторите попытку.",
+} as const satisfies PartialTranslation<typeof source>;

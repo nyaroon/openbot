@@ -316,6 +316,7 @@ import {
   decodeWhatsAppLinkStateReply,
   decodeWhatsAppOverviewReply,
 } from "./messaging-decoding";
+import { decodeOrganizationMembers, decodeOrganizationsState, decodeOrganizationVault } from "./organization-decoding";
 import {
   decodePasswordManagerChange,
   decodePasswordManagerResponse,
@@ -1095,6 +1096,23 @@ const openbotApi: OpenBotDesktopApi = {
     removeComputer: decodeUniversalVaultState,
     removeUniversalVault: decodeUniversalVaultState,
     changed: decodeUniversalVaultState,
+  }),
+  organizations: bridgeGroup(IPC_ENDPOINTS.organizations, {
+    status: decodeOrganizationsState,
+    refresh: decodeOrganizationsState,
+    create: decodeOrganizationsState,
+    rename: decodeOrganizationsState,
+    remove: decodeOrganizationsState,
+    members: decodeOrganizationMembers,
+    addMember: decodeOrganizationMembers,
+    setMemberRole: decodeOrganizationMembers,
+    removeMember: decodeOrganizationMembers,
+    vault: decodeOrganizationVault,
+    addVaultItem: decodeOrganizationVault,
+    shareVaultItem: decodeOrganizationVault,
+    removeVaultItem: decodeOrganizationVault,
+    leave: decodeOrganizationsState,
+    changed: decodeOrganizationsState,
   }),
   vault: bridgeGroup(IPC_ENDPOINTS.vault, {
     list: decodeVaultState,

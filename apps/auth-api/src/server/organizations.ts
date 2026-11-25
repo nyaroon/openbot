@@ -257,7 +257,7 @@ export class Organizations {
     return Effect.tryPromise({ try: work, catch: () => new OrganizationStorageError() });
   }
 
-  #isPlatformOwner(actor: OrganizationActor): boolean {
+  isPlatformOwner(actor: OrganizationActor): boolean {
     return this.#ownerEmails.has(actor.email);
   }
 
@@ -278,7 +278,7 @@ export class Organizations {
         .bind(actor.id, organizationId)
         .first<{ id: string; role: OrganizationRole | null }>(),
     );
-    const platformOwner = this.#isPlatformOwner(actor);
+    const platformOwner = this.isPlatformOwner(actor);
     if (!row || (row.role === null && !platformOwner)) return yield* Effect.fail(notFound());
     const access: Access = {
       role: row.role,
@@ -306,7 +306,7 @@ export class Organizations {
         .first<OrganizationRow>(),
     );
     if (!row) return yield* Effect.fail(notFound());
-    return organizationFromRow(row, this.#isPlatformOwner(actor));
+    return organizationFromRow(row, this.isPlatformOwner(actor));
   });
 
   /** Finds the account for a WhatsApp number, creating it when missing. */
@@ -327,7 +327,7 @@ export class Organizations {
   });
 
   readonly list = Effect.fn("Organizations.list")(function* (this: Organizations, actor: OrganizationActor) {
-    const platformOwner = this.#isPlatformOwner(actor);
+    const platformOwner = this.isPlatformOwner(actor);
     const rows = yield* this.#run(() =>
       this.#database
         .prepare(
@@ -359,7 +359,7 @@ export class Organizations {
     actor: OrganizationActor,
     input: { name: string; ownerNumber: string },
   ) {
-    if (!this.#isPlatformOwner(actor)) return yield* Effect.fail(forbidden());
+    if (!this.isPlatformOwner(actor)) return yield* Effect.fail(forbidden());
     const owner = yield* this.#ensureAccount(input.ownerNumber);
     const now = this.#now();
     const id = crypto.randomUUID();

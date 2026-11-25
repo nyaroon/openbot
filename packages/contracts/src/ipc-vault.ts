@@ -6,7 +6,7 @@ import {
   requiredNumber,
   requiredString,
 } from "./ipc-decoding";
-import { type DynamicRecord, isOneOf, isString } from "./runtime-values";
+import { type DynamicRecord, isDynamicRecord, isOneOf, isString } from "./runtime-values";
 
 export type VaultItemKind = "login" | "card" | "contact" | "apiKey";
 
@@ -14,9 +14,16 @@ export interface VaultItemOrigin {
   addedBy?: string;
 }
 
+/** Marks an entry that comes from a shared organization vault. It is read-only on this computer. */
+export interface VaultOrganizationBadge {
+  id: string;
+  name: string;
+}
+
 export interface VaultItemScope {
   agents?: string[];
   universal?: true;
+  organization?: VaultOrganizationBadge;
 }
 
 export interface VaultSaveScope {
@@ -428,13 +435,22 @@ function hostAddedBy(item: DynamicRecord): VaultItemOrigin {
   return { addedBy: item.addedBy };
 }
 
+function hostOrganization(item: DynamicRecord): { organization?: VaultOrganizationBadge } {
+  const { organization } = item;
+  if (organization === undefined) return {};
+  if (!isDynamicRecord(organization) || !isString(organization.id) || !isString(organization.name))
+    throw new Error("Invalid Vault response.");
+  return { organization: { id: organization.id, name: organization.name } };
+}
+
 function hostScope(item: DynamicRecord): VaultItemScope {
   const universal = item.universal === true ? { universal: true as const } : {};
-  if (item.agents === undefined) return universal;
+  const organization = hostOrganization(item);
+  if (item.agents === undefined) return { ...universal, ...organization };
   const { agents } = item;
   if (!Array.isArray(agents) || agents.length > VAULT_AGENT_SCOPE_LIMIT || !agents.every(isString))
     throw new Error("Invalid Vault response.");
-  return { agents: [...agents], ...universal };
+  return { agents: [...agents], ...universal, ...organization };
 }
 
 function hostVaultItem(item: DynamicRecord): VaultItemSummary {

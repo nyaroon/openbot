@@ -33,4 +33,5 @@ export const messages = defineMessages("error.vault", {
   "error.vault.universalUnavailable": "The Universal vault could not be read on this computer.",
   "error.vault.universalSkillUnsupported":
     "This skill cannot be shared. Built-in and home folder skills stay on this computer.",
+  "error.vault.sharedReadOnly": "This item is shared by an organization and cannot be changed here.",
 });

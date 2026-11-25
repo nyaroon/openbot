@@ -12,4 +12,5 @@ export const messages = {
   "error.vault.universalUnavailable": "Evrensel kasa bu bilgisayarda okunamadı.",
   "error.vault.universalSkillUnsupported":
     "Bu beceri paylaşılamaz. Yerleşik ve ana klasördeki beceriler bu bilgisayarda kalır.",
+  "error.vault.sharedReadOnly": "Bu öğe bir kuruluş tarafından paylaşılıyor ve burada değiştirilemez.",
 } as const satisfies PartialTranslation<typeof source>;

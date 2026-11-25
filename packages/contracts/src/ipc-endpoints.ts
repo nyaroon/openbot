@@ -471,6 +471,20 @@ import type {
   OnePasswordConnectorStatus,
   OnePasswordHostConnectInput,
 } from "./ipc-onepassword-connector";
+import type {
+  OrganizationAddMemberInput,
+  OrganizationCreateInput,
+  OrganizationMember,
+  OrganizationRemoveMemberInput,
+  OrganizationRenameInput,
+  OrganizationSetRoleInput,
+  OrganizationsState,
+  OrganizationTarget,
+  OrganizationVault,
+  OrganizationVaultAddInput,
+  OrganizationVaultRemoveInput,
+  OrganizationVaultShareInput,
+} from "./ipc-organizations";
 import type { PasswordManagerConnectInput, PasswordManagerId, PasswordManagerStatus } from "./ipc-password-managers";
 import type { PromptCacheTtl, PromptCacheTtlSetting } from "./ipc-prompt-cache";
 import type {
@@ -1351,6 +1365,23 @@ export const IPC_ENDPOINTS = {
     ),
     changed: event<UniversalVaultState>()("universal-vault:changed"),
   },
+  organizations: {
+    status: request<undefined, OrganizationsState>()("organizations:status"),
+    refresh: request<undefined, OrganizationsState>()("organizations:refresh"),
+    create: request<OrganizationCreateInput, OrganizationsState>()("organizations:create"),
+    rename: request<OrganizationRenameInput, OrganizationsState>()("organizations:rename"),
+    remove: request<OrganizationTarget, OrganizationsState>()("organizations:remove"),
+    members: request<OrganizationTarget, OrganizationMember[]>()("organizations:members"),
+    addMember: request<OrganizationAddMemberInput, OrganizationMember[]>()("organizations:add-member"),
+    setMemberRole: request<OrganizationSetRoleInput, OrganizationMember[]>()("organizations:set-member-role"),
+    removeMember: request<OrganizationRemoveMemberInput, OrganizationMember[]>()("organizations:remove-member"),
+    vault: request<OrganizationTarget, OrganizationVault>()("organizations:vault"),
+    addVaultItem: request<OrganizationVaultAddInput, OrganizationVault>()("organizations:vault-add"),
+    shareVaultItem: request<OrganizationVaultShareInput, OrganizationVault>()("organizations:vault-share"),
+    removeVaultItem: request<OrganizationVaultRemoveInput, OrganizationVault>()("organizations:vault-remove"),
+    leave: request<OrganizationTarget, OrganizationsState>()("organizations:leave"),
+    changed: event<OrganizationsState>()("organizations:changed"),
+  },
   vault: {
     list: request<undefined, VaultState>()("vault:list"),
     save: request<VaultSaveInput, VaultState>()("vault:save"),
@@ -2041,6 +2072,7 @@ export const IPC_GROUP_PATHS = {
   linkAccount: "linkAccount",
   vault: "vault",
   universalVault: "universalVault",
+  organizations: "organizations",
   routineFeed: "routineFeed",
   workflows: "workflows",
   boards: "boards",

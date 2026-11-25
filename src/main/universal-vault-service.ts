@@ -183,6 +183,7 @@ export class UniversalVaultService {
   readonly #conflictSuffix: () => string;
   readonly #queue = Semaphore.makeUnsafe(1);
   readonly #listeners = new Set<(state: UniversalVaultState) => void>();
+  readonly #cycleListeners = new Set<() => void>();
   #resources: UniversalResources | null = null;
   #userId: string | null = null;
   #dek: Buffer | null = null;
@@ -247,6 +248,14 @@ export class UniversalVaultService {
       deviceId: view?.deviceId ?? "",
       computers: view && live ? view.computers : [],
       resources: view && live ? view.resources : [],
+    };
+  }
+
+  /** Runs after each finished sync cycle, so other synced data can follow the same schedule. */
+  onCycle(listener: () => void): () => void {
+    this.#cycleListeners.add(listener);
+    return () => {
+      this.#cycleListeners.delete(listener);
     };
   }
 
@@ -741,6 +750,7 @@ export class UniversalVaultService {
         else this.#issue = null;
       }
       this.#emit();
+      for (const listener of this.#cycleListeners) listener();
     });
   }
 

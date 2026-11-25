@@ -1,0 +1,64 @@
+import type { PartialTranslation } from "../../message";
+import type { messages as source } from "../en/organization";
+
+export const messages = {
+  "organization.tab": "Organizaciones",
+  "organization.title": "Organizaciones",
+  "organization.intro":
+    "Equipos a los que perteneces. Los elementos que comparte una organización aparecen en tu bóveda con el nombre de la organización y no se pueden cambiar allí.",
+  "organization.signedOut": "Inicia sesión en tu cuenta de OpenBot para ver tus organizaciones.",
+  "organization.empty": "Aún no perteneces a ninguna organización.",
+  "organization.refresh": "Actualizar",
+  "organization.syncing": "Sincronizando…",
+  "organization.counts": "Miembros {members} · Elementos compartidos {items}",
+  "organization.issue.offline":
+    "No se pudo conectar con el servicio de cuentas. Se muestra lo último que se sincronizó.",
+  "organization.issue.notConfigured":
+    "La bóveda compartida aún no está configurada en el servicio de cuentas. Las organizaciones y los miembros funcionan, pero los elementos compartidos no están disponibles.",
+  "organization.issue.data": "Algunos elementos compartidos no se pudieron leer y se omitieron.",
+  "organization.role.owner": "Propietario",
+  "organization.role.admin": "Administrador",
+  "organization.role.member": "Miembro",
+  "organization.role.platformOwner": "Propietario de la plataforma",
+  "organization.badgeHint": "Compartido por {name}. No se puede cambiar aquí.",
+  "organization.new": "Nueva organización",
+  "organization.nameLabel": "Nombre",
+  "organization.ownerNumberLabel": "Número de WhatsApp del propietario",
+  "organization.ownerNumberHint": "Incluye el prefijo del país, por ejemplo +628123456789.",
+  "organization.create": "Crear",
+  "organization.open": "Abrir {name}",
+  "organization.back": "Volver a las organizaciones",
+  "organization.save": "Guardar",
+  "organization.delete": "Eliminar organización",
+  "organization.deleteTitle": "¿Eliminar {name}?",
+  "organization.deleteBody":
+    "Esto elimina la organización, sus miembros y su bóveda compartida para todos. No se puede deshacer.",
+  "organization.leave": "Salir de la organización",
+  "organization.leaveTitle": "¿Salir de {name}?",
+  "organization.leaveBody":
+    "Sus elementos compartidos desaparecen de tu bóveda. Un propietario puede volver a añadirte.",
+  "organization.members": "Miembros",
+  "organization.memberRole": "Rol de {name}",
+  "organization.memberRemove": "Quitar a {name}",
+  "organization.memberRemoveTitle": "¿Quitar a {name}?",
+  "organization.memberRemoveBody": "Perderá el acceso a esta organización y a sus elementos compartidos.",
+  "organization.addMember": "Añadir miembro",
+  "organization.addMemberNumber": "Número de WhatsApp",
+  "organization.addMemberRole": "Rol",
+  "organization.vault.title": "Bóveda de la organización",
+  "organization.vault.intro":
+    "Copia elementos de tu bóveda a esta organización. Solo los elementos que compartas con el equipo aparecen en la bóveda de cada miembro.",
+  "organization.vault.managersOnly": "Solo los propietarios y administradores gestionan esta bóveda.",
+  "organization.vault.empty": "Esta organización aún no tiene elementos en la bóveda.",
+  "organization.vault.share": "Compartir con el equipo",
+  "organization.vault.shareHint": "Los miembros ven este elemento en su bóveda y sus agentes pueden usarlo.",
+  "organization.vault.remove": "Quitar {name} de la bóveda de la organización",
+  "organization.vault.removeTitle": "¿Quitar {name}?",
+  "organization.vault.removeBody":
+    "Desaparece de la bóveda de la organización y de la bóveda de cada miembro. Tu propia copia no cambia.",
+  "organization.vault.add": "Añadir desde mi bóveda",
+  "organization.vault.addPick": "Elige un elemento",
+  "organization.vault.addEmpty": "Tu bóveda no tiene elementos que añadir.",
+  "organization.vault.addConfirm": "Añadir",
+  "organization.failed": "Algo salió mal. Inténtalo de nuevo.",
+} as const satisfies PartialTranslation<typeof source>;

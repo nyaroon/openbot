@@ -13,4 +13,5 @@ export const messages = {
   "error.vault.universalUnavailable": "このコンピューターでユニバーサル保管庫を読み取れませんでした。",
   "error.vault.universalSkillUnsupported":
     "このスキルは共有できません。組み込みスキルとホームフォルダーのスキルはこのコンピューターに残ります。",
+  "error.vault.sharedReadOnly": "この項目は組織が共有しており、ここでは変更できません。",
 } as const satisfies PartialTranslation<typeof source>;

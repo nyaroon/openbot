@@ -13,4 +13,5 @@ export const messages = {
   "error.vault.universalUnavailable": "Не удалось прочитать универсальное хранилище на этом компьютере.",
   "error.vault.universalSkillUnsupported":
     "Этот навык нельзя передать. Встроенные навыки и навыки из домашней папки остаются на этом компьютере.",
+  "error.vault.sharedReadOnly": "Этим элементом поделилась организация, и здесь его изменить нельзя.",
 } as const satisfies PartialTranslation<typeof source>;

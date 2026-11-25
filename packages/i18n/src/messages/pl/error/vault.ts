@@ -12,4 +12,5 @@ export const messages = {
   "error.vault.universalUnavailable": "Nie udało się odczytać uniwersalnego sejfu na tym komputerze.",
   "error.vault.universalSkillUnsupported":
     "Tej umiejętności nie można udostępnić. Wbudowane umiejętności i te z folderu domowego zostają na tym komputerze.",
+  "error.vault.sharedReadOnly": "Ten element udostępnia organizacja i nie można go tutaj zmienić.",
 } as const satisfies PartialTranslation<typeof source>;

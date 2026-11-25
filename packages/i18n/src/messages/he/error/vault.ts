@@ -31,4 +31,5 @@ export const messages = {
   "error.vault.universalUnavailable": "לא ניתן היה לקרוא את הכספת האוניברסלית במחשב הזה.",
   "error.vault.universalSkillUnsupported":
     "אי אפשר לשתף את המיומנות הזו. מיומנויות מובנות ומיומנויות מתיקיית הבית נשארות במחשב הזה.",
+  "error.vault.sharedReadOnly": "הפריט הזה משותף על ידי ארגון ואי אפשר לשנות אותו כאן.",
 } as const satisfies PartialTranslation<typeof source>;

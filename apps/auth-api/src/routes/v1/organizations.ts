@@ -19,7 +19,11 @@ export const Route = createFileRoute("/v1/organizations")({
           Effect.gen(function* () {
             const user = yield* requestUser(request);
             if (!user) return apiError(401, "unauthorized", "Sign in is required.");
-            return json({ organizations: yield* requestOrganizations().list(user) });
+            const organizations = requestOrganizations();
+            return json({
+              organizations: yield* organizations.list(user),
+              platformOwner: organizations.isPlatformOwner(user),
+            });
           }),
           organizationErrorResponse,
         ),
