@@ -1,0 +1,20 @@
+{
+  "upstream": "upstream/main",
+  "lastReviewed": "20d1cd63d95ac91f049054b1afdd00ece27b322b",
+  "skipSubjects": [
+    "hosted (server|site)",
+    "\\bbilling\\b",
+    "\\bcredits?\\b",
+    "\\breferr",
+    "\\blicen[cs]e",
+    "\\bstripe\\b",
+    "\\bsubscription",
+    "\\binvoice",
+    "\\bcheckout\\b",
+    "\\b(sso|scim|saml)\\b",
+    "company sign-in",
+    "\\bpaid plan",
+    "\\bstorage tier"
+  ],
+  "skipPaths": [".github/", "apps/auth-api/src/content/", "apps/auth-api/src/components/landing/"]
+}
