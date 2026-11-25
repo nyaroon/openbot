@@ -443,6 +443,7 @@ export function createConversationViewScope(props: ConversationProps) {
   const currentChatErrorRun = () => currentChatErrorEntry()?.run ?? null;
   const currentChatErrorLink = () => currentChatErrorEntry()?.link ?? null;
   const currentChatErrorDetails = () => currentChatErrorEntry()?.details ?? null;
+  const currentChatErrorNotice = () => currentChatErrorEntry()?.notice === true;
   const attachmentBusy = (target = currentTarget()) =>
     target !== undefined && importingDrafts().has(composerDraftKey(target));
   const uploadFailed = (target = currentTarget()) =>
@@ -2642,6 +2643,7 @@ export function createConversationViewScope(props: ConversationProps) {
     currentChatErrorRun,
     currentChatErrorLink,
     currentChatErrorDetails,
+    currentChatErrorNotice,
     currentChatConversationKey,
     dismissCurrentChatErrors,
     dismissAwaitingReplies,
