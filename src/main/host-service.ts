@@ -594,7 +594,7 @@ export class HostService extends EventEmitter<HostEvents> {
               this.#pushNotifications?.reconnected(sessionId);
             }
           },
-          unknownMemberConnected: (membershipId) => this.#dispatch(this.#learnConnectedMember(membershipId)),
+          memberConnected: (membershipId, role) => this.#dispatch(this.#learnConnectedMember(membershipId, role)),
           ...(options.peerMemberChanged ? { peerMemberChanged: options.peerMemberChanged } : {}),
           ...(options.verifyRemoteSessionTicket ? { verifyClientTicket: options.verifyRemoteSessionTicket } : {}),
           ...(options.privateNetwork ? { privateNetwork: options.privateNetwork } : {}),
@@ -1700,6 +1700,7 @@ export class HostService extends EventEmitter<HostEvents> {
   readonly #learnConnectedMember = Effect.fn("HostService.learnConnectedMember")(function* (
     this: HostService,
     membershipId: string,
+    role: TeamRole,
   ): Effect.fn.Return<void> {
     const hostId = this.#options.store.getIdentity()?.serverId;
     const listRemoteMembers = this.#options.listRemoteMembers;
@@ -1707,7 +1708,7 @@ export class HostService extends EventEmitter<HostEvents> {
     yield* this.#memberWrites
       .withPermit(
         Effect.gen({ self: this }, function* () {
-          if (this.#options.store.getMember(membershipId)) return;
+          if (storedMemberMatches(this.#options.store.getMember(membershipId), role)) return;
           const members = yield* listRemoteMembers(hostId);
           if (!this.#isActiveHost(hostId)) return;
           yield* this.#syncRemoteDirectory(hostId, members);
@@ -2135,6 +2136,10 @@ function serverLogoUrl(version: string): string {
 function normalizeRemoteDesktopPlatform(platform: NodeJS.Platform): "darwin" | "win32" | "linux" {
   if (platform === "darwin" || platform === "win32") return platform;
   return "linux";
+}
+
+function storedMemberMatches(member: TeamMemberSummary | null, role: TeamRole): boolean {
+  return member !== null && !member.disabled && member.role === role;
 }
 
 function memberChatColorsChanged(before: readonly TeamMemberSummary[], after: readonly TeamMemberSummary[]): boolean {
