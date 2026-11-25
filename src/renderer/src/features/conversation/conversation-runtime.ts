@@ -72,9 +72,11 @@ export interface ConversationRuntime {
   voice: Pick<
     OpenBotDesktopApi["voice"],
     | "getSettings"
+    | "setSettings"
     | "getServer"
     | "onModelStatus"
     | "prepareModel"
+    | "downloadModel"
     | "transcribe"
     | "startStream"
     | "appendStream"
