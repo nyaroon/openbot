@@ -311,6 +311,8 @@ export const messages = {
   "error.backend.mcpServerExited":
     "Сервер остановился, не ответив. Запустите команду в терминале, чтобы увидеть ошибку.",
   "error.backend.mcpServerExitedWithOutput": "Сервер остановился, не ответив. Он написал: {detail}",
+  "error.backend.mcpServerDownloadFailed":
+    "Сервер не запустился, потому что его загрузка не удалась. Проверьте подключение к интернету и попробуйте снова.",
   "error.backend.mcpServerFailedToStart": "Сервер не запустился: {reason}",
   "error.backend.mcpServerStartAbandoned":
     "{provider} перестал ждать до запуска сервера, поэтому его агенты не получают инструменты этого сервера.",
