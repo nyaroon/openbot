@@ -386,6 +386,7 @@ export interface MobileWorkspaceContextValue {
   removeServer: (serverId: string) => Promise<void>;
   refreshServers: () => Promise<void>;
   refreshServer: (serverId: string) => Promise<void>;
+  reconnectServer: (serverId: string) => Promise<void>;
   knownServerChecks: (serverId: string) => ServerChecks | null;
   canEditServerIdentity: (serverId: string) => boolean;
   canEditServerAppearance: (serverId: string) => boolean;
