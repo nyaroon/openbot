@@ -149,6 +149,7 @@ import {
   agentNewChatAllowed,
   agentTaskLimit,
   type BusyMessageMode,
+  browserHttpSignInPrompts,
   COMPUTER_USE_MCP_SERVER_NAME,
   CONTEXT_RESET_ITEM_TYPE,
   DEFAULT_BUSY_MESSAGE_MODE,
@@ -1274,6 +1275,7 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
     let userControlTabIds = "";
     let browserPageStates = "";
     let browserPermissions = "[]";
+    let browserHttpSignIns = "";
     this.#browser.onChanged((tabs, activeTabId) => {
       this.#attention.cancelTakeoversForMissingTabs(tabs);
       Effect.runFork(this.#browserUploads.retainTabs(tabs).pipe(Effect.forkIn(this.#scope)));
@@ -1293,6 +1295,12 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       if (permissionKey !== browserPermissions) {
         browserPermissions = permissionKey;
         this.#emit({ type: "browser-permissions-changed", requests: permissionRequests });
+      }
+      const httpSignIns = browserHttpSignInPrompts(tabs);
+      const httpSignInKey = JSON.stringify(httpSignIns);
+      if (httpSignInKey !== browserHttpSignIns) {
+        browserHttpSignIns = httpSignInKey;
+        this.#emit({ type: "browser-http-sign-in-changed", tabs: httpSignIns });
       }
       const held = tabs.filter((tab) => tab.userControl).map((tab) => tab.id);
       if (held.join("\n") === userControlTabIds) return;
