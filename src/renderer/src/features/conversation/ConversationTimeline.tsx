@@ -138,6 +138,7 @@ export function ConversationTimeline() {
     agentActivitySpaceReserved,
     attachmentAction,
     attachmentDownloads,
+    imageCopies,
     channel,
     chatSearchMatches,
     chatSearchOpen,
@@ -1547,6 +1548,7 @@ export function ConversationTimeline() {
                             onOpenTag={openTaggedReference}
                             onDownload={(attachment) => attachmentAction(attachment, "download")}
                             mediaSource={runtime.attachmentMedia}
+                            imageCopies={imageCopies()}
                             downloads={attachmentDownloads}
                             macWindowControls={props.platform === "darwin"}
                             loadImageFile={messageImageFiles && loadImageFile}
