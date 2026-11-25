@@ -41,6 +41,7 @@ interface Sorted {
 const root = join(import.meta.dirname, "..");
 const configPath = join(root, "upstream-sync.config.json");
 const reportDirectory = join(root, ".upstream-sync");
+const noHooksDirectory = join(reportDirectory, "no-hooks");
 const RECORD_SEPARATOR = "\u001e";
 const FIELD_SEPARATOR = "\u001f";
 
@@ -180,6 +181,7 @@ function apply(): void {
     return;
   }
   const branch = `upstream-sync/${new Date().toISOString().slice(0, 10)}-${last.commit.hash.slice(0, 7)}`;
+  mkdirSync(noHooksDirectory, { recursive: true });
   git(["switch", "--create", branch]);
   const picked: string[] = [];
   const empty: string[] = [];
@@ -195,11 +197,18 @@ function apply(): void {
         // Everything the commit changed is gone in this fork.
         git(["cherry-pick", "--skip"]);
         empty.push(reportLine(entry));
-      } else {
-        git(["-c", "core.editor=true", "cherry-pick", "--continue"]);
-        picked.push(reportLine(entry));
+        continue;
       }
-      continue;
+      // A plain cherry-pick runs no pre-commit hook, so the settled one runs none either. The
+      // checks run once on the finished branch, not on each upstream commit.
+      const settled = git(
+        ["-c", "core.editor=true", "-c", `core.hooksPath=${noHooksDirectory}`, "cherry-pick", "--continue"],
+        true,
+      );
+      if (settled.ok) {
+        picked.push(reportLine(entry));
+        continue;
+      }
     }
     const files = unmerged().map((file) => file.path);
     git(["cherry-pick", "--abort"]);
