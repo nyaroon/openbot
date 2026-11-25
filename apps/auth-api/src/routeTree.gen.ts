@@ -160,6 +160,7 @@ import { Route as V1MeVaultItemsRouteImport } from './routes/v1/me/vault/items'
 import { Route as V1MobileAuthDevicesSessionIdRouteImport } from './routes/v1/mobile-auth/devices/$sessionId'
 import { Route as V1MobileAuthEmailVerifyRouteImport } from './routes/v1/mobile-auth/email/verify'
 import { Route as V1OrganizationsOrganizationIdMembersRouteImport } from './routes/v1/organizations/$organizationId/members'
+import { Route as V1OrganizationsOrganizationIdServersRouteImport } from './routes/v1/organizations/$organizationId/servers'
 import { Route as V1SkillsSkillIdCardRouteImport } from './routes/v1/skills/$skillId/card'
 import { Route as V1SkillsSkillIdContentRouteImport } from './routes/v1/skills/$skillId/content'
 import { Route as V1SkillsSkillIdIconRouteImport } from './routes/v1/skills/$skillId/icon'
@@ -190,6 +191,7 @@ import { Route as V1MarketplaceAgentsAdminSubmissionsRouteImport } from './route
 import { Route as V1MeVaultBlobsBlobIdRouteImport } from './routes/v1/me/vault/blobs/$blobId'
 import { Route as V1MeVaultItemsItemIdRouteImport } from './routes/v1/me/vault/items/$itemId'
 import { Route as V1OrganizationsOrganizationIdMembersUserIdRouteImport } from './routes/v1/organizations/$organizationId/members/$userId'
+import { Route as V1OrganizationsOrganizationIdServersHostIdRouteImport } from './routes/v1/organizations/$organizationId/servers/$hostId'
 import { Route as V1OrganizationsOrganizationIdVaultItemsRouteImport } from './routes/v1/organizations/$organizationId/vault/items'
 import { Route as V1SkillsSkillIdVersionsVersionIdRouteImport } from './routes/v1/skills/$skillId/versions/$versionId'
 import { Route as V1SkillsAdminCardsVersionIdRouteImport } from './routes/v1/skills/admin/cards/$versionId'
@@ -226,6 +228,7 @@ import { Route as V1MarketplaceAgentsAdminCardsVersionIdRouteImport } from './ro
 import { Route as V1MarketplaceAgentsAdminFeaturedAgentIdRouteImport } from './routes/v1/marketplace/agents/admin/featured/$agentId'
 import { Route as V1MarketplaceAgentsAdminSubmissionsVersionIdRouteImport } from './routes/v1/marketplace/agents/admin/submissions/$versionId'
 import { Route as V1MarketplaceAgentsAdminVerifiedAgentIdRouteImport } from './routes/v1/marketplace/agents/admin/verified/$agentId'
+import { Route as V1OrganizationsOrganizationIdServersHostIdJoinRouteImport } from './routes/v1/organizations/$organizationId/servers/$hostId/join'
 import { Route as V1OrganizationsOrganizationIdVaultItemsItemIdRouteImport } from './routes/v1/organizations/$organizationId/vault/items/$itemId'
 import { Route as V1SkillsSkillIdVersionsVersionIdContentRouteImport } from './routes/v1/skills/$skillId/versions/$versionId/content'
 import { Route as V2RemoteHostsHostIdMembersIndexRouteImport } from './routes/v2/remote/hosts/$hostId/members/index'
@@ -996,6 +999,12 @@ const V1OrganizationsOrganizationIdMembersRoute =
     path: '/members',
     getParentRoute: () => V1OrganizationsOrganizationIdRoute,
   } as any)
+const V1OrganizationsOrganizationIdServersRoute =
+  V1OrganizationsOrganizationIdServersRouteImport.update({
+    id: '/servers',
+    path: '/servers',
+    getParentRoute: () => V1OrganizationsOrganizationIdRoute,
+  } as any)
 const V1SkillsSkillIdCardRoute = V1SkillsSkillIdCardRouteImport.update({
   id: '/card',
   path: '/card',
@@ -1161,6 +1170,12 @@ const V1OrganizationsOrganizationIdMembersUserIdRoute =
     id: '/$userId',
     path: '/$userId',
     getParentRoute: () => V1OrganizationsOrganizationIdMembersRoute,
+  } as any)
+const V1OrganizationsOrganizationIdServersHostIdRoute =
+  V1OrganizationsOrganizationIdServersHostIdRouteImport.update({
+    id: '/$hostId',
+    path: '/$hostId',
+    getParentRoute: () => V1OrganizationsOrganizationIdServersRoute,
   } as any)
 const V1OrganizationsOrganizationIdVaultItemsRoute =
   V1OrganizationsOrganizationIdVaultItemsRouteImport.update({
@@ -1377,6 +1392,12 @@ const V1MarketplaceAgentsAdminVerifiedAgentIdRoute =
     path: '/v1/marketplace/agents/admin/verified/$agentId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const V1OrganizationsOrganizationIdServersHostIdJoinRoute =
+  V1OrganizationsOrganizationIdServersHostIdJoinRouteImport.update({
+    id: '/join',
+    path: '/join',
+    getParentRoute: () => V1OrganizationsOrganizationIdServersHostIdRoute,
+  } as any)
 const V1OrganizationsOrganizationIdVaultItemsItemIdRoute =
   V1OrganizationsOrganizationIdVaultItemsItemIdRouteImport.update({
     id: '/$itemId',
@@ -1550,6 +1571,7 @@ export interface FileRoutesByFullPath {
   '/v1/mobile-auth/devices/$sessionId': typeof V1MobileAuthDevicesSessionIdRoute
   '/v1/mobile-auth/email/verify': typeof V1MobileAuthEmailVerifyRoute
   '/v1/organizations/$organizationId/members': typeof V1OrganizationsOrganizationIdMembersRouteWithChildren
+  '/v1/organizations/$organizationId/servers': typeof V1OrganizationsOrganizationIdServersRouteWithChildren
   '/v1/skills/$skillId/card': typeof V1SkillsSkillIdCardRoute
   '/v1/skills/$skillId/content': typeof V1SkillsSkillIdContentRoute
   '/v1/skills/$skillId/icon': typeof V1SkillsSkillIdIconRoute
@@ -1581,6 +1603,7 @@ export interface FileRoutesByFullPath {
   '/v1/me/vault/blobs/$blobId': typeof V1MeVaultBlobsBlobIdRoute
   '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/organizations/$organizationId/members/$userId': typeof V1OrganizationsOrganizationIdMembersUserIdRoute
+  '/v1/organizations/$organizationId/servers/$hostId': typeof V1OrganizationsOrganizationIdServersHostIdRouteWithChildren
   '/v1/organizations/$organizationId/vault/items': typeof V1OrganizationsOrganizationIdVaultItemsRouteWithChildren
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
@@ -1617,6 +1640,7 @@ export interface FileRoutesByFullPath {
   '/v1/marketplace/agents/admin/featured/$agentId': typeof V1MarketplaceAgentsAdminFeaturedAgentIdRoute
   '/v1/marketplace/agents/admin/submissions/$versionId': typeof V1MarketplaceAgentsAdminSubmissionsVersionIdRoute
   '/v1/marketplace/agents/admin/verified/$agentId': typeof V1MarketplaceAgentsAdminVerifiedAgentIdRoute
+  '/v1/organizations/$organizationId/servers/$hostId/join': typeof V1OrganizationsOrganizationIdServersHostIdJoinRoute
   '/v1/organizations/$organizationId/vault/items/$itemId': typeof V1OrganizationsOrganizationIdVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId/content': typeof V1SkillsSkillIdVersionsVersionIdContentRoute
   '/v2/remote/hosts/$hostId/members/$membershipId': typeof V2RemoteHostsHostIdMembersMembershipIdRoute
@@ -1770,6 +1794,7 @@ export interface FileRoutesByTo {
   '/v1/mobile-auth/devices/$sessionId': typeof V1MobileAuthDevicesSessionIdRoute
   '/v1/mobile-auth/email/verify': typeof V1MobileAuthEmailVerifyRoute
   '/v1/organizations/$organizationId/members': typeof V1OrganizationsOrganizationIdMembersRouteWithChildren
+  '/v1/organizations/$organizationId/servers': typeof V1OrganizationsOrganizationIdServersRouteWithChildren
   '/v1/skills/$skillId/card': typeof V1SkillsSkillIdCardRoute
   '/v1/skills/$skillId/content': typeof V1SkillsSkillIdContentRoute
   '/v1/skills/$skillId/icon': typeof V1SkillsSkillIdIconRoute
@@ -1801,6 +1826,7 @@ export interface FileRoutesByTo {
   '/v1/me/vault/blobs/$blobId': typeof V1MeVaultBlobsBlobIdRoute
   '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/organizations/$organizationId/members/$userId': typeof V1OrganizationsOrganizationIdMembersUserIdRoute
+  '/v1/organizations/$organizationId/servers/$hostId': typeof V1OrganizationsOrganizationIdServersHostIdRouteWithChildren
   '/v1/organizations/$organizationId/vault/items': typeof V1OrganizationsOrganizationIdVaultItemsRouteWithChildren
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
@@ -1837,6 +1863,7 @@ export interface FileRoutesByTo {
   '/v1/marketplace/agents/admin/featured/$agentId': typeof V1MarketplaceAgentsAdminFeaturedAgentIdRoute
   '/v1/marketplace/agents/admin/submissions/$versionId': typeof V1MarketplaceAgentsAdminSubmissionsVersionIdRoute
   '/v1/marketplace/agents/admin/verified/$agentId': typeof V1MarketplaceAgentsAdminVerifiedAgentIdRoute
+  '/v1/organizations/$organizationId/servers/$hostId/join': typeof V1OrganizationsOrganizationIdServersHostIdJoinRoute
   '/v1/organizations/$organizationId/vault/items/$itemId': typeof V1OrganizationsOrganizationIdVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId/content': typeof V1SkillsSkillIdVersionsVersionIdContentRoute
   '/v2/remote/hosts/$hostId/members/$membershipId': typeof V2RemoteHostsHostIdMembersMembershipIdRoute
@@ -1994,6 +2021,7 @@ export interface FileRoutesById {
   '/v1/mobile-auth/devices/$sessionId': typeof V1MobileAuthDevicesSessionIdRoute
   '/v1/mobile-auth/email/verify': typeof V1MobileAuthEmailVerifyRoute
   '/v1/organizations/$organizationId/members': typeof V1OrganizationsOrganizationIdMembersRouteWithChildren
+  '/v1/organizations/$organizationId/servers': typeof V1OrganizationsOrganizationIdServersRouteWithChildren
   '/v1/skills/$skillId/card': typeof V1SkillsSkillIdCardRoute
   '/v1/skills/$skillId/content': typeof V1SkillsSkillIdContentRoute
   '/v1/skills/$skillId/icon': typeof V1SkillsSkillIdIconRoute
@@ -2025,6 +2053,7 @@ export interface FileRoutesById {
   '/v1/me/vault/blobs/$blobId': typeof V1MeVaultBlobsBlobIdRoute
   '/v1/me/vault/items/$itemId': typeof V1MeVaultItemsItemIdRoute
   '/v1/organizations/$organizationId/members/$userId': typeof V1OrganizationsOrganizationIdMembersUserIdRoute
+  '/v1/organizations/$organizationId/servers/$hostId': typeof V1OrganizationsOrganizationIdServersHostIdRouteWithChildren
   '/v1/organizations/$organizationId/vault/items': typeof V1OrganizationsOrganizationIdVaultItemsRouteWithChildren
   '/v1/skills/$skillId/versions/$versionId': typeof V1SkillsSkillIdVersionsVersionIdRouteWithChildren
   '/v1/skills/admin/cards/$versionId': typeof V1SkillsAdminCardsVersionIdRoute
@@ -2061,6 +2090,7 @@ export interface FileRoutesById {
   '/v1/marketplace/agents/admin/featured/$agentId': typeof V1MarketplaceAgentsAdminFeaturedAgentIdRoute
   '/v1/marketplace/agents/admin/submissions/$versionId': typeof V1MarketplaceAgentsAdminSubmissionsVersionIdRoute
   '/v1/marketplace/agents/admin/verified/$agentId': typeof V1MarketplaceAgentsAdminVerifiedAgentIdRoute
+  '/v1/organizations/$organizationId/servers/$hostId/join': typeof V1OrganizationsOrganizationIdServersHostIdJoinRoute
   '/v1/organizations/$organizationId/vault/items/$itemId': typeof V1OrganizationsOrganizationIdVaultItemsItemIdRoute
   '/v1/skills/$skillId/versions/$versionId/content': typeof V1SkillsSkillIdVersionsVersionIdContentRoute
   '/v2/remote/hosts/$hostId/members/$membershipId': typeof V2RemoteHostsHostIdMembersMembershipIdRoute
@@ -2216,6 +2246,7 @@ export interface FileRouteTypes {
     | '/v1/mobile-auth/devices/$sessionId'
     | '/v1/mobile-auth/email/verify'
     | '/v1/organizations/$organizationId/members'
+    | '/v1/organizations/$organizationId/servers'
     | '/v1/skills/$skillId/card'
     | '/v1/skills/$skillId/content'
     | '/v1/skills/$skillId/icon'
@@ -2247,6 +2278,7 @@ export interface FileRouteTypes {
     | '/v1/me/vault/blobs/$blobId'
     | '/v1/me/vault/items/$itemId'
     | '/v1/organizations/$organizationId/members/$userId'
+    | '/v1/organizations/$organizationId/servers/$hostId'
     | '/v1/organizations/$organizationId/vault/items'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
@@ -2283,6 +2315,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/admin/featured/$agentId'
     | '/v1/marketplace/agents/admin/submissions/$versionId'
     | '/v1/marketplace/agents/admin/verified/$agentId'
+    | '/v1/organizations/$organizationId/servers/$hostId/join'
     | '/v1/organizations/$organizationId/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId/content'
     | '/v2/remote/hosts/$hostId/members/$membershipId'
@@ -2436,6 +2469,7 @@ export interface FileRouteTypes {
     | '/v1/mobile-auth/devices/$sessionId'
     | '/v1/mobile-auth/email/verify'
     | '/v1/organizations/$organizationId/members'
+    | '/v1/organizations/$organizationId/servers'
     | '/v1/skills/$skillId/card'
     | '/v1/skills/$skillId/content'
     | '/v1/skills/$skillId/icon'
@@ -2467,6 +2501,7 @@ export interface FileRouteTypes {
     | '/v1/me/vault/blobs/$blobId'
     | '/v1/me/vault/items/$itemId'
     | '/v1/organizations/$organizationId/members/$userId'
+    | '/v1/organizations/$organizationId/servers/$hostId'
     | '/v1/organizations/$organizationId/vault/items'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
@@ -2503,6 +2538,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/admin/featured/$agentId'
     | '/v1/marketplace/agents/admin/submissions/$versionId'
     | '/v1/marketplace/agents/admin/verified/$agentId'
+    | '/v1/organizations/$organizationId/servers/$hostId/join'
     | '/v1/organizations/$organizationId/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId/content'
     | '/v2/remote/hosts/$hostId/members/$membershipId'
@@ -2659,6 +2695,7 @@ export interface FileRouteTypes {
     | '/v1/mobile-auth/devices/$sessionId'
     | '/v1/mobile-auth/email/verify'
     | '/v1/organizations/$organizationId/members'
+    | '/v1/organizations/$organizationId/servers'
     | '/v1/skills/$skillId/card'
     | '/v1/skills/$skillId/content'
     | '/v1/skills/$skillId/icon'
@@ -2690,6 +2727,7 @@ export interface FileRouteTypes {
     | '/v1/me/vault/blobs/$blobId'
     | '/v1/me/vault/items/$itemId'
     | '/v1/organizations/$organizationId/members/$userId'
+    | '/v1/organizations/$organizationId/servers/$hostId'
     | '/v1/organizations/$organizationId/vault/items'
     | '/v1/skills/$skillId/versions/$versionId'
     | '/v1/skills/admin/cards/$versionId'
@@ -2726,6 +2764,7 @@ export interface FileRouteTypes {
     | '/v1/marketplace/agents/admin/featured/$agentId'
     | '/v1/marketplace/agents/admin/submissions/$versionId'
     | '/v1/marketplace/agents/admin/verified/$agentId'
+    | '/v1/organizations/$organizationId/servers/$hostId/join'
     | '/v1/organizations/$organizationId/vault/items/$itemId'
     | '/v1/skills/$skillId/versions/$versionId/content'
     | '/v2/remote/hosts/$hostId/members/$membershipId'
@@ -3940,6 +3979,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1OrganizationsOrganizationIdMembersRouteImport
       parentRoute: typeof V1OrganizationsOrganizationIdRoute
     }
+    '/v1/organizations/$organizationId/servers': {
+      id: '/v1/organizations/$organizationId/servers'
+      path: '/servers'
+      fullPath: '/v1/organizations/$organizationId/servers'
+      preLoaderRoute: typeof V1OrganizationsOrganizationIdServersRouteImport
+      parentRoute: typeof V1OrganizationsOrganizationIdRoute
+    }
     '/v1/skills/$skillId/card': {
       id: '/v1/skills/$skillId/card'
       path: '/card'
@@ -4149,6 +4195,13 @@ declare module '@tanstack/solid-router' {
       fullPath: '/v1/organizations/$organizationId/members/$userId'
       preLoaderRoute: typeof V1OrganizationsOrganizationIdMembersUserIdRouteImport
       parentRoute: typeof V1OrganizationsOrganizationIdMembersRoute
+    }
+    '/v1/organizations/$organizationId/servers/$hostId': {
+      id: '/v1/organizations/$organizationId/servers/$hostId'
+      path: '/$hostId'
+      fullPath: '/v1/organizations/$organizationId/servers/$hostId'
+      preLoaderRoute: typeof V1OrganizationsOrganizationIdServersHostIdRouteImport
+      parentRoute: typeof V1OrganizationsOrganizationIdServersRoute
     }
     '/v1/organizations/$organizationId/vault/items': {
       id: '/v1/organizations/$organizationId/vault/items'
@@ -4402,6 +4455,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof V1MarketplaceAgentsAdminVerifiedAgentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/v1/organizations/$organizationId/servers/$hostId/join': {
+      id: '/v1/organizations/$organizationId/servers/$hostId/join'
+      path: '/join'
+      fullPath: '/v1/organizations/$organizationId/servers/$hostId/join'
+      preLoaderRoute: typeof V1OrganizationsOrganizationIdServersHostIdJoinRouteImport
+      parentRoute: typeof V1OrganizationsOrganizationIdServersHostIdRoute
+    }
     '/v1/organizations/$organizationId/vault/items/$itemId': {
       id: '/v1/organizations/$organizationId/vault/items/$itemId'
       path: '/$itemId'
@@ -4621,6 +4681,36 @@ const V1OrganizationsOrganizationIdMembersRouteWithChildren =
     V1OrganizationsOrganizationIdMembersRouteChildren,
   )
 
+interface V1OrganizationsOrganizationIdServersHostIdRouteChildren {
+  V1OrganizationsOrganizationIdServersHostIdJoinRoute: typeof V1OrganizationsOrganizationIdServersHostIdJoinRoute
+}
+
+const V1OrganizationsOrganizationIdServersHostIdRouteChildren: V1OrganizationsOrganizationIdServersHostIdRouteChildren =
+  {
+    V1OrganizationsOrganizationIdServersHostIdJoinRoute:
+      V1OrganizationsOrganizationIdServersHostIdJoinRoute,
+  }
+
+const V1OrganizationsOrganizationIdServersHostIdRouteWithChildren =
+  V1OrganizationsOrganizationIdServersHostIdRoute._addFileChildren(
+    V1OrganizationsOrganizationIdServersHostIdRouteChildren,
+  )
+
+interface V1OrganizationsOrganizationIdServersRouteChildren {
+  V1OrganizationsOrganizationIdServersHostIdRoute: typeof V1OrganizationsOrganizationIdServersHostIdRouteWithChildren
+}
+
+const V1OrganizationsOrganizationIdServersRouteChildren: V1OrganizationsOrganizationIdServersRouteChildren =
+  {
+    V1OrganizationsOrganizationIdServersHostIdRoute:
+      V1OrganizationsOrganizationIdServersHostIdRouteWithChildren,
+  }
+
+const V1OrganizationsOrganizationIdServersRouteWithChildren =
+  V1OrganizationsOrganizationIdServersRoute._addFileChildren(
+    V1OrganizationsOrganizationIdServersRouteChildren,
+  )
+
 interface V1OrganizationsOrganizationIdVaultItemsRouteChildren {
   V1OrganizationsOrganizationIdVaultItemsItemIdRoute: typeof V1OrganizationsOrganizationIdVaultItemsItemIdRoute
 }
@@ -4638,6 +4728,7 @@ const V1OrganizationsOrganizationIdVaultItemsRouteWithChildren =
 
 interface V1OrganizationsOrganizationIdRouteChildren {
   V1OrganizationsOrganizationIdMembersRoute: typeof V1OrganizationsOrganizationIdMembersRouteWithChildren
+  V1OrganizationsOrganizationIdServersRoute: typeof V1OrganizationsOrganizationIdServersRouteWithChildren
   V1OrganizationsOrganizationIdVaultItemsRoute: typeof V1OrganizationsOrganizationIdVaultItemsRouteWithChildren
 }
 
@@ -4645,6 +4736,8 @@ const V1OrganizationsOrganizationIdRouteChildren: V1OrganizationsOrganizationIdR
   {
     V1OrganizationsOrganizationIdMembersRoute:
       V1OrganizationsOrganizationIdMembersRouteWithChildren,
+    V1OrganizationsOrganizationIdServersRoute:
+      V1OrganizationsOrganizationIdServersRouteWithChildren,
     V1OrganizationsOrganizationIdVaultItemsRoute:
       V1OrganizationsOrganizationIdVaultItemsRouteWithChildren,
   }

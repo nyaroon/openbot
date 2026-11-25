@@ -25,4 +25,8 @@ export const messages = {
     "Le service de comptes n'a pas pu lire le coffre de l'organisation. Demandez au propriétaire de la plateforme de vérifier sa clé.",
   "error.organization.itemInvalid": "Cet élément ne peut pas être partagé avec une organisation.",
   "error.organization.personalMissing": "Cet élément n'est plus dans votre coffre.",
+  "error.organization.serverNotFound": "Ce serveur n'est pas rattaché à l'organisation, ou il n'existe plus.",
+  "error.organization.serverTaken": "Ce serveur appartient déjà à une organisation.",
+  "error.organization.serverRevoked": "Un administrateur du serveur vous en a retiré. Demandez plutôt une invitation.",
+  "error.organization.serverFull": "Le serveur a atteint le nombre maximal de membres.",
 } as const satisfies PartialTranslation<typeof source>;

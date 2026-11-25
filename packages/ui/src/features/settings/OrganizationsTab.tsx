@@ -224,6 +224,7 @@ function OrganizationDetail(props: { store: OrganizationsStore; organization: Or
   const [memberRole, setMemberRole] = createSignal<"admin" | "member">("member");
   const [pick, setPick] = createSignal<string | null>(null);
   const [pending, setPending] = createSignal<PendingAction | null>(null);
+  const [serverPick, setServerPick] = createSignal<string | null>(null);
 
   const roleChoices = (): Choice[] =>
     (["owner", "admin", "member"] as const).map((role) => ({ id: role, label: t(ROLE_TEXT[role]) }));
@@ -472,6 +473,79 @@ function OrganizationDetail(props: { store: OrganizationsStore; organization: Or
               {t("organization.vault.addConfirm")}
             </Button>
           </Show>
+        </Show>
+      </SettingsSection>
+
+      <SettingsSection
+        data-settings-row="organization.servers.title"
+        title={t("organization.servers.title")}
+        description={t("organization.servers.intro")}
+      >
+        <Show when={store.state.servers.length > 0} fallback={<Text>{t("organization.servers.empty")}</Text>}>
+          <ItemGroup class="settings-modal-card">
+            <For each={store.state.servers}>
+              {(server) => (
+                <Item>
+                  <ItemContent>
+                    <ItemTitle>{server.name}</ItemTitle>
+                    <Show when={server.owner}>
+                      <ItemDescription>{t("organization.servers.yours")}</ItemDescription>
+                    </Show>
+                  </ItemContent>
+                  <ItemActions>
+                    <Show
+                      when={server.member}
+                      fallback={
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          aria-label={t("organization.servers.join", { name: server.name })}
+                          disabled={store.state.busy || org().role === null}
+                          onClick={() => void store.joinServer(server.hostId)}
+                        >
+                          {t("organization.servers.join", { name: server.name })}
+                        </Button>
+                      }
+                    >
+                      <Badge variant="primary-light">{t("organization.servers.joined")}</Badge>
+                    </Show>
+                    <Show when={server.canUnbind}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        aria-label={t("organization.servers.unbind", { name: server.name })}
+                        disabled={store.state.busy}
+                        onClick={() => void store.unbindServer(server.hostId)}
+                      >
+                        {t("organization.servers.unbind", { name: server.name })}
+                      </Button>
+                    </Show>
+                  </ItemActions>
+                </Item>
+              )}
+            </For>
+          </ItemGroup>
+        </Show>
+        <Show when={store.state.bindable.length > 0}>
+          <Field label={t("organization.servers.bind")} description={t("organization.servers.bindHint")}>
+            <ChoiceSelect
+              label={t("organization.servers.bind")}
+              placeholder={t("organization.servers.bindPick")}
+              options={store.state.bindable.map((server) => ({ id: server.hostId, label: server.name }))}
+              value={serverPick()}
+              onChange={setServerPick}
+            />
+          </Field>
+          <Button
+            size="sm"
+            disabled={store.state.busy || serverPick() === null}
+            onClick={() => {
+              const id = serverPick();
+              if (id !== null) void store.bindServer(id).then((done) => done && setServerPick(null));
+            }}
+          >
+            {t("organization.servers.bindConfirm")}
+          </Button>
         </Show>
       </SettingsSection>
 

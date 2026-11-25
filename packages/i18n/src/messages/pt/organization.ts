@@ -61,4 +61,16 @@ export const messages = {
   "organization.vault.addEmpty": "Seu cofre não tem itens para adicionar.",
   "organization.vault.addConfirm": "Adicionar",
   "organization.failed": "Algo deu errado. Tente de novo.",
+  "organization.servers.title": "Servidores",
+  "organization.servers.intro":
+    "Servidores que esta organização compartilha. Entre em um para adicioná-lo aos seus servidores sem convite.",
+  "organization.servers.empty": "Nenhum servidor está vinculado a esta organização ainda.",
+  "organization.servers.yours": "Você é o proprietário deste servidor.",
+  "organization.servers.join": "Entrar em {name}",
+  "organization.servers.joined": "Participando",
+  "organization.servers.unbind": "Desvincular {name}",
+  "organization.servers.bind": "Vincular um dos seus servidores",
+  "organization.servers.bindHint": "Os membros da organização poderão entrar. Desvincular depois não remove ninguém.",
+  "organization.servers.bindPick": "Escolha um servidor",
+  "organization.servers.bindConfirm": "Vincular",
 } as const satisfies PartialTranslation<typeof source>;

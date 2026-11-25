@@ -57,4 +57,16 @@ export const messages = {
   "organization.vault.addEmpty": "追加できる項目が保管庫にありません。",
   "organization.vault.addConfirm": "追加",
   "organization.failed": "問題が発生しました。もう一度お試しください。",
+  "organization.servers.title": "サーバー",
+  "organization.servers.intro":
+    "この組織が共有しているサーバーです。招待なしで自分のサーバーに追加するには、参加してください。",
+  "organization.servers.empty": "この組織にはまだサーバーが関連付けられていません。",
+  "organization.servers.yours": "このサーバーはあなたが所有しています。",
+  "organization.servers.join": "{name} に参加",
+  "organization.servers.joined": "参加済み",
+  "organization.servers.unbind": "{name} の関連付けを解除",
+  "organization.servers.bind": "自分のサーバーを関連付ける",
+  "organization.servers.bindHint": "組織のメンバーが参加できるようになります。あとで解除しても、誰も削除されません。",
+  "organization.servers.bindPick": "サーバーを選択",
+  "organization.servers.bindConfirm": "関連付ける",
 } as const satisfies PartialTranslation<typeof source>;

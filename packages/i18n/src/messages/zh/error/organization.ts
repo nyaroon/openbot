@@ -20,4 +20,8 @@ export const messages = {
   "error.organization.vaultUnreadable": "账户服务无法读取组织保险库。请让平台所有者检查其密钥。",
   "error.organization.itemInvalid": "此项目无法与组织共享。",
   "error.organization.personalMissing": "此项目已不在你的保险库中。",
+  "error.organization.serverNotFound": "此服务器未关联到该组织，或已不存在。",
+  "error.organization.serverTaken": "此服务器已属于某个组织。",
+  "error.organization.serverRevoked": "服务器管理员已将你从此服务器移除。请改为请求邀请。",
+  "error.organization.serverFull": "服务器已达到成员数量上限。",
 } as const satisfies PartialTranslation<typeof source>;

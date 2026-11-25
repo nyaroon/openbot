@@ -25,4 +25,8 @@ export const messages = {
     "O serviço de contas não conseguiu ler o cofre da organização. Peça ao proprietário da plataforma que verifique a chave dele.",
   "error.organization.itemInvalid": "Este item não pode ser compartilhado com uma organização.",
   "error.organization.personalMissing": "Este item não está mais no seu cofre.",
+  "error.organization.serverNotFound": "Este servidor não está vinculado à organização ou não existe mais.",
+  "error.organization.serverTaken": "Este servidor já pertence a uma organização.",
+  "error.organization.serverRevoked": "Um administrador do servidor removeu você. Peça um convite.",
+  "error.organization.serverFull": "O servidor atingiu o número máximo de membros.",
 } as const satisfies PartialTranslation<typeof source>;

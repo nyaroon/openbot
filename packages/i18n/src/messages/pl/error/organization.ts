@@ -25,4 +25,9 @@ export const messages = {
     "Usługa kont nie mogła odczytać sejfu organizacji. Poproś właściciela platformy o sprawdzenie jego klucza.",
   "error.organization.itemInvalid": "Tego elementu nie można udostępnić organizacji.",
   "error.organization.personalMissing": "Tego elementu nie ma już w Twoim sejfie.",
+  "error.organization.serverNotFound": "Ten serwer nie jest przypisany do organizacji albo już nie istnieje.",
+  "error.organization.serverTaken": "Ten serwer należy już do organizacji.",
+  "error.organization.serverRevoked":
+    "Administrator serwera usunął Cię z tego serwera. Poproś zamiast tego o zaproszenie.",
+  "error.organization.serverFull": "Serwer osiągnął największą dozwoloną liczbę członków.",
 } as const satisfies PartialTranslation<typeof source>;

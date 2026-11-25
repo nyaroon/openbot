@@ -25,4 +25,8 @@ export const messages = {
     "Il servizio account non ha potuto leggere la cassaforte dell'organizzazione. Chiedi al proprietario della piattaforma di controllare la sua chiave.",
   "error.organization.itemInvalid": "Questo elemento non si può condividere con un'organizzazione.",
   "error.organization.personalMissing": "Questo elemento non è più nella tua cassaforte.",
+  "error.organization.serverNotFound": "Questo server non è collegato all'organizzazione oppure non esiste più.",
+  "error.organization.serverTaken": "Questo server appartiene già a un'organizzazione.",
+  "error.organization.serverRevoked": "Un amministratore del server ti ha rimosso. Chiedi invece un invito.",
+  "error.organization.serverFull": "Il server ha raggiunto il numero massimo di membri.",
 } as const satisfies PartialTranslation<typeof source>;

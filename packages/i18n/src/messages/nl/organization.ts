@@ -60,4 +60,17 @@ export const messages = {
   "organization.vault.addEmpty": "Je kluis heeft geen items om toe te voegen.",
   "organization.vault.addConfirm": "Toevoegen",
   "organization.failed": "Er ging iets mis. Probeer het opnieuw.",
+  "organization.servers.title": "Servers",
+  "organization.servers.intro":
+    "Servers die deze organisatie deelt. Word lid van een server om hem zonder uitnodiging aan je servers toe te voegen.",
+  "organization.servers.empty": "Er zijn nog geen servers aan deze organisatie gekoppeld.",
+  "organization.servers.yours": "Je bent de eigenaar van deze server.",
+  "organization.servers.join": "Lid worden van {name}",
+  "organization.servers.joined": "Lid",
+  "organization.servers.unbind": "{name} ontkoppelen",
+  "organization.servers.bind": "Koppel een van je servers",
+  "organization.servers.bindHint":
+    "Leden van de organisatie kunnen er dan lid van worden. Later ontkoppelen verwijdert niemand.",
+  "organization.servers.bindPick": "Kies een server",
+  "organization.servers.bindConfirm": "Koppelen",
 } as const satisfies PartialTranslation<typeof source>;

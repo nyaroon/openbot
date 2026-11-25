@@ -58,4 +58,17 @@ export const messages = defineMessages("organization", {
   "organization.vault.addEmpty": "Your Vault has no items to add.",
   "organization.vault.addConfirm": "Add",
   "organization.failed": "Something went wrong. Try again.",
+  "organization.servers.title": "Servers",
+  "organization.servers.intro":
+    "Servers this organization shares. Join one to add it to your servers without an invitation.",
+  "organization.servers.empty": "No servers are attached to this organization yet.",
+  "organization.servers.yours": "You own this server.",
+  "organization.servers.join": "Join {name}",
+  "organization.servers.joined": "Joined",
+  "organization.servers.unbind": "Detach {name}",
+  "organization.servers.bind": "Attach one of your servers",
+  "organization.servers.bindHint":
+    "Members of the organization can then join it. Detaching it later does not remove anyone from it.",
+  "organization.servers.bindPick": "Choose a server",
+  "organization.servers.bindConfirm": "Attach",
 });

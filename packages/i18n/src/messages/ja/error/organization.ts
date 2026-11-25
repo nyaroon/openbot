@@ -23,4 +23,9 @@ export const messages = {
     "アカウントサービスが組織の保管庫を読み取れませんでした。プラットフォームオーナーにキーの確認を依頼してください。",
   "error.organization.itemInvalid": "この項目は組織と共有できません。",
   "error.organization.personalMissing": "この項目は保管庫にもうありません。",
+  "error.organization.serverNotFound": "このサーバーは組織に関連付けられていないか、すでに存在しません。",
+  "error.organization.serverTaken": "このサーバーはすでに別の組織に属しています。",
+  "error.organization.serverRevoked":
+    "サーバー管理者があなたをこのサーバーから削除しました。代わりに招待を依頼してください。",
+  "error.organization.serverFull": "サーバーのメンバー数が上限に達しています。",
 } as const satisfies PartialTranslation<typeof source>;

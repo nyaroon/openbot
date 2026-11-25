@@ -22,4 +22,8 @@ export const messages = {
     "Hesap hizmeti kuruluş kasasını okuyamadı. Platform sahibinden anahtarını kontrol etmesini isteyin.",
   "error.organization.itemInvalid": "Bu öğe bir kuruluşla paylaşılamaz.",
   "error.organization.personalMissing": "Bu öğe artık kasanızda değil.",
+  "error.organization.serverNotFound": "Bu sunucu kuruluşa bağlı değil ya da artık yok.",
+  "error.organization.serverTaken": "Bu sunucu zaten bir kuruluşa ait.",
+  "error.organization.serverRevoked": "Bir sunucu yöneticisi seni bu sunucudan çıkardı. Bunun yerine davet iste.",
+  "error.organization.serverFull": "Sunucu izin verilen en yüksek üye sayısına ulaştı.",
 } as const satisfies PartialTranslation<typeof source>;

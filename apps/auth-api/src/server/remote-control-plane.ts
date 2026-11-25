@@ -1396,6 +1396,132 @@ export class RemoteControlPlane {
     (operation) => operation.pipe(Effect.provide(this.#layer)),
   ).bind(this);
 
+  /**
+   * Lets a member of the organization a server is bound to join it as a `member` without an invite.
+   * It writes the membership, ends stale sessions and queues the same account event as invite
+   * acceptance, and respects the same member limit. A membership that was revoked by leaving
+   * (`removed_at = 0`) is activated again. One that a server admin removed is not.
+   */
+  readonly joinOrganizationHost = Effect.fn("RemoteControlPlane.joinOrganizationHost")(
+    function* (this: RemoteControlPlane, userId: string, input: { hostId: string; organizationId: string }) {
+      const dependencies = yield* RemoteDependencies;
+      const now = dependencies.now();
+      const bound = yield* remoteCall(() =>
+        dependencies.database
+          .prepare("SELECT 1 AS bound FROM remote_hosts WHERE host_id = ? AND organization_id = ? LIMIT 1")
+          .bind(input.hostId, input.organizationId)
+          .first<{ bound: number }>(),
+      );
+      if (!bound) {
+        return yield* new RemoteControlPlaneError(404, "organization_server_not_found", "The server was not found.");
+      }
+      const existing = yield* remoteCall(() =>
+        dependencies.database
+          .prepare(
+            "SELECT membership_id, role, status, removed_at FROM remote_memberships WHERE host_id = ? AND user_id = ? LIMIT 1",
+          )
+          .bind(input.hostId, userId)
+          .first<Pick<RemoteMembershipRow, "membership_id" | "role" | "status"> & { removed_at: number | null }>(),
+      );
+      if (existing?.status === "active") {
+        return { hostId: input.hostId, membershipId: existing.membership_id, role: existing.role };
+      }
+      if (existing && (existing.role === "owner" || existing.removed_at !== 0)) {
+        return yield* new RemoteControlPlaneError(
+          403,
+          "server_membership_revoked",
+          "A server admin removed this account from the server. Ask for an invitation instead.",
+        );
+      }
+      const memberSeat = yield* this.#memberSeat(input.hostId, userId);
+      yield* this.#requireMemberSeat(memberSeat);
+      const joinedId = existing?.membership_id ?? crypto.randomUUID();
+      const joinedNow = [input.hostId, userId, joinedId, now] as const;
+      const joined = yield* remoteCall(() =>
+        dependencies.database.batch([
+          dependencies.database
+            .prepare(
+              `INSERT INTO remote_memberships(
+                 membership_id, host_id, user_id, role, status, created_at, updated_at
+               ) SELECT ?, h.host_id, ?, 'member', 'active', ?, ?
+                 FROM remote_hosts h
+                WHERE h.host_id = ? AND h.organization_id = ?
+                  AND EXISTS(SELECT 1 FROM organization_members WHERE organization_id = ? AND user_id = ?)
+                  AND ${memberSeat.sql}
+               ON CONFLICT(host_id, user_id) DO UPDATE SET
+                 role = 'member', status = 'active', updated_at = excluded.updated_at, removed_at = NULL
+                WHERE remote_memberships.status = 'revoked' AND remote_memberships.role <> 'owner'
+                  AND remote_memberships.removed_at = 0`,
+            )
+            .bind(
+              joinedId,
+              userId,
+              now,
+              now,
+              input.hostId,
+              input.organizationId,
+              input.organizationId,
+              userId,
+              ...memberSeat.binds,
+            ),
+          dependencies.database
+            .prepare(
+              `UPDATE remote_sessions SET ended_at = ? WHERE host_id = ? AND user_id = ? AND ended_at IS NULL
+                AND ${JOINED_NOW_SQL}`,
+            )
+            .bind(now, input.hostId, userId, ...joinedNow),
+          this.#authEventStatement({ type: "account-servers-changed", userId }, now, {
+            sql: JOINED_NOW_SQL,
+            binds: [...joinedNow],
+          }),
+        ]),
+      );
+      const current = yield* remoteCall(() =>
+        dependencies.database
+          .prepare(
+            "SELECT membership_id, role FROM remote_memberships WHERE host_id = ? AND user_id = ? AND status = 'active' LIMIT 1",
+          )
+          .bind(input.hostId, userId)
+          .first<Pick<RemoteMembershipRow, "membership_id" | "role">>(),
+      );
+      if ((joined[0]?.meta.changes ?? 0) === 1) yield* this.#flushAuthEvents();
+      if (current) return { hostId: input.hostId, membershipId: current.membership_id, role: current.role };
+      yield* this.#requireMemberSeat(memberSeat);
+      return yield* new RemoteControlPlaneError(
+        403,
+        "organization_membership_required",
+        "Only members of the organization can join its servers.",
+      );
+    },
+    (operation) => operation.pipe(Effect.provide(this.#layer)),
+  ).bind(this);
+
+  /**
+   * Revokes a user's memberships on the servers of an organization, except servers they own, with
+   * the same change a member makes when leaving a server: the auth epoch moves, running sessions
+   * end and the host is told.
+   */
+  readonly revokeOrganizationHosts = Effect.fn("RemoteControlPlane.revokeOrganizationHosts")(
+    function* (this: RemoteControlPlane, userId: string, organizationId: string) {
+      const dependencies = yield* RemoteDependencies;
+      const rows = yield* remoteCall(() =>
+        dependencies.database
+          .prepare(
+            `SELECT m.host_id, m.membership_id
+               FROM remote_memberships m JOIN remote_hosts h ON h.host_id = m.host_id
+              WHERE h.organization_id = ? AND m.user_id = ? AND m.status = 'active'
+                AND m.role <> 'owner' AND h.owner_user_id <> ?`,
+          )
+          .bind(organizationId, userId, userId)
+          .all<{ host_id: string; membership_id: string }>(),
+      );
+      for (const row of rows.results ?? []) {
+        yield* this.changeMembership(userId, { hostId: row.host_id, membershipId: row.membership_id, revoke: true });
+      }
+    },
+    (operation) => operation.pipe(Effect.provide(this.#layer)),
+  ).bind(this);
+
   readonly revokeInvite = Effect.fn("RemoteControlPlane.revokeInvite")(
     function* (
       this: RemoteControlPlane,
@@ -3717,7 +3843,7 @@ function requiredText(value: string, maximum: number, name: string): string {
   return text;
 }
 
-function storedAppearance(shape: string | null, color: string | null): ServerAppearance | null {
+export function storedAppearance(shape: string | null, color: string | null): ServerAppearance | null {
   if (!isServerAppearanceShape(shape)) return null;
   return { shape, color: isServerAppearanceColor(color) ? color : null };
 }

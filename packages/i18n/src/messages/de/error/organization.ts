@@ -25,4 +25,9 @@ export const messages = {
     "Der Kontodienst konnte den Organisationstresor nicht lesen. Bitte den Plattforminhaber, den Schlüssel zu prüfen.",
   "error.organization.itemInvalid": "Dieses Element lässt sich nicht mit einer Organisation teilen.",
   "error.organization.personalMissing": "Dieses Element ist nicht mehr in deinem Tresor.",
+  "error.organization.serverNotFound": "Dieser Server ist der Organisation nicht zugeordnet oder existiert nicht mehr.",
+  "error.organization.serverTaken": "Dieser Server gehört bereits zu einer Organisation.",
+  "error.organization.serverRevoked":
+    "Ein Server-Admin hat dich von diesem Server entfernt. Bitte stattdessen um eine Einladung.",
+  "error.organization.serverFull": "Der Server hat die höchstmögliche Mitgliederzahl erreicht.",
 } as const satisfies PartialTranslation<typeof source>;

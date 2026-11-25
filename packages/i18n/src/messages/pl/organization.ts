@@ -59,4 +59,17 @@ export const messages = {
   "organization.vault.addEmpty": "Twój sejf nie ma elementów do dodania.",
   "organization.vault.addConfirm": "Dodaj",
   "organization.failed": "Coś poszło nie tak. Spróbuj ponownie.",
+  "organization.servers.title": "Serwery",
+  "organization.servers.intro":
+    "Serwery udostępniane przez tę organizację. Dołącz do jednego, aby dodać go do swoich serwerów bez zaproszenia.",
+  "organization.servers.empty": "Do tej organizacji nie przypisano jeszcze żadnych serwerów.",
+  "organization.servers.yours": "Ten serwer należy do Ciebie.",
+  "organization.servers.join": "Dołącz do {name}",
+  "organization.servers.joined": "Dołączono",
+  "organization.servers.unbind": "Odłącz {name}",
+  "organization.servers.bind": "Przypisz jeden ze swoich serwerów",
+  "organization.servers.bindHint":
+    "Członkowie organizacji będą mogli do niego dołączyć. Późniejsze odłączenie nikogo nie usuwa.",
+  "organization.servers.bindPick": "Wybierz serwer",
+  "organization.servers.bindConfirm": "Przypisz",
 } as const satisfies PartialTranslation<typeof source>;

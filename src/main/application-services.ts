@@ -3688,6 +3688,7 @@ export async function createApplicationServices({
     },
   );
   teamWebRtcBridge.on("accountServersChanged", () => void Effect.runPromise(remoteServers.invalidateDirectory()));
+  organizations.onServersJoined(() => void Effect.runPromise(remoteServers.invalidateDirectory()));
   teardown.push(TEARDOWN_ORDER.remoteServers, "the remote servers", () => {
     serverClaimWatch.stop();
     return runCauseEffect(remoteServers.stop());

@@ -57,4 +57,16 @@ export const messages = {
   "organization.vault.addEmpty": "추가할 항목이 보관함에 없습니다.",
   "organization.vault.addConfirm": "추가",
   "organization.failed": "문제가 발생했습니다. 다시 시도하세요.",
+  "organization.servers.title": "서버",
+  "organization.servers.intro": "이 조직이 공유하는 서버입니다. 초대 없이 내 서버에 추가하려면 참여하세요.",
+  "organization.servers.empty": "이 조직에 연결된 서버가 아직 없습니다.",
+  "organization.servers.yours": "이 서버는 내가 소유하고 있습니다.",
+  "organization.servers.join": "{name} 참여",
+  "organization.servers.joined": "참여함",
+  "organization.servers.unbind": "{name} 연결 해제",
+  "organization.servers.bind": "내 서버 중 하나 연결",
+  "organization.servers.bindHint":
+    "조직 구성원이 참여할 수 있게 됩니다. 나중에 연결을 해제해도 누구도 제거되지 않습니다.",
+  "organization.servers.bindPick": "서버 선택",
+  "organization.servers.bindConfirm": "연결",
 } as const satisfies PartialTranslation<typeof source>;

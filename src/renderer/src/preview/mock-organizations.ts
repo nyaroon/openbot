@@ -2,6 +2,8 @@ import {
   EMPTY_ORGANIZATIONS,
   type OpenBotDesktopApi,
   type OrganizationMember,
+  type OrganizationServer,
+  type OrganizationServers,
   type OrganizationSummary,
   type OrganizationsState,
   type OrganizationVault,
@@ -26,10 +28,17 @@ const ITEMS: readonly OrganizationVaultItem[] = [
   { id: "preview-item-3", kind: "card", title: "Company card", detail: "•••• 4242", shared: false },
 ];
 
+const SERVERS: readonly OrganizationServer[] = [
+  { hostId: "preview-server-1", name: "Support desk", member: true, owner: true, canUnbind: true },
+  { hostId: "preview-server-2", name: "Engineering", member: false, owner: false, canUnbind: false },
+];
+
 /** Preview data for the Organizations settings. Nothing here reaches a real account service. */
 export function createMockOrganizations(): OpenBotDesktopApi["organizations"] {
   let members: OrganizationMember[] = [...MEMBERS];
   let items: OrganizationVaultItem[] = [...ITEMS];
+  let servers: OrganizationServer[] = [...SERVERS];
+  let bindable = [{ hostId: "preview-server-3", name: "Home lab" }];
   let name = "Preview Co";
   let exists = true;
   const summary = (): OrganizationSummary[] =>
@@ -55,6 +64,7 @@ export function createMockOrganizations(): OpenBotDesktopApi["organizations"] {
     organizations: summary(),
   });
   const vault = (): OrganizationVault => ({ organizationId: "preview-org", items });
+  const serverList = (): OrganizationServers => ({ organizationId: "preview-org", servers, bindable });
   const listeners = new Set<(next: OrganizationsState) => void>();
   const change = () => {
     const next = state();
@@ -80,6 +90,25 @@ export function createMockOrganizations(): OpenBotDesktopApi["organizations"] {
     leave: async () => {
       exists = false;
       return change();
+    },
+    servers: async () => serverList(),
+    bindServer: async (input) => {
+      const free = bindable.find((server) => server.hostId === input.hostId);
+      if (free) {
+        bindable = bindable.filter((server) => server !== free);
+        servers = [...servers, { hostId: free.hostId, name: free.name, member: true, owner: true, canUnbind: true }];
+      }
+      return serverList();
+    },
+    unbindServer: async (input) => {
+      const bound = servers.find((server) => server.hostId === input.hostId);
+      if (bound?.owner) bindable = [...bindable, { hostId: bound.hostId, name: bound.name }];
+      servers = servers.filter((server) => server !== bound);
+      return serverList();
+    },
+    joinServer: async (input) => {
+      servers = servers.map((server) => (server.hostId === input.hostId ? { ...server, member: true } : server));
+      return serverList();
     },
     members: async () => members,
     addMember: async (input) => {

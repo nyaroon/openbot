@@ -24,4 +24,9 @@ export const messages = {
     "De accountservice kon de organisatiekluis niet lezen. Vraag de platformeigenaar de sleutel te controleren.",
   "error.organization.itemInvalid": "Dit item kan niet met een organisatie worden gedeeld.",
   "error.organization.personalMissing": "Dit item staat niet meer in je kluis.",
+  "error.organization.serverNotFound": "Deze server is niet aan de organisatie gekoppeld of bestaat niet meer.",
+  "error.organization.serverTaken": "Deze server hoort al bij een organisatie.",
+  "error.organization.serverRevoked":
+    "Een serverbeheerder heeft je van deze server verwijderd. Vraag in plaats daarvan om een uitnodiging.",
+  "error.organization.serverFull": "De server heeft het maximale aantal leden bereikt.",
 } as const satisfies PartialTranslation<typeof source>;

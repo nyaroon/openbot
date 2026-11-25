@@ -1,7 +1,10 @@
 import {
   EMPTY_ORGANIZATIONS,
+  type OrganizationBindableServer,
   type OrganizationMember,
   type OrganizationRole,
+  type OrganizationServer,
+  type OrganizationServers,
   type OrganizationsDesktopApi,
   type OrganizationsState,
   type OrganizationVaultItem,
@@ -29,6 +32,8 @@ interface OrganizationsPanels {
   selectedId: string | null;
   members: OrganizationMember[];
   vault: OrganizationVaultItem[];
+  servers: OrganizationServer[];
+  bindable: OrganizationBindableServer[];
   personal: PersonalVaultChoice[];
   loading: boolean;
   busy: boolean;
@@ -48,6 +53,8 @@ export function createOrganizationsStore(props: OrganizationsStoreProps) {
     selectedId: null,
     members: [],
     vault: [],
+    servers: [],
+    bindable: [],
     personal: [],
     loading: false,
     busy: false,
@@ -69,6 +76,8 @@ export function createOrganizationsStore(props: OrganizationsStoreProps) {
         draft.selectedId = null;
         draft.members = [];
         draft.vault = [];
+        draft.servers = [];
+        draft.bindable = [];
       }
     });
   };
@@ -94,11 +103,18 @@ export function createOrganizationsStore(props: OrganizationsStoreProps) {
   async function loadDetail(organizationId: string) {
     const current = ++detailRequest;
     const api = props.api();
-    const [members, vault] = await Promise.all([api.members({ organizationId }), api.vault({ organizationId })]);
+    const [members, vault, servers] = await Promise.all([
+      api.members({ organizationId }),
+      api.vault({ organizationId }),
+      // A server list that cannot load must not hide the members and the vault.
+      api.servers({ organizationId }).catch(() => ({ organizationId, servers: [], bindable: [] })),
+    ]);
     if (current !== detailRequest) return;
     setState((draft) => {
       draft.members = members;
       draft.vault = vault.items;
+      draft.servers = servers.servers;
+      draft.bindable = servers.bindable;
     });
   }
 
@@ -110,6 +126,19 @@ export function createOrganizationsStore(props: OrganizationsStoreProps) {
         .map((item) => ({ id: item.id, kind: item.kind, title: personalTitle(item) }));
     });
   }
+
+  const serverChange = (
+    action: (api: OrganizationsDesktopApi, organizationId: string) => Promise<OrganizationServers>,
+  ) =>
+    guarded(async () => {
+      const organizationId = state.selectedId;
+      if (organizationId === null) return;
+      const result = await action(props.api(), organizationId);
+      setState((draft) => {
+        draft.servers = result.servers;
+        draft.bindable = result.bindable;
+      });
+    });
 
   const selectedOrganization = () => state.organizations.organizations.find((org) => org.id === state.selectedId);
 
@@ -144,6 +173,8 @@ export function createOrganizationsStore(props: OrganizationsStoreProps) {
           draft.selectedId = organizationId;
           draft.members = [];
           draft.vault = [];
+          draft.servers = [];
+          draft.bindable = [];
         });
         await Promise.all([loadDetail(organizationId), loadPersonal()]);
       }),
@@ -153,6 +184,8 @@ export function createOrganizationsStore(props: OrganizationsStoreProps) {
         draft.selectedId = null;
         draft.members = [];
         draft.vault = [];
+        draft.servers = [];
+        draft.bindable = [];
         draft.error = null;
       });
     },
@@ -200,6 +233,10 @@ export function createOrganizationsStore(props: OrganizationsStoreProps) {
           draft.members = members;
         });
       }),
+    bindServer: (hostId: string) => serverChange((api, organizationId) => api.bindServer({ organizationId, hostId })),
+    unbindServer: (hostId: string) =>
+      serverChange((api, organizationId) => api.unbindServer({ organizationId, hostId })),
+    joinServer: (hostId: string) => serverChange((api, organizationId) => api.joinServer({ organizationId, hostId })),
     addVaultItem: (itemId: string, kind: VaultItemKind) =>
       guarded(async () => {
         const organizationId = state.selectedId;

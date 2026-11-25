@@ -26,4 +26,8 @@ export const messages = {
     "El servicio de cuentas no pudo leer la bóveda de la organización. Pide al propietario de la plataforma que revise su clave.",
   "error.organization.itemInvalid": "Este elemento no se puede compartir con una organización.",
   "error.organization.personalMissing": "Este elemento ya no está en tu bóveda.",
+  "error.organization.serverNotFound": "Este servidor no está vinculado a la organización o ya no existe.",
+  "error.organization.serverTaken": "Este servidor ya pertenece a una organización.",
+  "error.organization.serverRevoked": "Un administrador del servidor te ha quitado de él. Pide una invitación.",
+  "error.organization.serverFull": "El servidor tiene el máximo de miembros permitido.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -21,4 +21,8 @@ export const messages = {
     "تعذّر على خدمة الحسابات قراءة خزنة المؤسسة. اطلب من مالك المنصة التحقق من مفتاحها.",
   "error.organization.itemInvalid": "لا يمكن مشاركة هذا العنصر مع مؤسسة.",
   "error.organization.personalMissing": "لم يعد هذا العنصر في خزنتك.",
+  "error.organization.serverNotFound": "هذا الخادم غير مرتبط بالمؤسسة أو لم يعد موجودًا.",
+  "error.organization.serverTaken": "هذا الخادم ينتمي بالفعل إلى مؤسسة.",
+  "error.organization.serverRevoked": "أزالك مشرف الخادم من هذا الخادم. اطلب دعوة بدلًا من ذلك.",
+  "error.organization.serverFull": "بلغ الخادم أكبر عدد مسموح به من الأعضاء.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -62,4 +62,17 @@ export const messages = {
   "organization.vault.addEmpty": "La tua cassaforte non ha elementi da aggiungere.",
   "organization.vault.addConfirm": "Aggiungi",
   "organization.failed": "Qualcosa è andato storto. Riprova.",
+  "organization.servers.title": "Server",
+  "organization.servers.intro":
+    "Server condivisi da questa organizzazione. Unisciti a uno per aggiungerlo ai tuoi server senza invito.",
+  "organization.servers.empty": "Nessun server è ancora collegato a questa organizzazione.",
+  "organization.servers.yours": "Sei il proprietario di questo server.",
+  "organization.servers.join": "Unisciti a {name}",
+  "organization.servers.joined": "Unito",
+  "organization.servers.unbind": "Scollega {name}",
+  "organization.servers.bind": "Collega uno dei tuoi server",
+  "organization.servers.bindHint":
+    "I membri dell'organizzazione potranno unirsi. Scollegarlo in seguito non rimuove nessuno.",
+  "organization.servers.bindPick": "Scegli un server",
+  "organization.servers.bindConfirm": "Collega",
 } as const satisfies PartialTranslation<typeof source>;

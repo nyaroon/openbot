@@ -61,4 +61,17 @@ export const messages = {
   "organization.vault.addEmpty": "Tu bóveda no tiene elementos que añadir.",
   "organization.vault.addConfirm": "Añadir",
   "organization.failed": "Algo salió mal. Inténtalo de nuevo.",
+  "organization.servers.title": "Servidores",
+  "organization.servers.intro":
+    "Servidores que comparte esta organización. Únete a uno para añadirlo a tus servidores sin invitación.",
+  "organization.servers.empty": "Todavía no hay servidores vinculados a esta organización.",
+  "organization.servers.yours": "Eres el propietario de este servidor.",
+  "organization.servers.join": "Unirse a {name}",
+  "organization.servers.joined": "Unido",
+  "organization.servers.unbind": "Desvincular {name}",
+  "organization.servers.bind": "Vincular uno de tus servidores",
+  "organization.servers.bindHint":
+    "Los miembros de la organización podrán unirse. Si lo desvinculas después, no se expulsa a nadie.",
+  "organization.servers.bindPick": "Elige un servidor",
+  "organization.servers.bindConfirm": "Vincular",
 } as const satisfies PartialTranslation<typeof source>;

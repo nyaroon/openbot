@@ -22,4 +22,8 @@ export const messages = {
     "שירות החשבונות לא הצליח לקרוא את כספת הארגון. בקש מבעל הפלטפורמה לבדוק את המפתח שלה.",
   "error.organization.itemInvalid": "אי אפשר לשתף את הפריט הזה עם ארגון.",
   "error.organization.personalMissing": "הפריט הזה כבר לא בכספת שלך.",
+  "error.organization.serverNotFound": "השרת הזה אינו מקושר לארגון, או שכבר אינו קיים.",
+  "error.organization.serverTaken": "השרת הזה כבר שייך לארגון.",
+  "error.organization.serverRevoked": "מנהל השרת הסיר אתכם מהשרת הזה. בקשו הזמנה במקום זאת.",
+  "error.organization.serverFull": "השרת הגיע למספר החברים המרבי.",
 } as const satisfies PartialTranslation<typeof source>;

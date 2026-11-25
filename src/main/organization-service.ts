@@ -3,11 +3,15 @@ import {
   EMPTY_ORGANIZATIONS,
   ORGANIZATION_ROLES,
   type OrganizationAddMemberInput,
+  type OrganizationBindableServer,
   type OrganizationCreateInput,
   type OrganizationMember,
   type OrganizationRemoveMemberInput,
   type OrganizationRenameInput,
   type OrganizationRole,
+  type OrganizationServer,
+  type OrganizationServers,
+  type OrganizationServerTarget,
   type OrganizationSetRoleInput,
   type OrganizationSummary,
   type OrganizationsIssue,
@@ -52,7 +56,11 @@ type OrganizationErrorKey =
   | "error.organization.itemMissing"
   | "error.organization.vaultUnreadable"
   | "error.organization.itemInvalid"
-  | "error.organization.personalMissing";
+  | "error.organization.personalMissing"
+  | "error.organization.serverNotFound"
+  | "error.organization.serverTaken"
+  | "error.organization.serverRevoked"
+  | "error.organization.serverFull";
 
 const CODE_MESSAGES: ReadonlyArray<readonly [string, OrganizationErrorKey]> = [
   ["forbidden", "error.organization.forbidden"],
@@ -70,6 +78,12 @@ const CODE_MESSAGES: ReadonlyArray<readonly [string, OrganizationErrorKey]> = [
   ["org_vault_unreadable", "error.organization.vaultUnreadable"],
   ["invalid_org_vault_item", "error.organization.itemInvalid"],
   ["org_vault_item_kind_mismatch", "error.organization.itemInvalid"],
+  ["server_not_found", "error.organization.serverNotFound"],
+  ["organization_server_not_found", "error.organization.serverNotFound"],
+  ["server_in_organization", "error.organization.serverTaken"],
+  ["server_membership_revoked", "error.organization.serverRevoked"],
+  ["member_limit_reached", "error.organization.serverFull"],
+  ["organization_membership_required", "error.organization.forbidden"],
 ];
 
 function organizationError(key: OrganizationErrorKey): OrganizationError {
@@ -179,6 +193,37 @@ function decodeMembers(value: unknown): OrganizationMember[] {
   });
 }
 
+function decodeServers(organizationId: string) {
+  return (value: unknown): OrganizationServers => {
+    if (!isDynamicRecord(value) || !Array.isArray(value.servers) || !Array.isArray(value.bindable))
+      throw new Error("Invalid servers response.");
+    const servers = value.servers.map((server): OrganizationServer => {
+      if (
+        !isDynamicRecord(server) ||
+        !isString(server.hostId) ||
+        !isString(server.name) ||
+        typeof server.member !== "boolean" ||
+        typeof server.owner !== "boolean" ||
+        typeof server.canUnbind !== "boolean"
+      )
+        throw new Error("Invalid servers response.");
+      return {
+        hostId: server.hostId,
+        name: server.name,
+        member: server.member,
+        owner: server.owner,
+        canUnbind: server.canUnbind,
+      };
+    });
+    const bindable = value.bindable.map((server): OrganizationBindableServer => {
+      if (!isDynamicRecord(server) || !isString(server.hostId) || !isString(server.name))
+        throw new Error("Invalid servers response.");
+      return { hostId: server.hostId, name: server.name };
+    });
+    return { organizationId, servers, bindable };
+  };
+}
+
 function decodeIgnored(_value: unknown): null {
   return null;
 }
@@ -229,6 +274,7 @@ export class OrganizationService {
   #issue: OrganizationsIssue | null = null;
   #unsubscribe: Array<() => void> = [];
   #disposed = false;
+  #serversJoined: (() => void) | undefined;
 
   constructor(options: OrganizationServiceOptions) {
     this.#auth = options.auth;
@@ -333,6 +379,42 @@ export class OrganizationService {
     yield* this.#requireUser();
     return yield* this.#call(`${this.#path(organizationId)}/members`, "GET", undefined, decodeMembers);
   });
+
+  readonly servers = Effect.fn("Organizations.servers")(function* (this: OrganizationService, organizationId: string) {
+    yield* this.#requireUser();
+    return yield* this.#call(`${this.#path(organizationId)}/servers`, "GET", undefined, decodeServers(organizationId));
+  });
+
+  readonly bindServer = Effect.fn("Organizations.bindServer")(function* (
+    this: OrganizationService,
+    input: OrganizationServerTarget,
+  ) {
+    yield* this.#send(this.#serverPath(input), "PUT", undefined);
+    return yield* this.servers(input.organizationId);
+  });
+
+  readonly unbindServer = Effect.fn("Organizations.unbindServer")(function* (
+    this: OrganizationService,
+    input: OrganizationServerTarget,
+  ) {
+    yield* this.#send(this.#serverPath(input), "DELETE", undefined);
+    return yield* this.servers(input.organizationId);
+  });
+
+  /** Joins a bound server, then refreshes the server directory like accepting an invitation does. */
+  readonly joinServer = Effect.fn("Organizations.joinServer")(function* (
+    this: OrganizationService,
+    input: OrganizationServerTarget,
+  ) {
+    yield* this.#send(`${this.#serverPath(input)}/join`, "POST", undefined);
+    this.#serversJoined?.();
+    return yield* this.servers(input.organizationId);
+  });
+
+  /** Called after joining a server so the server rail reloads the account's servers. */
+  onServersJoined(listener: () => void): void {
+    this.#serversJoined = listener;
+  }
 
   readonly addMember = Effect.fn("Organizations.addMember")(function* (
     this: OrganizationService,
@@ -442,6 +524,10 @@ export class OrganizationService {
 
   #path(organizationId: string): string {
     return `/v1/organizations/${encodeURIComponent(organizationId)}`;
+  }
+
+  #serverPath(input: OrganizationServerTarget): string {
+    return `${this.#path(input.organizationId)}/servers/${encodeURIComponent(input.hostId)}`;
   }
 
   #itemPath(organizationId: string, itemId: string): string {

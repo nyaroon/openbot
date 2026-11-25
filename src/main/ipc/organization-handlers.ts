@@ -4,6 +4,7 @@ import {
   type OrganizationCreateInput,
   type OrganizationRemoveMemberInput,
   type OrganizationRenameInput,
+  type OrganizationServerTarget,
   type OrganizationSetRoleInput,
   type OrganizationTarget,
   type OrganizationVaultAddInput,
@@ -35,6 +36,11 @@ function organizationId(value: DynamicRecord): string {
 
 function decodeTarget(value: unknown): OrganizationTarget {
   return { organizationId: organizationId(request(value)) };
+}
+
+function decodeServerTarget(value: unknown): OrganizationServerTarget {
+  const input = request(value);
+  return { organizationId: organizationId(input), hostId: requireString(input.hostId, "hostId", 64) };
 }
 
 function decodeCreate(value: unknown): OrganizationCreateInput {
@@ -109,6 +115,10 @@ export function organizationIpcHandlers({
       addMember: payloadHandler(decodeAddMember, (input) => runCauseEffect(organizations.addMember(input))),
       setMemberRole: payloadHandler(decodeSetRole, (input) => runCauseEffect(organizations.setMemberRole(input))),
       removeMember: payloadHandler(decodeRemoveMember, (input) => runCauseEffect(organizations.removeMember(input))),
+      servers: payloadHandler(decodeTarget, (input) => runCauseEffect(organizations.servers(input.organizationId))),
+      bindServer: payloadHandler(decodeServerTarget, (input) => runCauseEffect(organizations.bindServer(input))),
+      unbindServer: payloadHandler(decodeServerTarget, (input) => runCauseEffect(organizations.unbindServer(input))),
+      joinServer: payloadHandler(decodeServerTarget, (input) => runCauseEffect(organizations.joinServer(input))),
       vault: payloadHandler(decodeTarget, (input) => runCauseEffect(organizations.vault(input.organizationId))),
       addVaultItem: payloadHandler(decodeVaultAdd, (input) => runCauseEffect(organizations.addVaultItem(input))),
       shareVaultItem: payloadHandler(decodeVaultShare, (input) => runCauseEffect(organizations.shareVaultItem(input))),

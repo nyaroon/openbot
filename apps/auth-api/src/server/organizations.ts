@@ -3,6 +3,7 @@ import { type DynamicRecord, isDynamicRecord, isString } from "@openbot/contract
 import { Effect } from "effect";
 import { D1AuthRepository } from "./d1-auth-repository";
 import { decryptOrgVaultValue, encryptOrgVaultValue, importOrgVaultKey } from "./org-vault-crypto";
+import { RemoteControlPlaneError, type RemoteFailure, storedAppearance } from "./remote-control-plane";
 
 export const ORG_LIMIT = 100;
 export const ORG_MEMBER_LIMIT = 200;
@@ -187,6 +188,7 @@ export function readOrgVaultPageQuery(url: URL): { since: number; limit: number 
 const notFound = () => new OrganizationError(404, "organization_not_found", "Organization not found.");
 const forbidden = () => new OrganizationError(403, "forbidden", "You do not have permission to do this.");
 const lastOwner = () => new OrganizationError(409, "last_owner", "An organization needs at least one owner.");
+const serverNotFound = () => new OrganizationError(404, "server_not_found", "Server not found.");
 const memberNotFound = () => new OrganizationError(404, "member_not_found", "Member not found.");
 const vaultNotConfigured = () =>
   new OrganizationError(503, "org_vault_not_configured", "The organization vault is not configured.");
@@ -233,7 +235,40 @@ function organizationFromRow(row: OrganizationRow, platformOwner: boolean): Orga
   };
 }
 
+/** What the organization needs from the remote control plane to put members on its servers. */
+export interface OrganizationServerHooks {
+  join(
+    userId: string,
+    input: { hostId: string; organizationId: string },
+  ): Effect.Effect<{ hostId: string; membershipId: string; role: string }, RemoteFailure>;
+  revokeAll(userId: string, organizationId: string): Effect.Effect<void, RemoteFailure>;
+}
+
+export interface OrganizationServerView {
+  hostId: string;
+  name: string;
+  appearance: ReturnType<typeof storedAppearance>;
+  /** The signed-in account is an active member of the server. */
+  member: boolean;
+  /** The signed-in account owns the server. */
+  owner: boolean;
+  canUnbind: boolean;
+}
+
+export interface OrganizationBindableServer {
+  hostId: string;
+  name: string;
+  appearance: ReturnType<typeof storedAppearance>;
+}
+
+function fromRemote(error: RemoteFailure): OrganizationError | OrganizationStorageError {
+  if (!(error instanceof RemoteControlPlaneError)) return new OrganizationStorageError();
+  const status = error.status === 400 || error.status === 403 || error.status === 404 ? error.status : 409;
+  return new OrganizationError(status, error.code, error.message);
+}
+
 export class Organizations {
+  readonly #servers: OrganizationServerHooks | undefined;
   readonly #database: D1Database;
   readonly #ownerEmails: ReadonlySet<string>;
   readonly #vaultKey: string | undefined;
@@ -244,8 +279,10 @@ export class Organizations {
     database: D1Database;
     ownerEmails: ReadonlySet<string>;
     vaultKey?: string | undefined;
+    servers?: OrganizationServerHooks | undefined;
     now?: () => number;
   }) {
+    this.#servers = options.servers;
     this.#database = options.database;
     this.#ownerEmails = options.ownerEmails;
     this.#vaultKey = options.vaultKey;
@@ -531,7 +568,130 @@ export class Organizations {
         .run(),
     );
     if (removed.meta.changes !== 1) return yield* Effect.fail(lastOwner());
+    if (this.#servers) yield* this.#servers.revokeAll(userId, organizationId).pipe(Effect.mapError(fromRemote));
     return { removed: true };
+  });
+
+  /** Servers bound to the organization, and the actor's own servers that could still be bound. */
+  readonly servers = Effect.fn("Organizations.servers")(function* (
+    this: Organizations,
+    actor: OrganizationActor,
+    organizationId: string,
+  ) {
+    const access = yield* this.#access(actor, organizationId);
+    const bound = yield* this.#run(() =>
+      this.#database
+        .prepare(
+          `SELECT h.host_id, h.name, h.owner_user_id, h.appearance_shape, h.appearance_color,
+                  EXISTS(SELECT 1 FROM remote_memberships m
+                          WHERE m.host_id = h.host_id AND m.user_id = ? AND m.status = 'active') AS member
+             FROM remote_hosts h WHERE h.organization_id = ? ORDER BY h.name, h.host_id`,
+        )
+        .bind(actor.id, organizationId)
+        .all<{
+          host_id: string;
+          name: string;
+          owner_user_id: string;
+          appearance_shape: string | null;
+          appearance_color: string | null;
+          member: number;
+        }>(),
+    );
+    const manages = canManage(access.effective);
+    const servers: OrganizationServerView[] = (bound.results ?? []).map((row) => ({
+      hostId: row.host_id,
+      name: row.name,
+      appearance: storedAppearance(row.appearance_shape, row.appearance_color),
+      member: row.member === 1,
+      owner: row.owner_user_id === actor.id,
+      canUnbind: access.platformOwner || (manages && row.owner_user_id === actor.id),
+    }));
+    const free = manages
+      ? yield* this.#run(() =>
+          this.#database
+            .prepare(
+              `SELECT host_id, name, appearance_shape, appearance_color FROM remote_hosts
+                WHERE owner_user_id = ? AND organization_id IS NULL ORDER BY name, host_id`,
+            )
+            .bind(actor.id)
+            .all<{ host_id: string; name: string; appearance_shape: string | null; appearance_color: string | null }>(),
+        )
+      : null;
+    const bindable: OrganizationBindableServer[] = (free?.results ?? []).map((row) => ({
+      hostId: row.host_id,
+      name: row.name,
+      appearance: storedAppearance(row.appearance_shape, row.appearance_color),
+    }));
+    return { servers, bindable };
+  });
+
+  #host(hostId: string) {
+    return this.#run(() =>
+      this.#database
+        .prepare("SELECT owner_user_id, organization_id FROM remote_hosts WHERE host_id = ? LIMIT 1")
+        .bind(hostId)
+        .first<{ owner_user_id: string; organization_id: string | null }>(),
+    );
+  }
+
+  /** The server's owner (an owner or admin of the organization) or a platform owner attaches a server. */
+  readonly bindServer = Effect.fn("Organizations.bindServer")(function* (
+    this: Organizations,
+    actor: OrganizationActor,
+    organizationId: string,
+    hostId: string,
+  ) {
+    const access = yield* this.#access(actor, organizationId);
+    const host = yield* this.#host(hostId);
+    if (!host) return yield* Effect.fail(serverNotFound());
+    const allowed = access.platformOwner || (host.owner_user_id === actor.id && canManage(access.effective));
+    if (!allowed) return yield* Effect.fail(forbidden());
+    if (host.organization_id === organizationId) return { bound: true };
+    const changed = yield* this.#run(() =>
+      this.#database
+        .prepare("UPDATE remote_hosts SET organization_id = ? WHERE host_id = ? AND organization_id IS NULL")
+        .bind(organizationId, hostId)
+        .run(),
+    );
+    if (changed.meta.changes !== 1) {
+      return yield* Effect.fail(
+        new OrganizationError(409, "server_in_organization", "The server already belongs to an organization."),
+      );
+    }
+    return { bound: true };
+  });
+
+  /** Detaches a server. Nobody loses access to it. */
+  readonly unbindServer = Effect.fn("Organizations.unbindServer")(function* (
+    this: Organizations,
+    actor: OrganizationActor,
+    organizationId: string,
+    hostId: string,
+  ) {
+    const access = yield* this.#access(actor, organizationId);
+    const host = yield* this.#host(hostId);
+    if (!host || host.organization_id !== organizationId) return yield* Effect.fail(serverNotFound());
+    const allowed = access.platformOwner || (host.owner_user_id === actor.id && canManage(access.effective));
+    if (!allowed) return yield* Effect.fail(forbidden());
+    yield* this.#run(() =>
+      this.#database
+        .prepare("UPDATE remote_hosts SET organization_id = NULL WHERE host_id = ? AND organization_id = ?")
+        .bind(hostId, organizationId)
+        .run(),
+    );
+    return { bound: false };
+  });
+
+  /** An organization member becomes a member of a bound server through the invite-acceptance path. */
+  readonly joinServer = Effect.fn("Organizations.joinServer")(function* (
+    this: Organizations,
+    actor: OrganizationActor,
+    organizationId: string,
+    hostId: string,
+  ) {
+    const access = yield* this.#access(actor, organizationId);
+    if (access.role === null || !this.#servers) return yield* Effect.fail(forbidden());
+    return yield* this.#servers.join(actor.id, { hostId, organizationId }).pipe(Effect.mapError(fromRemote));
   });
 
   #vaultCryptoKey(): Effect.Effect<CryptoKey, OrganizationError | OrganizationStorageError> {

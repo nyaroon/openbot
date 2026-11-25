@@ -60,4 +60,17 @@ export const messages = {
   "organization.vault.addEmpty": "В вашем хранилище нет элементов для добавления.",
   "organization.vault.addConfirm": "Добавить",
   "organization.failed": "Что-то пошло не так. Повторите попытку.",
+  "organization.servers.title": "Серверы",
+  "organization.servers.intro":
+    "Серверы, которыми делится эта организация. Присоединитесь к одному, чтобы добавить его в свои серверы без приглашения.",
+  "organization.servers.empty": "К этой организации пока не привязано ни одного сервера.",
+  "organization.servers.yours": "Этот сервер принадлежит вам.",
+  "organization.servers.join": "Присоединиться к {name}",
+  "organization.servers.joined": "Вы в составе",
+  "organization.servers.unbind": "Отвязать {name}",
+  "organization.servers.bind": "Привязать один из ваших серверов",
+  "organization.servers.bindHint":
+    "Участники организации смогут присоединиться к нему. Если позже отвязать сервер, никто не будет удалён.",
+  "organization.servers.bindPick": "Выберите сервер",
+  "organization.servers.bindConfirm": "Привязать",
 } as const satisfies PartialTranslation<typeof source>;

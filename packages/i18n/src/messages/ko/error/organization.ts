@@ -22,4 +22,8 @@ export const messages = {
     "계정 서비스가 조직 보관함을 읽지 못했습니다. 플랫폼 소유자에게 키를 확인해 달라고 요청하세요.",
   "error.organization.itemInvalid": "이 항목은 조직과 공유할 수 없습니다.",
   "error.organization.personalMissing": "이 항목이 더 이상 내 보관함에 없습니다.",
+  "error.organization.serverNotFound": "이 서버는 조직에 연결되어 있지 않거나 더 이상 존재하지 않습니다.",
+  "error.organization.serverTaken": "이 서버는 이미 다른 조직에 속해 있습니다.",
+  "error.organization.serverRevoked": "서버 관리자가 이 서버에서 나를 제거했습니다. 대신 초대를 요청하세요.",
+  "error.organization.serverFull": "서버가 허용되는 최대 구성원 수에 도달했습니다.",
 } as const satisfies PartialTranslation<typeof source>;

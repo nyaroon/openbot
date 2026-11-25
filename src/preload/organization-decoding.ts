@@ -3,6 +3,7 @@ import {
   ORGANIZATION_ROLES,
   type OrganizationMember,
   type OrganizationRole,
+  type OrganizationServers,
   type OrganizationSummary,
   type OrganizationsState,
   type OrganizationVault,
@@ -72,6 +73,24 @@ function decodeVaultItem(record: DynamicRecord): OrganizationVaultItem {
     title: requiredString(record, "title"),
     detail: requiredString(record, "detail"),
     shared: requiredBoolean(record, "shared"),
+  };
+}
+
+export function decodeOrganizationServers(value: unknown): OrganizationServers {
+  const record = decodeRecord(value, "Organization servers");
+  return {
+    organizationId: requiredString(record, "organizationId"),
+    servers: decodeList(record.servers, "Organization server", (server) => ({
+      hostId: requiredString(server, "hostId"),
+      name: requiredString(server, "name"),
+      member: requiredBoolean(server, "member"),
+      owner: requiredBoolean(server, "owner"),
+      canUnbind: requiredBoolean(server, "canUnbind"),
+    })),
+    bindable: decodeList(record.bindable, "Bindable server", (server) => ({
+      hostId: requiredString(server, "hostId"),
+      name: requiredString(server, "name"),
+    })),
   };
 }
 

@@ -63,4 +63,17 @@ export const messages = {
   "organization.vault.addEmpty": "In deinem Tresor gibt es keine Elemente zum Hinzufügen.",
   "organization.vault.addConfirm": "Hinzufügen",
   "organization.failed": "Etwas ist schiefgelaufen. Versuche es erneut.",
+  "organization.servers.title": "Server",
+  "organization.servers.intro":
+    "Server, die diese Organisation teilt. Tritt einem bei, um ihn ohne Einladung zu deinen Servern hinzuzufügen.",
+  "organization.servers.empty": "Dieser Organisation sind noch keine Server zugeordnet.",
+  "organization.servers.yours": "Dieser Server gehört dir.",
+  "organization.servers.join": "{name} beitreten",
+  "organization.servers.joined": "Beigetreten",
+  "organization.servers.unbind": "{name} lösen",
+  "organization.servers.bind": "Einen deiner Server zuordnen",
+  "organization.servers.bindHint":
+    "Mitglieder der Organisation können ihm dann beitreten. Wenn du ihn später löst, wird niemand entfernt.",
+  "organization.servers.bindPick": "Server wählen",
+  "organization.servers.bindConfirm": "Zuordnen",
 } as const satisfies PartialTranslation<typeof source>;

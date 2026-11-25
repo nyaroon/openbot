@@ -316,7 +316,12 @@ import {
   decodeWhatsAppLinkStateReply,
   decodeWhatsAppOverviewReply,
 } from "./messaging-decoding";
-import { decodeOrganizationMembers, decodeOrganizationsState, decodeOrganizationVault } from "./organization-decoding";
+import {
+  decodeOrganizationMembers,
+  decodeOrganizationServers,
+  decodeOrganizationsState,
+  decodeOrganizationVault,
+} from "./organization-decoding";
 import {
   decodePasswordManagerChange,
   decodePasswordManagerResponse,
@@ -1112,6 +1117,10 @@ const openbotApi: OpenBotDesktopApi = {
     shareVaultItem: decodeOrganizationVault,
     removeVaultItem: decodeOrganizationVault,
     leave: decodeOrganizationsState,
+    servers: decodeOrganizationServers,
+    bindServer: decodeOrganizationServers,
+    unbindServer: decodeOrganizationServers,
+    joinServer: decodeOrganizationServers,
     changed: decodeOrganizationsState,
   }),
   vault: bridgeGroup(IPC_ENDPOINTS.vault, {

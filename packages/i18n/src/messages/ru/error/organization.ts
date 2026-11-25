@@ -24,4 +24,8 @@ export const messages = {
     "Служба аккаунтов не смогла прочитать хранилище организации. Попросите владельца платформы проверить его ключ.",
   "error.organization.itemInvalid": "Этим элементом нельзя поделиться с организацией.",
   "error.organization.personalMissing": "Этого элемента больше нет в вашем хранилище.",
+  "error.organization.serverNotFound": "Этот сервер не привязан к организации или больше не существует.",
+  "error.organization.serverTaken": "Этот сервер уже принадлежит организации.",
+  "error.organization.serverRevoked": "Администратор сервера удалил вас с него. Попросите приглашение.",
+  "error.organization.serverFull": "На сервере достигнуто максимальное число участников.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -22,4 +22,8 @@ export const messages = defineMessages("error.organization", {
     "The account service could not read the organization vault. Ask the platform owner to check its key.",
   "error.organization.itemInvalid": "This item cannot be shared with an organization.",
   "error.organization.personalMissing": "This item is no longer in your Vault.",
+  "error.organization.serverNotFound": "This server is not attached to the organization, or it no longer exists.",
+  "error.organization.serverTaken": "This server already belongs to an organization.",
+  "error.organization.serverRevoked": "A server admin removed you from this server. Ask for an invitation instead.",
+  "error.organization.serverFull": "The server has the largest number of members it can have.",
 });

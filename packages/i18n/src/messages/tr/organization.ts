@@ -57,4 +57,17 @@ export const messages = {
   "organization.vault.addEmpty": "Kasanızda eklenecek öğe yok.",
   "organization.vault.addConfirm": "Ekle",
   "organization.failed": "Bir şeyler ters gitti. Yeniden deneyin.",
+  "organization.servers.title": "Sunucular",
+  "organization.servers.intro":
+    "Bu kuruluşun paylaştığı sunucular. Davet olmadan sunucularına eklemek için birine katıl.",
+  "organization.servers.empty": "Bu kuruluşa henüz bağlı sunucu yok.",
+  "organization.servers.yours": "Bu sunucunun sahibi sensin.",
+  "organization.servers.join": "{name} sunucusuna katıl",
+  "organization.servers.joined": "Katıldın",
+  "organization.servers.unbind": "{name} bağlantısını kaldır",
+  "organization.servers.bind": "Sunucularından birini bağla",
+  "organization.servers.bindHint":
+    "Kuruluşun üyeleri ona katılabilir. Daha sonra bağlantıyı kaldırmak kimseyi çıkarmaz.",
+  "organization.servers.bindPick": "Sunucu seç",
+  "organization.servers.bindConfirm": "Bağla",
 } as const satisfies PartialTranslation<typeof source>;

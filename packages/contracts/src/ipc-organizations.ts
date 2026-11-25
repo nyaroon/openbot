@@ -104,6 +104,32 @@ export interface OrganizationVaultShareInput {
   shared: boolean;
 }
 
+export interface OrganizationServer {
+  hostId: string;
+  name: string;
+  /** The signed-in account is already a member of the server. */
+  member: boolean;
+  owner: boolean;
+  canUnbind: boolean;
+}
+
+/** A server the signed-in account owns that is not attached to any organization yet. */
+export interface OrganizationBindableServer {
+  hostId: string;
+  name: string;
+}
+
+export interface OrganizationServers {
+  organizationId: string;
+  servers: OrganizationServer[];
+  bindable: OrganizationBindableServer[];
+}
+
+export interface OrganizationServerTarget {
+  organizationId: string;
+  hostId: string;
+}
+
 export interface OrganizationVaultRemoveInput {
   organizationId: string;
   itemId: string;

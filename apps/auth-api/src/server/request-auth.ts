@@ -416,6 +416,11 @@ export function requestOrganizations(): Organizations {
     database: bindings.DB,
     ownerEmails: readOwnerPolicy(bindings.OWNER_WHATSAPP_NUMBERS).owners,
     vaultKey: bindings.ORG_VAULT_KEY,
+    servers: {
+      join: (userId, input) => requestRemoteControlPlane().joinOrganizationHost(userId, input),
+      revokeAll: (userId, organizationId) =>
+        requestRemoteControlPlane().revokeOrganizationHosts(userId, organizationId),
+    },
   });
 }
 
