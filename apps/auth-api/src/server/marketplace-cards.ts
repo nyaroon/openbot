@@ -1,13 +1,14 @@
 import { AGENT_TEMPLATE_CARD, isAgentTemplateCardPng } from "@openbot/contracts/ipc";
 import { Effect } from "effect";
 import { readRequestBytes } from "./json-body";
+import type { StoredObject, StoredObjectBody } from "./object-storage";
 
 export const readMarketplaceCard = Effect.fn("readMarketplaceCard")(function* (request: Request) {
   const card = yield* readRequestBytes(request, AGENT_TEMPLATE_CARD.maxBytes).pipe(Effect.orElseSucceed(() => null));
   return card && isAgentTemplateCardPng(card) ? card : null;
 });
 
-export function marketplaceCardResponse(object: R2Object | R2ObjectBody): Response {
+export function marketplaceCardResponse(object: StoredObject | StoredObjectBody): Response {
   const headers = new Headers();
   object.writeHttpMetadata(headers);
   headers.set("Content-Type", "image/png");

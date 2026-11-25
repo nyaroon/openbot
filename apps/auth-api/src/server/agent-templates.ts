@@ -13,6 +13,7 @@ import { AgentMarketplaceError } from "./agent-marketplace";
 import { encodeBase64Url } from "./crypto";
 import { marketplaceCreatorName } from "./marketplace-pagination";
 import { MarketplaceStorage } from "./marketplace-storage";
+import { StorageNotConfiguredError } from "./object-storage";
 import type { AuthUser, WorkerBindings } from "./types";
 
 const MAX_TEMPLATES_PER_USER = 5;
@@ -282,7 +283,11 @@ export class AgentTemplates {
 
   private deleteImagesEffect(
     keys: Array<string | null>,
-  ): Effect.Effect<void, AgentMarketplaceError | AgentTemplatesStorageError, MarketplaceStorage> {
+  ): Effect.Effect<
+    void,
+    AgentMarketplaceError | AgentTemplatesStorageError | StorageNotConfiguredError,
+    MarketplaceStorage
+  > {
     return Effect.fn("AgentTemplates.deleteImages")(() =>
       Effect.gen({ self: this }, function* () {
         const bindings = yield* MarketplaceStorage;
@@ -322,7 +327,11 @@ export class AgentTemplates {
 
   private validateSkillsEffect(
     snapshot: AgentTemplateSnapshot,
-  ): Effect.Effect<void, AgentMarketplaceError | AgentTemplatesStorageError, MarketplaceStorage> {
+  ): Effect.Effect<
+    void,
+    AgentMarketplaceError | AgentTemplatesStorageError | StorageNotConfiguredError,
+    MarketplaceStorage
+  > {
     return Effect.fn("AgentTemplates.validateSkills")(() =>
       Effect.gen({ self: this }, function* () {
         const bindings = yield* MarketplaceStorage;
@@ -375,8 +384,10 @@ class AgentTemplatesStorageError extends Schema.TaggedError<AgentTemplatesStorag
   "AgentTemplatesStorageError",
   { message: Schema.String },
 ) {}
-const marketplaceError = (error: unknown): AgentMarketplaceError | AgentTemplatesStorageError =>
-  error instanceof AgentMarketplaceError
+const marketplaceError = (
+  error: unknown,
+): AgentMarketplaceError | AgentTemplatesStorageError | StorageNotConfiguredError =>
+  error instanceof AgentMarketplaceError || error instanceof StorageNotConfiguredError
     ? error
     : new AgentTemplatesStorageError({
         message: error instanceof Error ? error.message : "Marketplace operation failed.",

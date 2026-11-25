@@ -22,7 +22,8 @@ self-hosted account service with its own keys. See
 
 ## What you need
 
-- A Cloudflare account with Workers, D1 and R2, and a domain on Cloudflare.
+- A Cloudflare account with Workers and D1, and a domain on Cloudflare.
+- An S3-compatible bucket (AWS S3, Backblaze B2, MinIO, Wasabi or similar) with an access key.
 - A Linux server with Docker Engine, Docker Compose and a static public IPv4 address. See the
   [Signal production requirements](../remote/README.md#production-requirements) for ports and DNS.
 - An SMTP account that accepts TLS on port 465. Sign-in sends a one-time code by email.
@@ -58,15 +59,14 @@ Keep the private JWK secret. With it, a person can open each host that uses your
    cd apps/auth-api
    bunx wrangler login
    bunx wrangler d1 create openbot-auth
-   bunx wrangler r2 bucket create openbot-avatars
-   bunx wrangler r2 bucket create openbot-skills
    bunx wrangler r2 bucket create openbot-sites
    ```
 
 2. Edit the top level of `apps/auth-api/wrangler.jsonc`. Do not change the `env` section.
    - `routes`: replace all entries with `{ "pattern": "api.example.com", "custom_domain": true }`.
    - `d1_databases`: set `database_id` to the ID that `d1 create` printed.
-   - `r2_buckets`: set the bucket names, if you used other names.
+   - `vars`, storage: `STORAGE_S3_ENDPOINT`, `STORAGE_S3_BUCKET`, `STORAGE_S3_REGION` and
+     `STORAGE_S3_FORCE_PATH_STYLE` (see [Object storage](../apps/auth-api/README.md#object-storage)).
    - `vars`:
      - `EMAIL_SMTP_HOST`, `EMAIL_SMTP_PORT`, `EMAIL_SMTP_USERNAME`, `EMAIL_FROM`: your SMTP account.
      - `EMAIL_REPLY_TO`: the inbox for replies and contact form messages, or empty to use `EMAIL_FROM`.
@@ -84,6 +84,8 @@ Keep the private JWK secret. With it, a person can open each host that uses your
    REMOTE_TICKET_PRIVATE_JWK='{"kty":"EC",...}'
    REMOTE_TICKET_PUBLIC_JWKS='{"keys":[...]}'
    REMOTE_AUTH_WEBHOOK_SECRET=...
+   STORAGE_S3_ACCESS_KEY_ID=...
+   STORAGE_S3_SECRET_ACCESS_KEY=...
    ```
 
 4. Deploy. The script puts the secrets, applies the D1 migrations, builds and deploys the Worker:

@@ -37,10 +37,16 @@
       "SKILLS_ADMIN_TOKEN",
       "REMOTE_TICKET_PRIVATE_JWK",
       "REMOTE_TICKET_PUBLIC_JWKS",
-      "REMOTE_AUTH_WEBHOOK_SECRET"
+      "REMOTE_AUTH_WEBHOOK_SECRET",
+      "STORAGE_S3_ACCESS_KEY_ID",
+      "STORAGE_S3_SECRET_ACCESS_KEY"
     ]
   },
   "vars": {
+    "STORAGE_S3_ENDPOINT": "",
+    "STORAGE_S3_REGION": "auto",
+    "STORAGE_S3_BUCKET": "",
+    "STORAGE_S3_FORCE_PATH_STYLE": "true",
     "AUTH_EXPOSE_DEVELOPMENT_CODE": "false",
     "EMAIL_SMTP_HOST": "mail.privateemail.com",
     "EMAIL_SMTP_PORT": "465",
@@ -77,52 +83,58 @@
     {
       "binding": "DB",
       "database_name": "openbot-auth",
-      "database_id": "0cf7e5c1-63ad-4089-810a-e9eb67dd863d",
+      "database_id": "40355598-6c7b-4e81-9d7e-f8fba1da1e59",
       "migrations_dir": "migrations"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "AVATARS",
-      "bucket_name": "openbot-avatars",
-      "preview_bucket_name": "openbot-avatars-test"
-    },
-    {
-      "binding": "SKILLS",
-      "bucket_name": "openbot-skills",
-      "preview_bucket_name": "openbot-skills-test"
     }
   ],
   "ratelimits": [
     {
       "name": "MARKETPLACE_INGRESS_RATE_LIMITER",
       "namespace_id": "2026082701",
-      "simple": { "limit": 300, "period": 60 }
+      "simple": {
+        "limit": 300,
+        "period": 60
+      }
     },
     {
       "name": "MARKETPLACE_MUTATION_RATE_LIMITER",
       "namespace_id": "2026082702",
-      "simple": { "limit": 30, "period": 60 }
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
     },
     {
       "name": "MARKETPLACE_UPLOAD_RATE_LIMITER",
       "namespace_id": "2026082703",
-      "simple": { "limit": 5, "period": 60 }
+      "simple": {
+        "limit": 5,
+        "period": 60
+      }
     },
     {
       "name": "GITHUB_TOKEN_RATE_LIMITER",
       "namespace_id": "2026092911",
-      "simple": { "limit": 30, "period": 60 }
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
     },
     {
       "name": "LIVE_ACTIVITY_RATE_LIMITER",
       "namespace_id": "2026092901",
-      "simple": { "limit": 300, "period": 60 }
+      "simple": {
+        "limit": 300,
+        "period": 60
+      }
     },
     {
       "name": "FEEDBACK_RATE_LIMITER",
       "namespace_id": "2026110801",
-      "simple": { "limit": 3, "period": 60 }
+      "simple": {
+        "limit": 3,
+        "period": 60
+      }
     }
   ],
   "env": {
@@ -138,6 +150,10 @@
         "required": []
       },
       "vars": {
+        "STORAGE_S3_ENDPOINT": "",
+        "STORAGE_S3_REGION": "auto",
+        "STORAGE_S3_BUCKET": "",
+        "STORAGE_S3_FORCE_PATH_STYLE": "true",
         "AUTH_EXPOSE_DEVELOPMENT_CODE": "false",
         "EMAIL_SMTP_HOST": "mail.privateemail.com",
         "EMAIL_SMTP_PORT": "465",
@@ -159,46 +175,54 @@
           "migrations_dir": "migrations"
         }
       ],
-      "r2_buckets": [
-        {
-          "binding": "AVATARS",
-          "bucket_name": "openbot-avatars-test"
-        },
-        {
-          "binding": "SKILLS",
-          "bucket_name": "openbot-skills-test"
-        }
-      ],
       "ratelimits": [
         {
           "name": "MARKETPLACE_INGRESS_RATE_LIMITER",
           "namespace_id": "2026082704",
-          "simple": { "limit": 300, "period": 60 }
+          "simple": {
+            "limit": 300,
+            "period": 60
+          }
         },
         {
           "name": "MARKETPLACE_MUTATION_RATE_LIMITER",
           "namespace_id": "2026082705",
-          "simple": { "limit": 30, "period": 60 }
+          "simple": {
+            "limit": 30,
+            "period": 60
+          }
         },
         {
           "name": "MARKETPLACE_UPLOAD_RATE_LIMITER",
           "namespace_id": "2026082706",
-          "simple": { "limit": 5, "period": 60 }
+          "simple": {
+            "limit": 5,
+            "period": 60
+          }
         },
         {
           "name": "GITHUB_TOKEN_RATE_LIMITER",
           "namespace_id": "2026092912",
-          "simple": { "limit": 30, "period": 60 }
+          "simple": {
+            "limit": 30,
+            "period": 60
+          }
         },
         {
           "name": "LIVE_ACTIVITY_RATE_LIMITER",
           "namespace_id": "2026092902",
-          "simple": { "limit": 300, "period": 60 }
+          "simple": {
+            "limit": 300,
+            "period": 60
+          }
         },
         {
           "name": "FEEDBACK_RATE_LIMITER",
           "namespace_id": "2026110802",
-          "simple": { "limit": 3, "period": 60 }
+          "simple": {
+            "limit": 3,
+            "period": 60
+          }
         }
       ]
     },
@@ -216,10 +240,16 @@
           "SKILLS_ADMIN_TOKEN",
           "REMOTE_TICKET_PRIVATE_JWK",
           "REMOTE_TICKET_PUBLIC_JWKS",
-          "REMOTE_AUTH_WEBHOOK_SECRET"
+          "REMOTE_AUTH_WEBHOOK_SECRET",
+          "STORAGE_S3_ACCESS_KEY_ID",
+          "STORAGE_S3_SECRET_ACCESS_KEY"
         ]
       },
       "vars": {
+        "STORAGE_S3_ENDPOINT": "",
+        "STORAGE_S3_REGION": "auto",
+        "STORAGE_S3_BUCKET": "",
+        "STORAGE_S3_FORCE_PATH_STYLE": "true",
         "AUTH_EXPOSE_DEVELOPMENT_CODE": "false",
         "EMAIL_SMTP_HOST": "mail.privateemail.com",
         "EMAIL_SMTP_PORT": "465",
@@ -244,46 +274,54 @@
           "migrations_dir": "migrations"
         }
       ],
-      "r2_buckets": [
-        {
-          "binding": "AVATARS",
-          "bucket_name": "openbot-avatars-test"
-        },
-        {
-          "binding": "SKILLS",
-          "bucket_name": "openbot-skills-test"
-        }
-      ],
       "ratelimits": [
         {
           "name": "MARKETPLACE_INGRESS_RATE_LIMITER",
           "namespace_id": "2026082707",
-          "simple": { "limit": 300, "period": 60 }
+          "simple": {
+            "limit": 300,
+            "period": 60
+          }
         },
         {
           "name": "MARKETPLACE_MUTATION_RATE_LIMITER",
           "namespace_id": "2026082708",
-          "simple": { "limit": 30, "period": 60 }
+          "simple": {
+            "limit": 30,
+            "period": 60
+          }
         },
         {
           "name": "MARKETPLACE_UPLOAD_RATE_LIMITER",
           "namespace_id": "2026082709",
-          "simple": { "limit": 5, "period": 60 }
+          "simple": {
+            "limit": 5,
+            "period": 60
+          }
         },
         {
           "name": "GITHUB_TOKEN_RATE_LIMITER",
           "namespace_id": "2026092913",
-          "simple": { "limit": 30, "period": 60 }
+          "simple": {
+            "limit": 30,
+            "period": 60
+          }
         },
         {
           "name": "LIVE_ACTIVITY_RATE_LIMITER",
           "namespace_id": "2026092903",
-          "simple": { "limit": 300, "period": 60 }
+          "simple": {
+            "limit": 300,
+            "period": 60
+          }
         },
         {
           "name": "FEEDBACK_RATE_LIMITER",
           "namespace_id": "2026110803",
-          "simple": { "limit": 3, "period": 60 }
+          "simple": {
+            "limit": 3,
+            "period": 60
+          }
         }
       ]
     }

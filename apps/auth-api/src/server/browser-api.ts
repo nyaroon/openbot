@@ -9,6 +9,7 @@ import { runApiResponse } from "./effect-runtime";
 import { ExtensionSignInError, type ExtensionSignInService } from "./extension-sign-in";
 import type { readHostLogo } from "./host-logo";
 import { readJsonObject } from "./json-body";
+import type { ObjectBucket } from "./object-storage";
 import { startOwnerTransfer } from "./owner-transfer";
 import { type RemoteControlPlane, RemoteControlPlaneError } from "./remote-control-plane";
 import { sendTeamInviteEmail } from "./team-invite-email";
@@ -65,7 +66,7 @@ export interface BrowserApiServices {
   inviteEmailDelivery: () => TeamInviteEmailDelivery | null;
   ownerTransferEmailDelivery: () => OwnerTransferEmailDelivery | null;
   schedule: (work: Effect.Effect<void>) => void;
-  avatarBucket: () => R2Bucket;
+  avatarBucket: () => ObjectBucket;
   sourceIp: (request: Request) => string;
   errorResponse: (error: unknown) => Response;
 }

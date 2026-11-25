@@ -3,6 +3,7 @@ import { AVATAR_IMAGE_LIMITS } from "@openbot/contracts/input-limits";
 import { isUuidV4 } from "@openbot/contracts/validation";
 import { Effect, Result, Schema } from "effect";
 import { AuthOperationError, type AuthService, AuthServiceError } from "./auth-service";
+import { type ObjectBucket, StorageNotConfiguredError } from "./object-storage";
 import type { AuthUser } from "./types";
 
 export interface StoredAvatarUpload {
@@ -14,10 +15,13 @@ export class AvatarStorageError extends Schema.TaggedError<AvatarStorageError>()
   message: Schema.String,
 }) {}
 
-function avatarCall<A>(operation: () => Promise<A>): Effect.Effect<A, AvatarStorageError> {
+function avatarCall<A>(operation: () => Promise<A>): Effect.Effect<A, AvatarStorageError | StorageNotConfiguredError> {
   return Effect.tryPromise({
     try: operation,
-    catch: () => new AvatarStorageError({ message: "Account avatar operation failed." }),
+    catch: (error) =>
+      error instanceof StorageNotConfiguredError
+        ? error
+        : new AvatarStorageError({ message: "Account avatar operation failed." }),
   });
 }
 
@@ -76,7 +80,7 @@ function updateAvatar(
 
 export const storeAccountAvatar = Effect.fn("AvatarStorage.store")(function* (
   service: Pick<AuthService, "updateAvatar">,
-  bucket: R2Bucket,
+  bucket: ObjectBucket,
   token: string,
   user: AuthUser,
   upload: StoredAvatarUpload,
@@ -100,7 +104,7 @@ export const storeAccountAvatar = Effect.fn("AvatarStorage.store")(function* (
 
 export const removeAccountAvatar = Effect.fn("AvatarStorage.remove")(function* (
   service: Pick<AuthService, "updateAvatar">,
-  bucket: R2Bucket,
+  bucket: ObjectBucket,
   token: string,
   user: AuthUser,
 ) {
@@ -109,7 +113,10 @@ export const removeAccountAvatar = Effect.fn("AvatarStorage.remove")(function* (
   return updated;
 });
 
-const deletePreviousAvatar = Effect.fn("AvatarStorage.deletePrevious")(function* (bucket: R2Bucket, user: AuthUser) {
+const deletePreviousAvatar = Effect.fn("AvatarStorage.deletePrevious")(function* (
+  bucket: ObjectBucket,
+  user: AuthUser,
+) {
   const previousVersion = avatarVersion(user.avatarUrl, user.id);
   if (previousVersion)
     yield* avatarCall(() => bucket.delete(avatarObjectKey(user.id, previousVersion))).pipe(

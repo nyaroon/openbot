@@ -1,4 +1,5 @@
 import { Effect, Schema } from "effect";
+import { type ObjectBucket, StorageNotConfiguredError } from "./object-storage";
 
 class HostLogoError extends Schema.TaggedError<HostLogoError>()("HostLogoError", {}) {}
 
@@ -9,10 +10,14 @@ export function hostLogoObjectKey(hostId: string, version: string): string {
   return `remote-hosts/${hostId}/logos/${version}`;
 }
 
-export const readHostLogo = Effect.fn("HostLogo.read")(function* (bucket: R2Bucket, hostId: string, version: string) {
+export const readHostLogo = Effect.fn("HostLogo.read")(function* (
+  bucket: ObjectBucket,
+  hostId: string,
+  version: string,
+) {
   const object = yield* Effect.tryPromise({
     try: () => bucket.get(hostLogoObjectKey(hostId, version)),
-    catch: () => new HostLogoError({}),
+    catch: (error) => (error instanceof StorageNotConfiguredError ? error : new HostLogoError({})),
   });
   if (!object) return null;
   return new Response(object.body, {

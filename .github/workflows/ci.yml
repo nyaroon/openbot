@@ -1561,6 +1561,8 @@ jobs:
           REMOTE_TICKET_PRIVATE_JWK: ${{ secrets.REMOTE_TICKET_PRIVATE_JWK }}
           REMOTE_TICKET_PUBLIC_JWKS: ${{ secrets.REMOTE_TICKET_PUBLIC_JWKS }}
           REMOTE_AUTH_WEBHOOK_SECRET: ${{ secrets.REMOTE_AUTH_WEBHOOK_SECRET }}
+          STORAGE_S3_ACCESS_KEY_ID: ${{ secrets.STORAGE_S3_ACCESS_KEY_ID }}
+          STORAGE_S3_SECRET_ACCESS_KEY: ${{ secrets.STORAGE_S3_SECRET_ACCESS_KEY }}
           OPENPANEL_CLIENT_ID: ${{ secrets.OPENPANEL_CLIENT_ID }}
           OPENPANEL_CLIENT_SECRET: ${{ secrets.OPENPANEL_CLIENT_SECRET }}
           # GitHub refuses an Actions secret name that starts with GITHUB_. The Worker name is GITHUB_APP_PRIVATE_KEY.
@@ -1578,6 +1580,8 @@ jobs:
             const remotePrivateJwk = process.env.REMOTE_TICKET_PRIVATE_JWK;
             const remotePublicJwks = process.env.REMOTE_TICKET_PUBLIC_JWKS;
             const remoteWebhookSecret = process.env.REMOTE_AUTH_WEBHOOK_SECRET;
+            const storageAccessKeyId = process.env.STORAGE_S3_ACCESS_KEY_ID;
+            const storageSecretAccessKey = process.env.STORAGE_S3_SECRET_ACCESS_KEY;
             const openpanelClientId = process.env.OPENPANEL_CLIENT_ID?.trim();
             const openpanelClientSecret = process.env.OPENPANEL_CLIENT_SECRET?.trim();
             if (!openpanelClientId || !openpanelClientSecret) {
@@ -1590,6 +1594,8 @@ jobs:
               !remotePrivateJwk ||
               !remotePublicJwks ||
               !remoteWebhookSecret ||
+              !storageAccessKeyId ||
+              !storageSecretAccessKey ||
               !path
             ) {
               throw new Error("Required production secrets are missing.");
@@ -1629,6 +1635,8 @@ jobs:
               REMOTE_TICKET_PRIVATE_JWK: remotePrivateJwk,
               REMOTE_TICKET_PUBLIC_JWKS: remotePublicJwks,
               REMOTE_AUTH_WEBHOOK_SECRET: remoteWebhookSecret,
+              STORAGE_S3_ACCESS_KEY_ID: storageAccessKeyId,
+              STORAGE_S3_SECRET_ACCESS_KEY: storageSecretAccessKey,
             };
             await Bun.write(path, JSON.stringify(secrets));
           '

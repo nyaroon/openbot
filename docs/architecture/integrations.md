@@ -936,8 +936,8 @@ holds no secrets.
   skill library and is installed for the agents the item names. Where it is off or removed, only the
   copies this feature installed are uninstalled. A skill with the same slug that was changed on the
   computer is never overwritten. It is skipped and counted as a conflict.
-- Blob routes: `PUT`/`GET`/`DELETE /v1/me/vault/blobs/:blobId`, stored in R2 under
-  `account-vault/<userId>/<blobId>`. A blob is at most 12 MiB, and an account holds at most 100 blobs
+- Blob routes: `PUT`/`GET`/`DELETE /v1/me/vault/blobs/:blobId`, stored in object storage under
+  `skills/account-vault/<userId>/<blobId>`. A blob is at most 12 MiB, and an account holds at most 100 blobs
   and 300 MiB. The blob AAD is `openbot-universal-vault:v1:blob:<userId>:<blobId>`. Removing the vault
   deletes its blobs.
 - Never synced: OAuth tokens and client registrations (an HTTP server with sign-in still needs one

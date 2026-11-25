@@ -4,13 +4,19 @@ import { isDynamicRecord, isFunction } from "@openbot/contracts/runtime-values";
 import type { Effect } from "effect";
 import type { AuthStoreError } from "./d1-auth-repository";
 import type { EmailDeliveryError } from "./email-delivery";
+import type { ObjectBucket } from "./object-storage";
 import { observedD1 } from "./observed-d1";
+import { type ObjectStorageEnv, resolveObjectStorage } from "./s3-object-bucket";
 import type { SmtpContactMessage, SmtpFailure } from "./smtp-email-delivery";
 
-export interface WorkerBindings {
+/**
+ * `AVATARS` and `SKILLS` are not Cloudflare bindings. `requireWorkerBindings` builds them from the
+ * `STORAGE_S3_*` variables: both are key prefixes (`avatars/`, `skills/`) of one S3-compatible bucket.
+ */
+export interface WorkerBindings extends ObjectStorageEnv {
   DB: D1Database;
-  AVATARS: R2Bucket;
-  SKILLS: R2Bucket;
+  AVATARS: ObjectBucket;
+  SKILLS: ObjectBucket;
   MARKETPLACE_INGRESS_RATE_LIMITER: RateLimit;
   MARKETPLACE_MUTATION_RATE_LIMITER: RateLimit;
   MARKETPLACE_UPLOAD_RATE_LIMITER: RateLimit;
@@ -77,11 +83,11 @@ export interface WorkerBindings {
   FCM_SERVICE_ACCOUNT?: string;
 }
 
-function isWorkerBindings(value: unknown): value is WorkerBindings {
+type WorkerEnvironment = Omit<WorkerBindings, "AVATARS" | "SKILLS">;
+
+function isWorkerEnvironment(value: unknown): value is WorkerEnvironment {
   if (!isDynamicRecord(value)) return false;
   const database = value.DB;
-  const avatars = value.AVATARS;
-  const skills = value.SKILLS;
   const marketplaceIngressRateLimiter = value.MARKETPLACE_INGRESS_RATE_LIMITER;
   const marketplaceMutationRateLimiter = value.MARKETPLACE_MUTATION_RATE_LIMITER;
   const marketplaceUploadRateLimiter = value.MARKETPLACE_UPLOAD_RATE_LIMITER;
@@ -89,14 +95,6 @@ function isWorkerBindings(value: unknown): value is WorkerBindings {
   if (
     !isDynamicRecord(database) ||
     !isFunction(database.prepare) ||
-    !isDynamicRecord(avatars) ||
-    !isFunction(avatars.get) ||
-    !isFunction(avatars.put) ||
-    !isFunction(avatars.delete) ||
-    !isDynamicRecord(skills) ||
-    !isFunction(skills.get) ||
-    !isFunction(skills.put) ||
-    !isFunction(skills.delete) ||
     !isDynamicRecord(marketplaceIngressRateLimiter) ||
     !isFunction(marketplaceIngressRateLimiter.limit) ||
     !isDynamicRecord(marketplaceMutationRateLimiter) ||
@@ -111,15 +109,15 @@ function isWorkerBindings(value: unknown): value is WorkerBindings {
   return true;
 }
 
-const observedBindings = new WeakMap<WorkerBindings, WorkerBindings>();
+const observedBindings = new WeakMap<WorkerEnvironment, WorkerBindings>();
 
 export function requireWorkerBindings(value: unknown): WorkerBindings {
-  if (!isWorkerBindings(value)) {
+  if (!isWorkerEnvironment(value)) {
     throw new Error("Cloudflare worker bindings are unavailable.");
   }
   const known = observedBindings.get(value);
   if (known) return known;
-  const observed = { ...value, DB: observedD1(value.DB) };
+  const observed = { ...value, ...resolveObjectStorage(value), DB: observedD1(value.DB) };
   observedBindings.set(value, observed);
   return observed;
 }

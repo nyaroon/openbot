@@ -28,6 +28,8 @@ async function main(): Promise<void> {
   await putRequiredSecret("REMOTE_TICKET_PRIVATE_JWK");
   await putRequiredSecret("REMOTE_TICKET_PUBLIC_JWKS");
   await putRequiredSecret("REMOTE_AUTH_WEBHOOK_SECRET");
+  await putRequiredSecret("STORAGE_S3_ACCESS_KEY_ID");
+  await putRequiredSecret("STORAGE_S3_SECRET_ACCESS_KEY");
   await putOptionalSecret("GITHUB_APP_PRIVATE_KEY");
   await putOptionalSecret("SERVER_CLAIMS_ADMIN_TOKEN");
   await putOptionalSecretSet("SLACK_CLIENT_ID", "SLACK_CLIENT_SECRET", "SLACK_STATE_SECRET");

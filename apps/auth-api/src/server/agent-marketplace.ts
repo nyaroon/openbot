@@ -27,6 +27,7 @@ import {
   normalizeMarketplaceQuery,
 } from "./marketplace-pagination";
 import { MarketplaceStorage } from "./marketplace-storage";
+import { StorageNotConfiguredError } from "./object-storage";
 import type { AuthUser, WorkerBindings } from "./types";
 
 const MAX_AGENTS_PER_USER = 5;
@@ -583,7 +584,11 @@ export class AgentMarketplace {
 
   private validateSkillsEffect(
     skills: MarketplaceAgentSkill[],
-  ): Effect.Effect<void, AgentMarketplaceError | AgentMarketplaceStorageError, MarketplaceStorage> {
+  ): Effect.Effect<
+    void,
+    AgentMarketplaceError | AgentMarketplaceStorageError | StorageNotConfiguredError,
+    MarketplaceStorage
+  > {
     return Effect.fn("AgentMarketplace.validateSkills")(() =>
       Effect.gen({ self: this }, function* () {
         const bindings = yield* MarketplaceStorage;
@@ -822,8 +827,10 @@ class AgentMarketplaceStorageError extends Schema.TaggedError<AgentMarketplaceSt
   "AgentMarketplaceStorageError",
   { message: Schema.String },
 ) {}
-const marketplaceError = (error: unknown): AgentMarketplaceError | AgentMarketplaceStorageError =>
-  error instanceof AgentMarketplaceError
+const marketplaceError = (
+  error: unknown,
+): AgentMarketplaceError | AgentMarketplaceStorageError | StorageNotConfiguredError =>
+  error instanceof AgentMarketplaceError || error instanceof StorageNotConfiguredError
     ? error
     : new AgentMarketplaceStorageError({
         message: error instanceof Error ? error.message : "Marketplace operation failed.",

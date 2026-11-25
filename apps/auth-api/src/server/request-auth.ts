@@ -39,6 +39,7 @@ import {
   type MarketplaceMutationKind,
   MarketplaceRateLimitError,
 } from "./marketplace-request-policy";
+import { type ObjectBucket, StorageNotConfiguredError } from "./object-storage";
 import { readOwnerPolicy } from "./owner-accounts";
 import {
   deliverPendingRemoteAuthEvents,
@@ -98,7 +99,7 @@ export function extensionSignInErrorResponse(error: unknown): Response {
   return remoteControlPlaneErrorResponse(error);
 }
 
-export function requestAvatarBucket(): R2Bucket {
+export function requestAvatarBucket(): ObjectBucket {
   const bindings = requireWorkerBindings(env);
   return bindings.AVATARS;
 }
@@ -439,6 +440,9 @@ export function apiError(status: number, code: string, message: string): Respons
 }
 
 export function authErrorResponse(error: unknown): Response {
+  if (error instanceof StorageNotConfiguredError) {
+    return apiError(503, "storage_not_configured", "Object storage is not configured.");
+  }
   if (error instanceof JsonBodyError) {
     return apiError(error.status, error.code, error.message);
   }

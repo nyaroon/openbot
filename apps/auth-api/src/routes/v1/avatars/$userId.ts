@@ -3,7 +3,8 @@ import { createFileRoute } from "@tanstack/solid-router";
 import { Effect } from "effect";
 import { avatarObjectKey } from "../../../server/avatar-storage";
 import { runApiResponse } from "../../../server/effect-runtime";
-import { requestAvatarBucket } from "../../../server/request-auth";
+import { StorageNotConfiguredError } from "../../../server/object-storage";
+import { authErrorResponse, requestAvatarBucket } from "../../../server/request-auth";
 
 export const Route = createFileRoute("/v1/avatars/$userId")({
   server: {
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/v1/avatars/$userId")({
             });
           }),
           (error) => {
+            if (error instanceof StorageNotConfiguredError) return authErrorResponse(error);
             throw error;
           },
         ),

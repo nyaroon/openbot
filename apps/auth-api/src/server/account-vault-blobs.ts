@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { AccountVaultError, AccountVaultStorageError, notSetUp } from "./account-vault";
+import { type ObjectBucket, StorageNotConfiguredError } from "./object-storage";
 
 export const VAULT_BLOB_LIMIT = 12 * 1024 * 1024;
 export const VAULT_BLOB_COUNT_LIMIT = 100;
@@ -22,17 +23,20 @@ interface UsageRow {
 
 export class AccountVaultBlobs {
   readonly #database: D1Database;
-  readonly #bucket: R2Bucket;
+  readonly #bucket: ObjectBucket;
   readonly #now: () => number;
 
-  constructor(database: D1Database, bucket: R2Bucket, now: () => number = Date.now) {
+  constructor(database: D1Database, bucket: ObjectBucket, now: () => number = Date.now) {
     this.#database = database;
     this.#bucket = bucket;
     this.#now = now;
   }
 
-  #run<T>(work: () => Promise<T>): Effect.Effect<T, AccountVaultStorageError> {
-    return Effect.tryPromise({ try: work, catch: () => new AccountVaultStorageError() });
+  #run<T>(work: () => Promise<T>): Effect.Effect<T, AccountVaultStorageError | StorageNotConfiguredError> {
+    return Effect.tryPromise({
+      try: work,
+      catch: (error) => (error instanceof StorageNotConfiguredError ? error : new AccountVaultStorageError()),
+    });
   }
 
   readonly put = Effect.fn("AccountVaultBlobs.put")(function* (

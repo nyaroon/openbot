@@ -2,7 +2,7 @@
 
 This TanStack Start and Solid 2 package is the central OpenBot account API. It
 runs on Cloudflare Workers, stores account and authentication records in D1,
-and stores account avatars in R2. Users sign in with an eight-character
+and stores account avatars in an S3-compatible bucket. Users sign in with an eight-character
 one-time email code. D1 stores hashes instead of plaintext codes, session tokens,
 and team authentication tickets.
 
@@ -129,7 +129,8 @@ from their own socket. Workers Logs are off. To see where the relay runs, read t
 
 For a deployed Worker, `bun run api:deploy` decrypts `.env.production`. It sends
 `EMAIL_SMTP_PASSWORD`, `SKILLS_ADMIN_TOKEN`, `REMOTE_TICKET_PRIVATE_JWK`,
-`REMOTE_TICKET_PUBLIC_JWKS`, and `REMOTE_AUTH_WEBHOOK_SECRET` to
+`REMOTE_TICKET_PUBLIC_JWKS`, `REMOTE_AUTH_WEBHOOK_SECRET`, `STORAGE_S3_ACCESS_KEY_ID`, and
+`STORAGE_S3_SECRET_ACCESS_KEY` to
 `wrangler secret put` through standard input, and `GITHUB_APP_PRIVATE_KEY` when it is set. It then
 builds and deploys the Worker.
 
@@ -235,6 +236,27 @@ The D1 counter of sign-in allows 3 messages for each IP address and 15 in total 
 window, so the form cannot spend the quota that sign-in codes need. A Cloudflare rate-limit binding
 counts in each location separately, so it cannot hold a total. Without SMTP the route answers 503
 `email_delivery_not_configured`, and the form tells the visitor to write to `hello@openbot.run`.
+
+## Object storage
+
+The Worker keeps avatars, marketplace skill bundles, share cards, host logos and vault blobs in one
+S3-compatible bucket (AWS S3, Backblaze B2, MinIO, Wasabi and others). It does not use Cloudflare R2.
+`src/server/s3-object-bucket.ts` sends each request over HTTPS with AWS Signature V4, and
+`requireWorkerBindings` builds the `AVATARS` and `SKILLS` buckets from these settings. Both are key
+prefixes of the same bucket: `avatars/` and `skills/`.
+
+| Name | Kind | Meaning |
+| --- | --- | --- |
+| `STORAGE_S3_ENDPOINT` | var | Service URL, such as `https://s3.us-east-1.amazonaws.com` or `https://s3.us-west-004.backblazeb2.com`. |
+| `STORAGE_S3_BUCKET` | var | Bucket name. Create it first. It stays private. |
+| `STORAGE_S3_REGION` | var | Signing region. Default `auto`. Use the real region for AWS and Backblaze (`us-west-004`). |
+| `STORAGE_S3_FORCE_PATH_STYLE` | var | `true` (default) sends `endpoint/bucket/key`. `false` sends `bucket.endpoint/key`. |
+| `STORAGE_S3_ACCESS_KEY_ID`, `STORAGE_S3_SECRET_ACCESS_KEY` | secrets | A key that can read, write and delete objects in the bucket. |
+
+Without these settings, the routes that need storage answer 503 `storage_not_configured`; sign-in
+and the data that D1 holds keep working. The Worker needs no CORS rule, because the browser never
+talks to the bucket. Existing objects of a former R2 deployment must be copied into the bucket with
+the `avatars/` and `skills/` prefixes (for example with `rclone`).
 
 ## Cloudflare deployment
 

@@ -20,6 +20,7 @@ import {
   normalizeMarketplaceQuery,
 } from "./marketplace-pagination";
 import { MarketplaceStorage } from "./marketplace-storage";
+import { StorageNotConfiguredError } from "./object-storage";
 import type { AuthUser, WorkerBindings } from "./types";
 
 const MAX_ARCHIVE_BYTES = 10 * 1024 * 1024;
@@ -749,7 +750,11 @@ export class SkillMarketplace {
 
   private approvedRowEffect(
     skillId: string,
-  ): Effect.Effect<ApprovedRow | null, SkillMarketplaceError | SkillMarketplaceStorageError, MarketplaceStorage> {
+  ): Effect.Effect<
+    ApprovedRow | null,
+    SkillMarketplaceError | SkillMarketplaceStorageError | StorageNotConfiguredError,
+    MarketplaceStorage
+  > {
     return Effect.fn("SkillMarketplace.approvedRow")(() =>
       Effect.gen({ self: this }, function* () {
         const bindings = yield* MarketplaceStorage;
@@ -775,7 +780,11 @@ export class SkillMarketplace {
   private approvedVersionRowEffect(
     skillId: string,
     versionId: string,
-  ): Effect.Effect<ApprovedRow | null, SkillMarketplaceError | SkillMarketplaceStorageError, MarketplaceStorage> {
+  ): Effect.Effect<
+    ApprovedRow | null,
+    SkillMarketplaceError | SkillMarketplaceStorageError | StorageNotConfiguredError,
+    MarketplaceStorage
+  > {
     return Effect.fn("SkillMarketplace.approvedVersionRow")(() =>
       Effect.gen({ self: this }, function* () {
         const bindings = yield* MarketplaceStorage;
@@ -1044,8 +1053,10 @@ class SkillMarketplaceStorageError extends Schema.TaggedError<SkillMarketplaceSt
   "SkillMarketplaceStorageError",
   { message: Schema.String },
 ) {}
-const marketplaceError = (error: unknown): SkillMarketplaceError | SkillMarketplaceStorageError =>
-  error instanceof SkillMarketplaceError
+const marketplaceError = (
+  error: unknown,
+): SkillMarketplaceError | SkillMarketplaceStorageError | StorageNotConfiguredError =>
+  error instanceof SkillMarketplaceError || error instanceof StorageNotConfiguredError
     ? error
     : new SkillMarketplaceStorageError({
         message: error instanceof Error ? error.message : "Marketplace operation failed.",

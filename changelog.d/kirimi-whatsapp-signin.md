@@ -10,6 +10,7 @@
 
 - Sign-in and server invitations now use a WhatsApp number instead of an email address. With reverse sign-in, a person signs in by sending a prepared WhatsApp message to the business number.
 - A server allows up to 50 members, with no plan or licence check. An operator can set another limit for one server.
+- The account service keeps avatars, marketplace bundles, share cards, host logos and vault blobs in one S3-compatible bucket (AWS S3, Backblaze B2, MinIO, Wasabi and others) instead of two Cloudflare R2 buckets. Set `STORAGE_S3_ENDPOINT`, `STORAGE_S3_BUCKET`, `STORAGE_S3_REGION` and `STORAGE_S3_FORCE_PATH_STYLE`, and the secrets `STORAGE_S3_ACCESS_KEY_ID` and `STORAGE_S3_SECRET_ACCESS_KEY`. Files are stored under the `avatars/` and `skills/` key prefixes. Without these settings, the routes that need storage answer 503 `storage_not_configured`. Sign-in and the other routes keep working.
 
 ### Removed
 
