@@ -176,9 +176,12 @@ export function WorkspaceConversation(props: { account: () => CentralAuthUser })
     activeBrowserTabId,
     browserVisibilitySuspended,
     browserControlState,
+    noticedBrowserTabIds,
+    noticeBrowserTabs,
     activateBrowserTab,
     closeBrowserTab,
   } = useBrowserTabs();
+  const browserTabNoticeShown = () => !platform.landingPreview && activeServerSupportsCapability("browser-control");
   const { activeRemoteDesktopSession, remoteDesktopWorkspaceVisible, openRemoteDesktopWorkspace } = useRemoteDesktop();
   const remoteLoading = () =>
     activeServer()?.kind === "remote" && (!serverScope.loaded() || !conversations[activeAgent()?.id ?? ""]?.loaded);
@@ -548,6 +551,8 @@ export function WorkspaceConversation(props: { account: () => CentralAuthUser })
         olderError={activeAgent() ? (conversations[activeAgent()?.id ?? ""]?.olderError ?? null) : null}
         queue={mainQueue()}
         browserTabs={browserTabs()}
+        noticedBrowserTabIds={browserTabNoticeShown() ? (noticedBrowserTabIds() ?? undefined) : undefined}
+        onNoticeBrowserTabs={noticeBrowserTabs}
         activeBrowserTabId={activeBrowserTabId()}
         browserVisibilitySuspended={browserVisibilitySuspended()}
         workspaceCovered={windowPage.conversationCovered()}
