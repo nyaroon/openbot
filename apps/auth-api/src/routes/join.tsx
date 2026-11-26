@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/solid-router";
 import { JoinPage } from "../components/landing/JoinPage";
 import { joinPageText } from "../components/transactional/page-text";
 import { loadPageText } from "../lib/page-text";
-import { OPENBOT_X_HANDLE, type PageSocialImage, pageSocialImageMeta } from "../lib/site-metadata";
+import { type PageSocialImage, pageSocialImageMeta } from "../lib/site-metadata";
 
 const JOIN_SOCIAL_IMAGE: PageSocialImage = {
   path: "/social/join.jpg",
@@ -37,7 +37,6 @@ export const Route = createFileRoute("/join")({
         { property: "og:description", content: text.description },
         ...image.openGraph,
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:site", content: OPENBOT_X_HANDLE },
         { name: "twitter:title", content: text.title },
         { name: "twitter:description", content: text.description },
         ...image.twitter,

@@ -36,6 +36,7 @@
     "./browser-extension-x": "./src/browser-extension-x.ts",
     "./input-limits": "./src/input-limits.ts",
     "./invite-links": "./src/invite-links.ts",
+    "./product": "./src/product.ts",
     "./landing-preview-messages": "./src/landing-preview-messages.ts",
     "./markdown-lists": "./src/markdown-lists.ts",
     "./mcp-accounts": "./src/mcp-accounts.ts",

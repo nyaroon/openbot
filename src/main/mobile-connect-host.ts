@@ -1,4 +1,5 @@
 import type { MobileConnectHostBinding } from "@openbot/contracts/mobile-connect";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { sourceText } from "@openbot/i18n/source";
 import { Effect } from "effect";
 import type { CentralAuthOperationError } from "./central-auth-effects";
@@ -65,7 +66,7 @@ function isHostMismatch(error: CentralAuthOperationError | RemoteWorkflowError):
 const publishMobileConnectHost = Effect.fn("MobileConnectHost.publish")(function* (
   host: MobileConnectHostDependencies<never>["host"],
 ) {
-  if (!host.getStatus().configured) yield* host.configure({ serverName: "OpenBot" });
+  if (!host.getStatus().configured) yield* host.configure({ serverName: PRODUCT_NAME });
   const status = yield* host.start();
   if (!isPublishedHost(status)) {
     return yield* new RemoteWorkflowError({

@@ -1,5 +1,6 @@
 import { AppLogo } from "@openbot/brand";
 import type { AppVariant, CentralAuthIssue, CentralAuthState } from "@openbot/contracts/ipc";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { Button } from "@openbot/ui";
 import { AccountLogin } from "@openbot/ui/features/account/AccountLogin";
 import { useText } from "@openbot/ui/text";
@@ -16,8 +17,7 @@ import {
 } from "./server-setup-port";
 
 const APP_URL = "https://openbot.run/app";
-const PRODUCT_NAME = "OpenBot";
-const DEFAULT_SERVER_NAME = "OpenBot";
+const DEFAULT_SERVER_NAME = PRODUCT_NAME;
 const STATUS_POLL_MS = 2_000;
 const ERROR_POLL_MS = 10_000;
 

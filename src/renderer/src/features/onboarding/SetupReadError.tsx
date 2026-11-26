@@ -1,10 +1,9 @@
 import { AppLogo } from "@openbot/brand";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { Button, ErrorReference } from "@openbot/ui";
 import { useText } from "@openbot/ui/text";
 import { usePlatform } from "../../platform";
 import { useSetup } from "./onboarding-context";
-
-const PRODUCT_NAME = "OpenBot";
 
 export function SetupReadError() {
   const { t } = useText();

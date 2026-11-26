@@ -54,6 +54,7 @@ import {
   type WorkflowGraph,
 } from "@openbot/contracts/ipc";
 import type { LiveActivityRelayPush } from "@openbot/contracts/live-activity-relay";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import type { ServerAppearance } from "@openbot/contracts/team-protocol/host-appearance-v1";
 import type { HostRestartState } from "@openbot/contracts/team-protocol/host-update-v1";
 import { sourceText } from "@openbot/i18n/source";
@@ -1000,7 +1001,7 @@ export class HostService extends EventEmitter<HostEvents> {
   readonly register = Effect.fn("HostService.register")(function* (this: HostService) {
     if (this.#boundAccountId !== this.#signedInAccountId()) return;
     if (!this.#options.store.configured) {
-      yield* this.configure({ serverName: "OpenBot" }, true);
+      yield* this.configure({ serverName: PRODUCT_NAME }, true);
       return;
     }
     const register = this.#options.registerRemoteHost;

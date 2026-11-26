@@ -31,6 +31,7 @@ import { checkResourceAllowed, resourceUrlFromServerUrl } from "@modelcontextpro
 import type { FetchLike } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { MCP_SIGN_IN_TIMEOUT_MS, relayCallbackQuery } from "@openbot/contracts/ipc";
 import { mcpAccountFragment } from "@openbot/contracts/mcp-accounts";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { sourceText } from "@openbot/i18n/source";
 import type { Logger } from "@openbot/logging";
 import { Deferred, Effect, Exit, Fiber, Result, Scope } from "effect";
@@ -50,7 +51,7 @@ import { withTimeout } from "./with-timeout";
 
 const MCP_CLIENT_METADATA_URL = "https://openbot.run/oauth/mcp-client.json";
 
-const MCP_CLIENT_NAME = "OpenBot";
+const MCP_CLIENT_NAME = PRODUCT_NAME;
 
 export const MCP_OAUTH_RELAY_URL = "https://openbot.run/oauth/mcp-callback";
 

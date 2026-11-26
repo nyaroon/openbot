@@ -1,5 +1,5 @@
 import { PRIVACY_POLICY_META, PRIVACY_POLICY_ROUTE } from "./privacy-policy";
-import { OPENBOT_LEGAL_SOCIAL_IMAGE, OPENBOT_X_HANDLE, pageSocialImageMeta } from "./site-metadata";
+import { OPENBOT_LEGAL_SOCIAL_IMAGE, pageSocialImageMeta } from "./site-metadata";
 
 export function privacyPolicyHead(siteUrl: string) {
   const url = new URL(PRIVACY_POLICY_ROUTE, siteUrl).toString();
@@ -17,7 +17,6 @@ export function privacyPolicyHead(siteUrl: string) {
       { property: "og:description", content: description },
       ...image.openGraph,
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: OPENBOT_X_HANDLE },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
       ...image.twitter,

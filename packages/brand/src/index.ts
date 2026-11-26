@@ -1,3 +1,4 @@
+export { PRODUCT_NAME } from "@openbot/contracts/product";
 export { AppLogo, type AppLogoAnimation, type AppLogoProps, type AppLogoVariant } from "./AppLogo";
 export {
   type MobilePlatformLogoVariant,

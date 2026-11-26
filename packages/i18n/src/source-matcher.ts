@@ -1,3 +1,4 @@
+import { brandText, PRODUCT_NAME, UPSTREAM_PRODUCT_NAME, UPSTREAM_WORD } from "@openbot/contracts/product";
 import type { TranslatedLocale } from "./locale";
 import { createTranslate, type Message, type MessageCatalog, type PartialTranslation, type Translate } from "./message";
 
@@ -35,18 +36,28 @@ function placeholderPattern(name: string) {
   return "([^\\n]+?)";
 }
 
+const PRODUCT_NAMES = `(?:${UPSTREAM_PRODUCT_NAME}|${PRODUCT_NAME})`;
+
+/** A literal piece of a template as a pattern. Source text is rendered with the product name, but the upstream name still matches. */
+function literalPattern(text: string): string {
+  return text
+    .split(UPSTREAM_WORD)
+    .map((part) => escapeRegExp(part))
+    .join(PRODUCT_NAMES);
+}
+
 function compile(key: string, text: string): Template {
   const names: string[] = [];
   let pattern = "";
   let last = 0;
   for (const match of text.matchAll(/\{(\w+)\}/g)) {
     const name = match[1] ?? "";
-    pattern += escapeRegExp(text.slice(last, match.index));
+    pattern += literalPattern(text.slice(last, match.index));
     pattern += placeholderPattern(name);
     names.push(name);
     last = match.index + match[0].length;
   }
-  pattern += escapeRegExp(text.slice(last));
+  pattern += literalPattern(text.slice(last));
   return { key, pattern: new RegExp(`^${pattern}$`), names };
 }
 
@@ -73,8 +84,9 @@ export function createSourceLocalizer(input: {
           unbucketed.push(template);
           continue;
         }
-        const bucket = prefix.slice(0, BUCKET_LENGTH);
-        byPrefix.set(bucket, [...(byPrefix.get(bucket) ?? []), template]);
+        for (const bucket of new Set([prefix, brandText(prefix)].map((name) => name.slice(0, BUCKET_LENGTH)))) {
+          byPrefix.set(bucket, [...(byPrefix.get(bucket) ?? []), template]);
+        }
       }
     }
     return byPrefix;

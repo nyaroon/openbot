@@ -1,3 +1,4 @@
+import { brandText } from "@openbot/contracts/product";
 import type { TranslatedLocale } from "./locale";
 import { createTranslate, type Translate } from "./message";
 import { source as en } from "./messages/en/source";
@@ -31,7 +32,10 @@ export function matchingSourceKeys(text: string): readonly string[] {
 const templates: Readonly<Record<string, string | Readonly<Record<string, string>>>> = en;
 
 export function isFixedSourceText(text: string): boolean {
-  return matchingSourceKeys(text).some((key) => templates[key] === text);
+  return matchingSourceKeys(text).some((key) => {
+    const template = templates[key];
+    return typeof template === "string" && (template === text || brandText(template) === text);
+  });
 }
 
 const sourceTranslators = new Map<TranslatedLocale, Translate<SourceMessages>>();

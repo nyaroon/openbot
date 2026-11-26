@@ -50,14 +50,6 @@ export function SiteNavigationPanel(props: SiteNavigationPanelProps) {
               </Link>
             )}
           </Match>
-          <Match when={props.section.kind === "resources" && props.section}>
-            {(section) => (
-              <a class="site-panel-index" href={section().footer.href} target="_blank" rel={EXTERNAL_LINK_REL}>
-                {text().index}
-                <LandingIcon name="arrow-up-right" />
-              </a>
-            )}
-          </Match>
         </Switch>
       </div>
     </div>

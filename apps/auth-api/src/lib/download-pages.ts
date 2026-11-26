@@ -1,3 +1,4 @@
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { ANDROID_APK_AVAILABLE } from "./android-apk";
 import { DOWNLOAD_PLATFORM_ORDER, type DownloadPlatform } from "./download-platforms";
 import { faqStructuredData, type LandingQuestion } from "./landing-faq";
@@ -8,7 +9,7 @@ import {
   OPENBOT_DOWNLOAD_PAGE_LINKS,
 } from "./landing-links";
 import { MOBILE_APP_ORDER, MOBILE_APPS, type MobilePlatform } from "./mobile-apps";
-import { OPENBOT_SITE_URL, OPENBOT_X_HANDLE, type PageSocialImage, pageSocialImageMeta } from "./site-metadata";
+import { OPENBOT_SITE_URL, type PageSocialImage, pageSocialImageMeta } from "./site-metadata";
 import { OPENBOT_SOFTWARE_APPLICATION } from "./software-application";
 
 export const DOWNLOAD_PAGES_UPDATED_AT = "2026-10-15";
@@ -412,12 +413,10 @@ export const DOWNLOAD_PAGES: Record<DownloadPagePlatform, DownloadPageContent> =
 };
 
 export const DOWNLOAD_HUB = {
-  title: "Download OpenBot for Mac, Windows and Linux",
-  description:
-    "Download OpenBot, the free app that runs AI agents as a team on your computer. For macOS 13 or later, Windows 10 or later, and Linux on x64 or arm64.",
-  heading: "Download OpenBot",
-  intro:
-    "Free for Mac, Windows and Linux, with apps for iPhone and Android. Get the installer for this computer, or choose a system below for its requirements and install steps.",
+  title: `Download ${PRODUCT_NAME}: coming soon`,
+  description: `The ${PRODUCT_NAME} apps are not ready to download yet.`,
+  heading: "Coming soon",
+  intro: `The ${PRODUCT_NAME} apps are not ready to download yet. This page will have the installers when they are.`,
 } as const;
 
 const DOWNLOAD_SOCIAL_IMAGE: PageSocialImage = {
@@ -470,14 +469,13 @@ export function downloadPageHead(platform: DownloadPagePlatform | "hub", siteUrl
       { title },
       { name: "description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "OpenBot" },
+      { property: "og:site_name", content: PRODUCT_NAME },
       { property: "og:locale", content: "en_US" },
       { property: "og:url", content: url },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       ...image.openGraph,
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: OPENBOT_X_HANDLE },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
       ...image.twitter,

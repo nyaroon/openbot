@@ -6,6 +6,7 @@ import {
   normalizeAccountIdentity,
   phoneFromIdentityEmail,
 } from "@openbot/contracts/phone-identity";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { normalizeOneTimeCode } from "@openbot/contracts/validation";
 import type { TranslatedLocale } from "@openbot/i18n";
 import { appLanguageOption } from "@openbot/i18n/languages";
@@ -50,7 +51,6 @@ const UNCERTAIN_EMAIL_DELIVERY_ISSUES = new Set([
   "email_delivery_unknown",
 ]);
 
-const PRODUCT_NAME = "OpenBot";
 const EMAIL_PLACEHOLDER = "+62 812 3456 7890";
 const EMAIL_MARKER = "\u0000";
 

@@ -3,7 +3,6 @@ import {
   OPENBOT_SOCIAL_IMAGE_ALT,
   OPENBOT_SOCIAL_IMAGE_META,
   OPENBOT_SOCIAL_IMAGE_URL,
-  OPENBOT_X_HANDLE,
   type PageSocialImage,
   pageSocialImageMeta,
 } from "../../lib/site-metadata";
@@ -22,7 +21,6 @@ function pageMeta(url: string, text: MarketplaceHeadText) {
     { property: "og:title", content: text.title },
     { property: "og:description", content: text.description },
     { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:site", content: OPENBOT_X_HANDLE },
     { name: "twitter:title", content: text.title },
     { name: "twitter:description", content: text.description },
   ];

@@ -1,3 +1,4 @@
+import { brandText } from "@openbot/contracts/product";
 import { pluralCategory } from "./plural";
 
 export interface PluralMessage {
@@ -76,7 +77,9 @@ export function createTranslate<Source extends MessageCatalog>(input: {
     const message = translated ?? input.source[key];
     if (message === undefined) return key;
     const locale = translated === undefined ? input.sourceLocale : input.locale;
-    const text = typeof message === "string" ? message : selectForm(message, countOf(values), locale);
+    const template = typeof message === "string" ? message : selectForm(message, countOf(values), locale);
+    // The product name goes in once per message template, so a name typed by a person is never rewritten.
+    const text = brandText(template);
     return values ? interpolate(text, values) : text;
   };
 }

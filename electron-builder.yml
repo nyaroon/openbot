@@ -1,8 +1,8 @@
-appId: app.openbot.desktop
-productName: OpenBot
+appId: id.jujurly.bot.desktop
+productName: Jujurly
 copyright: Copyright © 2026 Synthetify Labs spółka z ograniczoną odpowiedzialnością
 protocols:
-  - name: OpenBot invitations
+  - name: Jujurly invitations
     schemes:
       - openbot
 asar: true
@@ -18,6 +18,7 @@ electronFuses:
   onlyLoadAppFromAsar: true
   loadBrowserProcessSpecificV8Snapshot: false
   grantFileProtocolExtraPrivileges: false
+# The desktop app does not check this feed: see AUTOMATIC_UPDATES_ENABLED in src/main/update-feed.ts.
 publish:
   provider: github
   owner: nightly-labs
@@ -115,16 +116,16 @@ mac:
   extendInfo:
     CFBundleIconName: Icon
     ElectronTeamID: ZTRDTUL87R
-    NSMicrophoneUsageDescription: OpenBot uses the microphone to transcribe voice prompts locally on this Mac.
-    NSLocationUsageDescription: OpenBot shares the location of this Mac with a page in the OpenBot browser only when you allow it.
-    NSLocationWhenInUseUsageDescription: OpenBot shares the location of this Mac with a page in the OpenBot browser only when you allow it.
-    NSScreenCaptureUsageDescription: OpenBot captures the screen so an agent can see the app windows you ask it to control.
-    NSAppleEventsUsageDescription: OpenBot sends Automation events so an agent can control the apps you ask it to control.
-    NSCalendarsFullAccessUsageDescription: OpenBot lets the commands that an agent runs read and change your calendar events.
-    NSCalendarsWriteOnlyAccessUsageDescription: OpenBot lets the commands that an agent runs add events to your calendars.
-    NSCalendarsUsageDescription: OpenBot lets the commands that an agent runs use your calendars.
-    NSRemindersFullAccessUsageDescription: OpenBot lets the commands that an agent runs read and change your reminders.
-    NSRemindersUsageDescription: OpenBot lets the commands that an agent runs use your reminders.
+    NSMicrophoneUsageDescription: Jujurly uses the microphone to transcribe voice prompts locally on this Mac.
+    NSLocationUsageDescription: Jujurly shares the location of this Mac with a page in the Jujurly browser only when you allow it.
+    NSLocationWhenInUseUsageDescription: Jujurly shares the location of this Mac with a page in the Jujurly browser only when you allow it.
+    NSScreenCaptureUsageDescription: Jujurly captures the screen so an agent can see the app windows you ask it to control.
+    NSAppleEventsUsageDescription: Jujurly sends Automation events so an agent can control the apps you ask it to control.
+    NSCalendarsFullAccessUsageDescription: Jujurly lets the commands that an agent runs read and change your calendar events.
+    NSCalendarsWriteOnlyAccessUsageDescription: Jujurly lets the commands that an agent runs add events to your calendars.
+    NSCalendarsUsageDescription: Jujurly lets the commands that an agent runs use your calendars.
+    NSRemindersFullAccessUsageDescription: Jujurly lets the commands that an agent runs read and change your reminders.
+    NSRemindersUsageDescription: Jujurly lets the commands that an agent runs use your reminders.
     NSUserActivityTypes:
       - NSUserActivityTypeBrowsingWeb
   target:

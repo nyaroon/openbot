@@ -8,6 +8,7 @@ import { Effect } from "effect";
 import { app, type BrowserWindow, dialog, shell } from "electron";
 import { runCauseEffect } from "../backend/effect-boundary";
 import { DOWNLOAD_URL, RELEASES_URL } from "./download-url";
+import { AUTOMATIC_UPDATES_ENABLED } from "./update-feed";
 import { UPDATE_HANDOVER_FILE } from "./update-install-guard";
 import { readUpdatePreference, UPDATE_PREFERENCE_FILE } from "./update-preference-store";
 import {
@@ -61,6 +62,7 @@ async function createRecoveryUpdater(
 ): Promise<UpdateService | null> {
   const currentVersion = app.getVersion();
   if (
+    !AUTOMATIC_UPDATES_ENABLED ||
     !app.isPackaged ||
     isNixStoreInstall() ||
     !supportsInstalledUpdates(process.platform) ||

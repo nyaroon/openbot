@@ -15,7 +15,6 @@ import {
   OPENBOT_SITE_TITLE,
   OPENBOT_SITE_URL,
   OPENBOT_SOCIAL_IMAGE_TAGS,
-  OPENBOT_X_HANDLE,
   pageSocialImageMeta,
 } from "./site-metadata";
 
@@ -61,7 +60,6 @@ export function collectionIndexHead(collection: ContentCollection, siteUrl: stri
       { property: "og:description", content: collection.indexDescription },
       ...image.openGraph,
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: OPENBOT_X_HANDLE },
       { name: "twitter:title", content: collection.indexTitle },
       { name: "twitter:description", content: collection.indexDescription },
       ...image.twitter,
@@ -114,7 +112,6 @@ export function articleHead(
       { property: "article:author", content: article.author },
       { property: "article:section", content: collection.name },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: OPENBOT_X_HANDLE },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: article.description },
       { name: "twitter:image", content: image },
@@ -227,7 +224,6 @@ export function pluginHead(plugin: SitePlugin, siteUrl: string) {
       { property: "og:description", content: description },
       ...image.openGraph,
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: OPENBOT_X_HANDLE },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
       ...image.twitter,

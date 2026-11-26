@@ -4,6 +4,7 @@ import type { Socket } from "node:net";
 import { dirname, isAbsolute, join } from "node:path";
 import { INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import type { CentralAuthState } from "@openbot/contracts/ipc";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { parseServerName } from "@openbot/contracts/server-install";
 import { sourceText } from "@openbot/i18n/source";
 import { Deferred, Effect } from "effect";
@@ -19,7 +20,7 @@ import type { ServerMemory } from "./server-memory";
 const CONTROL_SOCKET_FILE = "control.sock";
 const MAX_BODY_BYTES = 4096;
 const MAX_EMAIL_LENGTH = 254;
-const DEFAULT_SERVER_NAME = "OpenBot";
+const DEFAULT_SERVER_NAME = PRODUCT_NAME;
 
 export interface ServerModeEnvironment {
   controlSocketPath: string;

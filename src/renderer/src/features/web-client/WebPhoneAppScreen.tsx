@@ -1,5 +1,6 @@
 import { AppLogo, type MobilePlatformLogoVariant, PlatformLogo } from "@openbot/brand";
 import type { AppVariant } from "@openbot/contracts/ipc";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import type { AppTextKey } from "@openbot/i18n";
 import { Button } from "@openbot/ui";
 import { ANDROID_PLAY_STORE_URL } from "@openbot/ui/features/mobile-app/android-play-store";
@@ -7,7 +8,6 @@ import { IOS_APP_STORE_URL } from "@openbot/ui/features/mobile-app/ios-app-store
 import { useText } from "@openbot/ui/text";
 import { For } from "solid-js";
 
-const PRODUCT_NAME = "OpenBot";
 const STORAGE_KEY = "openbot.web.phoneBrowser";
 const PHONE_QUERY = "(pointer: coarse) and (max-width: 720px), (pointer: coarse) and (max-height: 500px)";
 

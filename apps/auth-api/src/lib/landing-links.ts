@@ -2,18 +2,21 @@ import type { FooterColumnId, FooterTextId } from "./site-text";
 
 export const EXTERNAL_LINK_REL = "noopener noreferrer";
 
+/** Where the download buttons lead. There is no release location of our own yet, so it is a page that says so. */
+export const DOWNLOAD_URL = "/download";
+
 export const OPENBOT_DOWNLOAD_LINKS = {
-  macos: "/download/macos/latest",
-  windows: "/download/windows/latest",
-  linux: "/download/linux/latest",
+  macos: DOWNLOAD_URL,
+  windows: DOWNLOAD_URL,
+  linux: DOWNLOAD_URL,
 } as const;
 
 export const OPENBOT_ALTERNATE_DOWNLOAD_LINKS = {
-  macos: "/download/macos/latest?arch=x64",
-  linux: "/download/linux/latest?arch=arm64",
+  macos: DOWNLOAD_URL,
+  linux: DOWNLOAD_URL,
 } as const;
 
-export const OPENBOT_ANDROID_APK_LINK = "/download/android/latest";
+export const OPENBOT_ANDROID_APK_LINK = DOWNLOAD_URL;
 
 export const OPENBOT_DOWNLOAD_PAGE_LINKS = {
   hub: "/download",
@@ -104,8 +107,6 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
       { label: { text: "teams" }, external: false, to: "/teams" },
       { label: { text: "contact" }, external: false, to: "/contact" },
       { label: { text: "brand" }, external: false, to: "/brand" },
-      { label: { text: "sourceCode" }, external: true, href: OPENBOT_LINKS.repository },
-      { label: { text: "license" }, external: true, href: OPENBOT_LINKS.license },
       { label: { text: "privacy" }, external: false, to: "/privacy-policy" },
       { label: { text: "terms" }, external: false, to: "/terms" },
       { label: "CLA", external: false, to: "/cla" },
@@ -114,15 +115,8 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
   {
     id: "resources",
     links: [
-      { label: { text: "documentation" }, external: true, href: OPENBOT_LINKS.documentation },
-      { label: { text: "troubleshooting" }, external: true, href: OPENBOT_LINKS.troubleshooting },
-      { label: { text: "status" }, external: true, href: OPENBOT_LINKS.status },
-      { label: { text: "selfHosted" }, external: true, href: OPENBOT_LINKS.selfHostedServer },
-      { label: { text: "architecture" }, external: true, href: OPENBOT_LINKS.architecture },
-      { label: { text: "contributing" }, external: true, href: OPENBOT_LINKS.contributing },
       { label: "Codex", external: true, href: OPENBOT_LINKS.codex },
       { label: "Claude Code", external: true, href: OPENBOT_LINKS.claude },
-      { label: "Discord", external: true, href: OPENBOT_LINKS.discord },
     ],
   },
   {

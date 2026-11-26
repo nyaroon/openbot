@@ -1,5 +1,6 @@
 import type { ProviderLogoVariant } from "@openbot/brand";
 import type { AvatarHue } from "@openbot/contracts/ipc";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { RIVAL_MARK_SHAPES, type RivalMarkName } from "../components/compare/rival-mark-shapes";
 import { COMPARE_COLLECTION } from "./compare";
 
@@ -108,7 +109,7 @@ export const LANDING_NETWORK_AGENTS: readonly { teammate: LandingTeammate; provi
   { teammate: GRACE, provider: "antigravity" },
 ];
 
-export const LANDING_NETWORK_HUB = "OpenBot";
+export const LANDING_NETWORK_HUB = PRODUCT_NAME;
 
 export interface LandingProvider {
   provider: ProviderLogoVariant;

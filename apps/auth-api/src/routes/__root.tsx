@@ -1,4 +1,5 @@
 import interLatinFont from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import type { JSX } from "@solidjs/web";
 import { createRootRoute, type ErrorComponentProps, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
 import { createSignal, onSettled, Show } from "solid-js";
@@ -16,7 +17,7 @@ import { loadSiteChrome } from "../lib/site-locale";
 import { OPENBOT_SECURITY_HEADERS, openBotRootHead } from "../lib/site-metadata";
 import type { SiteChrome } from "../lib/site-text";
 
-const NOT_FOUND_TITLE = "Page not found · OpenBot";
+const NOT_FOUND_TITLE = `Page not found · ${PRODUCT_NAME}`;
 
 export const Route = createRootRoute({
   beforeLoad: () => ({ siteUrl: servingSiteUrl(), locale: requestLocale() }),

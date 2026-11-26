@@ -43,6 +43,7 @@ import {
   latestTurnAnswer,
 } from "@openbot/contracts/ipc";
 import { decodeRecord, requiredString } from "@openbot/contracts/ipc-decoding";
+import { DESKTOP_APP_ID } from "@openbot/contracts/product";
 import { isValidSemver } from "@openbot/contracts/release-version";
 import { AGENT_TASKS_ROUTES } from "@openbot/contracts/team-protocol/agent-tasks-v1";
 import { CHANNEL_ROUTES } from "@openbot/contracts/team-protocol/channels-v1";
@@ -457,6 +458,7 @@ import { TraceFile } from "./trace-file";
 import { mcpSyncPort, skillSyncPort } from "./universal-resource-ports";
 import { UniversalResources } from "./universal-resources";
 import { UniversalVaultService } from "./universal-vault-service";
+import { AUTOMATIC_UPDATES_ENABLED } from "./update-feed";
 import {
   macShipItDirectory,
   readNotInstalledUpdate,
@@ -563,7 +565,7 @@ const ORGANIZATIONS_FILE = "openbot-organizations-v1.json";
 const UNIVERSAL_RESOURCES_FILE = "openbot-universal-resources-v1.json";
 const HERMES_IMPORT_LINKS_FILE = "openbot-hermes-imports-v1.json";
 
-const PACKAGED_BUNDLE_IDENTIFIER = "app.openbot.desktop";
+const PACKAGED_BUNDLE_IDENTIFIER = DESKTOP_APP_ID;
 const DEVELOPMENT_BUNDLE_IDENTIFIER = "com.github.Electron";
 
 const TEARDOWN_ORDER = {
@@ -4044,6 +4046,7 @@ export async function createApplicationServices({
       (process.env.OPENBOT_HOSTED_SERVER === "1" || (serverModeEnvironment !== null && installationMode === "self")) &&
       existsSync(SERVER_UPDATE_TRIGGER));
   const updatesEnabled =
+    AUTOMATIC_UPDATES_ENABLED &&
     !localServerChild &&
     app.isPackaged &&
     !isNixStoreInstall() &&

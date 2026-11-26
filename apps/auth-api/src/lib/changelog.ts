@@ -1,5 +1,5 @@
 import { isDynamicRecord } from "@openbot/contracts/runtime-values";
-import { OPENBOT_SITE_URL, OPENBOT_X_HANDLE, type PageSocialImage, pageSocialImageMeta } from "./site-metadata";
+import { OPENBOT_SITE_URL, type PageSocialImage, pageSocialImageMeta } from "./site-metadata";
 
 export const CHANGELOG_ROUTE = "/changelog";
 const CHANGELOG_TITLE = "OpenBot Changelog: Release Notes for Every Version";
@@ -233,7 +233,6 @@ export function changelogHead(siteUrl: string, platform: ChangelogPlatform = "de
       { property: "og:description", content: CHANGELOG_DESCRIPTION },
       ...image.openGraph,
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: OPENBOT_X_HANDLE },
       { name: "twitter:title", content: CHANGELOG_TITLE },
       { name: "twitter:description", content: CHANGELOG_DESCRIPTION },
       ...image.twitter,

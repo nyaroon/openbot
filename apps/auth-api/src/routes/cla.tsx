@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { ClaPage } from "../components/legal/ClaPage";
 import { CLA_META, CLA_ROUTE } from "../lib/cla";
-import { OPENBOT_SOCIAL_IMAGE_ALT, OPENBOT_SOCIAL_IMAGE_URL, OPENBOT_X_HANDLE } from "../lib/site-metadata";
+import { OPENBOT_SOCIAL_IMAGE_ALT, OPENBOT_SOCIAL_IMAGE_URL } from "../lib/site-metadata";
 
 export const Route = createFileRoute("/cla")({
   head: ({ match }) => {
@@ -20,7 +20,6 @@ export const Route = createFileRoute("/cla")({
         { property: "og:image", content: OPENBOT_SOCIAL_IMAGE_URL },
         { property: "og:image:alt", content: OPENBOT_SOCIAL_IMAGE_ALT },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:site", content: OPENBOT_X_HANDLE },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
         { name: "twitter:image", content: OPENBOT_SOCIAL_IMAGE_URL },

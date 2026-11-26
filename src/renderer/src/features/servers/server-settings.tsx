@@ -9,6 +9,7 @@ import type {
   TeamPresenceMember,
   UpdateTeamMemberInput,
 } from "@openbot/contracts/ipc";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { parseServerName } from "@openbot/contracts/server-install";
 import { currentText } from "@openbot/ui/text";
 import { createEffect, createMemo, createSignal, flush, onCleanup } from "solid-js";
@@ -20,7 +21,7 @@ import { serverCanAdminister, serverRoleCanAdminister, serverRotatesHostKey } fr
 import { useServers } from "./servers-context";
 import { serverAdminPort, serversPort } from "./servers-port";
 
-const FALLBACK_SERVER_NAME = "OpenBot";
+const FALLBACK_SERVER_NAME = PRODUCT_NAME;
 
 function generatedServerName(user: CentralAuthUser | null): string {
   const person = (user?.name?.trim() || user?.email.split("@")[0] || "").split(/\s+/u)[0] ?? "";

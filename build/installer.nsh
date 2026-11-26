@@ -38,7 +38,7 @@
 !macroend
 
 !macro customInstall
-  WriteRegStr SHCTX "Software\Classes\openbot" "" "URL:OpenBot invitations"
+  WriteRegStr SHCTX "Software\Classes\openbot" "" "URL:Jujurly invitations"
   WriteRegStr SHCTX "Software\Classes\openbot" "URL Protocol" ""
   WriteRegStr SHCTX "Software\Classes\openbot\DefaultIcon" "" "$appExe,0"
   WriteRegStr SHCTX "Software\Classes\openbot\shell\open\command" "" '"$appExe" "%1"'

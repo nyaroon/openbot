@@ -1,4 +1,5 @@
-import { APP_LOGO_CORNER, APP_LOGO_EYE_POINTS, APP_LOGO_SIZE } from "@openbot/brand/app-logo-shape";
+import { APP_LOGO_IMAGE } from "@openbot/brand/app-logo-image";
+import { APP_LOGO_CORNER, APP_LOGO_SIZE } from "@openbot/brand/app-logo-shape";
 import { WORDMARK_PATHS, WORDMARK_WIDTH } from "@openbot/brand/wordmark-shape";
 import { BRAND_ROUTE } from "./brand-page";
 
@@ -10,7 +11,6 @@ type Ink = "dark" | "light";
 export type BrandSpace = "tight" | "safe";
 
 const FILL: Record<IconColor, string> = { lilac: "#d6adf2", white: "#ffffff", black: "#040007" };
-const EYE: Record<IconColor, string> = { lilac: "#040007", white: "#040007", black: "#ffffff" };
 const INK: Record<Ink, string> = { dark: "#040007", light: "#ffffff" };
 const COLOR_NAME: Record<IconColor, string> = { lilac: "Lilac", white: "White", black: "Black" };
 
@@ -29,12 +29,12 @@ const CLEAR_SPACE = APP_LOGO_SIZE / 2;
 
 function mark(color: IconColor, shape: IconShape, x: number, y: number): string {
   const corner = shape === "rounded" ? APP_LOGO_CORNER : 0;
+  // The Jujurly owl is one picture, so the colour variants differ only in the tile behind it.
   return [
     `<g transform="translate(${x} ${y})">`,
     `<rect width="${APP_LOGO_SIZE}" height="${APP_LOGO_SIZE}" rx="${corner}" fill="${FILL[color]}"/>`,
-    `<g fill="none" stroke="${EYE[color]}" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round">`,
-    `<polyline points="${APP_LOGO_EYE_POINTS.left}"/><polyline points="${APP_LOGO_EYE_POINTS.right}"/>`,
-    "</g></g>",
+    `<image href="${APP_LOGO_IMAGE}" width="${APP_LOGO_SIZE}" height="${APP_LOGO_SIZE}"/>`,
+    "</g>",
   ].join("");
 }
 

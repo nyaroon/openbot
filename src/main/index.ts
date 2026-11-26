@@ -11,6 +11,7 @@ import {
   IPC_ENDPOINTS,
   type QuitGuard,
 } from "@openbot/contracts/ipc";
+import { DESKTOP_APP_ID, PRODUCT_NAME } from "@openbot/contracts/product";
 import { createFormat, localeDirection, resolveLocale, translateFor, withHourCycle } from "@openbot/i18n";
 import { localizeSourceText } from "@openbot/i18n/source";
 import { createOpenBotLogger, toLogValue } from "@openbot/logging";
@@ -312,13 +313,13 @@ if (commandLineUserDataDirectory) {
     ),
   );
 }
-app.setName("OpenBot");
+app.setName(PRODUCT_NAME);
 const systemTimezone =
   serverMode || localServerChild
     ? applyServerTimezone(join(app.getPath("userData"), SERVER_TIMEZONE_PREFERENCE_FILE), process.env)
     : localTimezone;
 app.enableSandbox();
-const WINDOWS_APP_USER_MODEL_ID = app.isPackaged ? "app.openbot.desktop" : "app.openbot.desktop.dev";
+const WINDOWS_APP_USER_MODEL_ID = app.isPackaged ? DESKTOP_APP_ID : `${DESKTOP_APP_ID}.dev`;
 if (process.platform === "win32") app.setAppUserModelId(WINDOWS_APP_USER_MODEL_ID);
 if (
   app.isPackaged &&
@@ -1123,7 +1124,7 @@ function requestDesktopNotificationPermission(
       preference,
       showWelcome: () => {
         if (!Notification.isSupported()) return;
-        showRetainedNotification(new Notification({ title: "OpenBot", body: translate("notification.welcome") }));
+        showRetainedNotification(new Notification({ title: PRODUCT_NAME, body: translate("notification.welcome") }));
       },
     }),
   );

@@ -1,4 +1,5 @@
 import { type ComputerUsePermissionApp, LOCAL_SERVER_ID, type MacPermissionId } from "@openbot/contracts/ipc";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import type { AppTextKey } from "@openbot/i18n";
 import { Button, FolderOpen, GripVertical, Monitor, MousePointer2 } from "@openbot/ui";
 import { useText } from "@openbot/ui/text";
@@ -19,7 +20,7 @@ const PERMISSION_HELP: Record<MacPermissionId, { title: AppTextKey; pane: AppTex
 };
 
 const SUNSHINE_APP_NAME = "Sunshine";
-const OPENBOT_APP_NAME = "OpenBot";
+const OPENBOT_APP_NAME = PRODUCT_NAME;
 
 const POLL_INTERVAL_MS = 1_000;
 

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { BrandPage } from "../../components/brand/BrandPage";
 import { BRAND_PAGE_META, BRAND_ROUTE } from "../../lib/brand-page";
-import { OPENBOT_X_HANDLE, type PageSocialImage, pageSocialImageMeta } from "../../lib/site-metadata";
+import { type PageSocialImage, pageSocialImageMeta } from "../../lib/site-metadata";
 
 const BRAND_SOCIAL_IMAGE: PageSocialImage = {
   path: "/social/brand.jpg",
@@ -25,7 +25,6 @@ export const Route = createFileRoute("/brand/")({
         { property: "og:description", content: description },
         ...image.openGraph,
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:site", content: OPENBOT_X_HANDLE },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
         ...image.twitter,

@@ -1,5 +1,6 @@
 import { AppLogo } from "@openbot/brand";
 import type { AppVariant } from "@openbot/contracts/ipc";
+import { PRODUCT_NAME } from "@openbot/contracts/product";
 import { isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import { Button } from "@openbot/ui";
 import { useText } from "@openbot/ui/text";
@@ -12,8 +13,6 @@ import {
   forgetExtensionConnect,
   rememberExtensionAllowed,
 } from "./web-extension-connect";
-
-const PRODUCT_NAME = "OpenBot";
 
 interface WebExtensionConnectProps {
   variant: AppVariant;
