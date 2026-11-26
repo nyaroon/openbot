@@ -242,6 +242,7 @@
     "./team-protocol/workflows-v1": "./src/team-protocol/workflows-v1.ts",
     "./team-protocol/workflow-folders-v1": "./src/team-protocol/workflow-folders-v1.ts",
     "./team-protocol/boards-v1": "./src/team-protocol/boards-v1.ts",
+    "./team-protocol/workflow-presence-v1": "./src/team-protocol/workflow-presence-v1.ts",
     "./team-protocol/crm-v1": "./src/team-protocol/crm-v1.ts",
     "./team-protocol/workspace-only-process-limit-v1": "./src/team-protocol/workspace-only-process-limit-v1.ts",
     "./team-protocol/mac-apps-limit-v1": "./src/team-protocol/mac-apps-limit-v1.ts",

@@ -697,6 +697,7 @@ import type { AcceptedOwnerTransfer, OwnerTransfer } from "./owner-transfer";
 import type { ServerClaim } from "./server-install";
 import type { AgentActiveQueues } from "./team-protocol/agent-active-queues-v1";
 import type { ChannelCompactAvailability } from "./team-protocol/channel-compact-availability-v1";
+import type { WorkflowSpotInput } from "./team-protocol/workflow-presence-v1";
 
 declare const payloadType: unique symbol;
 declare const resultType: unique symbol;
@@ -1707,6 +1708,7 @@ export const IPC_ENDPOINTS = {
     mediaPrice: scopedRequest<WorkflowMediaPriceRequest, WorkflowMediaPrice>()("workflows:media-price"),
     folders: scopedQuery<WorkflowFoldersSnapshot>()("workflows:folders"),
     folderAction: scopedRequest<WorkflowFolderAction, WorkflowFoldersSnapshot>()("workflows:folder-action"),
+    setSpot: scopedRequest<WorkflowSpotInput, void>()("workflows:set-spot"),
   },
   boards: {
     list: scopedQuery<BoardList>()("boards:list"),

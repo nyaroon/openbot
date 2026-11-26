@@ -31,6 +31,7 @@ import { isSidebarLayoutSnapshot, type SidebarLayoutSnapshot } from "./ipc-sideb
 import { isSidebarPinsSnapshot, type SidebarPin } from "./ipc-sidebar-pins";
 import type { ServerNotificationLevel } from "./ipc-team-host";
 import { isBoolean, isDynamicRecord, isNumber, isString } from "./runtime-values";
+import { isWorkflowSpotEvent, type WorkflowSpotEvent } from "./team-protocol/workflow-presence-v1";
 
 export type AgentTurnOrigin = "user" | "routine" | "agent" | "unknown";
 
@@ -75,6 +76,7 @@ export type AgentEvent =
   | { type: "skills-changed"; agentId: string }
   | { type: "routine-flows-changed"; agentId: string }
   | { type: "workflows-changed"; workflowId: string; agentId?: string }
+  | WorkflowSpotEvent
   | { type: "crm-changed" }
   | { type: "boards-changed"; boardId: string }
   | { type: "vault-changed" }
@@ -229,6 +231,8 @@ export function isAgentEvent(value: unknown): value is AgentEvent {
       return isIdentifier(value.boardId);
     case "workflows-changed":
       return isIdentifier(value.workflowId) && (value.agentId === undefined || isIdentifier(value.agentId));
+    case "workflow-spot-changed":
+      return isWorkflowSpotEvent(value);
     case "crm-changed":
     case "vault-changed":
     case "browser-profiles-changed":
