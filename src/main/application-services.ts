@@ -1806,14 +1806,16 @@ export async function createApplicationServices({
   await Effect.runPromise(linkAccount.load());
   teardown.push(TEARDOWN_ORDER.linkAccount, "the Link account", () => Effect.runPromise(linkAccount.dispose()));
   const bitwardenCliTarget = runtimeTarget(process.platform, process.arch);
+  const bitwardenDataDirectory = join(app.getPath("userData"), "provider-state", "bitwarden-host");
   const bitwardenConnector = new BitwardenConnectorService({
     host: {
       store: new BitwardenConnectorStore(join(app.getPath("userData"), BITWARDEN_CONNECTOR_FILE), secretCipher),
-      dataDirectory: join(app.getPath("userData"), "provider-state", "bitwarden-host"),
+      dataDirectory: bitwardenDataDirectory,
       installCli: bitwardenCliTarget
         ? (signal) =>
             managedBitwardenCli({
               directory: join(app.getPath("userData"), "provider-state", "bitwarden-cli"),
+              dataDirectory: bitwardenDataDirectory,
               target: bitwardenCliTarget,
               signal,
             })
