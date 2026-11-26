@@ -644,6 +644,7 @@ export function MobileWorkspaceProvider({ children }: PropsWithChildren) {
         presenceSignatures.current.delete(serverId);
         for (const queryKey of [
           queryKeys.chatQueue(serverId),
+          queryKeys.agentUsageLimits(queryScope, serverId),
           queryKeys.serverMembers(queryScope, serverId),
           queryKeys.serverInvites(queryScope, serverId),
           queryKeys.agentAvatar(queryScope, serverId),
