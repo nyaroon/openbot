@@ -1,4 +1,6 @@
-export const OPENBOT_MARKETPLACE_ORIGIN = "https://openbot.run";
+import { ACCOUNT_SERVICE_ORIGIN } from "./product";
+
+export const OPENBOT_MARKETPLACE_ORIGIN = ACCOUNT_SERVICE_ORIGIN;
 export const OPENBOT_MARKETPLACE_PATH = "/marketplace";
 export const OPENBOT_MARKETPLACE_HOST = "marketplace";
 export const WEB_APP_MARKETPLACE_AGENT_PARAM = "marketplaceAgent";

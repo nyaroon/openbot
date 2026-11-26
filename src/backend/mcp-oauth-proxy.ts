@@ -1,7 +1,7 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { once } from "node:events";
 import { createServer, type Server as HttpServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { PRODUCT_NAME } from "@openbot/contracts/product";
+import { ACCOUNT_SERVICE_ORIGIN, PRODUCT_NAME } from "@openbot/contracts/product";
 import { type DynamicRecord, isDynamicRecord, isString } from "@openbot/contracts/runtime-values";
 import { sourceText } from "@openbot/i18n/source";
 import { createOpenBotLogger, registerSecretValue, toLogValue } from "@openbot/logging";
@@ -330,7 +330,7 @@ function clientInfo(client: McpOAuthProxyClient, agentKey: string | null): Clien
     name: "openbot",
     title: name ? `${name} (${PRODUCT_NAME})` : PRODUCT_NAME,
     version: client.version,
-    websiteUrl: "https://openbot.run",
+    websiteUrl: ACCOUNT_SERVICE_ORIGIN,
   };
 }
 

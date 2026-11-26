@@ -1,3 +1,4 @@
+import { ACCOUNT_SERVICE_ORIGIN } from "@openbot/contracts/product";
 import { OPENBOT_LINKS } from "../lib/landing-links";
 
 export interface RenderedEmail {
@@ -33,10 +34,10 @@ export interface ContactMessageEmailInput {
   message: string;
 }
 
-const SITE_URL = "https://openbot.run";
+const SITE_URL = ACCOUNT_SERVICE_ORIGIN;
 const LOGO_URL = `${SITE_URL}/icon-192x192.png`;
 const FOOTER_LINKS = [
-  { label: "openbot.run", href: SITE_URL },
+  { label: new URL(SITE_URL).host, href: SITE_URL },
   { label: "X", href: OPENBOT_LINKS.x },
   { label: "GitHub", href: OPENBOT_LINKS.repository },
 ] as const;
@@ -171,7 +172,7 @@ export function renderContactMessageEmail(input: ContactMessageEmailInput): Rend
   const fullSubject = `${input.topic} from ${input.name ?? input.email}`;
   const subject = fullSubject.length > 150 ? `${fullSubject.slice(0, 149)}…` : fullSubject;
   const preheader = input.message.slice(0, 120);
-  const footer = `Sent from the contact form on openbot.run. Reply to this email to answer ${input.email}.`;
+  const footer = `Sent from the contact form on ${new URL(SITE_URL).host}. Reply to this email to answer ${input.email}.`;
   return {
     subject,
     preheader,

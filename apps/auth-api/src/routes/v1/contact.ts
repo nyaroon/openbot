@@ -1,3 +1,4 @@
+import { ACCOUNT_SERVICE_ORIGIN } from "@openbot/contracts/product";
 import { createFileRoute } from "@tanstack/solid-router";
 import { Effect } from "effect";
 import { sendContactMessage } from "../../server/contact-message";
@@ -20,7 +21,11 @@ export const Route = createFileRoute("/v1/contact")({
         runApiResponse(
           Effect.gen(function* () {
             if (!isSameOriginRequest(request)) {
-              return apiError(403, "invalid_contact_origin", "Open the contact form on openbot.run.");
+              return apiError(
+                403,
+                "invalid_contact_origin",
+                `Open the contact form on ${new URL(ACCOUNT_SERVICE_ORIGIN).host}.`,
+              );
             }
             const body = yield* readJsonObject(request);
             yield* sendContactMessage(requestContactMessageServices(), body, requestSourceIp(request));

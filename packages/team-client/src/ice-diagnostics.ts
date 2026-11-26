@@ -2,7 +2,9 @@ const ICE_SERVER_URL = /^(stun|turns?):([a-z0-9.-]{1,253})((?::\d{1,5})?(?:\?tra
 const ADDRESS = /\b\d{1,3}(?:\.\d{1,3}){3}\b|\[?\b[0-9a-f]{0,4}(?::[0-9a-f]{0,4}){2,7}\b\]?/giu;
 
 function isServiceHost(name: string): boolean {
-  return name === "openbot.run" || name.endsWith(".openbot.run");
+  return (
+    name === "jujurly.id" || name.endsWith(".jujurly.id") || name === "openbot.run" || name.endsWith(".openbot.run")
+  );
 }
 
 export function iceServerErrorDetail(url: string, errorCode: number, errorText: string): string {

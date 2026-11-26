@@ -1,8 +1,9 @@
+import { ACCOUNT_SERVICE_ORIGIN } from "./product";
 import { isOpenBotTeamApiHostname } from "./validation";
 
-export const OPENBOT_INVITE_ORIGIN = "https://openbot.run";
+export const OPENBOT_INVITE_ORIGIN = ACCOUNT_SERVICE_ORIGIN;
 export const OPENBOT_INVITE_PATH = "/join";
-export const OPENBOT_CONTROL_PLANE_ORIGIN = "https://api.openbot.run";
+export const OPENBOT_CONTROL_PLANE_ORIGIN = ACCOUNT_SERVICE_ORIGIN;
 
 export const PERMANENT_INVITE_EXPIRES_AT_MS = 8_640_000_000_000_000;
 

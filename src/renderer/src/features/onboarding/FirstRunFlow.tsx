@@ -1,5 +1,6 @@
 import type { AppLogoVariant } from "@openbot/brand";
 import type { AgentModelId, AgentProviderId, AppSetupState, DesktopPlatform } from "@openbot/contracts/ipc";
+import { ACCOUNT_SERVICE_ORIGIN } from "@openbot/contracts/product";
 import { Button, ErrorReference } from "@openbot/ui";
 import { useText } from "@openbot/ui/text";
 import { createEffect, createSignal, createStore, createUniqueId, For, Match, Show, Switch, untrack } from "solid-js";
@@ -30,8 +31,8 @@ export interface FirstRunFlowProps extends SetupProviderProps {
 }
 
 const TEAM_SIZE = 7;
-const TERMS_URL = "https://openbot.run/terms";
-const PRIVACY_URL = "https://openbot.run/privacy";
+const TERMS_URL = `${ACCOUNT_SERVICE_ORIGIN}/terms`;
+const PRIVACY_URL = `${ACCOUNT_SERVICE_ORIGIN}/privacy`;
 
 type FirstRunStep = "choose" | "plan" | "computer";
 type FirstRunPath = "free" | "plan" | null;

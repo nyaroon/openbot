@@ -11,6 +11,7 @@ import {
   externalLinkAppName,
   GROK_BOT_EXPORT_URL,
 } from "@openbot/contracts/ipc";
+import { ACCOUNT_SERVICE_ORIGIN } from "@openbot/contracts/product";
 import type { AppTranslate } from "@openbot/i18n";
 import { analyticsOnByDefault } from "@openbot/telemetry";
 import { Effect } from "effect";
@@ -59,10 +60,10 @@ import {
 } from "./app-inputs";
 import { stringPayload } from "./validation";
 
-const OPENBOT_SITE = "https://openbot.run";
+const OPENBOT_SITE = ACCOUNT_SERVICE_ORIGIN;
 
 function draftPost(translate: AppTranslate): string {
-  return encodeURIComponent(translate("app.socialFollow.draftPost", { site: "openbot.run" }));
+  return encodeURIComponent(translate("app.socialFollow.draftPost", { site: new URL(ACCOUNT_SERVICE_ORIGIN).host }));
 }
 
 const EXTERNAL_DESTINATIONS: Record<ExternalDestination, string | ((translate: AppTranslate) => string)> = {
@@ -74,8 +75,8 @@ const EXTERNAL_DESTINATIONS: Record<ExternalDestination, string | ((translate: A
   feedback: "https://x.com/intent/post?text=Feedback%20for%20OpenBot%20%40norbertbodziony%3A%20",
   "report-problem": () => bugReportFormUrl(feedbackFacts()),
   message: "https://x.com/norbertbodziony",
-  changelog: "https://openbot.run/changelog",
-  guides: "https://openbot.run/guides",
+  changelog: `${ACCOUNT_SERVICE_ORIGIN}/changelog`,
+  guides: `${ACCOUNT_SERVICE_ORIGIN}/guides`,
   discord: "https://discord.openbot.run",
   github: "https://github.com/nightly-labs/openbot",
   x: "https://x.com/OpenBot_",

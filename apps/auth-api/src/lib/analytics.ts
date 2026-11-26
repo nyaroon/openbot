@@ -7,6 +7,7 @@ import {
   firstTouchDay,
   rememberFirstTouch,
 } from "@openbot/contracts/first-touch";
+import { ACCOUNT_SERVICE_ORIGIN, ANALYTICS_ENABLED } from "@openbot/contracts/product";
 import { isBoolean, isOneOf } from "@openbot/contracts/runtime-values";
 import { OpenPanel, OpenPanelBase, type OpenPanelOptions, type TrackProperties } from "@openpanel/web";
 import { BRAND_ROUTE } from "./brand-page";
@@ -245,7 +246,7 @@ const EVENT_PROPERTY_ALLOWLIST = {
 const PENDING_EVENT_LIMIT = 4;
 
 function shouldEnableLandingAnalytics(hostname: string, productionBuild: boolean): boolean {
-  return productionBuild && hostname === "openbot.run";
+  return ANALYTICS_ENABLED && productionBuild && hostname === new URL(ACCOUNT_SERVICE_ORIGIN).hostname;
 }
 
 class LandingAnalytics {

@@ -22,3 +22,10 @@ export const DOWNLOAD_URL = `${ACCOUNT_SERVICE_ORIGIN}/download`;
 
 /** The application id of the packaged desktop app, which `electron-builder.yml` (`appId`) must match. */
 export const DESKTOP_APP_ID = "id.jujurly.bot.desktop";
+
+/**
+ * Whether the apps and the account service may report usage or errors to an analytics host. It stays off because the
+ * code still names the upstream host (`analytics.openbot.run`), which must never receive anything from this product.
+ * A loopback capture URL (`OPENBOT_ANALYTICS_CAPTURE_URL`, development only) still works for testing the reporting code.
+ */
+export const ANALYTICS_ENABLED = false;

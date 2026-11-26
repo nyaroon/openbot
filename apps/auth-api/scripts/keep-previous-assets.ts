@@ -7,7 +7,7 @@ import { Option, Schema } from "effect";
 const logger = createOpenBotLogger("keep-previous-assets");
 
 const ASSET_HISTORY_FILE = "asset-history.json";
-const PRODUCTION_ORIGIN = "https://openbot.run";
+const PRODUCTION_ORIGIN = "https://jujurly.id";
 const RETENTION_MS = 24 * 60 * 60 * 1000;
 const MAX_KEPT_FILES = 10_000;
 const DOWNLOAD_CONCURRENCY = 16;

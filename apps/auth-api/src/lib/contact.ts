@@ -2,7 +2,7 @@ export const CONTACT_ROUTE = "/contact";
 
 export const CONTACT_SOCIAL_IMAGE_PATH = "/social/contact.jpg";
 
-export const CONTACT_EMAIL = "hello@openbot.run";
+export const CONTACT_EMAIL = "hello@jujurly.id";
 
 export const CONTACT_TOPICS = [
   { id: "setup", label: "Custom setup" },

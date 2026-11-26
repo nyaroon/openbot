@@ -11,6 +11,7 @@ import type {
   UpdateCustomProviderInput,
 } from "@openbot/contracts/ipc";
 import { decodeRegistryEntries, decodeRegistryInstallResult, decodeRegistryOperations } from "@openbot/contracts/ipc";
+import { ACCOUNT_SERVICE_ORIGIN } from "@openbot/contracts/product";
 import { ACP_REGISTRY_ROUTES } from "@openbot/contracts/team-protocol/acp-registry-v1";
 import { CLAUDE_API_KEY_CAPABILITY } from "@openbot/contracts/team-protocol/claude-api-key-v1";
 import { CODEX_API_KEY_CAPABILITY } from "@openbot/contracts/team-protocol/codex-api-key-v1";
@@ -149,8 +150,8 @@ const WEB_EXTERNAL_DESTINATIONS: Partial<Record<ExternalDestination, string>> = 
   feedback: "https://x.com/intent/post?text=Feedback%20for%20OpenBot%20%40norbertbodziony%3A%20",
   "report-problem": bugReportFormUrl({ platform: "Web client" }),
   message: "https://x.com/norbertbodziony",
-  changelog: "https://openbot.run/changelog",
-  guides: "https://openbot.run/guides",
+  changelog: `${ACCOUNT_SERVICE_ORIGIN}/changelog`,
+  guides: `${ACCOUNT_SERVICE_ORIGIN}/guides`,
   discord: "https://discord.openbot.run",
   x: "https://x.com/OpenBot_",
 };

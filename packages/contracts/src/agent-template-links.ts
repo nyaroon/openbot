@@ -1,4 +1,6 @@
-export const OPENBOT_AGENT_TEMPLATE_ORIGIN = "https://openbot.run";
+import { ACCOUNT_SERVICE_ORIGIN } from "./product";
+
+export const OPENBOT_AGENT_TEMPLATE_ORIGIN = ACCOUNT_SERVICE_ORIGIN;
 export const OPENBOT_AGENT_TEMPLATE_PATH_PREFIX = "/agents/";
 export const OPENBOT_AGENT_TEMPLATE_HOST = "agents";
 export const WEB_APP_AGENT_TEMPLATE_PARAM = "agent";

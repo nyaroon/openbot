@@ -13,6 +13,7 @@ import {
   WORKFLOW_NODE_KINDS,
   type WorkflowNodeKind,
 } from "@openbot/contracts/ipc";
+import { ACCOUNT_SERVICE_ORIGIN, ANALYTICS_ENABLED } from "@openbot/contracts/product";
 import { isBoolean, isDynamicRecord, isFunction, isNumber, isOneOf, isString } from "@openbot/contracts/runtime-values";
 import { normalizeEmailAddress } from "@openbot/contracts/validation";
 import { ANALYTICS_GENERATIONS } from "@openbot/telemetry";
@@ -625,7 +626,10 @@ const UPDATE_PHASES = new Set([
 ]);
 
 function shouldEnableDesktopAnalytics(appInfo: AppInfo, productionBuild: boolean): boolean {
-  return appInfo.analyticsCaptureUrl !== undefined || (productionBuild && appInfo.variant === "production");
+  return (
+    appInfo.analyticsCaptureUrl !== undefined ||
+    (ANALYTICS_ENABLED && productionBuild && appInfo.variant === "production")
+  );
 }
 
 function sanitizeDesktopAnalyticsEvent(
@@ -779,7 +783,10 @@ class DesktopAnalytics {
   }
 
   configureWeb(options: { version: string; user: AnalyticsIdentity | null; enabled: boolean }): boolean {
-    if (!this.#client && (!this.#productionBuild || window.location.origin !== "https://openbot.run")) {
+    if (
+      !this.#client &&
+      (!ANALYTICS_ENABLED || !this.#productionBuild || window.location.origin !== ACCOUNT_SERVICE_ORIGIN)
+    ) {
       this.#disabled = true;
       this.#pending = [];
       return false;

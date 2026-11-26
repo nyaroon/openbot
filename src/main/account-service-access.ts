@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { ACCOUNT_SERVICE_ORIGIN } from "@openbot/contracts/product";
 import { sourceText } from "@openbot/i18n/source";
 import { app, net } from "electron";
 import { CentralAuthManager, readCentralAuthApiUrl, readMobileConnectApiUrl } from "./central-auth-manager";
@@ -44,7 +45,7 @@ async function accountServiceFetch(input: string | URL | Request, init?: Request
 export function centralAuthApiUrl(): string {
   return readCentralAuthApiUrl(
     process.env.OPENBOT_AUTH_API_URL,
-    app.isPackaged ? "https://api.openbot.run" : "http://127.0.0.1:3100",
+    app.isPackaged ? ACCOUNT_SERVICE_ORIGIN : "http://127.0.0.1:3100",
   );
 }
 

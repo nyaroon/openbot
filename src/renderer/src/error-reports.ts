@@ -1,4 +1,5 @@
 import type { AppInfo, CentralAuthUser } from "@openbot/contracts/ipc";
+import { ACCOUNT_SERVICE_ORIGIN, ANALYTICS_ENABLED } from "@openbot/contracts/product";
 import { isBoolean, isDynamicRecord, isNumber } from "@openbot/contracts/runtime-values";
 import {
   ANALYTICS_GENERATIONS,
@@ -35,7 +36,7 @@ export function configureDesktopReports(
   user: Pick<CentralAuthUser, "id" | "email"> | null,
 ): void {
   const capture = info.analyticsCaptureUrl;
-  if (capture === undefined && (!import.meta.env.PROD || info.variant !== "production")) return;
+  if (capture === undefined && (!ANALYTICS_ENABLED || !import.meta.env.PROD || info.variant !== "production")) return;
   queue ??= new ReportQueue(
     indexedReportStorage("openbot-desktop-error-reports-v1"),
     openPanelTransport({
@@ -109,7 +110,7 @@ function webAnalyticsDefault(): boolean {
 
 export function configureWebReports(user: Pick<CentralAuthUser, "id" | "email"> | null): void {
   webSignedIn = user !== null;
-  if (!import.meta.env.PROD || window.location.origin !== "https://openbot.run") return;
+  if (!ANALYTICS_ENABLED || !import.meta.env.PROD || window.location.origin !== ACCOUNT_SERVICE_ORIGIN) return;
   queue ??= new ReportQueue(
     indexedReportStorage("openbot-web-error-reports-v1"),
     openPanelTransport({ clientId: "6c989975-87ef-4f0c-857e-ab449a65b5c2" }),

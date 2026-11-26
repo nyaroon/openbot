@@ -1,4 +1,5 @@
 import { FIRST_TOUCH_CAMPAIGN_FIELDS, type FirstTouch, parseFirstTouch } from "@openbot/contracts/first-touch";
+import { ANALYTICS_ENABLED } from "@openbot/contracts/product";
 import { isOneOf } from "@openbot/contracts/runtime-values";
 import { Effect, Schema } from "effect";
 
@@ -47,7 +48,7 @@ interface OpenPanelBody {
 export function createAccountAnalytics(options: AccountAnalyticsOptions): AccountAnalytics {
   const clientId = options.clientId?.trim();
   const clientSecret = options.clientSecret?.trim();
-  if (!clientId || !clientSecret) return NO_ACCOUNT_ANALYTICS;
+  if (!ANALYTICS_ENABLED || !clientId || !clientSecret) return NO_ACCOUNT_ANALYTICS;
   const post = Effect.fn("AccountAnalytics.post")(function* (body: OpenPanelBody) {
     const response = yield* Effect.tryPromise({
       try: (signal) =>

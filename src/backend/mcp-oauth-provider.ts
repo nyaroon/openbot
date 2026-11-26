@@ -31,7 +31,7 @@ import { checkResourceAllowed, resourceUrlFromServerUrl } from "@modelcontextpro
 import type { FetchLike } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { MCP_SIGN_IN_TIMEOUT_MS, relayCallbackQuery } from "@openbot/contracts/ipc";
 import { mcpAccountFragment } from "@openbot/contracts/mcp-accounts";
-import { PRODUCT_NAME } from "@openbot/contracts/product";
+import { ACCOUNT_SERVICE_ORIGIN, PRODUCT_NAME } from "@openbot/contracts/product";
 import { sourceText } from "@openbot/i18n/source";
 import type { Logger } from "@openbot/logging";
 import { Deferred, Effect, Exit, Fiber, Result, Scope } from "effect";
@@ -49,11 +49,11 @@ import {
 } from "./network-address";
 import { withTimeout } from "./with-timeout";
 
-const MCP_CLIENT_METADATA_URL = "https://openbot.run/oauth/mcp-client.json";
+const MCP_CLIENT_METADATA_URL = `${ACCOUNT_SERVICE_ORIGIN}/oauth/mcp-client.json`;
 
 const MCP_CLIENT_NAME = PRODUCT_NAME;
 
-export const MCP_OAUTH_RELAY_URL = "https://openbot.run/oauth/mcp-callback";
+export const MCP_OAUTH_RELAY_URL = `${ACCOUNT_SERVICE_ORIGIN}/oauth/mcp-callback`;
 
 interface BuiltInMcpClient {
   resource: string;
@@ -808,8 +808,8 @@ class McpOAuthClientProvider implements OAuthClientProvider {
     const methods = this.#discoveryState?.authorizationServerMetadata?.token_endpoint_auth_methods_supported;
     return {
       client_name: MCP_CLIENT_NAME,
-      client_uri: "https://openbot.run",
-      logo_uri: "https://openbot.run/icon-512x512.png",
+      client_uri: ACCOUNT_SERVICE_ORIGIN,
+      logo_uri: `${ACCOUNT_SERVICE_ORIGIN}/icon-512x512.png`,
       redirect_uris: [this.#retryRedirectUrl ?? this.#options.redirectUrl],
       application_type: "native",
       grant_types: ["authorization_code", "refresh_token"],

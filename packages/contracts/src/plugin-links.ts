@@ -1,4 +1,6 @@
-export const OPENBOT_PLUGIN_ORIGIN = "https://openbot.run";
+import { ACCOUNT_SERVICE_ORIGIN } from "./product";
+
+export const OPENBOT_PLUGIN_ORIGIN = ACCOUNT_SERVICE_ORIGIN;
 export const OPENBOT_PLUGIN_PATH_PREFIX = "/plugins/";
 export const OPENBOT_PLUGIN_HOST = "plugins";
 export const WEB_APP_PLUGIN_PARAM = "plugin";

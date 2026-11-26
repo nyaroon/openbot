@@ -3,10 +3,11 @@ import tailwindcss from "@tailwindcss/vite";
 import { build, defineConfig, type Plugin } from "vite";
 import rootPackage from "../../package.json" with { type: "json" };
 import { X_PAGE_RULES_ROUTE } from "../../packages/contracts/src/browser-extension-x";
+import { ACCOUNT_SERVICE_ORIGIN, ANALYTICS_ENABLED } from "../../packages/contracts/src/product";
 import { lazyLanguageCatalogs } from "../../packages/i18n/src/vite-plugin";
 
-const PRODUCTION_API_URL = "https://api.openbot.run";
-const PRODUCTION_WEB_URL = "https://openbot.run";
+const PRODUCTION_API_URL = ACCOUNT_SERVICE_ORIGIN;
+const PRODUCTION_WEB_URL = ACCOUNT_SERVICE_ORIGIN;
 const PRODUCTION_ANALYTICS_URL = "https://analytics.openbot.run/api";
 
 function loopbackCaptureUrl(value: string | undefined): string | null {
@@ -18,7 +19,7 @@ function loopbackCaptureUrl(value: string | undefined): string | null {
 function analyticsUrl(apiUrl: string, development: boolean): string {
   const capture = loopbackCaptureUrl(process.env.OPENBOT_ANALYTICS_CAPTURE_URL);
   if (capture) return capture;
-  return !development && apiUrl === PRODUCTION_API_URL ? PRODUCTION_ANALYTICS_URL : "";
+  return ANALYTICS_ENABLED && !development && apiUrl === PRODUCTION_API_URL ? PRODUCTION_ANALYTICS_URL : "";
 }
 
 const X_CONTENT_SCRIPT = "x-content.js";

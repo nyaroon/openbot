@@ -1,14 +1,15 @@
+import { ACCOUNT_SERVICE_ORIGIN } from "@openbot/contracts/product";
 import { createFileRoute } from "@tanstack/solid-router";
 
-const CLIENT_ID = "https://openbot.run/oauth/mcp-client.json";
+const CLIENT_ID = `${ACCOUNT_SERVICE_ORIGIN}/oauth/mcp-client.json`;
 
 function mcpClientMetadataResponse(): Response {
   return Response.json(
     {
       client_id: CLIENT_ID,
       client_name: "OpenBot",
-      client_uri: "https://openbot.run",
-      logo_uri: "https://openbot.run/icon-512x512.png",
+      client_uri: ACCOUNT_SERVICE_ORIGIN,
+      logo_uri: `${ACCOUNT_SERVICE_ORIGIN}/icon-512x512.png`,
       redirect_uris: ["http://127.0.0.1:28417/mcp-auth"],
       application_type: "native",
       grant_types: ["authorization_code", "refresh_token"],

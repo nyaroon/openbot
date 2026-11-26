@@ -1,5 +1,6 @@
 import { isAvatarMimeType, isValidAvatarImage } from "@openbot/contracts/avatar-images";
 import { AVATAR_IMAGE_LIMITS } from "@openbot/contracts/input-limits";
+import { ACCOUNT_SERVICE_ORIGIN } from "@openbot/contracts/product";
 import { isUuidV4 } from "@openbot/contracts/validation";
 import { Effect, Result, Schema } from "effect";
 import { AuthOperationError, type AuthService, AuthServiceError } from "./auth-service";
@@ -132,7 +133,7 @@ export function avatarObjectKey(userId: string, version: string): string {
 function avatarVersion(avatarUrl: string | null, expectedUserId: string): string | null {
   if (!avatarUrl) return null;
   try {
-    const url = new URL(avatarUrl, "https://api.openbot.run");
+    const url = new URL(avatarUrl, ACCOUNT_SERVICE_ORIGIN);
     const match = url.pathname.match(/^\/v1\/avatars\/([^/]+)$/u);
     const userId = decodeURIComponent(match?.[1] ?? "");
     const version = url.searchParams.get("v") ?? "";
