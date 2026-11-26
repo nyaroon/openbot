@@ -581,7 +581,6 @@
     "tr",
     "zh"
   ],
-  "extension.browser.about": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "extension.browser.action.back": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "extension.browser.action.click": [
     "ar",
@@ -847,8 +846,6 @@
   ],
   "extension.browser.ask.site": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "extension.browser.asks": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
-  "extension.browser.line": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
-  "extension.browser.manage": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "extension.browser.noSites": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "extension.browser.notification.body": [
     "ar",
@@ -898,11 +895,23 @@
     "tr",
     "zh"
   ],
-  "extension.browser.revoke": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "extension.browser.revokeSite": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
-  "extension.browser.share": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
-  "extension.browser.sites": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
-  "extension.browser.stop": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
+  "extension.browser.sitesAllowed": [
+    "ar",
+    "de",
+    "es",
+    "fr",
+    "he",
+    "it",
+    "ja",
+    "ko",
+    "nl",
+    "pl",
+    "pt",
+    "ru",
+    "tr",
+    "zh"
+  ],
   "extension.browser.title": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "extension.browser.unsupported": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "extension.channel.ask": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
@@ -1310,6 +1319,7 @@
   "mobile.chat.liveVoice.unmute": ["nl"],
   "mobile.chat.liveVoice.voiceNotReady": ["nl"],
   "mobile.chat.liveVoice.voiceServerFailed": ["nl"],
+  "mobile.chat.message.readAloudModelMissing": ["nl"],
   "mobile.chat.vaultRequest.addCard": ["de", "es", "fr", "it", "ja", "ko", "pl", "pt", "ru", "tr"],
   "mobile.chat.vaultRequest.addContact": ["de", "es", "fr", "it", "ja", "ko", "pl", "pt", "ru", "tr"],
   "mobile.chat.vaultRequest.addLogin": ["de", "es", "fr", "it", "ja", "ko", "pl", "pt", "ru", "tr"],
@@ -4327,6 +4337,7 @@
     "tr",
     "zh"
   ],
+  "webClient.extension.done": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "webClient.extension.failed": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"],
   "webClient.extension.title": ["ar", "de", "es", "fr", "he", "it", "ja", "ko", "nl", "pl", "pt", "ru", "tr", "zh"]
 }

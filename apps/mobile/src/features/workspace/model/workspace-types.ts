@@ -49,6 +49,8 @@ import type {
   BitwardenConnectorStatus,
   BitwardenHostConnectInput,
   BranchAgentTaskInput,
+  BrowserHttpSignInInput,
+  BrowserPermissionAnswer,
   BrowserProfileList,
   BrowserProfileSummary,
   BrowserProxyList,
@@ -86,6 +88,8 @@ import type {
   HostSignalHomeSettings,
   HostSkillLearning,
   HostTimezoneSettings,
+  HostTurnLimits,
+  HostTurnLimitsInput,
   HostUpdateSettingsChange,
   HostUpdateStatus,
   HostVoiceModel,
@@ -308,6 +312,8 @@ export interface MobileBrowserViewSupport {
   contextMenu: boolean;
   viewport: boolean;
   navigation: boolean;
+  permissions: boolean;
+  httpSignIn: boolean;
 }
 
 type MobileBrowserTabAction =
@@ -325,6 +331,8 @@ export interface MobileWorkspaceContextValue {
     listener: (event: BrowserViewBridgeEvent) => void,
   ) => RemoteBrowserViewSession | null;
   controlBrowserTab: (serverId: string, action: MobileBrowserTabAction) => Promise<MobileBrowserTab | null>;
+  answerBrowserPermission: (serverId: string, answer: BrowserPermissionAnswer) => Promise<void>;
+  answerBrowserHttpSignIn: (serverId: string, input: BrowserHttpSignInInput) => Promise<void>;
   respondToApproval: (serverId: string, input: RespondToApprovalInput) => Promise<void>;
   readsWholeApprovals: (serverId: string) => boolean;
   readWholeApproval: (serverId: string, approval: PendingApproval) => Promise<void>;
@@ -384,6 +392,7 @@ export interface MobileWorkspaceContextValue {
   removeServer: (serverId: string) => Promise<void>;
   refreshServers: () => Promise<void>;
   refreshServer: (serverId: string) => Promise<void>;
+  reconnectServer: (serverId: string) => Promise<void>;
   knownServerChecks: (serverId: string) => ServerChecks | null;
   canEditServerIdentity: (serverId: string) => boolean;
   canEditServerAppearance: (serverId: string) => boolean;
@@ -417,6 +426,9 @@ export interface MobileWorkspaceContextValue {
   canManageServerTimezone: (serverId: string) => boolean;
   loadServerTimezone: (serverId: string) => Promise<HostTimezoneSettings>;
   setServerTimezone: (timezone: string | null, serverId: string) => Promise<HostTimezoneSettings>;
+  canManageServerTurnLimits: (serverId: string) => boolean;
+  loadServerTurnLimits: (serverId: string) => Promise<HostTurnLimits>;
+  setServerTurnLimits: (input: HostTurnLimitsInput, serverId: string) => Promise<HostTurnLimits>;
   canManageServerVoiceModel: (serverId: string) => boolean;
   canManageServerSignalHome: (serverId: string) => boolean;
   servesServerSignalHome: (serverId: string) => boolean;
@@ -579,6 +591,7 @@ export interface MobileWorkspaceContextValue {
   testAgentRoutine: (agentId: string, routineId: string, serverId: string) => Promise<void>;
   canManageEvents: (serverId: string) => boolean;
   canManageMissedRuns: (serverId: string) => boolean;
+  canUseOnceRoutines: (serverId: string) => boolean;
   canManageRoutineResults: (serverId: string) => boolean;
   canGiveWebhookSecretToAgent: (serverId: string) => boolean;
   loadRoutineResultOptions: (serverId: string) => Promise<RoutineResultConnectionOption[]>;
@@ -605,6 +618,7 @@ export interface MobileWorkspaceContextValue {
   ) => Promise<AgentMemorySelectionState>;
   loadAgentMemories: (agentId: string, serverId: string) => Promise<AgentMemory[]>;
   loadAgentRoutines: (agentId: string, serverId: string) => Promise<Routine[]>;
+  loadOnceAgentRoutines: (agentId: string, serverId: string) => Promise<Routine[]>;
   loadRoutineCalendar: (
     input: RoutineCalendarInput,
     serverId: string,
@@ -796,7 +810,10 @@ export interface MobileWorkspaceContextValue {
     attachmentId: string,
     largeDownload?: RemoteLargeDownload,
     progress?: RemoteDownloadWatch,
+    tapped?: boolean,
+    wanted?: () => boolean,
   ) => Promise<RemoteFileUpload>;
+  prioritizeAttachmentDownload: (serverId: string, attachmentId: string) => void;
   downloadMessageFile: (serverId: string, file: MessageFileTarget) => Promise<RemoteFileUpload>;
   discardAttachment: (agentId: string, attachmentId: string, serverId?: string) => Promise<void>;
   hidesAgentsOnServer: (serverId: string) => boolean;
@@ -862,6 +879,7 @@ type ServerCheckKey =
   | "canCreateLocalServers"
   | "canRestartServerItself"
   | "canManageServerTimezone"
+  | "canManageServerTurnLimits"
   | "canManageServerVoiceModel"
   | "canManageServerSignalHome"
   | "servesServerSignalHome"
@@ -901,6 +919,7 @@ type ServerCheckKey =
   | "canUpdateMarketplaceAgents"
   | "canManageEvents"
   | "canManageMissedRuns"
+  | "canUseOnceRoutines"
   | "canManageRoutineResults"
   | "canGiveWebhookSecretToAgent"
   | "canManageAgentSkills"

@@ -32,7 +32,8 @@ export const messages = {
   "mobile.auth.signIn.helpTitle": "Où est le code QR ?",
   "mobile.auth.signIn.helpStep1": "1. Ouvrez OpenBot sur votre ordinateur.",
   "mobile.auth.signIn.helpStep2": "2. Allez dans Réglages → Connexion mobile.",
-  "mobile.auth.signIn.helpStep3": "3. Choisissez « Générer un code QR », puis scannez-le ici.",
+  "mobile.auth.signIn.helpStep3":
+    "3. Choisissez « Ajouter un téléphone » → « Oui, se connecter », puis scannez le code ici.",
   "mobile.auth.signIn.emailButton": "Continuer avec WhatsApp",
   "mobile.auth.done.title": "Connecté",
   "mobile.auth.done.body": "Vous êtes connecté à votre compte.",

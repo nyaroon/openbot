@@ -33,6 +33,7 @@ import { useAuth } from "../account/account-context";
 import { useAgentTasks } from "../agent-tasks/agent-tasks-context";
 import { useAgentThreads } from "../agent-threads/agent-threads-context";
 import { conversationThreads } from "../agent-threads/conversation-threads";
+import { useAgentActions } from "../agents/agent-actions";
 import { attentionKey } from "../agents/agent-runtime-snapshot";
 import { agentTakeoverTabIds, agentThreadAttention } from "../agents/agent-thread-attention";
 import { useAgents } from "../agents/agents-context";
@@ -46,7 +47,12 @@ import { useCustomAgents } from "../custom-agents/custom-agents-context";
 import { useCustomProviders } from "../custom-providers/custom-providers-context";
 import { useRemoteDesktop } from "../remote-desktop/remote-desktop-context";
 import { useServerActions } from "../servers/server-actions";
-import { remoteMcpSignIn, serverCanAdminister, serverSupportsCapability } from "../servers/server-capabilities";
+import {
+  remoteMcpSignIn,
+  serverCanAdminister,
+  serverRoleCanAdminister,
+  serverSupportsCapability,
+} from "../servers/server-capabilities";
 import { createServerResponseStyle } from "../servers/server-personality";
 import { useServerScope } from "../servers/server-scope";
 import { useServerSettings } from "../servers/server-settings";
@@ -176,9 +182,12 @@ export function WorkspaceConversation(props: { account: () => CentralAuthUser })
     activeBrowserTabId,
     browserVisibilitySuspended,
     browserControlState,
+    noticedBrowserTabIds,
+    noticeBrowserTabs,
     activateBrowserTab,
     closeBrowserTab,
   } = useBrowserTabs();
+  const browserTabNoticeShown = () => !platform.landingPreview && activeServerSupportsCapability("browser-control");
   const { activeRemoteDesktopSession, remoteDesktopWorkspaceVisible, openRemoteDesktopWorkspace } = useRemoteDesktop();
   const remoteLoading = () =>
     activeServer()?.kind === "remote" && (!serverScope.loaded() || !conversations[activeAgent()?.id ?? ""]?.loaded);
@@ -248,6 +257,9 @@ export function WorkspaceConversation(props: { account: () => CentralAuthUser })
       await loadLatestAgentMessages(agent.id);
     };
   });
+
+  const { deleteAgent } = useAgentActions();
+  const deleteAgentAllowed = () => !platform.chatWindow && serverRoleCanAdminister(activeServer());
 
   const compactActiveAgentContext = createMemo(() => {
     const agent = activeAgent();
@@ -548,6 +560,8 @@ export function WorkspaceConversation(props: { account: () => CentralAuthUser })
         olderError={activeAgent() ? (conversations[activeAgent()?.id ?? ""]?.olderError ?? null) : null}
         queue={mainQueue()}
         browserTabs={browserTabs()}
+        noticedBrowserTabIds={browserTabNoticeShown() ? (noticedBrowserTabIds() ?? undefined) : undefined}
+        onNoticeBrowserTabs={noticeBrowserTabs}
         activeBrowserTabId={activeBrowserTabId()}
         browserVisibilitySuspended={browserVisibilitySuspended()}
         workspaceCovered={windowPage.conversationCovered()}
@@ -649,6 +663,7 @@ export function WorkspaceConversation(props: { account: () => CentralAuthUser })
         agentMemoryLimit={generalSettings().agentMemoryLimit}
         onClearAgentContext={clearActiveAgentContext()}
         onDeleteAgentHistory={deleteActiveAgentHistory()}
+        onDeleteAgent={deleteAgentAllowed() ? (agentId) => deleteAgent(agentId) : undefined}
         onCompactAgentContext={compactActiveAgentContext()}
         onRespondToBrowserTakeover={(decision, options) => respondToBrowserTakeover(decision, openThreadId(), options)}
         onCancelQueuedMessage={cancelQueuedMessage}

@@ -48,6 +48,7 @@ import type { SidebarAgentWait } from "@openbot/ui/features/sidebar/sidebar-agen
 import type { JSX } from "@solidjs/web";
 import type { ConnectorRegistry } from "../connectors/connector-registry";
 import type { AppSettingLinkId } from "../settings/setting-link-targets";
+import type { ChannelReplyView } from "../speech/speech-replies";
 import type { ConversationRuntime } from "./conversation-runtime";
 import type { ServerInstallWatch } from "./ServerInstallChatCard";
 import type { TurnStepLines } from "./turn-step-lines";
@@ -88,6 +89,8 @@ export interface ConversationChannelSource {
   interactionAgentName: () => string | undefined;
   awaitingReplies: () => readonly AwaitingReplyItem[];
   stopAwaitingReply?: ((taskId: string) => void) | undefined;
+  replyView: () => ChannelReplyView;
+  voiceAgent: () => AgentProfile | undefined;
   HeaderTitle: (props: { onOpenSettings: () => void }) => JSX.Element;
   SettingsPane: (props: ConversationChannelSettingsPaneProps) => JSX.Element;
   AboveComposer: () => JSX.Element;
@@ -165,6 +168,8 @@ export interface ConversationProps {
   waits?: readonly AgentWait[] | undefined;
   threads?: ConversationThreads | undefined;
   browserTabs: BrowserTab[];
+  noticedBrowserTabIds?: ReadonlySet<string> | undefined;
+  onNoticeBrowserTabs?: ((tabIds: readonly string[]) => void) | undefined;
   activeBrowserTabId: string | null;
   browserVisibilitySuspended: boolean;
   workspaceCovered?: boolean | undefined;
@@ -232,6 +237,7 @@ export interface ConversationProps {
   onUpdateAgentPermissions?: ((input: UpdateAgentAdminSettingsInput) => Promise<void>) | undefined;
   onClearAgentContext?: (() => Promise<void>) | undefined;
   onDeleteAgentHistory?: (() => Promise<void>) | undefined;
+  onDeleteAgent?: ((agentId: string) => Promise<void>) | undefined;
   onCompactAgentContext?: (() => Promise<void>) | undefined;
   onRespondToBrowserTakeover: (decision: "complete" | "cancel", options?: PromptAnswerOptions) => Promise<boolean>;
   onCancelQueuedMessage: (deliveryId: string, recipientAgentId?: string) => void;
@@ -266,9 +272,16 @@ type SidebarFilePreviewSource =
   | { kind: "attachment"; attachment: AttachmentSummary };
 
 export type SidebarFilePreview =
-  | { ownerAgentId: string; source: SidebarFilePreviewSource; preview: FilePreview; directory?: undefined }
   | {
       ownerAgentId: string;
+      threadId?: string | undefined;
+      source: SidebarFilePreviewSource;
+      preview: FilePreview;
+      directory?: undefined;
+    }
+  | {
+      ownerAgentId: string;
+      threadId?: string | undefined;
       source: { kind: "workspace-folder"; agentId: string; path: string };
       preview: null;
       directory: WorkspaceDirectory;

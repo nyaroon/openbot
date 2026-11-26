@@ -79,6 +79,7 @@ export type AgentEvent =
   | { type: "boards-changed"; boardId: string }
   | { type: "vault-changed" }
   | { type: "browser-profiles-changed" }
+  | { type: "host-turn-limits-changed" }
   | { type: "library-folders-changed" }
   | { type: "workflow-folders-changed" }
   | { type: "usage-credits-changed" }
@@ -165,6 +166,11 @@ export type AgentEvent =
       type: "browser-page-state-changed";
       tabs: { tabId: string; canGoBack: boolean; canGoForward: boolean }[];
     }
+  | { type: "browser-http-sign-in-changed"; tabs: { tabId: string; origin: string; refused: boolean }[] }
+  | {
+      type: "browser-permissions-changed";
+      requests: { tabId: string; id: string; origin: string; permission: "geolocation" }[];
+    }
   | {
       type: "error";
       agentId?: string;
@@ -226,6 +232,7 @@ export function isAgentEvent(value: unknown): value is AgentEvent {
     case "crm-changed":
     case "vault-changed":
     case "browser-profiles-changed":
+    case "host-turn-limits-changed":
     case "library-folders-changed":
     case "workflow-folders-changed":
     case "usage-credits-changed":
@@ -371,6 +378,25 @@ export function isAgentEvent(value: unknown): value is AgentEvent {
         value.tabs.every(
           (tab) =>
             isDynamicRecord(tab) && isString(tab.tabId) && isBoolean(tab.canGoBack) && isBoolean(tab.canGoForward),
+        )
+      );
+    case "browser-permissions-changed":
+      return (
+        Array.isArray(value.requests) &&
+        value.requests.every(
+          (request) =>
+            isDynamicRecord(request) &&
+            isString(request.tabId) &&
+            isString(request.id) &&
+            isString(request.origin) &&
+            request.permission === "geolocation",
+        )
+      );
+    case "browser-http-sign-in-changed":
+      return (
+        Array.isArray(value.tabs) &&
+        value.tabs.every(
+          (tab) => isDynamicRecord(tab) && isString(tab.tabId) && isString(tab.origin) && isBoolean(tab.refused),
         )
       );
     case "error":

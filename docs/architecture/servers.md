@@ -171,6 +171,12 @@ starts a new conversation or compacts it; only an owner or admin deletes the cha
 desktop hides that row from a member. A host without the capability does not show the rows. Protocol
 9 only.
 
+`channel-compact-availability-v1` adds `POST /v1/channels/context/compact-availability` with
+`{ channelId }`. The host answers `{ available }`: false when no member of the channel can compact on
+request, for example when all members use Claude Code or a custom ACP agent, which compact by
+themselves. The desktop, the web client and mobile then hide "Compact context" in the channel
+settings. A client of a host without the capability shows the row as before. Protocol 10 only.
+
 ### Workspace folders
 
 `workspace-directory-v1` adds `POST /v1/workspace-directory` with `{ agentId, path }`. Any member who
@@ -221,8 +227,10 @@ sign-in, or the Codex account of the agent, and answers `{ sessionId, sdp }` wit
 Audio goes between the client and OpenAI, never through the host. The member must be able to chat with
 the agent, because each spoken request goes to the agent as the member's message. The start needs an
 open event connection of the same logical session, or it answers 409. A missing Codex sign-in, a
-timeout or a refused call also answers 409 with a sentence for the member. Any other failure answers
-500, and its reason stays in the host log; the phone shows `error.voice.live.hostFailed` for it.
+timeout or a refused call also answers 409 with a sentence for the member. Any other Codex failure
+answers 409 with `error.voice.live.startFailed`: the next step and at most 160 characters of the
+redacted reason. The host log keeps the longer redacted reason. A phone that gets 500 from an older
+host shows `error.voice.live.hostFailed`.
 
 Each member has at most one session; a new start ends the earlier one of that member, and the local
 user's session stays. The host sends the `live-voice` event (transcript parts and the end) only to the
@@ -853,6 +861,21 @@ closed. The WebRTC host peer encodes the local response and the events again wit
 The iPhone app advertises it through the shared team client, but it still shows the question as a
 single choice.
 
+### Prompt detail
+
+`prompt-detail-v1` (protocol 10) carries the `detail` text under an agent question, such as the
+commands that `ask_user` asks the user to run (see `team-protocol/prompt-detail-v1.ts`). It goes in
+the same places as `prompt-multi-select-v1`. The frozen codecs leave `detail` out. The host adds it
+after the frozen projection, only for a connection that advertises the capability: `team-api-server.ts`
+for HTTP responses and events, and the WebRTC host peer for its responses and event frames. A question
+gets the detail of the source question with the same message id, or, for a `prompt` event and a
+`pendingPrompts` item, the same agent, thread, turn and `requestId`, and the same question `id`. A
+client copies `detail` back from the wire value after it decodes: the shared team client (web client
+and phone) and, on desktop, `remote-server-http.ts`, `remote-server-event-stream.ts` and
+`team-webrtc-client-transport.ts`. Both sides keep only a nonempty string of at most
+`INPUT_LIMITS.promptQuestion` characters. A client or a host without the capability sends and shows the
+question as before. The iPhone app shows the detail under the question in the question card.
+
 ### Reasoning efforts
 
 `reasoning-efforts-v1` lets an agent `reasoningEffort`, a model `defaultReasoningEffort` and each of
@@ -955,6 +978,17 @@ sends `browser-page-state-changed` with the same list. A stop ends the load at o
 tab operations, and a stop of a tab that does not load changes nothing. A client shows Stop only for a
 host that reports the page state; for an older host, Back and Forward stay enabled.
 
+`browser-permissions-v1` (protocol 10) adds `POST /v1/browser/permissions` (empty body) and
+`POST /v1/browser/permissions/answer` (`{ tabId, requestId, allow, always?, location? }`, with
+`location: { latitude, longitude, accuracyMeters }`). Both answer with
+`{ requests: [{ tabId, id, origin, permission: "geolocation" }] }` for the tabs that the session can
+see, and each change sends `browser-permissions-changed` with the same list. The frozen tab projection
+does not carry the request, so the client adds it from this list. An Allow must carry the location of
+the member's device; without it the host answers 400 `browserLocationRequired`. `always: true` is
+valid only with an Allow, and keeps the Allow and the location for the origin in all tabs of the same agent (or thread) until the host restarts. A client shows the
+Allow and Block question only for a host with the capability. For an older host, the page gets Block, as
+before.
+
 `browser-sign-in-v1` adds `POST /v1/browser/sign-in` with `{ tabId, cookies }`, up to 150 cookies,
 and answers with `{ cookies }`, the count that the host set. Some sites refuse a sign-in from a
 data-center address, but accept the session that the member's own computer made. The desktop opens a
@@ -995,6 +1029,22 @@ keeps the other pairs of that origin, and loads the tab again when it set a cook
 desktop uses this route when the server advertises the capability, and `browser-sign-in` with
 cookies only for an older server. The host never sends the values back or records them.
 
+`browser-http-sign-in` (protocol 10) is for a site that asks for its sign-in in its own prompt (HTTP
+Basic or Digest), not in a page field (#8462). Before it, Electron cancelled such a prompt, and the
+tab and the takeover showed only the empty 401 page. The host records a prompt only for a page load
+over HTTPS that is not for a proxy (`#siteSignIn` in `src/backend/browser-host.ts`). Electron still
+cancels it, so the page load and the agent do not wait. The tab shows the prompt as
+`httpSignIn: { origin, refused? }`, and a snapshot gives the agent a `needs-user` challenge that tells
+it to call `request_takeover`. `POST /v1/browser/http-sign-in` (empty body) and
+`POST /v1/browser/http-sign-in/answer` (`{ tabId, username, password }` or `{ tabId, cancel: true }`)
+both answer with `{ tabs: [{ tabId, origin, refused }] }`, and each change sends
+`browser-http-sign-in-changed` with the same list, filtered like the page state. The host keeps an
+answer in memory for one try at the same origin and realm, loads the tab again, and forgets it at the
+next commit. A second prompt after that try shows `refused: true`. A navigation to another page
+closes the prompt, and a cancel keeps the page. The desktop and the web client show the sign-in in a
+popover under the address bar of the browser view and of the browser window, and mobile shows it above the live view, only
+when the host has the capability. The host never sends the answer back or records it.
+
 `browser-vault-skip-v1` (protocol 9 only) adds `vaultSkip` beside the frozen takeover projection, in
 the `browser-takeover-requested` event and in `pendingBrowserTakeovers`. The host sets it on a password
 or code card when the host did not fill a saved login (#7262): `agent-script` or `field-kind` when
@@ -1027,6 +1077,17 @@ after each change that succeeds, and that callback emits the event through `Agen
 computer's windows get it too. A client reads the list again through `browser-profiles-v1`: the
 desktop Browser profiles section and agent setting, the web client and the phone show a change made on
 another device while the page is open.
+
+### Client use
+
+The host counts each authenticated request that is not `GET`, `HEAD` or `OPTIONS` as use of its
+session (`isClientUse` in `src/main/team-api/client-use.ts`), unless its path is in `PASSIVE_ROUTES`
+or `PASSIVE_PATTERNS`. Use from another session of the member stops the phone push for 30 seconds,
+and use keeps a hosted server running. A client sends some `POST` reads by itself: on a timer, on a
+host event such as `runtime-snapshot`, or when a page loads. Put each such read route in
+`PASSIVE_ROUTES` in the change that adds it, so that an open client that nobody uses does not stop the
+phone push. Keep a route that changes data out of the list. `scripts/computer-activity-e2e.ts` checks
+both cases through the Team API.
 
 ### Focus use
 
@@ -1652,6 +1713,17 @@ the server as a joined server with `thisComputer: true`. `kind` stays `"remote"`
   child's `OPENBOT_LOCAL_SERVER_WORKING` line, reason `agent-turn`). After an unexpected exit, the desktop starts the child again
   after 5 seconds, at most 3 times in 10 minutes. The owner password is registered for redaction
   and is never logged.
+- **Provider sign-ins.** A server made since #15846 has the folder `provider-homes` in its user
+  data. At each start, `LocalServers` gives the child its own `CLAUDE_CONFIG_DIR`, `CODEX_HOME` and
+  `GROK_HOME` there, so its default provider account is its own: a sign-in or a sign-out on one
+  server does not change the others. Gemini stays shared: Antigravity before 1.5.3 ignores
+  `GEMINI_HOME`, and the desktop does not know the CLI version of the child. Other providers also
+  stay shared. Claude Code reads its user setup from `CLAUDE_CONFIG_DIR` too, so on such a server
+  "Use my Claude Code setup" loads the `CLAUDE.md`, skills, agents, hooks and plugins of
+  `provider-homes/claude`, not of `~/.claude`. Claude Code also uses a separate macOS Keychain
+  item when `CLAUDE_CONFIG_DIR` is set. A server without the folder, made by an earlier build, keeps
+  the shared homes (`~/.claude`, `~/.codex` and `~/.grok`): a new home would remove its sign-in and the
+  Claude session files that its agents resume from. An earlier build ignores the folder.
 - **Delete.** The desktop stops the child, removes the entry, and moves both folders to the trash
   with `shell.trashItem`. It never deletes them.
 - **Rename.** The `host-admin` identity route, as on any joined server that the user owns. The child has

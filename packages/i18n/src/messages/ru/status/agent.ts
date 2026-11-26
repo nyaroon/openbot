@@ -14,6 +14,7 @@ export const messages = {
   "status.agent.modelSwitchedForSpentBalance":
     "У {previous} закончились кредиты. Выполнено переключение на {model}. Чтобы снова использовать эту модель, пополните кредиты и выберите её.",
   "status.agent.modelReturnedAfterError": "После ошибки провайдера снова используется {model}.",
+  "status.agent.modelSwitchedForRemovedModel": "Модель {previous} больше недоступна. Переключено на {model}.",
   "status.agent.marketplaceSuggested": "Предложено приложение из каталога: {app}.",
   "status.agent.settingShown": "Показан параметр: {setting}.",
   "status.agent.channelMemberAdded": "Агент {agent} добавил {member} в канал. Запрос: {person}.",
@@ -117,6 +118,8 @@ export const messages = {
   "status.agent.planContinues": "В плане есть незавершённые шаги. Агент продолжает ({current} из {limit}).",
   "status.agent.planStopped":
     "Агент остановился, в плане остались незавершённые шаги. Отправьте сообщение, чтобы продолжить.",
+  "status.agent.continuationLimitReached":
+    "Агент остановился, не завершив запрос. Он больше не может продолжить сам. Отправьте сообщение, чтобы продолжить.",
   "status.agent.compactionContinues": "Соединение прервалось, пока агент сжимал контекст. Агент продолжает.",
   "status.agent.providerExitContinues": "Агент остановился, не закончив ответ. Агент продолжает.",
   "status.agent.branchTitle": "Ответвлённый чат",

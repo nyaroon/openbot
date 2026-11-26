@@ -13,6 +13,7 @@ export const messages = {
   "status.agent.modelSwitchedForSpentBalance":
     "ל-{previous} לא נשארו קרדיטים. עבר ל-{model}. כדי להשתמש בו שוב, הוסף קרדיטים ואז בחר בו.",
   "status.agent.modelReturnedAfterError": "חזר אל {model} אחרי שגיאת הספק.",
+  "status.agent.modelSwitchedForRemovedModel": "{previous} כבר לא זמין. עבר אל {model}.",
   "status.agent.marketplaceSuggested": "הציע אפליקציה מהחנות: {app}.",
   "status.agent.settingShown": "הציג הגדרה: {setting}.",
   "status.agent.channelMemberAdded": "{agent} הוסיף את {member} לערוץ. {person} ביקש זאת.",
@@ -148,6 +149,8 @@ export const messages = {
   "status.agent.nextStepContinues": "הסוכן נעצר לפני השלב הבא שלו. הוא ממשיך ({current} מתוך {limit}).",
   "status.agent.planContinues": "בתוכנית יש שלבים פתוחים. הסוכן ממשיך ({current} מתוך {limit}).",
   "status.agent.planStopped": "הסוכן עצר כשבתוכנית שלו יש שלבים פתוחים. שלחו הודעה כדי להמשיך.",
+  "status.agent.continuationLimitReached":
+    "הסוכן עצר לפני שהבקשה הסתיימה. הוא לא יכול להמשיך שוב בעצמו. שלחו הודעה כדי להמשיך.",
   "status.agent.compactionContinues": "החיבור נפסק בזמן שהסוכן כיווץ את ההקשר שלו. הסוכן ממשיך.",
   "status.agent.providerExitContinues": "הסוכן נעצר לפני שסיים את התשובה שלו. הסוכן ממשיך.",
   "status.agent.branchTitle": "צ'אט מסועף",

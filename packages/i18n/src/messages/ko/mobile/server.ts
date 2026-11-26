@@ -421,6 +421,20 @@ export const messages = {
   "mobile.server.settings.keyChangeFailed": "서버 키를 변경하지 못했어요. 다시 시도하세요.",
   "mobile.server.settings.keyOwnerOnly": "서버 키는 소유자만 변경할 수 있어요.",
   "mobile.server.settings.keyUnsupported": "여기에서 키를 변경하려면 이 서버의 OpenBot을 업데이트하세요.",
+  "mobile.server.settings.turnLimit": "동시 실행 스레드",
+  "mobile.server.settings.turnLimitDescription":
+    "이 서버에서 동시에 실행할 수 있는 에이전트 스레드 수입니다. 스레드가 많을수록 메모리를 더 사용합니다.",
+  "mobile.server.settings.turnLimitAutomatic": "자동({count})",
+  "mobile.server.settings.turnLimitAutomaticUnlimited": "자동(제한 없음)",
+  "mobile.server.settings.turnLimitUnlimited": "제한 없음",
+  "mobile.server.settings.turnLimitsLoadFailed": "이 서버의 스레드 제한을 불러올 수 없습니다.",
+  "mobile.server.settings.turnLimitsSaveFailed": "스레드 제한을 저장하지 못했어요. 다시 시도해 주세요.",
+  "mobile.server.settings.turnLimitsUnsupported":
+    "여기에서 스레드 제한을 변경하려면 이 서버의 OpenBot을 업데이트해 주세요.",
+  "mobile.server.settings.agentTaskLimit": "에이전트별 병렬 스레드",
+  "mobile.server.settings.agentTaskLimitDescription":
+    "자체 제한이 없는 각 에이전트가 동시에 실행할 수 있는 스레드 수입니다.",
+  "mobile.server.settings.agentTaskLimitDefault": "기본값({count})",
   "mobile.server.settings.memoryLimit": "에이전트당 메모리 수",
   "mobile.server.settings.memoryLimitDescription": "이 서버의 각 에이전트가 보관할 수 있는 메모리 수예요.",
   "mobile.server.settings.memoryLimitLoadFailed": "이 서버의 메모리 한도를 불러오지 못했어요.",
@@ -830,7 +844,7 @@ export const messages = {
     "“나에게 메시지 보내기” 채팅과 허용한 사람들만 메시지를 보낼 수 있어요. 다른 사람에게는 답장하지 않아요. 끄면 OpenBot이 모르는 사람에게 코드를 답장해요.",
   "mobile.server.connectors.whatsapp.workingMessage": "“작업 중이에요…” 메시지",
   "mobile.server.connectors.whatsapp.workingMessageDescription":
-    "에이전트가 작업하는 동안 OpenBot이 보내고, 이후 답변으로 바꿔요. 이전 요청을 기다리는 요청에는 대기 메시지도 보내요. 답변만 보내려면 끄세요.",
+    "에이전트가 작업하는 동안 OpenBot이 보내고, 이후 답변으로 바꿔요. 이전 요청을 기다리는 요청에는 대기 메시지도 보내요. 개인 번호에서는 “나에게 메시지 보내기” 채팅에만 이 메시지를 보내요. 답변만 보내려면 끄세요.",
   "mobile.server.connectors.whatsapp.statusReactions": "상태 반응",
   "mobile.server.connectors.whatsapp.statusReactionsDescription":
     "메시지가 도착하면 OpenBot이 👀로, 답변이 준비되면 ✅로 반응해요. 반응을 보내지 않으려면 끄세요.",

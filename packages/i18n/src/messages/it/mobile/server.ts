@@ -436,6 +436,20 @@ export const messages = {
   "mobile.server.settings.keyChangeFailed": "Impossibile cambiare la chiave del server. Riprova.",
   "mobile.server.settings.keyOwnerOnly": "Solo il proprietario può cambiare la chiave del server.",
   "mobile.server.settings.keyUnsupported": "Aggiorna OpenBot su questo server per cambiare qui la sua chiave.",
+  "mobile.server.settings.turnLimit": "Thread contemporanei",
+  "mobile.server.settings.turnLimitDescription":
+    "Quanti thread degli agenti possono essere eseguiti contemporaneamente su questo server. Più thread usano più memoria.",
+  "mobile.server.settings.turnLimitAutomatic": "Automatico ({count})",
+  "mobile.server.settings.turnLimitAutomaticUnlimited": "Automatico (nessun limite)",
+  "mobile.server.settings.turnLimitUnlimited": "Nessun limite",
+  "mobile.server.settings.turnLimitsLoadFailed": "Impossibile caricare i limiti dei thread di questo server.",
+  "mobile.server.settings.turnLimitsSaveFailed": "Impossibile salvare il limite di thread. Riprova.",
+  "mobile.server.settings.turnLimitsUnsupported":
+    "Aggiorna OpenBot su questo server per cambiarne qui il limite di thread.",
+  "mobile.server.settings.agentTaskLimit": "Thread in parallelo per agente",
+  "mobile.server.settings.agentTaskLimitDescription":
+    "Quanti thread può eseguire contemporaneamente ogni agente senza un limite proprio.",
+  "mobile.server.settings.agentTaskLimitDefault": "Predefinito ({count})",
   "mobile.server.settings.memoryLimit": "Memorie per agente",
   "mobile.server.settings.memoryLimitDescription": "Quante memorie può conservare ogni agente su questo server.",
   "mobile.server.settings.memoryLimitLoadFailed": "Impossibile caricare il limite di memorie di questo server.",
@@ -872,7 +886,7 @@ export const messages = {
     "Possono scrivere solo la tua chat «Messaggio a te stesso» e le persone che autorizzi. Le altre non ricevono risposta. Quando è disattivato, OpenBot risponde alle persone sconosciute con un codice.",
   "mobile.server.connectors.whatsapp.workingMessage": "Messaggio «Ci sto lavorando…»",
   "mobile.server.connectors.whatsapp.workingMessageDescription":
-    "OpenBot lo invia mentre l’agente lavora, poi lo sostituisce con la risposta. Una richiesta che attende una richiesta precedente riceve anche un messaggio di attesa. Disattiva per inviare solo la risposta.",
+    "OpenBot lo invia mentre l’agente lavora, poi lo sostituisce con la risposta. Una richiesta che attende una richiesta precedente riceve anche un messaggio di attesa. Con un numero personale, solo la tua chat «Messaggio a te stesso» riceve questi messaggi. Disattiva per inviare solo la risposta.",
   "mobile.server.connectors.whatsapp.statusReactions": "Reazioni di stato",
   "mobile.server.connectors.whatsapp.statusReactionsDescription":
     "OpenBot reagisce con 👀 quando arriva un messaggio e con ✅ quando la risposta è pronta. Disattiva per non inviare reazioni.",

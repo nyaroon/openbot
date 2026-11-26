@@ -194,7 +194,7 @@ function seedDevelopmentProfile(profile: string, environment: NodeJS.ProcessEnv)
   });
 }
 
-const DEVELOPMENT_OPTIONS = ["--dry-run", "--force", "--shared", "--isolated", "--slack"] as const;
+const DEVELOPMENT_OPTIONS = ["--dry-run", "--force", "--shared", "--isolated", "--slack", "--foreground"] as const;
 
 export interface DevelopmentInvocation {
   target: DevelopmentTarget;
@@ -202,6 +202,7 @@ export interface DevelopmentInvocation {
   force: boolean;
   shared: boolean;
   slack: boolean;
+  foreground: boolean;
 }
 
 export function parseDevelopmentTarget(args: string[]): DevelopmentInvocation {
@@ -222,6 +223,7 @@ export function parseDevelopmentTarget(args: string[]): DevelopmentInvocation {
     force: args.includes("--force"),
     shared: args.includes("--shared"),
     slack: args.includes("--slack"),
+    foreground: args.includes("--foreground"),
   };
 }
 
@@ -241,7 +243,7 @@ function prepareVoiceRuntime(): void {
 }
 
 async function main(): Promise<void> {
-  const { target, dryRun, force, shared, slack } = parseDevelopmentTarget(process.argv.slice(2));
+  const { target, dryRun, force, shared, slack, foreground } = parseDevelopmentTarget(process.argv.slice(2));
   if (!dryRun && prepareDevelopmentEnvironment() === "created") {
     logger.info("Prepared local development state.");
   }
@@ -250,6 +252,8 @@ async function main(): Promise<void> {
   const developmentEnvironment = dryRun ? {} : await loadDevelopmentEnvironment(projectRoot);
   const sharedEnvironment = developmentEnvironmentForTarget(target);
   sharedEnvironment.OPENBOT_DEV_STACK_ID = String(process.pid);
+  if (foreground) sharedEnvironment.OPENBOT_DEV_WINDOW_FOCUS = "foreground";
+  else sharedEnvironment.OPENBOT_DEV_WINDOW_FOCUS ??= "background";
 
   const { specs, stack } = await withDevPortAllocation(async (records) => {
     const conflicts = conflictingDevStacks(records, { projectRoot, services });

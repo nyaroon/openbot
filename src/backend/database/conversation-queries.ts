@@ -63,14 +63,12 @@ export class ConversationQueries {
 
   readConversation(agentId: string, threadId: string | null): ConversationSnapshot {
     if (!threadId) return { agentId, threadId: null, activeTurnId: null, revision: 0, messages: [] };
-    return this.#snapshot(
-      agentId,
-      threadId,
+    return this.#snapshot(agentId, threadId, () =>
       databaseRows(
         this.#core.connection
           .prepare(
             `SELECT message_json FROM projection_thread_messages
-             WHERE thread_id = ? ORDER BY created_at, ordinal, message_id`,
+               WHERE thread_id = ? ORDER BY created_at, ordinal, message_id`,
           )
           .all(threadId),
       ),
@@ -78,14 +76,12 @@ export class ConversationQueries {
   }
 
   readTurnConversation(agentId: string, threadId: string, turnId: string): ConversationSnapshot {
-    return this.#snapshot(
-      agentId,
-      threadId,
+    return this.#snapshot(agentId, threadId, () =>
       databaseRows(
         this.#core.connection
           .prepare(
             `SELECT message_json FROM projection_thread_messages
-             WHERE thread_id = ? AND turn_id = ? ORDER BY created_at, ordinal, message_id`,
+               WHERE thread_id = ? AND turn_id = ? ORDER BY created_at, ordinal, message_id`,
           )
           .all(threadId, turnId),
       ),
@@ -106,7 +102,7 @@ export class ConversationQueries {
     return row ? requiredStringColumn(row, "turn_id") : null;
   }
 
-  #snapshot(agentId: string, threadId: string, rows: DynamicRecord[]): ConversationSnapshot {
+  #snapshot(agentId: string, threadId: string, readRows: () => DynamicRecord[]): ConversationSnapshot {
     const thread = decodeConversationThreadRow(
       this.#core.connection
         .prepare(
@@ -120,7 +116,9 @@ export class ConversationQueries {
       threadId,
       activeTurnId: thread?.active_turn_id ?? null,
       revision: thread?.last_event_sequence ?? 0,
-      messages: sortConversationMessages(rows.map((row) => JSON.parse(requiredStringColumn(row, "message_json")))),
+      messages: thread
+        ? sortConversationMessages(readRows().map((row) => JSON.parse(requiredStringColumn(row, "message_json"))))
+        : [],
     };
   }
 
@@ -247,7 +245,7 @@ export class ConversationQueries {
         .prepare(
           `SELECT message_json FROM projection_thread_messages
            WHERE thread_id = ? AND message_id IN (${placeholders})
-           AND thread_id IN (SELECT thread_id FROM projection_threads WHERE agent_id = ?)
+           AND EXISTS (SELECT 1 FROM projection_threads AS owner WHERE owner.thread_id = projection_thread_messages.thread_id AND owner.agent_id = ?)
            ORDER BY created_at, ordinal, message_id`,
         )
         .all(threadId, ...messageIds, agentId),
@@ -260,7 +258,7 @@ export class ConversationQueries {
         .prepare(
           `SELECT message_json FROM projection_thread_messages
            WHERE thread_id = ? AND item_type = ?
-           AND thread_id IN (SELECT thread_id FROM projection_threads WHERE agent_id = ?)
+           AND EXISTS (SELECT 1 FROM projection_threads AS owner WHERE owner.thread_id = projection_thread_messages.thread_id AND owner.agent_id = ?)
            ORDER BY created_at, ordinal, message_id`,
         )
         .all(threadId, itemType, agentId),
@@ -278,7 +276,7 @@ export class ConversationQueries {
         .prepare(
           `SELECT message_json FROM projection_thread_messages
            WHERE thread_id = ?
-             AND thread_id IN (SELECT thread_id FROM projection_threads WHERE agent_id = ?)
+             AND EXISTS (SELECT 1 FROM projection_threads AS owner WHERE owner.thread_id = projection_thread_messages.thread_id AND owner.agent_id = ?)
              AND (
                (? IS NOT NULL AND turn_id = ? AND status = 'streaming')
                OR json_type(message_json, '$.questionPrompt.resolution') = 'null'
@@ -303,17 +301,16 @@ export class ConversationQueries {
     requestedLimit = 50,
     options: ConversationMarkerExclusions = {},
   ): ConversationPage {
-    if (!threadId) {
-      return {
-        agentId,
-        threadId: null,
-        activeTurnId: null,
-        revision: 0,
-        messages: [],
-        references: {},
-        pageInfo: { hasOlder: false, olderCursor: null },
-      };
-    }
+    const emptyPage = {
+      agentId,
+      threadId,
+      activeTurnId: null,
+      revision: 0,
+      messages: [],
+      references: {},
+      pageInfo: { hasOlder: false, olderCursor: null },
+    };
+    if (!threadId) return emptyPage;
     const limit = pageLimit(requestedLimit);
     const thread = decodeConversationThreadRow(
       this.#core.connection
@@ -323,6 +320,7 @@ export class ConversationQueries {
         )
         .get(threadId, agentId),
     );
+    if (!thread) return emptyPage;
     const rows = this.#conversationPageRows(threadId, anchor, limit, options);
     const messages = rows.map((row) => decodeConversationMessageJson(requiredStringColumn(row, "message_json")));
     const messageIds = new Set(messages.map((message) => message.id));

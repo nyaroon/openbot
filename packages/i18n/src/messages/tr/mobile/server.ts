@@ -442,6 +442,20 @@ export const messages = {
   "mobile.server.settings.keyChangeFailed": "Sunucu anahtarı değiştirilemedi. Tekrar deneyin.",
   "mobile.server.settings.keyOwnerOnly": "Sunucu anahtarını yalnızca sahip değiştirebilir.",
   "mobile.server.settings.keyUnsupported": "Anahtarını burada değiştirmek için bu sunucudaki OpenBot'u güncelleyin.",
+  "mobile.server.settings.turnLimit": "Aynı anda mesaj dizileri",
+  "mobile.server.settings.turnLimitDescription":
+    "Bu sunucuda aynı anda kaç ajan mesaj dizisinin çalışabileceği. Daha fazla dizi daha fazla bellek kullanır.",
+  "mobile.server.settings.turnLimitAutomatic": "Otomatik ({count})",
+  "mobile.server.settings.turnLimitAutomaticUnlimited": "Otomatik (sınırsız)",
+  "mobile.server.settings.turnLimitUnlimited": "Sınırsız",
+  "mobile.server.settings.turnLimitsLoadFailed": "Bu sunucunun mesaj dizisi sınırları yüklenemedi.",
+  "mobile.server.settings.turnLimitsSaveFailed": "Mesaj dizisi sınırı kaydedilemedi. Tekrar deneyin.",
+  "mobile.server.settings.turnLimitsUnsupported":
+    "Mesaj dizisi sınırını burada değiştirmek için bu sunucudaki OpenBot'u güncelleyin.",
+  "mobile.server.settings.agentTaskLimit": "Ajan başına paralel mesaj dizileri",
+  "mobile.server.settings.agentTaskLimitDescription":
+    "Kendi sınırı olmayan her ajanın aynı anda kaç mesaj dizisi çalıştırabileceği.",
+  "mobile.server.settings.agentTaskLimitDefault": "Varsayılan ({count})",
   "mobile.server.settings.memoryLimit": "Ajan başına bellek",
   "mobile.server.settings.memoryLimitDescription": "Bu sunucudaki her ajanın tutabileceği bellek sayısı.",
   "mobile.server.settings.memoryLimitLoadFailed": "Bu sunucunun bellek sınırı yüklenemedi.",
@@ -874,7 +888,7 @@ export const messages = {
     "Yalnızca “Kendine mesaj gönder” sohbetiniz ve izin verdiğiniz kişiler yazabilir. Diğer kişiler yanıt almaz. Kapalıyken OpenBot tanımadığınız kişilere bir kodla yanıt verir.",
   "mobile.server.connectors.whatsapp.workingMessage": "“Üzerinde çalışılıyor…” mesajı",
   "mobile.server.connectors.whatsapp.workingMessageDescription":
-    "OpenBot bunu ajan çalışırken gönderir, sonra yanıtla değiştirir. Önceki bir isteği bekleyen istek de bir bekleme mesajı alır. Yalnızca yanıtı göndermek için kapatın.",
+    "OpenBot bunu ajan çalışırken gönderir, sonra yanıtla değiştirir. Önceki bir isteği bekleyen istek de bir bekleme mesajı alır. Kişisel numarada bu mesajları yalnızca “Kendine mesaj gönder” sohbetiniz alır. Yalnızca yanıtı göndermek için kapatın.",
   "mobile.server.connectors.whatsapp.statusReactions": "Durum tepkileri",
   "mobile.server.connectors.whatsapp.statusReactionsDescription":
     "OpenBot bir mesaj geldiğinde 👀, yanıt hazır olduğunda ✅ tepkisi verir. Hiç tepki göndermemek için kapatın.",

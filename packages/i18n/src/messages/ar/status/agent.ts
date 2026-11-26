@@ -13,6 +13,7 @@ export const messages = {
   "status.agent.modelSwitchedForSpentBalance":
     "لم يتبق رصيد في {previous}. تم التبديل إلى {model}. لاستخدامه مرة أخرى، أضف رصيدًا ثم اختره.",
   "status.agent.modelReturnedAfterError": "تمت العودة إلى {model} بعد خطأ المزوّد.",
+  "status.agent.modelSwitchedForRemovedModel": "لم يعد {previous} متاحًا. تم التبديل إلى {model}.",
   "status.agent.marketplaceSuggested": "اقترح تطبيقًا من المتجر: {app}.",
   "status.agent.settingShown": "عرض إعدادًا: {setting}.",
   "status.agent.channelMemberAdded": "أضاف {agent} العضو {member} إلى القناة. بطلب من {person}.",
@@ -153,6 +154,8 @@ export const messages = {
   "status.agent.nextStepContinues": "توقف الوكيل قبل خطوته التالية. سيتابع ({current} من {limit}).",
   "status.agent.planContinues": "في الخطة خطوات مفتوحة. سيتابع الوكيل ({current} من {limit}).",
   "status.agent.planStopped": "توقف الوكيل وفي خطته خطوات مفتوحة. أرسل رسالة للمتابعة.",
+  "status.agent.continuationLimitReached":
+    "توقف الوكيل قبل أن ينتهي الطلب. لا يمكنه المتابعة وحده مرة أخرى. أرسل رسالة للمتابعة.",
   "status.agent.compactionContinues": "توقف الاتصال أثناء ضغط الوكيل لسياقه. يتابع الوكيل.",
   "status.agent.providerExitContinues": "توقف الوكيل قبل أن يكمل إجابته. يتابع الوكيل.",
   "status.agent.branchTitle": "دردشة متفرعة",

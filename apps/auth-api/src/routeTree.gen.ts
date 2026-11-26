@@ -120,6 +120,7 @@ import { Route as V1BrowserExtensionXRulesRouteImport } from './routes/v1/browse
 import { Route as V1FeedbackSimilarRouteImport } from './routes/v1/feedback/similar'
 import { Route as V1FeedbackWithdrawRouteImport } from './routes/v1/feedback/withdraw'
 import { Route as V1GithubInstallationTokensRouteImport } from './routes/v1/github/installation-tokens'
+import { Route as V1GithubPublicRepositoriesRouteImport } from './routes/v1/github/public-repositories'
 import { Route as V1MeAnalyticsRouteImport } from './routes/v1/me/analytics'
 import { Route as V1MeAvatarRouteImport } from './routes/v1/me/avatar'
 import { Route as V1MeChatColorRouteImport } from './routes/v1/me/chat-color'
@@ -790,6 +791,12 @@ const V1GithubInstallationTokensRoute =
   V1GithubInstallationTokensRouteImport.update({
     id: '/v1/github/installation-tokens',
     path: '/v1/github/installation-tokens',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const V1GithubPublicRepositoriesRoute =
+  V1GithubPublicRepositoriesRouteImport.update({
+    id: '/v1/github/public-repositories',
+    path: '/v1/github/public-repositories',
     getParentRoute: () => rootRouteImport,
   } as any)
 const V1MeAnalyticsRoute = V1MeAnalyticsRouteImport.update({
@@ -1530,6 +1537,7 @@ export interface FileRoutesByFullPath {
   '/v1/feedback/similar': typeof V1FeedbackSimilarRoute
   '/v1/feedback/withdraw': typeof V1FeedbackWithdrawRoute
   '/v1/github/installation-tokens': typeof V1GithubInstallationTokensRoute
+  '/v1/github/public-repositories': typeof V1GithubPublicRepositoriesRoute
   '/v1/me/analytics': typeof V1MeAnalyticsRoute
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
@@ -1753,6 +1761,7 @@ export interface FileRoutesByTo {
   '/v1/feedback/similar': typeof V1FeedbackSimilarRoute
   '/v1/feedback/withdraw': typeof V1FeedbackWithdrawRoute
   '/v1/github/installation-tokens': typeof V1GithubInstallationTokensRoute
+  '/v1/github/public-repositories': typeof V1GithubPublicRepositoriesRoute
   '/v1/me/analytics': typeof V1MeAnalyticsRoute
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
@@ -1980,6 +1989,7 @@ export interface FileRoutesById {
   '/v1/feedback/similar': typeof V1FeedbackSimilarRoute
   '/v1/feedback/withdraw': typeof V1FeedbackWithdrawRoute
   '/v1/github/installation-tokens': typeof V1GithubInstallationTokensRoute
+  '/v1/github/public-repositories': typeof V1GithubPublicRepositoriesRoute
   '/v1/me/analytics': typeof V1MeAnalyticsRoute
   '/v1/me/avatar': typeof V1MeAvatarRoute
   '/v1/me/chat-color': typeof V1MeChatColorRoute
@@ -2205,6 +2215,7 @@ export interface FileRouteTypes {
     | '/v1/feedback/similar'
     | '/v1/feedback/withdraw'
     | '/v1/github/installation-tokens'
+    | '/v1/github/public-repositories'
     | '/v1/me/analytics'
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
@@ -2428,6 +2439,7 @@ export interface FileRouteTypes {
     | '/v1/feedback/similar'
     | '/v1/feedback/withdraw'
     | '/v1/github/installation-tokens'
+    | '/v1/github/public-repositories'
     | '/v1/me/analytics'
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
@@ -2654,6 +2666,7 @@ export interface FileRouteTypes {
     | '/v1/feedback/similar'
     | '/v1/feedback/withdraw'
     | '/v1/github/installation-tokens'
+    | '/v1/github/public-repositories'
     | '/v1/me/analytics'
     | '/v1/me/avatar'
     | '/v1/me/chat-color'
@@ -2834,6 +2847,7 @@ export interface RootRouteChildren {
   V1AvatarsUserIdRoute: typeof V1AvatarsUserIdRoute
   V1BrowserExtensionXRulesRoute: typeof V1BrowserExtensionXRulesRoute
   V1GithubInstallationTokensRoute: typeof V1GithubInstallationTokensRoute
+  V1GithubPublicRepositoriesRoute: typeof V1GithubPublicRepositoriesRoute
   V1MobileAuthDevicesRoute: typeof V1MobileAuthDevicesRouteWithChildren
   V1MobileAuthLinkRoute: typeof V1MobileAuthLinkRoute
   V1MobileAuthRedeemRoute: typeof V1MobileAuthRedeemRoute
@@ -3697,6 +3711,13 @@ declare module '@tanstack/solid-router' {
       path: '/v1/github/installation-tokens'
       fullPath: '/v1/github/installation-tokens'
       preLoaderRoute: typeof V1GithubInstallationTokensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v1/github/public-repositories': {
+      id: '/v1/github/public-repositories'
+      path: '/v1/github/public-repositories'
+      fullPath: '/v1/github/public-repositories'
+      preLoaderRoute: typeof V1GithubPublicRepositoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v1/me/analytics': {
@@ -4941,6 +4962,7 @@ const rootRouteChildren: RootRouteChildren = {
   V1AvatarsUserIdRoute: V1AvatarsUserIdRoute,
   V1BrowserExtensionXRulesRoute: V1BrowserExtensionXRulesRoute,
   V1GithubInstallationTokensRoute: V1GithubInstallationTokensRoute,
+  V1GithubPublicRepositoriesRoute: V1GithubPublicRepositoriesRoute,
   V1MobileAuthDevicesRoute: V1MobileAuthDevicesRouteWithChildren,
   V1MobileAuthLinkRoute: V1MobileAuthLinkRoute,
   V1MobileAuthRedeemRoute: V1MobileAuthRedeemRoute,

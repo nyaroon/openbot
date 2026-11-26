@@ -14,6 +14,7 @@ export const messages = {
   "status.agent.modelSwitchedForSpentBalance":
     "{previous} hat kein Guthaben mehr. Zu {model} gewechselt. Um es wieder zu nutzen, lade Guthaben auf und wähle es dann aus.",
   "status.agent.modelReturnedAfterError": "Nach dem Anbieterfehler zurück zu {model} gewechselt.",
+  "status.agent.modelSwitchedForRemovedModel": "{previous} ist nicht mehr verfügbar. Zu {model} gewechselt.",
   "status.agent.marketplaceSuggested": "Eine Marketplace-App wurde vorgeschlagen: {app}.",
   "status.agent.settingShown": "Eine Einstellung wurde gezeigt: {setting}.",
   "status.agent.channelMemberAdded": "{agent} hat {member} zum Kanal hinzugefügt. {person} hat darum gebeten.",
@@ -120,6 +121,8 @@ export const messages = {
   "status.agent.planContinues": "Der Plan hat offene Schritte. Der Agent macht weiter ({current} von {limit}).",
   "status.agent.planStopped":
     "Der Agent hat mit offenen Schritten im Plan aufgehört. Sende eine Nachricht, damit er weitermacht.",
+  "status.agent.continuationLimitReached":
+    "Der Agent hat aufgehört, bevor die Anfrage fertig war. Er kann nicht noch einmal selbst weitermachen. Sende eine Nachricht, damit er weitermacht.",
   "status.agent.compactionContinues":
     "Die Verbindung brach ab, während der Agent seinen Kontext komprimierte. Der Agent macht weiter.",
   "status.agent.providerExitContinues":

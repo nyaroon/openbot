@@ -441,6 +441,20 @@ export const messages = {
   "mobile.server.settings.keyChangeFailed": "Kan de serversleutel niet wijzigen. Probeer het opnieuw.",
   "mobile.server.settings.keyOwnerOnly": "Alleen de eigenaar kan de serversleutel wijzigen.",
   "mobile.server.settings.keyUnsupported": "Werk OpenBot op deze server bij om de sleutel hier te wijzigen.",
+  "mobile.server.settings.turnLimit": "Threads tegelijk",
+  "mobile.server.settings.turnLimitDescription":
+    "Hoeveel agentthreads tegelijk kunnen draaien op deze server. Meer threads gebruiken meer geheugen.",
+  "mobile.server.settings.turnLimitAutomatic": "Automatisch ({count})",
+  "mobile.server.settings.turnLimitAutomaticUnlimited": "Automatisch (geen limiet)",
+  "mobile.server.settings.turnLimitUnlimited": "Geen limiet",
+  "mobile.server.settings.turnLimitsLoadFailed": "Kan de threadlimieten van deze server niet laden.",
+  "mobile.server.settings.turnLimitsSaveFailed": "Kan de threadlimiet niet opslaan. Probeer het opnieuw.",
+  "mobile.server.settings.turnLimitsUnsupported":
+    "Werk OpenBot bij op deze server om de threadlimiet hier te wijzigen.",
+  "mobile.server.settings.agentTaskLimit": "Parallelle threads per agent",
+  "mobile.server.settings.agentTaskLimitDescription":
+    "Hoeveel threads elke agent zonder eigen limiet tegelijk kan draaien.",
+  "mobile.server.settings.agentTaskLimitDefault": "Standaard ({count})",
   "mobile.server.settings.memoryLimit": "Herinneringen per agent",
   "mobile.server.settings.memoryLimitDescription": "Hoeveel herinneringen elke agent op deze server kan bewaren.",
   "mobile.server.settings.memoryLimitLoadFailed": "Kan de geheugenlimiet van deze server niet laden.",
@@ -849,7 +863,7 @@ export const messages = {
     "Alleen je chat “Bericht aan jezelf” en de mensen die je toestaat kunnen schrijven. Andere mensen krijgen geen antwoord. Als dit uit staat, antwoordt OpenBot onbekende mensen met een code.",
   "mobile.server.connectors.whatsapp.workingMessage": "Bericht “Mee bezig…”",
   "mobile.server.connectors.whatsapp.workingMessageDescription":
-    "OpenBot stuurt het terwijl de agent werkt en vervangt het daarna door het antwoord. Een verzoek dat op een eerder verzoek wacht, krijgt ook een wachtbericht. Zet dit uit om alleen het antwoord te sturen.",
+    "OpenBot stuurt het terwijl de agent werkt en vervangt het daarna door het antwoord. Een verzoek dat op een eerder verzoek wacht, krijgt ook een wachtbericht. Bij een persoonlijk nummer krijgt alleen je chat “Bericht aan jezelf” deze berichten. Zet dit uit om alleen het antwoord te sturen.",
   "mobile.server.connectors.whatsapp.statusReactions": "Statusreacties",
   "mobile.server.connectors.whatsapp.statusReactionsDescription":
     "OpenBot reageert met 👀 als er een bericht binnenkomt en met ✅ als het antwoord klaar is. Zet dit uit om geen reacties te sturen.",

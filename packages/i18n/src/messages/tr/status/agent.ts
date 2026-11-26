@@ -14,6 +14,7 @@ export const messages = {
   "status.agent.modelSwitchedForSpentBalance":
     "{previous} için kredi kalmadı. {model} modeline geçildi. Yeniden kullanmak için kredi ekleyin ve sonra seçin.",
   "status.agent.modelReturnedAfterError": "Sağlayıcı hatasından sonra {model} modeline geri dönüldü.",
+  "status.agent.modelSwitchedForRemovedModel": "{previous} artık kullanılamıyor. {model} modeline geçildi.",
   "status.agent.marketplaceSuggested": "Bir Pazaryeri uygulaması önerildi: {app}.",
   "status.agent.settingShown": "Bir ayar gösterildi: {setting}.",
   "status.agent.channelMemberAdded": "{agent}, {member} ajanını kanala ekledi. İsteyen: {person}.",
@@ -115,6 +116,8 @@ export const messages = {
   "status.agent.nextStepContinues": "Ajan bir sonraki adımdan önce durdu. Devam ediyor ({current}/{limit}).",
   "status.agent.planContinues": "Planda açık adımlar var. Ajan devam ediyor ({current}/{limit}).",
   "status.agent.planStopped": "Ajan, planında açık adımlar varken durdu. Devam etmesi için bir mesaj gönderin.",
+  "status.agent.continuationLimitReached":
+    "Ajan, istek bitmeden durdu. Kendi başına tekrar devam edemez. Devam etmesi için bir mesaj gönderin.",
   "status.agent.compactionContinues": "Ajan bağlamını sıkıştırırken bağlantı kesildi. Ajan devam ediyor.",
   "status.agent.providerExitContinues": "Ajan yanıtını bitirmeden durdu. Ajan devam ediyor.",
   "status.agent.branchTitle": "Dallandırılmış sohbet",

@@ -1493,7 +1493,8 @@ export class MessagingService {
                 if (
                   this.#posts.has(key) ||
                   !this.#targets.has(key) ||
-                  this.#withoutStatusPost(live.record.connectionId)
+                  this.#withoutStatusPost(live.record.connectionId) ||
+                  this.#quietEnd(live.record.connectionId, message.target)
                 )
                   return;
                 const messageId = yield* adapter
@@ -1879,7 +1880,12 @@ export class MessagingService {
     }
     if (activity.type === "started") {
       if (!live) return;
-      if (!post?.messageId && (activity.teammateRequest || this.#withoutStatusPost(live.record.connectionId))) {
+      if (
+        !post?.messageId &&
+        (activity.teammateRequest ||
+          this.#withoutStatusPost(live.record.connectionId) ||
+          this.#quietEnd(live.record.connectionId, target))
+      ) {
         this.#posts.set(key, { connectionId: live.record.connectionId, target, messageId: null, stopToken: null });
         this.#status.restored.delete(key);
         yield* this.#status.save();
@@ -1982,8 +1988,10 @@ export class MessagingService {
         Effect.gen({ self: this }, function* () {
           const cause = failure instanceof MessagingOperationFailed ? failure.cause : null;
           const partlySent = cause instanceof WhatsAppAnswerPartlySent;
-          if ((partlySent ? cause.cause : cause) instanceof WhatsAppRefusedError)
+          if ((partlySent ? cause.cause : cause) instanceof WhatsAppRefusedError) {
+            if (final.answer || final.replacesAnswer) this.#noteUndelivered(key, final.answer && partlySent);
             return yield* this.#forgetPost(key, post);
+          }
           const quiet = final.answer && this.#quietEnd(live.record.connectionId, post.target);
           if (quiet && partlySent) return yield* this.#forgetPost(key, post);
           const failures = (this.#finalFailures.get(key) ?? 0) + 1;
@@ -1992,7 +2000,12 @@ export class MessagingService {
           if (final.answer) {
             current = {
               ...post,
-              final: { answer: false, text: quiet ? "" : sourceText("status.messaging.failed"), reaction: null },
+              final: {
+                answer: false,
+                text: quiet ? "" : sourceText("status.messaging.failed"),
+                reaction: null,
+                replacesAnswer: true,
+              },
             };
             this.#posts.set(key, current);
             yield* this.#status.save();
@@ -2004,6 +2017,17 @@ export class MessagingService {
     );
     yield* this.#forgetPost(key, post);
   });
+
+  #noteUndelivered(key: string, partlySent: boolean): void {
+    try {
+      this.#threads.noteUndelivered(
+        key.slice(0, key.indexOf(":")),
+        sourceText(partlySent ? "status.messaging.whatsappPartlyDelivered" : "status.messaging.whatsappNotDelivered"),
+      );
+    } catch (error) {
+      this.#warn(error, "Could not mark a WhatsApp answer as not delivered.");
+    }
+  }
 
   readonly #forgetPost = Effect.fn("MessagingService.forgetPost")(function* (
     this: MessagingService,
@@ -2394,6 +2418,10 @@ const WHATSAPP_LOCAL_REFUSALS = new Map([
   [
     "place_read_only",
     "OpenBot sent nothing: the user made this WhatsApp chat read only. OpenBot reads it but never posts in it. Do not post it again: give the result in the conversation that you answer.",
+  ],
+  [
+    "no_account",
+    `OpenBot sent nothing: WhatsApp has no account for the number of this contact. Tell the user to open Marketplace, then Apps, then WhatsApp, and to check the number of this contact. ${sourceText("error.messaging.whatsappNumberNotFound")} When the number is not correct, the user must remove the contact and add it again.`,
   ],
   ["not_connected", WHATSAPP_NOT_CONNECTED],
   ["not_linked", WHATSAPP_NOT_CONNECTED],

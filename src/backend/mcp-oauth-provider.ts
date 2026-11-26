@@ -520,13 +520,13 @@ export class McpOAuth implements McpOAuthAuthority {
   needsSignIn(url: string): boolean {
     const key = mcpOAuthAccountKey(url);
     const record = key === null ? undefined : this.#options.storage.read(key);
-    return record?.lostAt !== undefined && !record.tokens;
+    return (record?.lostAt !== undefined || record?.app !== undefined) && !record.tokens;
   }
 
   hasSignIn(url: string): boolean {
     const key = mcpOAuthAccountKey(url);
     const record = key === null ? undefined : this.#options.storage.read(key);
-    return record?.tokens !== undefined || record?.lostAt !== undefined;
+    return record?.tokens !== undefined || record?.lostAt !== undefined || record?.app !== undefined;
   }
 
   readonly signInOffer = Effect.fn("McpOAuth.signInOffer")(function* (this: McpOAuth, url: string) {
@@ -1151,10 +1151,11 @@ class McpOAuthClientProvider implements OAuthClientProvider {
         if (!isAuthorizationUrlSafe(authorizationUrl))
           return yield* mcpFailure(new Error(sourceText("error.backend.mcpSignInNotWebPage")));
         const { app } = this.#record();
+        const serverPromptUrl = withServerPrompt(authorizationUrl);
         const url = withGoogleOfflineAccess(
           app?.scope
-            ? withAppScope(authorizationUrl, app)
-            : withOfflineAccess(authorizationUrl, this.#discoveryState?.authorizationServerMetadata),
+            ? withAppScope(serverPromptUrl, app)
+            : withOfflineAccess(serverPromptUrl, this.#discoveryState?.authorizationServerMetadata),
         );
         const clientId = url.searchParams.get("client_id");
         this.#authorizedClient = app
@@ -1401,6 +1402,14 @@ function describeUnusableRedirectUrl(redirectUrl: string): string | null {
   if (parsed.protocol === "https:")
     return `"${redirectUrl}" is a web address, which an MCP authorization server will not send a grant to.`;
   return null;
+}
+
+function withServerPrompt(authorizationUrl: URL): URL {
+  const [serverPrompt, ...addedPrompts] = authorizationUrl.searchParams.getAll("prompt");
+  if (serverPrompt === undefined || addedPrompts.length === 0) return authorizationUrl;
+  const url = new URL(authorizationUrl);
+  url.searchParams.set("prompt", serverPrompt);
+  return url;
 }
 
 function withAppScope(authorizationUrl: URL, app: McpOAuthApp | undefined): URL {

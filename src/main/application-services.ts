@@ -1,12 +1,15 @@
+import { execFile } from "node:child_process";
 import { randomBytes, randomUUID } from "node:crypto";
+import { EventEmitter } from "node:events";
 import { existsSync } from "node:fs";
 import { readdir, readFile, rm } from "node:fs/promises";
 import { homedir, hostname, tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import type { Readable } from "node:stream";
-import { isManagedRuntimeProvider } from "@openbot/contracts/agent-providers";
+import { isKeyOnlyProvider, isManagedRuntimeProvider } from "@openbot/contracts/agent-providers";
 import { leadingAddress } from "@openbot/contracts/chat-tag-references";
+import { INPUT_LIMITS } from "@openbot/contracts/input-limits";
 import { selfHostedApiOrigin } from "@openbot/contracts/invite-links";
 import type {
   AgentStatus,
@@ -41,6 +44,7 @@ import {
 } from "@openbot/contracts/ipc";
 import { decodeRecord, requiredString } from "@openbot/contracts/ipc-decoding";
 import { isValidSemver } from "@openbot/contracts/release-version";
+import { AGENT_TASKS_ROUTES } from "@openbot/contracts/team-protocol/agent-tasks-v1";
 import { CHANNEL_ROUTES } from "@openbot/contracts/team-protocol/channels-v1";
 import { localeDirection } from "@openbot/i18n";
 import { sourceText } from "@openbot/i18n/source";
@@ -300,6 +304,7 @@ import {
 } from "./local-server-child";
 import { LOCAL_SERVERS_FILE } from "./local-servers/local-server-registry";
 import { LocalServers, sandboxArguments } from "./local-servers/local-servers";
+import { LocalSignInPages } from "./local-sign-in-pages";
 import { LocalSignInWindows } from "./local-sign-in-window";
 import { localSkillLearner } from "./local-skill-learner";
 import { LocalSkillLibrary } from "./local-skill-library";
@@ -361,6 +366,7 @@ import { PasswordManagersService } from "./password-managers/password-managers-s
 import { managedProtonPassCli } from "./password-managers/proton-pass-cli-installer";
 import { ProtonPassDriver, protonPassRecordSchema } from "./password-managers/proton-pass-driver";
 import { PointerForwardingGate } from "./pointer-forwarding-gate";
+import { ProcessLauncher } from "./process-launcher";
 import { PromptCacheTtlPreferenceStore } from "./prompt-cache-ttl-preference-store";
 import { ProviderAccountsHost } from "./provider-accounts-host";
 import { ProviderCredentialStore } from "./provider-credential-store";
@@ -379,7 +385,7 @@ import { ProviderUseSettingsStore } from "./provider-use-settings-store";
 import { PushNotificationStore } from "./push-notification-store";
 import { DESKTOP_USE_MS } from "./push-notifications";
 import { RelayedMessagingInstalls } from "./relayed-messaging-installs";
-import { decodeQueuedMessageReceipt } from "./remote-agent-decoding";
+import { decodeQueuedMessageReceipt, decodeRemoteAgentTask } from "./remote-agent-decoding";
 import { RemoteConnectTrace } from "./remote-connect-trace";
 import { createRemoteControlPolicyStore } from "./remote-control-policy-store";
 import { createRemoteControlQuestion } from "./remote-control-question";
@@ -440,6 +446,7 @@ import { SLACK_DEV_CALLBACK_PATH, startSlackDevCallbackServer } from "./slack-de
 import { SpeechPreferenceStore } from "./speech-preference-store";
 import { StartupTiming } from "./startup-timing";
 import { AGENT_CERTIFICATES_FILE, agentCertificateEnvironment } from "./system-certificates";
+import { createSystemCliTracker } from "./system-cli-tracker";
 import { mcpSignInSharedWithOthers } from "./team-api/mcp-member-access";
 import { LEGACY_TEAM_STORE_FILE, TEAM_STORE_FILE, TeamStore } from "./team-store";
 import { TeamWebRtcBridge } from "./team-webrtc-bridge";
@@ -613,6 +620,7 @@ const TEARDOWN_ORDER = {
   automation: 108,
   storageUsage: 109,
   service: 110,
+  processLauncher: 110.25,
   cuaDriver: 110.5,
   mcpOAuth: 111,
   analytics: 112,
@@ -668,6 +676,7 @@ export interface ApplicationServices {
   teamWebRtcBridge: TeamWebRtcBridge;
   mcpOAuth: McpOAuth;
   signInRelayClient: SignInRelayClient;
+  localSignInPages: LocalSignInPages;
   relayedMessagingInstalls: RelayedMessagingInstalls;
   githubConnector: GitHubConnectorService;
   linkAccount: LinkAccountService;
@@ -1118,6 +1127,29 @@ export async function createApplicationServices({
           return Effect.fail(new AgentDockFailed({ cause: new Error(sourceText("error.app.notReady")) }));
         }
         const { agents, host, remoteServers } = criticalActionTargets;
+        if (action.type === "start-thread") {
+          const input = { agentId: action.agentId, text: action.text, clientMessageId: action.clientMessageId };
+          const started =
+            action.serverId === LOCAL_SERVER_ID
+              ? agents.startTask(input, host.conversationSender()).pipe(toAgentDockFailed)
+              : remoteServers
+                  .request(action.serverId, AGENT_TASKS_ROUTES.start, decodeRemoteAgentTask, {
+                    method: "POST",
+                    body: input,
+                  })
+                  .pipe(toAgentDockFailed);
+          return started.pipe(
+            Effect.flatMap((task) =>
+              agentDock.performAction(0, {
+                type: "open-thread",
+                serverId: action.serverId,
+                agentId: action.agentId,
+                threadId: task.id,
+                started: true,
+              }),
+            ),
+          );
+        }
         if (action.seat.kind === "channel") {
           const command: ChannelCommand = {
             type: "send",
@@ -1133,6 +1165,24 @@ export async function createApplicationServices({
               ? agents.channels.command(command, host.channelActor()).pipe(Effect.asVoid)
               : remoteServers
                   .request(action.serverId, CHANNEL_ROUTES.command, decodeChannel, { method: "POST", body: command })
+                  .pipe(Effect.asVoid);
+          return sent.pipe(toAgentDockFailed);
+        }
+        if (action.taskId !== undefined) {
+          const input = {
+            agentId: action.seat.id,
+            taskId: action.taskId,
+            text: action.text,
+            clientMessageId: action.clientMessageId,
+          };
+          const sent =
+            action.serverId === LOCAL_SERVER_ID
+              ? agents.sendMessage(input, host.conversationSender()).pipe(Effect.asVoid)
+              : remoteServers
+                  .request(action.serverId, AGENT_TASKS_ROUTES.send, decodeQueuedMessageReceipt, {
+                    method: "POST",
+                    body: input,
+                  })
                   .pipe(Effect.asVoid);
           return sent.pipe(toAgentDockFailed);
         }
@@ -1327,6 +1377,7 @@ export async function createApplicationServices({
   };
   const browser = new BrowserHost(mainWindow, store.downloadsRoot, join(app.getPath("userData"), BROWSER_STATE_FILE), {
     memoryLow: () => (hostMemory?.level() ?? "ok") !== "ok",
+    memoryCritical: () => hostMemory?.level() === "critical",
     browserProfile: (agentId) => {
       const agent = store.get(agentId);
       return agent ? agentBrowserProfile(agent) : { kind: "shared" };
@@ -1868,8 +1919,12 @@ export async function createApplicationServices({
       applicationsDirectory: "/Applications",
     });
   };
+  const computerUseForegroundInput =
+    process.platform === "linux" &&
+    !cuaDriverDrivesWayland(process.platform) &&
+    !hasSeparateAgentDisplay(process.platform);
   const cuaDriver = new CuaDriverRuntime({
-    actionTap: new CuaDriverActionTap(Date.now, undefined, compactScreenshot),
+    actionTap: new CuaDriverActionTap(Date.now, undefined, compactScreenshot, computerUseForegroundInput),
     executable: await Effect.runPromise(resolveCuaDriverExecutable()),
     resolveExecutable: resolveCuaDriverExecutable,
     commandAlias: cuaDriverCommandAlias({
@@ -1962,6 +2017,9 @@ export async function createApplicationServices({
     computerUsePermissionHelp.close();
   });
   const providerTempDirectory = join(app.getPath("userData"), "provider-temp");
+  const processLauncher = process.platform === "win32" ? new ProcessLauncher() : null;
+  if (processLauncher)
+    teardown.push(TEARDOWN_ORDER.processLauncher, "the process launcher", () => processLauncher.dispose());
   performance.mark("openbot:services.computer-use");
   if (process.platform === "win32") await Effect.runPromise(sweepProviderTemp(providerTempDirectory));
   const agentApiKeys = new AgentApiKeys(join(app.getPath("userData"), "agent-api-keys"), vault.items);
@@ -1988,6 +2046,7 @@ export async function createApplicationServices({
   const workflowRuns = new WorkflowRunStore({ database: store.database });
   const userData = app.getPath("userData");
   const storageSources = {
+    libraryFiles: () => new Set(Object.keys(libraryFolders.getSnapshot().placement)),
     roots: {
       database: store.database.path,
       downloads: store.downloadsRoot,
@@ -2114,6 +2173,8 @@ export async function createApplicationServices({
     agentCursorDrawn: drawsComputerUseHighlight,
     computerUseOnWayland: agentsShareDisplay && cuaDriverDrivesWayland(process.platform),
     computerUseInputRefused: () => agentsShareDisplay && cuaDriver.waylandInputRefused(),
+    computerUseForegroundInput,
+    computerUseMissingPermissions: () => cuaDriver.missingPermissions(),
     requestTimeoutMs: 30_000,
     offProviders: providerUse.off(),
     providerAccounts,
@@ -2164,6 +2225,7 @@ export async function createApplicationServices({
       appVersion: app.getVersion(),
       providerStateDirectory: join(app.getPath("userData"), "provider-state"),
       ...(process.platform === "win32" ? { providerTempDirectory } : {}),
+      ...(processLauncher ? { launchProcess: processLauncher.launch } : {}),
       serverEnvironment,
       agentEnvironment: (inherited) => ({
         ...agentDisplayEnvironment(process.platform),
@@ -2200,6 +2262,8 @@ export async function createApplicationServices({
         mcpServerOwners.remove(mcpServerId).pipe(Effect.andThen(mcpAccessStore.remove(mcpServerId))),
     },
     reviewSkills: (agentId) => skills.listInstalledForChatTags(agentId),
+    reviewSkillsFull: (agentId) =>
+      skills.lockedSkillIds(agentId).pipe(Effect.map((ids) => ids.length >= INPUT_LIMITS.agentSkills)),
     routineFlowTools: () => routineFlowRuntime,
     workflowTools: () => workflowRuntime,
     webhookRoutines: () => agentWebhookRoutineWriter(events),
@@ -2216,6 +2280,7 @@ export async function createApplicationServices({
     skillLearner: () => localSkillLearner(skills),
     responseStyle: () => serverPersonality.responseStyle(),
     timezone: () => serverTimezone.effective(),
+    chosenTimezone: () => serverTimezone.get().timezone,
     extraRoutineSources: () => (workflowTriggers ? [workflowTriggers] : []),
     channelPersonAgentLevel: (personId, agentId) => host.channelPersonAgentLevel(personId, agentId),
     channelRemotePerson: (personId) => host.channelPersonIsRemote(personId),
@@ -2276,6 +2341,7 @@ export async function createApplicationServices({
     updateAgent: (input) => service.updateAgent(input),
     clearAgentContext: (agentId) => service.clearAgentContext(agentId),
   });
+  await Effect.runPromise(automation.removeStaleFiles());
   service.on("event", (event) => {
     if (event.type === "agents-changed") Effect.runFork(automation.requestSync());
   });
@@ -2319,6 +2385,7 @@ export async function createApplicationServices({
     download: (url, maxBytes) => downloadDiscordAttachment(url, maxBytes),
   });
   const workflowGitHub = workflowGitHubDirectory(() => githubConnector.workflowCatalog(), githubRest);
+  const workflowNotices = new EventEmitter<{ notice: [WorkflowNotice] }>();
   const workflowRuntime = await Effect.runPromise(
     createWorkflows({
       store: workflowStore,
@@ -2382,7 +2449,10 @@ export async function createApplicationServices({
           Effect.map((kept) => (typeof kept === "string" ? kept : kept.id)),
           Effect.ensuring(Effect.sync(() => storageUsage.invalidate())),
         ),
-      notify: forwardWorkflowNotice,
+      notify: (notice) => {
+        workflowNotices.emit("notice", notice);
+        forwardWorkflowNotice(notice);
+      },
       connectionOn: (connectionId) => service.messaging.store.connection(connectionId)?.enabled === true,
       post: (connectionId, placeId, markdown) => service.messaging.deliver(connectionId, placeId, markdown),
       channelPost: (input) => service.channels.postNote(input),
@@ -2595,19 +2665,23 @@ export async function createApplicationServices({
     libraryFolders.reconcileFiles(new Set(mailbox.listStoredFiles().map((stored) => stored.attachment.id))),
   );
 
+  const runsAsServer = Boolean(serverModeEnvironment || localServerChild);
+  const trackSystemCliVersionsOnly = createSystemCliTracker({
+    runtimes: providerRuntimes,
+    providerUse,
+    agentProviders: () =>
+      new Set(service.listAgents().map((agent) => (isKeyOnlyProvider(agent.provider) ? "pi" : agent.provider))),
+    hosted: false,
+    server: runsAsServer,
+  });
   const trackSystemCliVersions = (status: AgentStatus): void => {
-    let copyInUse = false;
-    for (const provider of status.providers ?? []) {
-      if (!isManagedRuntimeProvider(provider.id)) continue;
-      const version = provider.cliSource === "system" ? (provider.version ?? null) : null;
-      if (providerRuntimes.setSystemVersion(provider.id, version, provider.cliIncomplete === true)) copyInUse = true;
-    }
-    if (copyInUse) Effect.runFork(providerRuntimes.providerUseChanged());
+    trackSystemCliVersionsOnly(status);
     hermesInstaller.setProvider(status.providers?.find((provider) => provider.id === "hermes"));
   };
   trackSystemCliVersions(service.getStatus());
   service.on("event", (event) => {
     if (event.type === "status") trackSystemCliVersions(event.status);
+    else if (event.type === "agents-changed" && runsAsServer) trackSystemCliVersionsOnly(service.getStatus());
   });
   providerRuntimes.on("status", forwardProviderRuntimeStatus);
   if (diskRestoring()) {
@@ -2650,12 +2724,17 @@ export async function createApplicationServices({
   await Effect.runPromise(universalResources.load());
   universalVault.attachResources(universalResources);
   const marketplaceAgents = new AgentMarketplaceService(marketplaceAuth, service, skills);
-  const agentTemplates = new AgentTemplateService(centralAuth, service, {
-    listTemplateSkills: (agentId) => skills.listTemplateSkills(agentId),
-    installVersion: (input) => skills.installVersion(input),
-    library: () => skills.requireLocalLibrary(),
-    installLocal: (input) => skills.installLocal(input),
-  });
+  const agentTemplates = new AgentTemplateService(
+    centralAuth,
+    service,
+    {
+      listTemplateSkills: (agentId) => skills.listTemplateSkills(agentId),
+      installVersion: (input) => skills.installVersion(input),
+      library: () => skills.requireLocalLibrary(),
+      installLocal: (input) => skills.installLocal(input),
+    },
+    marketplaceAuth,
+  );
   const teamStore = new TeamStore(
     join(app.getPath("userData"), TEAM_STORE_FILE),
     join(app.getPath("userData"), LEGACY_TEAM_STORE_FILE),
@@ -3049,6 +3128,11 @@ export async function createApplicationServices({
   });
   const mcpHostSignIns = new McpHostSignIns({ service, browser });
   const providerSignIns = new ProviderHostSignIns({ service, browser });
+  const localSignInPages = new LocalSignInPages(
+    (provider) =>
+      service.getStatus().providers?.some((row) => row.id === provider && row.connectionState === "connecting") ??
+      false,
+  );
   const providerAccountsHost = new ProviderAccountsHost({ service, browser });
   const signInRelayHost = new SignInRelayHost({
     mcp: mcpHostSignIns,
@@ -3119,6 +3203,7 @@ export async function createApplicationServices({
     store: teamStore,
     agents: service,
     signInWaits: service.signInWaits,
+    workflowNotices,
     agentsReady: () => agentInitialization.awaitRoster(),
     events,
     skills,
@@ -3430,6 +3515,9 @@ export async function createApplicationServices({
     remoteDesktopStateDirectory: join(app.getPath("userData"), "remote-desktop-runtime"),
     getRemoteDesktopRuntimeCredentials: () => Effect.succeed(remoteDesktopRuntimeCredentials),
     remoteDesktopScreenLocked: () => powerMonitor.getSystemIdleState(1) === "locked",
+    wakeRemoteDesktopScreen: () => {
+      execFile("/usr/bin/caffeinate", ["-u", "-t", "5"], () => undefined).unref();
+    },
     getRemoteDesktopDisplays: () => {
       const primaryId = screen.getPrimaryDisplay().id;
       return screen.getAllDisplays().map((display, index) => ({
@@ -3640,6 +3728,7 @@ export async function createApplicationServices({
           }),
       },
       accountReady: centralAuthInitialization,
+      headlessHost: Boolean(serverModeEnvironment),
       ...(serverModeEnvironment || localServerChild
         ? {}
         : {
@@ -3833,6 +3922,14 @@ export async function createApplicationServices({
       sendToRenderer(contents && BrowserWindow.fromWebContents(contents), IPC_ENDPOINTS.browser.liveViewEvent, event);
     },
     writeClipboard: (text) => clipboard.writeText(text),
+    frameSize: (owner) => {
+      const contents = webContents.fromId(owner);
+      const window = contents && BrowserWindow.fromWebContents(contents);
+      if (!window || window.isDestroyed()) return null;
+      const [width = 0, height = 0] = window.getContentSize();
+      const { scaleFactor } = screen.getDisplayMatching(window.getBounds());
+      return { width: width * scaleFactor, height: height * scaleFactor };
+    },
   });
   teardown.push(TEARDOWN_ORDER.browserView, "the live browser view", () => runCauseEffect(browserView.stop()));
   const remoteDesktop = new RemoteDesktopManager({
@@ -4210,6 +4307,7 @@ export async function createApplicationServices({
     teamWebRtcBridge,
     mcpOAuth,
     signInRelayClient,
+    localSignInPages,
     relayedMessagingInstalls: new RelayedMessagingInstalls(remoteServers),
     githubConnector,
     linkAccount,

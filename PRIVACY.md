@@ -110,6 +110,15 @@ history. The server does not store the location or the typed place in the SQLite
 keeps only that the location was shared or not. The agent's reply, which can name the place, is stored
 like any other message. The phone does not store the location, follow it in the background, or send it
 to the account service or analytics.
+A page in the OpenBot browser can ask for the location. The browser asks the person first, and a page
+gets nothing until the person selects **Allow**. On the computer that runs the browser, Allow lets the
+page read the location of that computer. On a joined server, Allow reads the location of the member's
+own device (latitude, longitude and accuracy) one time and sends it to the server, which gives it to
+that tab only. The page can then send it to its site, as in any browser. The answer holds while the
+tab stays on the same site. **Allow always** holds for that site in all agent tabs until OpenBot or the
+server restarts. On a joined server, it holds only in the tabs of the same agent, and the server keeps the
+location that the member sent in memory for that time and gives it to the site again in those tabs. OpenBot does not store the location or the answer in the SQLite database,
+and does not send it to the account service or analytics.
 Channel history keeps its existing membership and task checks. Messaging history stays within its
 current link. The full conversation stays in local SQLite storage. No history text is sent to the
 account service or analytics by these tools.
@@ -201,6 +210,18 @@ Mobile does not read the Android install referrer from Google Play. It never sen
 install-referrer URLs or route identifiers. It does not
 emit host lifecycle events again. Agent/host token and cost reports remain separate local data.
 
+The production Chrome extension records its install and update, side panel opens, sign-in and
+sign-out results, message sends from the side panel (to a chat, a thread or a channel), dictation
+results and lengths, the agents, channels and folders made in it, answers to agent questions, the
+steps of X replies (queued, sent, retried, dropped, notification opened), and shared-tab events
+(a site removed, and the kind of each question and your answer). It labels them
+as extension. It never sends message text, post text, X handles, addresses, sites, tab titles, or
+names. Its **Link analytics to my account** switch (server menu > **Settings**) works as on the web: on, events
+carry your account ID; off, only a random install ID kept in the extension's storage. When your account
+says off, for example after you turn it off on another device, the extension is off too. Else your
+choice in the extension wins; with no choice by your account, it follows your account's answer, and
+with no answer, the same region default as the web app. Development builds of the extension send no analytics.
+
 Analytics events do not contain message or direct-message text, prompts, replies, generated content,
 search queries, embedded-browser URLs, paths or page titles, file names, local paths, commands, raw
 error messages, or local identifiers for agents, threads, turns, messages, servers, and team members.
@@ -260,7 +281,7 @@ the device was offline or signed out goes to the account at the next sign-in, st
 refresh; the account keeps it only if it has no newer answer from another device. Disabling it
 drops pending mobile events; it does not remove previously received events or retract an in-flight
 request. There is no persistent offline analytics queue.
-When a user turns product analytics off on desktop, web or mobile, the app first sends one event
+When a user turns product analytics off on desktop, web, mobile or the Chrome extension, the app first sends one event
 that says analytics was turned off, with the account. After that, events go with the install ID only.
 Turning it on again sends no separate event.
 Development and preview mobile builds do not collect product analytics. Mobile sign-in uses the
@@ -1025,24 +1046,24 @@ notification. Nothing goes to OpenBot,
 and nothing is sent when you do not click. To find the parts of the page, the extension
 asks openbot.run once an hour for the newest list of page selectors; that request carries only the hash
 of the list that it has. Except for shared tabs (below), the extension does not read your tabs or the
-pages you visit.
+pages you visit. The extension's product analytics, which "Product analytics" describes,
+go to OpenBot's self-hosted analytics and contain none of this content.
 
-Shared tabs are on while you are signed in, until you press **Stop sharing** in the side panel. Your
+Shared tabs are always on while you are signed in to the extension; to stop them, sign out. Your
 open tabs are shared only with your own agents, and an agent uses them only for a message that you
 send from the side panel; for a message in the OpenBot app, it uses its own browser. The extension tells
 your server the address, title and active state of your open web tabs (at most 50, the tab that you
 look at first), through the same encrypted connection, when they change and every 30 seconds. When an
 agent works in a tab, the tab joins a Chrome tab group named "OpenBot", unless it is in another group. When an agent acts on a site for the
 first time, the side panel asks you (Allow once, Always for this site, Deny); the sites that you allow
-always stay in the browser's extension storage until you remove them in the panel. The extension
+always stay in the browser's extension storage until you remove them in the side panel's Settings. The extension
 always asks again before an agent types into a password or payment field, downloads a file, or acts
 on a page that signs in to an app or gives an app access. To read and use a tab, the extension uses
 Chrome's debugger on that tab, and Chrome shows its own bar while it does. What an agent reads goes
 to your server: the page text and the list of its buttons, links and fields (not the values of
 password or payment fields), screenshots of the visible page, and addresses. Text that an agent types
-goes from your server to the page. Nothing goes to OpenBot. **Stop sharing** ends the group and stops
-the reports; your server forgets the shared tabs at once, or at the latest 75 seconds after the
-extension stops. **Share tabs with agents** turns sharing on again.
+goes from your server to the page. Nothing goes to OpenBot. Your server forgets the shared tabs at the
+latest 75 seconds after the extension stops.
 
 ## Other network connections
 
@@ -1197,7 +1218,9 @@ Network traffic can also occur when:
   token to the central account service (`api.openbot.run`) about once an hour, and when you open the
   repository list. The service uses it
   only to ask GitHub which repositories you can push to, and gets back short-lived installation
-  tokens for those repositories. It does not store or log either token, and it gets no chats, files
+  tokens for those repositories. When you open the repository list, the service also gives the names
+  of the public repositories where the OpenBot GitHub App is installed, so the list shows public
+  repositories that you can read but have no own access to. It does not store or log either token, and it gets no chats, files
   or commands. Agents reach the GitHub MCP server through a local server on `127.0.0.1`, which adds
   the right token to each call;
 - the user approves a bug report or a feature idea that an agent wrote. Before the card, OpenBot
@@ -1715,10 +1738,12 @@ key; the data export lists it under `scope.excludes`.
 When you saved no key in OpenBot, OpenBot reads the Go quota with the key that the OpenCode CLI
 uses: an OpenCode Console connection in OpenCode's database (`opencode.db`), else the Go key. The Go
 key is the `opencode-go` key in OpenCode's `auth.json` (or `OPENCODE_AUTH_CONTENT`), or
-`OPENCODE_API_KEY` from the environment that started OpenBot when `auth.json` has none. OpenBot reads
+`OPENCODE_API_KEY` from the environment that started OpenBot when `auth.json` has none. Last, it
+uses the `opencode` key in `auth.json`, the key that older OpenCode versions keep only there, unless
+that key names a self-hosted Console. OpenBot reads
 these from OpenCode's data folder (`$XDG_DATA_HOME/opencode`, or `~/.local/share/opencode`) and sends
-the key only to `opencode.ai/zen/go/v1/usage`. When OpenCode rejects the Console key, OpenBot tries
-the Go key. OpenBot does not store, log, or show these keys. OpenBot does not copy OpenCode credentials or upload its session
+the key only to `opencode.ai/zen/go/v1/usage`. When OpenCode rejects a key, OpenBot tries
+the next one. OpenBot does not store, log, or show these keys. OpenBot does not copy OpenCode credentials or upload its session
 files. OpenCode manages its own login and resume state.
 
 ### Gemini

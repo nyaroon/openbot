@@ -217,6 +217,7 @@ import type {
   BrowserBounds,
   BrowserControlState,
   BrowserDisplayState,
+  BrowserHttpSignInInput,
   BrowserLiveViewEvent,
   BrowserLocalSignInEnd,
   BrowserLocalSignInFinish,
@@ -224,6 +225,7 @@ import type {
   BrowserLocalSignInResult,
   BrowserNavigateInput,
   BrowserOpenInput,
+  BrowserPermissionAnswer,
   BrowserPictureInPictureEvent,
   BrowserPreview,
   BrowserTab,
@@ -645,6 +647,7 @@ import type {
   VoiceServerSave,
   VoiceServerSettings,
   VoiceSettings,
+  VoiceSettingsState,
   VoiceStream,
   VoiceStreamAudio,
   VoiceStreamTranscript,
@@ -693,6 +696,7 @@ import type { AccountSession, MobileConnectedDevice, MobileConnectLink, MobileCo
 import type { AcceptedOwnerTransfer, OwnerTransfer } from "./owner-transfer";
 import type { ServerClaim } from "./server-install";
 import type { AgentActiveQueues } from "./team-protocol/agent-active-queues-v1";
+import type { ChannelCompactAvailability } from "./team-protocol/channel-compact-availability-v1";
 
 declare const payloadType: unique symbol;
 declare const resultType: unique symbol;
@@ -881,7 +885,7 @@ export const IPC_ENDPOINTS = {
     downloadModel: request<VoiceModelRequest, VoiceModelStatus>()("voice:download-model"),
     cancelModelDownload: request<VoiceModelRequest, VoiceModelStatus>()("voice:cancel-model-download"),
     removeModel: request<VoiceModelRequest, VoiceModelStatus>()("voice:remove-model"),
-    getSettings: request<undefined, VoiceSettings>()("voice:get-settings"),
+    getSettings: request<undefined, VoiceSettingsState>()("voice:get-settings"),
     setSettings: request<VoiceSettings, VoiceSettings>()("voice:set-settings"),
     transcribe: request<VoiceTranscriptionInput, VoiceTranscriptionResult>()("voice:transcribe"),
     setApiKey: request<VoiceApiKeyInput, VoiceModelStatus>()("voice:set-api-key"),
@@ -1524,6 +1528,9 @@ export const IPC_ENDPOINTS = {
     clearChannelContext: scopedRequest<string, void>()("agent:channels:clear-context"),
     deleteChannelHistory: scopedRequest<string, void>()("agent:channels:delete-history"),
     compactChannelContext: scopedRequest<string, void>()("agent:channels:compact-context"),
+    channelCompactAvailability: scopedRequest<string, ChannelCompactAvailability>()(
+      "agent:channels:compact-availability",
+    ),
     getSidebarLayout: scopedQuery<SidebarLayoutSnapshot>()("agent:get-sidebar-layout"),
     mutateSidebarLayout: scopedRequest<SidebarLayoutAction, SidebarLayoutSnapshot>()("agent:mutate-sidebar-layout"),
     getSidebarPins: scopedQuery<SidebarPinsSnapshot>()("agent:sidebar-pins:get"),
@@ -1778,6 +1785,7 @@ export const IPC_ENDPOINTS = {
     close: request<string, void>()("browser:close"),
     takeControl: request<string, void>()("browser:take-control"),
     releaseControl: request<string, void>()("browser:release-control"),
+    answerPermission: request<BrowserPermissionAnswer, void>()("browser:answer-permission"),
     startTeach: request<string, void>()("browser:teach-start"),
     stopTeach: request<BrowserTeachStopInput, BrowserTeachStep[]>()("browser:teach-stop"),
     listTabs: request<undefined, BrowserTab[]>()("browser:list-tabs"),
@@ -1807,6 +1815,7 @@ export const IPC_ENDPOINTS = {
     finishLocalSignIn: request<BrowserLocalSignInFinish, BrowserLocalSignInResult | null>()(
       "browser:local-sign-in-finish",
     ),
+    answerHttpSignIn: request<BrowserHttpSignInInput, void>()("browser:http-sign-in-answer"),
   },
   browserInput: {
     sendLiveViewInput: untypedRequest("browser:send-live-view-input"),

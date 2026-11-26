@@ -191,6 +191,7 @@ type TeamApiAgentMethods = Pick<
   | "deleteAgentHistory"
   | "clearChannelContext"
   | "compactChannelContext"
+  | "channelCompactAvailable"
   | "deleteChannelHistory"
   | "compactAgentContext"
   | "compactTaskContext"
@@ -564,10 +565,13 @@ export type TeamApiBrowser = Pick<
   | "startTeach"
   | "stopTeach"
   | "stop"
+  | "answerPermission"
   | "importSignIn"
+  | "answerHttpSignIn"
   | "startView"
   | "dispatchViewInput"
   | "copyViewSelection"
+  | "answerViewDialog"
 >;
 export type TeamApiBrowserView = Pick<
   BrowserViewGateway,

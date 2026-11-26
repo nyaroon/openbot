@@ -496,6 +496,19 @@ export const messages = {
   "mobile.server.settings.keyChangeFailed": "تعذّر تغيير مفتاح الخادم. أعد المحاولة.",
   "mobile.server.settings.keyOwnerOnly": "يمكن للمالك فقط تغيير مفتاح الخادم.",
   "mobile.server.settings.keyUnsupported": "حدّث OpenBot على هذا الخادم لتغيير مفتاحه من هنا.",
+  "mobile.server.settings.turnLimit": "السلاسل في الوقت نفسه",
+  "mobile.server.settings.turnLimitDescription":
+    "عدد سلاسل الوكلاء التي يمكن تشغيلها في الوقت نفسه على هذا الخادم. السلاسل الأكثر تستخدم ذاكرة أكثر.",
+  "mobile.server.settings.turnLimitAutomatic": "تلقائي ({count})",
+  "mobile.server.settings.turnLimitAutomaticUnlimited": "تلقائي (بلا حد)",
+  "mobile.server.settings.turnLimitUnlimited": "بلا حد",
+  "mobile.server.settings.turnLimitsLoadFailed": "تعذّر تحميل حدود السلاسل لهذا الخادم.",
+  "mobile.server.settings.turnLimitsSaveFailed": "تعذّر حفظ حد السلاسل. أعد المحاولة.",
+  "mobile.server.settings.turnLimitsUnsupported": "حدّث OpenBot على هذا الخادم لتغيير حد السلاسل من هنا.",
+  "mobile.server.settings.agentTaskLimit": "السلاسل المتوازية لكل وكيل",
+  "mobile.server.settings.agentTaskLimitDescription":
+    "عدد السلاسل التي يمكن لكل وكيل ليس له حد خاص تشغيلها في الوقت نفسه.",
+  "mobile.server.settings.agentTaskLimitDefault": "افتراضي ({count})",
   "mobile.server.settings.memoryLimit": "الذكريات لكل وكيل",
   "mobile.server.settings.memoryLimitDescription": "عدد الذكريات التي يمكن لكل وكيل على هذا الخادم الاحتفاظ بها.",
   "mobile.server.settings.memoryLimitLoadFailed": "تعذّر تحميل حد الذاكرة لهذا الخادم.",
@@ -1151,7 +1164,7 @@ export const messages = {
     "يمكن فقط لدردشة «مراسلة نفسك» والأشخاص الذين تسمح لهم المراسلة. لا يتلقى الآخرون أي رد. عند إيقافه، يرد OpenBot على الأشخاص غير المعروفين برمز.",
   "mobile.server.connectors.whatsapp.workingMessage": "رسالة «جارٍ العمل على ذلك…»",
   "mobile.server.connectors.whatsapp.workingMessageDescription":
-    "يرسلها OpenBot أثناء عمل الوكيل، ثم يستبدلها بالإجابة. ويرسل أيضًا رسالة انتظار عندما ينتظر طلبٌ طلبًا سابقًا. أوقفها لإرسال الإجابة فقط.",
+    "يرسلها OpenBot أثناء عمل الوكيل، ثم يستبدلها بالإجابة. ويرسل أيضًا رسالة انتظار عندما ينتظر طلبٌ طلبًا سابقًا. على الرقم الشخصي، تصل هذه الرسائل إلى دردشة «مراسلة نفسك» فقط. أوقفها لإرسال الإجابة فقط.",
   "mobile.server.connectors.whatsapp.statusReactions": "تفاعلات الحالة",
   "mobile.server.connectors.whatsapp.statusReactionsDescription":
     "يتفاعل OpenBot بـ 👀 عند وصول رسالة، وبـ ✅ عندما تصبح الإجابة جاهزة. أوقفها لعدم إرسال أي تفاعلات.",

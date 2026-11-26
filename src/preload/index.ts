@@ -111,6 +111,7 @@ import {
   decodeWebhookTestResult,
 } from "@openbot/contracts/ipc-events";
 import { decodeAcceptedOwnerTransfer, decodeOwnerTransfer } from "@openbot/contracts/owner-transfer";
+import { decodeChannelCompactAvailability } from "@openbot/contracts/team-protocol/channel-compact-availability-v1";
 import { contextBridge, ipcRenderer, webUtils } from "electron";
 import {
   decodeAccountUsageFromMain,
@@ -226,6 +227,7 @@ import {
   decodeVoiceServerProbe,
   decodeVoiceServerSettings,
   decodeVoiceSettings,
+  decodeVoiceSettingsState,
   decodeVoiceStream,
   decodeVoiceStreamTranscript,
   decodeVoiceTranscriptionResult,
@@ -636,6 +638,7 @@ const agentGroup = bridgeGroup(IPC_ENDPOINTS.agent, {
   clearChannelContext: decodeVoid,
   deleteChannelHistory: decodeVoid,
   compactChannelContext: decodeVoid,
+  channelCompactAvailability: decodeChannelCompactAvailability,
   getSidebarLayout: decodeSidebarLayout,
   mutateSidebarLayout: decodeSidebarLayout,
   getSidebarPins: decodeSidebarPinsFromMain,
@@ -968,7 +971,7 @@ const openbotApi: OpenBotDesktopApi = {
     downloadModel: decodeVoiceModelStatus,
     cancelModelDownload: decodeVoiceModelStatus,
     removeModel: decodeVoiceModelStatus,
-    getSettings: decodeVoiceSettings,
+    getSettings: decodeVoiceSettingsState,
     setSettings: decodeVoiceSettings,
     prepareModel: decodeVoiceModelStatus,
     transcribe: decodeVoiceTranscriptionResult,
@@ -1557,6 +1560,7 @@ const openbotApi: OpenBotDesktopApi = {
       navigate: decodeVoid,
       reload: decodeVoid,
       stop: decodeVoid,
+      answerPermission: decodeVoid,
       close: decodeVoid,
       takeControl: decodeVoid,
       releaseControl: decodeVoid,
@@ -1587,6 +1591,7 @@ const openbotApi: OpenBotDesktopApi = {
       windowEvent: decodeBrowserWindowEvent,
       openLocalSignIn: decodeBrowserLocalSignInEnd,
       finishLocalSignIn: decodeBrowserLocalSignInResult,
+      answerHttpSignIn: decodeVoid,
     }),
     sendLiveViewInput: (input) =>
       ipcRenderer.invoke(IPC_ENDPOINTS.browserInput.sendLiveViewInput.channel, input).then(decodeVoid),
