@@ -6,6 +6,12 @@ All notable changes to OpenBot will be documented here. The project follows
 
 ## [Unreleased]
 
+## [0.78.3] - 2026-11-27
+
+### Added
+
+- Jujurly can take over the data of an OpenBot installation on the same computer: agents, threads, provider sign-ins, skills, the vault and the server that the computer hosts. A fresh Jujurly asks at its first start; an installed one asks when started with `--import-openbot`. OpenBot must be closed, its data is only read, and what Jujurly held before moves to a backup folder. After the import you sign in again.
+
 ## [0.78.2] - 2026-11-27
 
 ### Changed
