@@ -6,6 +6,12 @@ All notable changes to OpenBot will be documented here. The project follows
 
 ## [Unreleased]
 
+## [0.78.4] - 2026-11-27
+
+### Changed
+
+- The app no longer asks its users to star the repository or to post about it.
+
 ## [0.78.3] - 2026-11-27
 
 ### Added
