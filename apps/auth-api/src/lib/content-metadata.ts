@@ -53,7 +53,7 @@ export function collectionIndexHead(collection: ContentCollection, siteUrl: stri
       { name: "description", content: collection.indexDescription },
       { "script:ld+json": collectionStructuredData(collection, siteUrl) },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "OpenBot" },
+      { property: "og:site_name", content: "Jujurly" },
       { property: "og:locale", content: "en_US" },
       { property: "og:url", content: url },
       { property: "og:title", content: collection.indexTitle },
@@ -97,7 +97,7 @@ export function articleHead(
       { "script:ld+json": articleStructuredData(collection, article, siteUrl) },
       { "script:ld+json": articleBreadcrumbData(collection, article, siteUrl) },
       { property: "og:type", content: "article" },
-      { property: "og:site_name", content: "OpenBot" },
+      { property: "og:site_name", content: "Jujurly" },
       { property: "og:locale", content: "en_US" },
       { property: "og:url", content: url },
       { property: "og:title", content: title },
@@ -144,7 +144,7 @@ function articleStructuredData(collection: ContentCollection, article: Collectio
     author: { "@type": "Person", name: article.author },
     publisher: {
       "@type": "Organization",
-      name: "OpenBot",
+      name: "Jujurly",
       url: OPENBOT_SITE_URL,
       logo: { "@type": "ImageObject", url: OPENBOT_LOGO_URL, width: 512, height: 512 },
     },
@@ -156,7 +156,7 @@ function articleStructuredData(collection: ContentCollection, article: Collectio
 
 function articleBreadcrumbData(collection: ContentCollection, article: CollectionArticle, siteUrl: string) {
   const trail = [
-    { name: "OpenBot", url: siteUrl },
+    { name: "Jujurly", url: siteUrl },
     { name: collection.name, url: collectionIndexUrl(collection, siteUrl) },
     { name: article.title, url: articleUrl(collection, article.slug, siteUrl) },
   ];
@@ -217,7 +217,7 @@ export function pluginHead(plugin: SitePlugin, siteUrl: string) {
       { name: "description", content: description },
       { "script:ld+json": pluginStructuredData(plugin, siteUrl) },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "OpenBot" },
+      { property: "og:site_name", content: "Jujurly" },
       { property: "og:locale", content: "en_US" },
       { property: "og:url", content: url },
       { property: "og:title", content: title },
@@ -241,7 +241,7 @@ function pluginStructuredData(plugin: SitePlugin, siteUrl: string) {
     applicationCategory: "DeveloperApplication",
     softwareVersion: plugin.version,
     author: { "@type": "Organization", name: plugin.creatorName },
-    isPartOf: { "@type": "SoftwareApplication", name: "OpenBot", url: OPENBOT_SITE_URL },
+    isPartOf: { "@type": "SoftwareApplication", name: "Jujurly", url: OPENBOT_SITE_URL },
     mainEntityOfPage: { "@type": "WebPage", "@id": pluginUrl(plugin.slug, siteUrl) },
     url: pluginUrl(plugin.slug, siteUrl),
   };

@@ -30,7 +30,7 @@ async function agentTemplateHead(template: AgentTemplateDetail, siteUrl: string)
       { name: "description", content: description },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "OpenBot" },
+      { property: "og:site_name", content: "Jujurly" },
       { property: "og:url", content: url },
       { property: "og:title", content: title },
       { property: "og:description", content: description },

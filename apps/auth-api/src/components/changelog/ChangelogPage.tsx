@@ -32,7 +32,7 @@ interface ReleaseMonth {
 }
 
 const PRODUCT_NAMES: Record<ChangelogPlatform, string> = {
-  desktop: "OpenBot",
+  desktop: "Jujurly",
   mobile: "OpenBot Mobile",
 };
 

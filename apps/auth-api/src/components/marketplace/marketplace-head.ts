@@ -16,7 +16,7 @@ function pageMeta(url: string, text: MarketplaceHeadText) {
     { title: text.title },
     { name: "description", content: text.description },
     { property: "og:type", content: "website" },
-    { property: "og:site_name", content: "OpenBot" },
+    { property: "og:site_name", content: "Jujurly" },
     { property: "og:url", content: url },
     { property: "og:title", content: text.title },
     { property: "og:description", content: text.description },

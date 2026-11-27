@@ -434,7 +434,7 @@ export function downloadPageUrl(platform: DownloadPagePlatform | "hub", siteUrl:
 
 function breadcrumbData(platform: DownloadPagePlatform | "hub", siteUrl: string) {
   const trail = [
-    { name: "OpenBot", url: siteUrl },
+    { name: "Jujurly", url: siteUrl },
     { name: "Download", url: downloadPageUrl("hub", siteUrl) },
     ...(platform === "hub" ? [] : [{ name: DOWNLOAD_PAGES[platform].name, url: downloadPageUrl(platform, siteUrl) }]),
   ];

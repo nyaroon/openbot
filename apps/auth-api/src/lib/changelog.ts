@@ -226,7 +226,7 @@ export function changelogHead(siteUrl: string, platform: ChangelogPlatform = "de
       { title: CHANGELOG_TITLE },
       { name: "description", content: CHANGELOG_DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "OpenBot" },
+      { property: "og:site_name", content: "Jujurly" },
       { property: "og:locale", content: "en_US" },
       { property: "og:url", content: url },
       { property: "og:title", content: CHANGELOG_TITLE },
