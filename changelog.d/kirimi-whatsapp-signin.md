@@ -33,3 +33,5 @@
 - Agents can publish a page as an artifact with its own link on the account service. Members of the organization open it after they sign in, comment on it, and see its earlier versions; the publisher or a manager can make the link public or delete it.
 - A published artifact shows as a card in the chat with an Open button, and Settings has an Artifacts tab that lists the artifacts of your organizations, opens them and deletes them.
 - The desktop app updates itself again: it checks the update feed of this product, and a release is one command (`bun run release:win`).
+- Jujurly can take over the data of an OpenBot installation on the same computer: agents, threads, provider sign-ins, skills, the vault and the server that the computer hosts. A fresh Jujurly asks at its first start; an installed one asks when started with `--import-openbot`. OpenBot must be closed, its data is only read, and what Jujurly held before moves to a backup folder in its data folder. After the import you sign in again. Data saved by an OpenBot newer than database version 70 is refused.
+- A database imported from OpenBot gets the board tables (migration 72).

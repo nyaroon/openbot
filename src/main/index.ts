@@ -153,6 +153,15 @@ import {
 import { ensureMacApplicationPresence, secondLaunchResponse } from "./main-window-state";
 import { MessageLinkRelay, openMessageLink } from "./message-link-relay";
 import { recoverFromNewerDatabase } from "./newer-database-recovery";
+import {
+  declineOpenBotImport,
+  inspectOpenBotData,
+  openBotDataDirectory,
+  requestOpenBotImport,
+  runRequestedOpenBotImport,
+  shouldOfferOpenBotImport,
+  takeOpenBotImportReport,
+} from "./openbot-import";
 import { removeOrcaPaneEnvironment } from "./orca-pane-environment";
 import { flushMainLog, startMainLog } from "./provider-log";
 import { notifyRemoteControlStarted } from "./remote-control-question";
@@ -314,6 +323,16 @@ if (commandLineUserDataDirectory) {
   );
 }
 app.setName(PRODUCT_NAME);
+const openBotImportForced = process.argv.includes("--import-openbot");
+const openBotImportAllowed = !(serverMode || localServerChildEnvironment);
+// Before anything reads the data folder: an import replaces the files that the app is about to open.
+const openBotImportResult = openBotImportAllowed
+  ? runRequestedOpenBotImport(app.getPath("userData"), new Date())
+  : null;
+const openBotImportOffered =
+  openBotImportAllowed &&
+  !openBotImportResult &&
+  shouldOfferOpenBotImport(app.getPath("userData"), openBotImportForced);
 const systemTimezone =
   serverMode || localServerChild
     ? applyServerTimezone(join(app.getPath("userData"), SERVER_TIMEZONE_PREFERENCE_FILE), process.env)
@@ -361,6 +380,67 @@ if (
   )
 )
   process.exit(0);
+/** Asks whether to bring the OpenBot data of this computer into this app. True when the app restarts for it. */
+async function offerOpenBotImport(): Promise<boolean> {
+  const userData = app.getPath("userData");
+  const inspected = inspectOpenBotData(openBotDataDirectory(app.getPath("appData")));
+  if (inspected === "no_data") return false;
+  if (typeof inspected === "string") {
+    if (!openBotImportForced) return false;
+    await dialog.showMessageBox({
+      type: "warning",
+      message: "The OpenBot data cannot be imported now.",
+      detail:
+        inspected === "running"
+          ? "OpenBot is running. Quit OpenBot completely, then start this app again."
+          : "A newer OpenBot saved this data. This app cannot read it yet.",
+    });
+    return false;
+  }
+  const answer = await dialog.showMessageBox({
+    type: "question",
+    buttons: ["Import and restart", "Not now", "Do not ask again"],
+    defaultId: 0,
+    cancelId: 1,
+    message: `Import your OpenBot data into ${PRODUCT_NAME}?`,
+    detail:
+      "This copies your agents, threads, provider sign-ins, skills, vault and the server that this computer hosts. " +
+      `The OpenBot data is not changed. What ${PRODUCT_NAME} holds now moves to a backup folder. ` +
+      "After the import you sign in again. Do not run OpenBot and this app at the same time: both would run the same agents.",
+  });
+  if (answer.response === 2) declineOpenBotImport(userData, new Date());
+  if (answer.response !== 0) return false;
+  requestOpenBotImport(userData, inspected.directory);
+  relaunchApp(
+    app,
+    process.argv.slice(1).filter((value) => value !== "--import-openbot"),
+  );
+  app.exit(0);
+  return true;
+}
+
+/** Says one time how an import ended. */
+function reportOpenBotImport(): void {
+  const report = takeOpenBotImportReport(app.getPath("userData"));
+  if (!report) return;
+  if (report.ok)
+    logger.info(`Imported the OpenBot data (${report.copied} entries). Backup: ${report.backup ?? "none"}.`);
+  else logger.warn(`The OpenBot import failed: ${report.error ?? "unknown"}.`);
+  void dialog.showMessageBox(
+    report.ok
+      ? {
+          type: "info",
+          message: "Your OpenBot data is imported.",
+          detail: `Sign in again to finish. The earlier data of ${PRODUCT_NAME} is in ${report.backup ?? "a backup folder"}.`,
+        }
+      : {
+          type: "error",
+          message: "The OpenBot import failed.",
+          detail: `${report.error ?? "Unknown error."} Nothing was changed.`,
+        },
+  );
+}
+
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 if (hasSingleInstanceLock) {
   startMainLog(join(app.getPath("userData"), "logs"));
@@ -1460,6 +1540,8 @@ if (!hasSingleInstanceLock) {
         app.quit();
         return;
       }
+      if (openBotImportOffered && (await offerOpenBotImport())) return;
+      reportOpenBotImport();
       if (!localServerChild && !serverMode) {
         clearEarlierWindowsNotifications(WINDOWS_APP_USER_MODEL_ID);
         await presentApplication();

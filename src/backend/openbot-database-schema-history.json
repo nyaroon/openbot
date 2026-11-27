@@ -354,5 +354,6 @@
   },
   "71": {
     "index thread_activities_sequence": "CREATE INDEX THREAD_ACTIVITIES_SEQUENCE ON PROJECTION_THREAD_ACTIVITIES ( THREAD_ID , LAST_EVENT_SEQUENCE )"
-  }
+  },
+  "72": {}
 }
