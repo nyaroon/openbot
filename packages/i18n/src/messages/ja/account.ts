@@ -94,7 +94,7 @@ export const messages = {
   "account.login.whatsappHint":
     "スマートフォンで QR コードを読み取り、{email} から用意された WhatsApp メッセージを送信してください。",
   "account.login.whatsappOpen": "WhatsApp を開く",
-  "account.login.whatsappSent": "メッセージを送信しました",
+  "account.login.whatsappWaiting": "WhatsAppのメッセージを待っています。届くとすぐにサインインします。",
   "account.login.sendNewCode": "新しいコードを送信",
   "account.login.sendNewCodeIn": "{time} 後に新しいコードを送信",
   "account.login.sendingNewCode": "新しいコードを送信中…",

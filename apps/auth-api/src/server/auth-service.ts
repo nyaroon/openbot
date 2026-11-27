@@ -424,7 +424,8 @@ export class AuthService {
       messages: readonly IncomingWhatsAppMessage[],
     ): Effect.fn.Return<number, AuthWorkflowFailure, AuthDependencies> {
       const dependencies = yield* AuthDependencies;
-      if (!dependencies.delivery?.reverse) return 0;
+      const reverse = dependencies.delivery?.reverse;
+      if (!reverse) return 0;
       let confirmed = 0;
       for (const message of messages) {
         const email = phoneIdentityEmail(message.from);
@@ -434,7 +435,9 @@ export class AuthService {
             codeHash: yield* sha256(code),
             now: dependencies.now(),
           });
-          if (matched) confirmed += 1;
+          if (!matched) continue;
+          confirmed += 1;
+          if (reverse.confirmed) yield* reverse.confirmed(message.from);
         }
       }
       return confirmed;

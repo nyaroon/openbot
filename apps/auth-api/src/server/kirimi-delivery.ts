@@ -13,6 +13,7 @@ export type KirimiBindings = Pick<
   | "KIRIMI_DEVICE_ID"
   | "KIRIMI_API_URL"
   | "KIRIMI_WABA_NUMBER"
+  | "KIRIMI_WABA_ID"
   | "KIRIMI_WEBHOOK_SECRET"
 >;
 
@@ -27,6 +28,7 @@ const KIRIMI_API_URL = "https://api.kirimi.id";
 const KIRIMI_TIMEOUT_MS = 10_000;
 const MIN_WEBHOOK_SECRET_LENGTH = 32;
 const REVERSE_MESSAGE_PREFIX = "Masuk Jujurly:";
+const REVERSE_CONFIRMED_TEXT = "Kode diterima. Kamu sedang masuk ke Jujurly, kembali ke aplikasinya.";
 const MAX_INCOMING_TEXT_LENGTH = 1_000;
 const MAX_INCOMING_MESSAGES = 10;
 const KIRIMI_MESSAGE_EVENTS = new Set(["message", "message.received"]);
@@ -63,8 +65,47 @@ export function readKirimiReverseNumber(bindings: KirimiBindings): string | null
   return digits;
 }
 
-export function createKirimiReverseCodeDelivery(number: string): EmailCodeDelivery {
-  return { phoneOnly: true, reverse: { number }, send: () => Effect.void };
+export function createKirimiReverseCodeDelivery(
+  number: string,
+  confirmed?: (to: string) => Effect.Effect<void>,
+): EmailCodeDelivery {
+  return { phoneOnly: true, reverse: { number, ...(confirmed ? { confirmed } : {}) }, send: () => Effect.void };
+}
+
+/**
+ * The reply that tells a person their sign-in message arrived. It goes out through the WhatsApp
+ * Business account, which may answer freely for 24 hours after an incoming message. Null when
+ * KIRIMI_WABA_ID or the Kirimi account settings are missing.
+ */
+export function readKirimiReverseReply(
+  bindings: KirimiBindings,
+  fetcher: typeof fetch = fetch,
+): ((to: string) => Effect.Effect<void>) | null {
+  const userCode = bindings.KIRIMI_USER_CODE?.trim();
+  const secret = bindings.KIRIMI_SECRET?.trim();
+  const wabaId = bindings.KIRIMI_WABA_ID?.trim();
+  if (!userCode || !secret || !wabaId) return null;
+  const url = new URL("/v1/waba/messages/reply", bindings.KIRIMI_API_URL?.trim() || KIRIMI_API_URL);
+  if (url.protocol !== "https:") return null;
+  return (to) =>
+    Effect.promise(async () => {
+      try {
+        await fetcher(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_code: userCode,
+            secret,
+            waba_id: wabaId,
+            to,
+            message: { type: "text", text: REVERSE_CONFIRMED_TEXT },
+          }),
+          signal: AbortSignal.timeout(KIRIMI_TIMEOUT_MS),
+        });
+      } catch {
+        // The sign-in is already confirmed. A missing reply changes nothing for the person.
+      }
+    });
 }
 
 /** The `wa.me` link that opens WhatsApp with the sign-in message ready to send. */

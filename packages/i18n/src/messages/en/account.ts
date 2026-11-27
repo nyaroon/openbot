@@ -93,7 +93,7 @@ export const messages = defineMessages("account", {
   "account.login.whatsappHint":
     "Scan the QR code with your phone, then send the prepared WhatsApp message from {email}.",
   "account.login.whatsappOpen": "Open WhatsApp",
-  "account.login.whatsappSent": "I sent the message",
+  "account.login.whatsappWaiting": "Waiting for your WhatsApp message. You are signed in as soon as it arrives.",
   "account.login.sendNewCode": "Send a new code",
   "account.login.sendNewCodeIn": "Send a new code in {time}",
   "account.login.sendingNewCode": "Sending new code…",

@@ -92,7 +92,7 @@ export const messages = {
   "account.login.developmentCode": "开发用验证码：{code}",
   "account.login.whatsappHint": "用手机扫描二维码，然后从 {email} 发送已准备好的 WhatsApp 消息。",
   "account.login.whatsappOpen": "打开 WhatsApp",
-  "account.login.whatsappSent": "我已发送消息",
+  "account.login.whatsappWaiting": "正在等待你的 WhatsApp 消息，收到后会立即登录。",
   "account.login.sendNewCode": "发送新验证码",
   "account.login.sendNewCodeIn": "{time} 后可发送新验证码",
   "account.login.sendingNewCode": "正在发送新验证码…",

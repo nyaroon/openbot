@@ -7,6 +7,7 @@ import {
   createKirimiTeamInviteDelivery,
   readKirimiConfig,
   readKirimiReverseNumber,
+  readKirimiReverseReply,
 } from "./kirimi-delivery";
 import {
   AMBIGUOUS_DELIVERY_ERRORS,
@@ -63,7 +64,9 @@ export function createEmailCodeDelivery(
   analytics: AccountAnalytics,
 ): EmailCodeDelivery | null {
   const reverseNumber = readKirimiReverseNumber(bindings);
-  if (reverseNumber) return createKirimiReverseCodeDelivery(reverseNumber);
+  if (reverseNumber) {
+    return createKirimiReverseCodeDelivery(reverseNumber, readKirimiReverseReply(bindings) ?? undefined);
+  }
   const kirimi = readKirimiConfig(bindings);
   if (kirimi) return createKirimiCodeDelivery(kirimi);
   const senders = readEmailSenders(bindings);

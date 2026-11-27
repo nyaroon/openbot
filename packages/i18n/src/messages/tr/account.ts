@@ -94,7 +94,7 @@ export const messages = {
   "account.login.whatsappHint":
     "QR kodunu telefonunuzla tarayın, ardından hazır WhatsApp mesajını {email} numarasından gönderin.",
   "account.login.whatsappOpen": "WhatsApp’ı aç",
-  "account.login.whatsappSent": "Mesajı gönderdim",
+  "account.login.whatsappWaiting": "WhatsApp mesajın bekleniyor. Mesaj ulaşır ulaşmaz giriş yapılır.",
   "account.login.sendNewCode": "Yeni bir kod gönder",
   "account.login.sendNewCodeIn": "{time} sonra yeni bir kod gönder",
   "account.login.sendingNewCode": "Yeni kod gönderiliyor…",

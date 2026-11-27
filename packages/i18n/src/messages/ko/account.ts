@@ -92,7 +92,7 @@ export const messages = {
   "account.login.developmentCode": "개발용 코드: {code}",
   "account.login.whatsappHint": "휴대폰으로 QR 코드를 스캔한 다음 {email} 번호에서 준비된 WhatsApp 메시지를 보내세요.",
   "account.login.whatsappOpen": "WhatsApp 열기",
-  "account.login.whatsappSent": "메시지를 보냈습니다",
+  "account.login.whatsappWaiting": "WhatsApp 메시지를 기다리는 중입니다. 도착하면 바로 로그인됩니다.",
   "account.login.sendNewCode": "새 코드 보내기",
   "account.login.sendNewCodeIn": "{time} 후 새 코드 보내기",
   "account.login.sendingNewCode": "새 코드를 보내는 중…",

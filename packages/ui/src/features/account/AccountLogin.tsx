@@ -52,6 +52,8 @@ const UNCERTAIN_EMAIL_DELIVERY_ISSUES = new Set([
 ]);
 
 const EMAIL_PLACEHOLDER = "+62 812 3456 7890";
+const WHATSAPP_PENDING_ISSUE = "whatsapp_message_pending";
+const WHATSAPP_CHECK_INTERVAL_MS = 3_000;
 const EMAIL_MARKER = "\u0000";
 
 export function AccountLogin(props: AccountLoginProps) {
@@ -102,7 +104,9 @@ export function AccountLogin(props: AccountLoginProps) {
   const keyringChanged = () => props.state.status === "signed_out" && props.state.reason === "keyring_changed";
   const currentIssue = (): CentralAuthIssue | undefined => {
     if (props.state.status === "error") return props.state.issue;
-    return props.state.status === "code_sent" ? props.state.issue : undefined;
+    if (props.state.status !== "code_sent") return undefined;
+    // Waiting for the WhatsApp message is the normal state of a reverse sign-in, not a problem.
+    return props.state.issue?.code === WHATSAPP_PENDING_ISSUE ? undefined : props.state.issue;
   };
   const displayedIssue = () => (issueVisible() ? currentIssue() : undefined);
   const unavailable = () => props.state.status === "error" && props.state.issue.code === "auth_api_unavailable";
@@ -324,6 +328,31 @@ export function AccountLogin(props: AccountLoginProps) {
       setPendingAction(null);
     }
   }
+
+  // A reverse sign-in finishes by itself: the screen asks again until the WhatsApp message arrived.
+  createEffect(
+    () => {
+      const reverse = whatsapp();
+      const current = challenge();
+      return reverse && current && !codeNeedsReplacement() ? `${current.challengeId} ${reverse.code}` : null;
+    },
+    (target) => {
+      if (!target) return;
+      const [challengeId = "", reverseCode = ""] = target.split(" ");
+      let asking = false;
+      const timer = window.setInterval(() => {
+        if (asking || pendingAction()) return;
+        asking = true;
+        void props
+          .onVerifyEmailCode(challengeId, reverseCode)
+          .catch(() => undefined)
+          .finally(() => {
+            asking = false;
+          });
+      }, WHATSAPP_CHECK_INTERVAL_MS);
+      return () => window.clearInterval(timer);
+    },
+  );
 
   async function resendCode(): Promise<void> {
     if (props.state.status !== "code_sent" || pendingAction() || resendBusy() || resendAvailableIn() > 0) return;
@@ -574,18 +603,12 @@ export function AccountLogin(props: AccountLoginProps) {
                           </Button>
                         )}
                       </Show>
-                      <Button
-                        variant="default"
-                        type="button"
-                        class="account-login-primary"
-                        disabled={codeBusy() || codeNeedsReplacement() || pendingAction() !== null}
-                        onClick={() => void submitCode(reverse().code)}
-                      >
-                        <Show when={codeBusy()}>
+                      <Show when={!codeNeedsReplacement()}>
+                        <p class="account-login-whatsapp-waiting" role="status">
                           <span class="account-login-button-spinner" aria-hidden="true" />
-                        </Show>
-                        {t("account.login.whatsappSent")}
-                      </Button>
+                          {t("account.login.whatsappWaiting")}
+                        </p>
+                      </Show>
                     </div>
                   )}
                 </Show>

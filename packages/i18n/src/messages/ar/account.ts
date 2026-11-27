@@ -99,7 +99,7 @@ export const messages = {
   "account.login.developmentCode": "رمز التطوير: {code}",
   "account.login.whatsappHint": "امسح رمز QR بهاتفك، ثم أرسل رسالة واتساب الجاهزة من {email}.",
   "account.login.whatsappOpen": "فتح واتساب",
-  "account.login.whatsappSent": "أرسلتُ الرسالة",
+  "account.login.whatsappWaiting": "بانتظار رسالتك على واتساب. سيتم تسجيل دخولك فور وصولها.",
   "account.login.sendNewCode": "إرسال رمز جديد",
   "account.login.sendNewCodeIn": "إرسال رمز جديد بعد {time}",
   "account.login.sendingNewCode": "جارٍ إرسال رمز جديد…",

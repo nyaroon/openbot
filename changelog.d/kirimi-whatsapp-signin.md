@@ -27,3 +27,4 @@
 - The app, installer and site are called Jujurly: the name comes from one constant and every "OpenBot" in the catalogs renders as "Jujurly", the app and installer use the new name, icon and application id, the owl is the app logo, and the site shows it. Automatic updates are off until an own release location exists, and the download page says the apps are coming soon.
 - The app, the browser extension and the account service point at `https://jujurly.id` (one constant, `ACCOUNT_SERVICE_ORIGIN`), and usage and error reporting to an analytics host is switched off (`ANALYTICS_ENABLED`).
 - The Kirimi webhook can pass every call on, unchanged, to a second address (`KIRIMI_WEBHOOK_FORWARD_URL`), because Kirimi allows one webhook address per device.
+- WhatsApp sign-in now finishes by itself once the message arrives, and a WhatsApp reply confirms the code was received.

@@ -92,7 +92,7 @@ export const messages = {
   "account.login.developmentCode": "קוד פיתוח: {code}",
   "account.login.whatsappHint": "סרקו את קוד ה-QR בטלפון, ואז שלחו את הודעת ה-WhatsApp המוכנה מהמספר {email}.",
   "account.login.whatsappOpen": "פתיחת WhatsApp",
-  "account.login.whatsappSent": "שלחתי את ההודעה",
+  "account.login.whatsappWaiting": "ממתינים להודעת הוואטסאפ שלך. תיכנס ברגע שהיא תגיע.",
   "account.login.sendNewCode": "שליחת קוד חדש",
   "account.login.sendNewCodeIn": "שליחת קוד חדש בעוד {time}",
   "account.login.sendingNewCode": "שולח קוד חדש…",

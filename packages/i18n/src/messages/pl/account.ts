@@ -99,7 +99,7 @@ export const messages = {
   "account.login.whatsappHint":
     "Zeskanuj kod QR telefonem, a potem wyślij przygotowaną wiadomość WhatsApp z numeru {email}.",
   "account.login.whatsappOpen": "Otwórz WhatsApp",
-  "account.login.whatsappSent": "Wiadomość wysłana",
+  "account.login.whatsappWaiting": "Czekamy na Twoją wiadomość WhatsApp. Zalogujesz się, gdy tylko dotrze.",
   "account.login.sendNewCode": "Wyślij nowy kod",
   "account.login.sendNewCodeIn": "Wyślij nowy kod za {time}",
   "account.login.sendingNewCode": "Wysyłanie nowego kodu…",

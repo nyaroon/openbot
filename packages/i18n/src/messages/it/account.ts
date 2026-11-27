@@ -94,7 +94,7 @@ export const messages = {
   "account.login.whatsappHint":
     "Scansiona il codice QR con il telefono, poi invia il messaggio WhatsApp già pronto da {email}.",
   "account.login.whatsappOpen": "Apri WhatsApp",
-  "account.login.whatsappSent": "Ho inviato il messaggio",
+  "account.login.whatsappWaiting": "In attesa del tuo messaggio WhatsApp. Accederai appena arriva.",
   "account.login.sendNewCode": "Invia un nuovo codice",
   "account.login.sendNewCodeIn": "Invia un nuovo codice tra {time}",
   "account.login.sendingNewCode": "Invio del nuovo codice…",

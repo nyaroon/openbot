@@ -40,6 +40,7 @@ export interface WorkerBindings extends ObjectStorageEnv {
   KIRIMI_DEVICE_ID?: string;
   KIRIMI_API_URL?: string;
   KIRIMI_WABA_NUMBER?: string;
+  KIRIMI_WABA_ID?: string;
   KIRIMI_WEBHOOK_SECRET?: string;
   /** Another https address that also receives every Kirimi webhook call, unchanged. */
   KIRIMI_WEBHOOK_FORWARD_URL?: string;
@@ -163,7 +164,11 @@ export interface EmailCodeDelivery {
    * Set for reverse sign-in: nothing is sent. The person sends the code from their own WhatsApp to
    * this number, and the incoming-message webhook confirms the challenge.
    */
-  reverse?: { number: string };
+  reverse?: {
+    number: string;
+    /** Tells the person in WhatsApp that their message was taken. It never fails. */
+    confirmed?: (to: string) => Effect.Effect<void>;
+  };
   send(message: {
     email: string;
     code: string;
