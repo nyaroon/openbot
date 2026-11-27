@@ -219,11 +219,14 @@ export interface AccountSummary {
   name: string | null;
   createdAt: number;
   lastSignInAt: number | null;
+  /** Sign-ins that are still valid: how many devices the account is connected on. */
+  sessionCount: number;
+  organizations: { id: string; name: string; role: "owner" | "admin" | "member" }[];
 }
 
 export interface AuthRepository {
   signInAllowed(email: string, now: number): Effect.Effect<boolean, AuthStoreError>;
-  listAccounts(limit: number): Effect.Effect<AccountSummary[], AuthStoreError>;
+  listAccounts(limit: number, now: number): Effect.Effect<AccountSummary[], AuthStoreError>;
   createAccount(input: {
     email: string;
     name: string | null;

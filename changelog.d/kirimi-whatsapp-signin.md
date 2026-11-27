@@ -28,3 +28,4 @@
 - The app, the browser extension and the account service point at `https://jujurly.id` (one constant, `ACCOUNT_SERVICE_ORIGIN`), and usage and error reporting to an analytics host is switched off (`ANALYTICS_ENABLED`).
 - The Kirimi webhook can pass every call on, unchanged, to a second address (`KIRIMI_WEBHOOK_FORWARD_URL`), because Kirimi allows one webhook address per device.
 - WhatsApp sign-in now finishes by itself once the message arrives, and a WhatsApp reply confirms the code was received.
+- The owner's Accounts page is now a Super admin page: it lists every organization with its members and how many are connected, shows each account's organizations and active sign-ins, and adds a person straight into an organization or starts a new organization with them as its owner.

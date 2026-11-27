@@ -357,30 +357,51 @@ export class D1AuthRepository implements AuthRepository {
     function* (
       this: D1AuthRepository,
       limit: number,
+      now: number,
     ): Effect.fn.Return<AccountSummary[], AuthStoreError, AuthDatabase> {
       const database = yield* AuthDatabase;
       const rows = yield* storeCall(() =>
         database
           .prepare(
             `SELECT id, email, name, created_at,
-                (SELECT MAX(last_used_at) FROM auth_sessions WHERE user_id = users.id) AS last_sign_in_at
+                (SELECT MAX(last_used_at) FROM auth_sessions WHERE user_id = users.id) AS last_sign_in_at,
+                (SELECT COUNT(*) FROM auth_sessions
+                 WHERE user_id = users.id AND revoked_at IS NULL AND expires_at > ?) AS session_count
          FROM users ORDER BY created_at DESC, id DESC LIMIT ?`,
           )
-          .bind(limit)
+          .bind(now, limit)
           .all<{
             id: string;
             email: string;
             name: string | null;
             created_at: number;
             last_sign_in_at: number | null;
+            session_count: number;
           }>(),
       );
+      const memberships = yield* storeCall(() =>
+        database
+          .prepare(
+            `SELECT m.user_id, m.role, o.id, o.name
+         FROM organization_members m JOIN organizations o ON o.id = m.organization_id
+         ORDER BY o.name COLLATE NOCASE, o.id`,
+          )
+          .all<{ user_id: string; role: "owner" | "admin" | "member"; id: string; name: string }>(),
+      );
+      const organizations = new Map<string, AccountSummary["organizations"]>();
+      for (const row of memberships.results) {
+        const list = organizations.get(row.user_id) ?? [];
+        list.push({ id: row.id, name: row.name, role: row.role });
+        organizations.set(row.user_id, list);
+      }
       return rows.results.map((row) => ({
         id: row.id,
         email: row.email,
         name: row.name,
         createdAt: row.created_at,
         lastSignInAt: row.last_sign_in_at,
+        sessionCount: row.session_count,
+        organizations: organizations.get(row.id) ?? [],
       }));
     },
     (operation) => operation.pipe(Effect.provide(this.#layer)),
@@ -393,7 +414,15 @@ export class D1AuthRepository implements AuthRepository {
     ): Effect.fn.Return<AccountSummary | null, AuthStoreError, AuthDatabase> {
       const { user, created } = yield* this.#upsertEmailUserEffect(input.email, input.now, input.name);
       if (!created) return null;
-      return { id: user.id, email: user.email, name: user.name, createdAt: input.now, lastSignInAt: null };
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        createdAt: input.now,
+        lastSignInAt: null,
+        sessionCount: 0,
+        organizations: [],
+      };
     },
     (operation) => operation.pipe(Effect.provide(this.#layer)),
   ).bind(this);

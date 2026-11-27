@@ -349,7 +349,7 @@ export const messages = {
   "settings.appearance.textTitle": "Idioma y texto",
   "settings.appBehavior.startTitle": "Inicio y cierre",
   "settings.appBehavior.backgroundTitle": "Segundo plano",
-  "settings.tab.accounts.title": "Cuentas",
+  "settings.tab.accounts.title": "Super admin",
   "settings.tab.accounts.description": "Crea cuentas de WhatsApp para las personas que quieras añadir.",
   "settings.accounts.create.title": "Crear cuenta",
   "settings.accounts.create.description":
@@ -371,6 +371,17 @@ export const messages = {
   "settings.accounts.list.loadFailed": "No se pudieron cargar las cuentas.",
   "settings.accounts.list.noName": "Sin nombre",
   "settings.accounts.list.details": "{name} · Creada el {created}",
+  "settings.accounts.overview.summary":
+    "{organizations} organizations · {accounts} accounts · {connected} connected · {sessions} active sign-ins",
+  "settings.accounts.organization.label": "Organization",
+  "settings.accounts.organization.description":
+    "Every account belongs to an organization. Pick one, or start a new one that this account owns.",
+  "settings.accounts.organization.required": "Choose an organization, or name a new one.",
+  "settings.accounts.role.label": "Role",
+  "settings.accounts.organizations.details": "{members} members · {connected} connected",
+  "settings.accounts.organizations.empty": "No organizations yet. Create the first account to start one.",
+  "settings.accounts.list.connection": "{organizations} · {sessions} active sign-ins",
+  "settings.accounts.list.noOrganization": "No organization",
   "settings.sections.group.account": "Cuenta",
   "settings.sections.group.thisComputer": "Este equipo",
   "settings.sections.label": "Secciones de ajustes",

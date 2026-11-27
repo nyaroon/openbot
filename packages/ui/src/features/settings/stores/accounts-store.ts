@@ -12,6 +12,17 @@ interface AccountsStoreProps {
   onCreateOwnerAccount?: ((input: CreateOwnerAccountInput) => Promise<CreateOwnerAccountResult>) | undefined;
 }
 
+/** The choice that starts a new organization instead of joining one. */
+export const NEW_ORGANIZATION = "new";
+const ORGANIZATION_NAME_LIMIT = 80;
+
+export interface OwnerOrganization {
+  id: string;
+  name: string;
+  members: number;
+  connected: number;
+}
+
 interface AccountsPanels {
   items: OwnerAccount[];
   loading: boolean;
@@ -33,7 +44,43 @@ export function createSettingsAccountsStore(props: AccountsStoreProps, isActive:
   const [phone, setPhone] = createSignal("");
   const [name, setName] = createSignal("");
   const [touched, setTouched] = createSignal(false);
+  const [organization, setOrganization] = createSignal<string | null>(null);
+  const [organizationName, setOrganizationName] = createSignal("");
+  const [role, setRole] = createSignal<"admin" | "member">("member");
   let revision = 0;
+
+  /** Every organization that has a member, with how many of its members are signed in somewhere. */
+  const organizations = (): OwnerOrganization[] => {
+    const found = new Map<string, OwnerOrganization>();
+    for (const account of panels.items) {
+      for (const entry of account.organizations) {
+        const current = found.get(entry.id) ?? { id: entry.id, name: entry.name, members: 0, connected: 0 };
+        current.members += 1;
+        if (account.sessionCount > 0) current.connected += 1;
+        found.set(entry.id, current);
+      }
+    }
+    return [...found.values()].sort((left, right) => left.name.localeCompare(right.name));
+  };
+  const totals = () => ({
+    organizations: organizations().length,
+    accounts: panels.items.length,
+    connected: panels.items.filter((account) => account.sessionCount > 0).length,
+    sessions: panels.items.reduce((sum, account) => sum + account.sessionCount, 0),
+  });
+  const startsOrganization = () => organization() === NEW_ORGANIZATION;
+  const place = (): Pick<CreateOwnerAccountInput, "organizationId" | "organizationName" | "role"> | null => {
+    const chosen = organization();
+    if (chosen === NEW_ORGANIZATION) {
+      const trimmed = organizationName().trim();
+      return trimmed.length === 0 || trimmed.length > ORGANIZATION_NAME_LIMIT ? null : { organizationName: trimmed };
+    }
+    return chosen && organizations().some((item) => item.id === chosen)
+      ? { organizationId: chosen, role: role() }
+      : null;
+  };
+  const organizationError = () =>
+    touched() && place() === null ? currentText().t("settings.accounts.organization.required") : null;
 
   const normalizedPhone = () => normalizePhoneNumber(phone());
   const phoneError = () => {
@@ -89,7 +136,8 @@ export function createSettingsAccountsStore(props: AccountsStoreProps, isActive:
     if (!props.onCreateOwnerAccount || panels.creating) return;
     setTouched(true);
     const digits = normalizedPhone();
-    if (digits === null || nameError() !== null) return;
+    const target = place();
+    if (digits === null || nameError() !== null || target === null) return;
     const trimmedName = name().trim().length === 0 ? null : validateProfileName(name()).name;
     setPanels((state) => {
       state.creating = true;
@@ -100,6 +148,7 @@ export function createSettingsAccountsStore(props: AccountsStoreProps, isActive:
       const result = await props.onCreateOwnerAccount({
         phone: `+${digits}`,
         ...(trimmedName === null ? {} : { name: trimmedName }),
+        ...target,
       });
       if (result.status === "exists") {
         setPanels((state) => {
@@ -112,8 +161,14 @@ export function createSettingsAccountsStore(props: AccountsStoreProps, isActive:
       });
       setPhone("");
       setName("");
+      setOrganizationName("");
       setTouched(false);
       await refresh();
+      // A new organization is in the list now, so the next person can be added to it.
+      if ("organizationName" in target) {
+        const started = organizations().find((item) => item.name === target.organizationName);
+        setOrganization(started?.id ?? null);
+      }
     } catch (error) {
       setPanels((state) => {
         state.createError = {
@@ -158,6 +213,16 @@ export function createSettingsAccountsStore(props: AccountsStoreProps, isActive:
       });
     },
     updateName: setName,
+    organizations,
+    totals,
+    organization,
+    organizationName,
+    organizationError,
+    role,
+    startsOrganization,
+    updateOrganization: setOrganization,
+    updateOrganizationName: setOrganizationName,
+    updateRole: setRole,
     markPhoneTouched: () => setTouched(true),
     create,
     refresh,

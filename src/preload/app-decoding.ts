@@ -103,6 +103,7 @@ import {
   type RemoteDesktopTestStatus,
   type RemoteNetworkRouteState,
   type RemoteSessionReusePreference,
+  readOwnerAccountPlaces,
   type SentMessageStats,
   type SpeechAudio,
   type SpeechModelStatus,
@@ -444,6 +445,7 @@ function decodeOwnerAccountRecord(value: DynamicRecord): OwnerAccount {
     name,
     createdAt: requiredNumber(value, "createdAt"),
     lastSignInAt,
+    ...readOwnerAccountPlaces(value),
   };
 }
 

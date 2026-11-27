@@ -34,6 +34,8 @@ export function createMockAuth(options: MockAuthOptions, { emit }: MockRuntime) 
       name: "Norbert",
       createdAt: Date.now() - 864_000_000,
       lastSignInAt: Date.now() - 3_600_000,
+      sessionCount: 2,
+      organizations: [{ id: "organization-1", name: "Jujurly", role: "owner" }],
     },
   ];
   let accountSessions: AccountSession[] = [
@@ -161,7 +163,7 @@ export function createMockAuth(options: MockAuthOptions, { emit }: MockRuntime) 
       accountSessions = accountSessions.filter((session) => session.sessionId !== sessionId);
     },
     listOwnerAccounts: async () => clone(ownerAccounts),
-    createOwnerAccount: async ({ phone, name }) => {
+    createOwnerAccount: async ({ phone, name, organizationId, organizationName, role }) => {
       const digits = phone.replace(/D/gu, "");
       const email = `${digits}@wa.invalid`;
       if (ownerAccounts.some((account) => account.email === email)) return { status: "exists" };
@@ -171,6 +173,14 @@ export function createMockAuth(options: MockAuthOptions, { emit }: MockRuntime) 
         name: name ?? null,
         createdAt: Date.now(),
         lastSignInAt: null,
+        sessionCount: 0,
+        organizations: organizationName
+          ? [{ id: `organization-${ownerAccounts.length + 1}`, name: organizationName, role: "owner" }]
+          : ownerAccounts
+              .flatMap((item) => item.organizations)
+              .filter((item) => item.id === organizationId)
+              .slice(0, 1)
+              .map((item) => ({ ...item, role: role ?? "member" })),
       };
       ownerAccounts = [account, ...ownerAccounts];
       return { status: "created", account: clone(account) };

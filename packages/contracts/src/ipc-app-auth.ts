@@ -194,11 +194,41 @@ export interface OwnerAccount {
   name: string | null;
   createdAt: number;
   lastSignInAt: number | null;
+  /** Sign-ins that are still valid: how many devices the account is connected on. */
+  sessionCount: number;
+  organizations: OwnerAccountOrganization[];
+}
+
+export interface OwnerAccountOrganization {
+  id: string;
+  name: string;
+  role: "owner" | "admin" | "member";
+}
+
+/** The fields an older account service does not send yet: no sign-ins, no organizations. */
+export function readOwnerAccountPlaces(value: {
+  sessionCount?: unknown;
+  organizations?: unknown;
+}): Pick<OwnerAccount, "sessionCount" | "organizations"> {
+  const organizations: OwnerAccountOrganization[] = [];
+  for (const entry of Array.isArray(value.organizations) ? value.organizations : []) {
+    if (!isDynamicRecord(entry) || !isString(entry.id) || !isString(entry.name)) continue;
+    const role = entry.role;
+    if (role === "owner" || role === "admin" || role === "member") {
+      organizations.push({ id: entry.id, name: entry.name, role });
+    }
+  }
+  return { sessionCount: isFiniteNumber(value.sessionCount) ? value.sessionCount : 0, organizations };
 }
 
 export interface CreateOwnerAccountInput {
   phone: string;
   name?: string;
+  /** An organization the account joins. */
+  organizationId?: string;
+  role?: "admin" | "member";
+  /** A new organization that the account owns. */
+  organizationName?: string;
 }
 
 export type CreateOwnerAccountResult = { status: "created"; account: OwnerAccount } | { status: "exists" };

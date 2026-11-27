@@ -6,6 +6,7 @@ import {
   isAvatarColor,
   type MobileConnectedDevice,
   type OwnerAccount,
+  readOwnerAccountPlaces,
 } from "@openbot/contracts/ipc";
 import { decodeRecord, requiredString } from "@openbot/contracts/ipc-decoding";
 import { readWhatsAppSignIn, type WhatsAppSignIn } from "@openbot/contracts/phone-identity";
@@ -113,7 +114,14 @@ export function decodeOwnerAccount(value: unknown): OwnerAccount {
     throw new Error("Invalid last sign-in time.");
   const createdAt = record.createdAt;
   if (!(isNumber(createdAt) && Number.isFinite(createdAt))) throw new Error("Invalid account creation time.");
-  return { id: requiredString(record, "id"), email: requiredString(record, "email"), name, createdAt, lastSignInAt };
+  return {
+    id: requiredString(record, "id"),
+    email: requiredString(record, "email"),
+    name,
+    createdAt,
+    lastSignInAt,
+    ...readOwnerAccountPlaces(record),
+  };
 }
 
 export function decodeOwnerAccountList(value: unknown): OwnerAccount[] {

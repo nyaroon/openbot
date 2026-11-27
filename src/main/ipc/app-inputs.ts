@@ -461,8 +461,14 @@ export function parseEmailCodeVerification(input: unknown): VerifyEmailCodeInput
 export function parseOwnerAccountInput(input: unknown): CreateOwnerAccountInput {
   if (!isObject(input)) throw new Error("Account details are required.");
   const phone = requireString(input.phone, "phone", INPUT_LIMITS.accountName);
-  if (input.name === undefined) return { phone };
-  return { phone, name: requireString(input.name, "name", INPUT_LIMITS.accountName) };
+  const place: Pick<CreateOwnerAccountInput, "organizationId" | "organizationName" | "role"> = {};
+  if (input.organizationId !== undefined) place.organizationId = requireString(input.organizationId, "organizationId");
+  if (input.organizationName !== undefined) {
+    place.organizationName = requireString(input.organizationName, "organizationName", INPUT_LIMITS.accountName);
+  }
+  if (input.role === "admin" || input.role === "member") place.role = input.role;
+  if (input.name === undefined) return { phone, ...place };
+  return { phone, name: requireString(input.name, "name", INPUT_LIMITS.accountName), ...place };
 }
 
 export function parseProfileName(input: unknown): string {

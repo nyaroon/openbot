@@ -1,9 +1,17 @@
-import { isString } from "@openbot/contracts/runtime-values";
 import { createFileRoute } from "@tanstack/solid-router";
 import { Effect } from "effect";
+import { createAdminAccount } from "../../../server/admin-accounts";
 import { runApiResponse } from "../../../server/effect-runtime";
 import { readJsonObject } from "../../../server/json-body";
-import { apiError, authErrorResponse, bearerToken, json, requestAuthService } from "../../../server/request-auth";
+import {
+  apiError,
+  authErrorResponse,
+  bearerToken,
+  json,
+  requestAuthService,
+  requestOrganizations,
+  requestUser,
+} from "../../../server/request-auth";
 
 export const Route = createFileRoute("/v1/admin/accounts")({
   server: {
@@ -21,13 +29,11 @@ export const Route = createFileRoute("/v1/admin/accounts")({
         runApiResponse(
           Effect.gen(function* () {
             const token = bearerToken(request);
-            if (!token) return apiError(401, "unauthorized", "Sign in is required.");
+            const user = yield* requestUser(request);
+            if (!token || !user) return apiError(401, "unauthorized", "Sign in is required.");
             const body = yield* readJsonObject(request);
-            if (!isString(body.phone)) return apiError(400, "invalid_phone", "Enter a valid WhatsApp number.");
-            if (body.name !== undefined && !isString(body.name)) {
-              return apiError(400, "invalid_profile_name", "Enter a valid display name.");
-            }
-            return json(yield* requestAuthService().createAccount(token, { phone: body.phone, name: body.name }), 201);
+            const services = { auth: requestAuthService(), organizations: requestOrganizations() };
+            return json(yield* createAdminAccount(services, token, user, body), 201);
           }),
           authErrorResponse,
         ),

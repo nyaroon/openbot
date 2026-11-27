@@ -2,6 +2,7 @@ import { isAvatarMimeType } from "@openbot/contracts/avatar-images";
 import { type DynamicRecord, isBoolean, isNumber, isString } from "@openbot/contracts/runtime-values";
 import { Cause, Effect } from "effect";
 import { requestFirstTouch } from "./account-attribution";
+import { createAdminAccount } from "./admin-accounts";
 import { type AuthService, AuthServiceError, readAnalyticsAnswer, readChatColor } from "./auth-service";
 import { AvatarUploadError, readAvatarUpload, removeAccountAvatar, storeAccountAvatar } from "./avatar-storage";
 import { sha256 } from "./crypto";
@@ -10,6 +11,7 @@ import { ExtensionSignInError, type ExtensionSignInService } from "./extension-s
 import type { readHostLogo } from "./host-logo";
 import { readJsonObject } from "./json-body";
 import type { ObjectBucket } from "./object-storage";
+import type { Organizations } from "./organizations";
 import { startOwnerTransfer } from "./owner-transfer";
 import { type RemoteControlPlane, RemoteControlPlaneError } from "./remote-control-plane";
 import { sendTeamInviteEmail } from "./team-invite-email";
@@ -37,6 +39,7 @@ export interface BrowserApiServices {
     | "createAccount"
     | "withOwnerFlag"
   >;
+  organizations: Organizations;
   remote: Pick<
     RemoteControlPlane,
     | "listHosts"
@@ -298,13 +301,7 @@ const handleAccount = Effect.fn("BrowserApi.handleAccount")(function* (
     return json({ accounts: yield* services.auth.listAccounts(token) });
   if (path === "v1/admin/accounts" && request.method === "POST") {
     const body = yield* readJsonObject(request);
-    const name = body.name;
-    if (!isString(body.phone))
-      return yield* new AuthServiceError(400, "invalid_phone", "Enter a valid WhatsApp number.");
-    if (name !== undefined && !isString(name)) {
-      return yield* new AuthServiceError(400, "invalid_profile_name", "Enter a valid display name.");
-    }
-    return json(yield* services.auth.createAccount(token, { phone: body.phone, name }), 201);
+    return json(yield* createAdminAccount(services, token, user, body), 201);
   }
   if (path === "v1/me/sessions" && request.method === "GET")
     return json({ sessions: yield* services.auth.listAccountSessions(token) });

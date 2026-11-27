@@ -6,6 +6,7 @@ import {
   requestAuthService,
   requestAvatarBucket,
   requestExtensionSignIn,
+  requestOrganizations,
   requestOwnerTransferEmailDelivery,
   requestRemoteControlPlane,
   requestTeamInviteEmailDelivery,
@@ -16,6 +17,7 @@ import { requestSourceIp } from "../../../server/source-ip";
 function handle({ request }: { request: Request }) {
   return handleBrowserApi(request, {
     auth: requestAuthService(),
+    organizations: requestOrganizations(),
     remote: requestRemoteControlPlane(),
     extensionSignIn: requestExtensionSignIn,
     hostLogo: (hostId, version) => readHostLogo(requestAvatarBucket(), hostId, version),

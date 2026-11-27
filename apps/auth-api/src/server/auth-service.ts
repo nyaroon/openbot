@@ -304,7 +304,7 @@ export class AuthService {
     ): Effect.fn.Return<AccountSummary[], AuthWorkflowFailure, AuthDependencies> {
       const dependencies = yield* AuthDependencies;
       yield* this.#requireOwner(sessionToken);
-      return yield* dependencies.repository.listAccounts(ACCOUNT_LIST_LIMIT);
+      return yield* dependencies.repository.listAccounts(ACCOUNT_LIST_LIMIT, dependencies.now());
     },
     (operation) => operation.pipe(Effect.mapError(authFailure), Effect.provide(this.#layer)),
   ).bind(this);

@@ -6,6 +6,7 @@ import type {
   CreateOwnerAccountResult,
   OwnerAccount,
 } from "@openbot/contracts/ipc";
+import { readOwnerAccountPlaces } from "@openbot/contracts/ipc";
 import { isBoolean, isDynamicRecord, isNumber, isString } from "@openbot/contracts/runtime-values";
 import { parseServerClaim, type ServerClaim } from "@openbot/contracts/server-install";
 import { currentText } from "@openbot/ui/text";
@@ -132,6 +133,7 @@ function decodeOwnerAccount(value: unknown): OwnerAccount {
     name: value.name,
     createdAt: value.createdAt,
     lastSignInAt: value.lastSignInAt,
+    ...readOwnerAccountPlaces(value),
   };
 }
 
