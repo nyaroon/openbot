@@ -1,5 +1,5 @@
 import { X_EXTENSION_URL } from "@openbot/contracts/browser-extension-x";
-import { OPENBOT_X_HANDLE, type PageSocialImage, pageSocialImageMeta, siteUrlForPage } from "../lib/site-metadata";
+import { type PageSocialImage, pageSocialImageMeta, siteUrlForPage } from "../lib/site-metadata";
 
 const EXTENSION_TITLE = "OpenBot for Chrome";
 const EXTENSION_DESCRIPTION =
@@ -50,7 +50,6 @@ export function extensionLinkResponse(request: Request): Response {
     metaTag("property", "og:description", EXTENSION_DESCRIPTION),
     ...imageTags.openGraph,
     metaTag("name", "twitter:card", "summary_large_image"),
-    metaTag("name", "twitter:site", OPENBOT_X_HANDLE),
     metaTag("name", "twitter:title", EXTENSION_TITLE),
     metaTag("name", "twitter:description", EXTENSION_DESCRIPTION),
     ...imageTags.twitter,
