@@ -60,6 +60,7 @@ import {
   type TeamInviteEmailDelivery,
   type WorkerBindings,
 } from "./types";
+import { isUpdateManifest, UPDATE_DOWNLOAD_SECONDS, UPDATE_UPLOAD_SECONDS, updateFileLink } from "./update-feed";
 
 function accountAnalytics(bindings: WorkerBindings): AccountAnalytics {
   return createAccountAnalytics({
@@ -332,6 +333,40 @@ export function skillErrorResponse(error: unknown): Response {
 export const requireSkillsAdmin = Effect.fn("Auth.requireSkillsAdmin")(function* (request: Request) {
   return yield* adminTokenMatches(requireWorkerBindings(env).SKILLS_ADMIN_TOKEN, bearerToken(request));
 });
+
+export const requireReleaseUploader = Effect.fn("Auth.requireReleaseUploader")(function* (request: Request) {
+  return yield* adminTokenMatches(requireWorkerBindings(env).RELEASE_UPLOAD_TOKEN, bearerToken(request));
+});
+
+export function requestUpdateUploadLink(file: string): Promise<string | null> {
+  return updateFileLink({
+    env: requireWorkerBindings(env),
+    method: "PUT",
+    file,
+    expiresSeconds: UPDATE_UPLOAD_SECONDS,
+    now: new Date(),
+  });
+}
+
+/** Sends the feed file itself and redirects every other release file to the storage. */
+export async function requestUpdateFile(file: string, method: "GET" | "HEAD"): Promise<Response> {
+  const link = await updateFileLink({
+    env: requireWorkerBindings(env),
+    method: "GET",
+    file,
+    expiresSeconds: UPDATE_DOWNLOAD_SECONDS,
+    now: new Date(),
+  });
+  if (!link) return new Response("Not found.", { status: 404 });
+  if (!isUpdateManifest(file)) {
+    return new Response(null, { status: 302, headers: { Location: link, "Cache-Control": "no-store" } });
+  }
+  const stored = await fetch(link);
+  if (!stored.ok) return new Response("Not found.", { status: 404, headers: { "Cache-Control": "no-store" } });
+  return new Response(method === "HEAD" ? null : stored.body, {
+    headers: { "Content-Type": "text/yaml; charset=utf-8", "Cache-Control": "no-store" },
+  });
+}
 
 export function requestContactMessageServices(): ContactMessageServices {
   const bindings = requireWorkerBindings(env);

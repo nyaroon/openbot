@@ -32,3 +32,4 @@
 - Opening settings on the web no longer lets the sidebar's list show through the settings menu.
 - Agents can publish a page as an artifact with its own link on the account service. Members of the organization open it after they sign in, comment on it, and see its earlier versions; the publisher or a manager can make the link public or delete it.
 - A published artifact shows as a card in the chat with an Open button, and Settings has an Artifacts tab that lists the artifacts of your organizations, opens them and deletes them.
+- The desktop app updates itself again: it checks the update feed of this product, and a release is one command (`bun run release:win`).

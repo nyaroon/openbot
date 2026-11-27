@@ -48,6 +48,8 @@ export interface WorkerBindings extends ObjectStorageEnv {
   /** Base64 32-byte AES-256-GCM key for the organization vault. Without it the vault routes answer 503. */
   ORG_VAULT_KEY?: string;
   SKILLS_ADMIN_TOKEN?: string;
+  /** Lets the release script upload desktop releases. Without it the upload route answers 404. */
+  RELEASE_UPLOAD_TOKEN?: string;
   REMOTE_TICKET_PRIVATE_JWK?: string;
   REMOTE_TICKET_PUBLIC_JWKS?: string;
   REMOTE_TICKET_KEY_ID?: string;

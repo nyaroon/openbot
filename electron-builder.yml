@@ -18,11 +18,10 @@ electronFuses:
   onlyLoadAppFromAsar: true
   loadBrowserProcessSpecificV8Snapshot: false
   grantFileProtocolExtraPrivileges: false
-# The desktop app does not check this feed: see AUTOMATIC_UPDATES_ENABLED in src/main/update-feed.ts.
+# The desktop app checks this feed for updates. scripts/release-desktop.ts uploads a release to it.
 publish:
-  provider: github
-  owner: nightly-labs
-  repo: openbot
+  provider: generic
+  url: https://jujurly.id/updates
 files:
   - out/**/*
   - package.json

@@ -73,6 +73,7 @@ import { Route as ProvidersIndexRouteImport } from './routes/providers/index'
 import { Route as ProvidersSlugRouteImport } from './routes/providers/$slug'
 import { Route as ProvidersRssDotxmlRouteImport } from './routes/providers/rss[.]xml'
 import { Route as SlackConnectRouteImport } from './routes/slack/connect'
+import { Route as UpdatesFileRouteImport } from './routes/updates/$file'
 import { Route as V1ArtifactsRouteImport } from './routes/v1/artifacts'
 import { Route as V1ContactRouteImport } from './routes/v1/contact'
 import { Route as V1FeedbackRouteImport } from './routes/v1/feedback'
@@ -114,6 +115,7 @@ import { Route as MarketplaceSkillsSlugRouteImport } from './routes/marketplace/
 import { Route as NewsOgOpenbotVsGrokbotDotpngRouteImport } from './routes/news/og/openbot-vs-grokbot[.]png'
 import { Route as PluginsIconSlugRouteImport } from './routes/plugins/icon/$slug'
 import { Route as V1AdminAccountsRouteImport } from './routes/v1/admin/accounts'
+import { Route as V1AdminUpdatesRouteImport } from './routes/v1/admin/updates'
 import { Route as V1AgentTemplatesIndexRouteImport } from './routes/v1/agent-templates/index'
 import { Route as V1AgentTemplatesTemplateIdRouteImport } from './routes/v1/agent-templates/$templateId'
 import { Route as V1AgentTemplatesMineRouteImport } from './routes/v1/agent-templates/mine'
@@ -558,6 +560,11 @@ const SlackConnectRoute = SlackConnectRouteImport.update({
   path: '/slack/connect',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UpdatesFileRoute = UpdatesFileRouteImport.update({
+  id: '/updates/$file',
+  path: '/updates/$file',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const V1ArtifactsRoute = V1ArtifactsRouteImport.update({
   id: '/v1/artifacts',
   path: '/v1/artifacts',
@@ -763,6 +770,11 @@ const PluginsIconSlugRoute = PluginsIconSlugRouteImport.update({
 const V1AdminAccountsRoute = V1AdminAccountsRouteImport.update({
   id: '/v1/admin/accounts',
   path: '/v1/admin/accounts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const V1AdminUpdatesRoute = V1AdminUpdatesRouteImport.update({
+  id: '/v1/admin/updates',
+  path: '/v1/admin/updates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const V1AgentTemplatesIndexRoute = V1AgentTemplatesIndexRouteImport.update({
@@ -1513,6 +1525,7 @@ export interface FileRoutesByFullPath {
   '/providers/$slug': typeof ProvidersSlugRoute
   '/providers/rss.xml': typeof ProvidersRssDotxmlRoute
   '/slack/connect': typeof SlackConnectRoute
+  '/updates/$file': typeof UpdatesFileRoute
   '/v1/artifacts': typeof V1ArtifactsRouteWithChildren
   '/v1/contact': typeof V1ContactRoute
   '/v1/feedback': typeof V1FeedbackRouteWithChildren
@@ -1562,6 +1575,7 @@ export interface FileRoutesByFullPath {
   '/news/og/openbot-vs-grokbot.png': typeof NewsOgOpenbotVsGrokbotDotpngRoute
   '/plugins/icon/$slug': typeof PluginsIconSlugRoute
   '/v1/admin/accounts': typeof V1AdminAccountsRoute
+  '/v1/admin/updates': typeof V1AdminUpdatesRoute
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
@@ -1742,6 +1756,7 @@ export interface FileRoutesByTo {
   '/providers/$slug': typeof ProvidersSlugRoute
   '/providers/rss.xml': typeof ProvidersRssDotxmlRoute
   '/slack/connect': typeof SlackConnectRoute
+  '/updates/$file': typeof UpdatesFileRoute
   '/v1/artifacts': typeof V1ArtifactsRouteWithChildren
   '/v1/contact': typeof V1ContactRoute
   '/v1/feedback': typeof V1FeedbackRouteWithChildren
@@ -1791,6 +1806,7 @@ export interface FileRoutesByTo {
   '/news/og/openbot-vs-grokbot.png': typeof NewsOgOpenbotVsGrokbotDotpngRoute
   '/plugins/icon/$slug': typeof PluginsIconSlugRoute
   '/v1/admin/accounts': typeof V1AdminAccountsRoute
+  '/v1/admin/updates': typeof V1AdminUpdatesRoute
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
@@ -1974,6 +1990,7 @@ export interface FileRoutesById {
   '/providers/$slug': typeof ProvidersSlugRoute
   '/providers/rss.xml': typeof ProvidersRssDotxmlRoute
   '/slack/connect': typeof SlackConnectRoute
+  '/updates/$file': typeof UpdatesFileRoute
   '/v1/artifacts': typeof V1ArtifactsRouteWithChildren
   '/v1/contact': typeof V1ContactRoute
   '/v1/feedback': typeof V1FeedbackRouteWithChildren
@@ -2024,6 +2041,7 @@ export interface FileRoutesById {
   '/news/og/openbot-vs-grokbot.png': typeof NewsOgOpenbotVsGrokbotDotpngRoute
   '/plugins/icon/$slug': typeof PluginsIconSlugRoute
   '/v1/admin/accounts': typeof V1AdminAccountsRoute
+  '/v1/admin/updates': typeof V1AdminUpdatesRoute
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
@@ -2206,6 +2224,7 @@ export interface FileRouteTypes {
     | '/providers/$slug'
     | '/providers/rss.xml'
     | '/slack/connect'
+    | '/updates/$file'
     | '/v1/artifacts'
     | '/v1/contact'
     | '/v1/feedback'
@@ -2255,6 +2274,7 @@ export interface FileRouteTypes {
     | '/news/og/openbot-vs-grokbot.png'
     | '/plugins/icon/$slug'
     | '/v1/admin/accounts'
+    | '/v1/admin/updates'
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
@@ -2435,6 +2455,7 @@ export interface FileRouteTypes {
     | '/providers/$slug'
     | '/providers/rss.xml'
     | '/slack/connect'
+    | '/updates/$file'
     | '/v1/artifacts'
     | '/v1/contact'
     | '/v1/feedback'
@@ -2484,6 +2505,7 @@ export interface FileRouteTypes {
     | '/news/og/openbot-vs-grokbot.png'
     | '/plugins/icon/$slug'
     | '/v1/admin/accounts'
+    | '/v1/admin/updates'
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
@@ -2666,6 +2688,7 @@ export interface FileRouteTypes {
     | '/providers/$slug'
     | '/providers/rss.xml'
     | '/slack/connect'
+    | '/updates/$file'
     | '/v1/artifacts'
     | '/v1/contact'
     | '/v1/feedback'
@@ -2716,6 +2739,7 @@ export interface FileRouteTypes {
     | '/news/og/openbot-vs-grokbot.png'
     | '/plugins/icon/$slug'
     | '/v1/admin/accounts'
+    | '/v1/admin/updates'
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
@@ -2883,6 +2907,7 @@ export interface RootRouteChildren {
   ProvidersSlugRoute: typeof ProvidersSlugRoute
   ProvidersRssDotxmlRoute: typeof ProvidersRssDotxmlRoute
   SlackConnectRoute: typeof SlackConnectRoute
+  UpdatesFileRoute: typeof UpdatesFileRoute
   V1ArtifactsRoute: typeof V1ArtifactsRouteWithChildren
   V1ContactRoute: typeof V1ContactRoute
   V1FeedbackRoute: typeof V1FeedbackRouteWithChildren
@@ -2904,6 +2929,7 @@ export interface RootRouteChildren {
   NewsOgOpenbotVsGrokbotDotpngRoute: typeof NewsOgOpenbotVsGrokbotDotpngRoute
   PluginsIconSlugRoute: typeof PluginsIconSlugRoute
   V1AdminAccountsRoute: typeof V1AdminAccountsRoute
+  V1AdminUpdatesRoute: typeof V1AdminUpdatesRoute
   V1AgentTemplatesTemplateIdRoute: typeof V1AgentTemplatesTemplateIdRouteWithChildren
   V1AgentTemplatesMineRoute: typeof V1AgentTemplatesMineRoute
   V1AppMinimumVersionRoute: typeof V1AppMinimumVersionRoute
@@ -3448,6 +3474,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof SlackConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/updates/$file': {
+      id: '/updates/$file'
+      path: '/updates/$file'
+      fullPath: '/updates/$file'
+      preLoaderRoute: typeof UpdatesFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/v1/artifacts': {
       id: '/v1/artifacts'
       path: '/v1/artifacts'
@@ -3733,6 +3766,13 @@ declare module '@tanstack/solid-router' {
       path: '/v1/admin/accounts'
       fullPath: '/v1/admin/accounts'
       preLoaderRoute: typeof V1AdminAccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v1/admin/updates': {
+      id: '/v1/admin/updates'
+      path: '/v1/admin/updates'
+      fullPath: '/v1/admin/updates'
+      preLoaderRoute: typeof V1AdminUpdatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v1/agent-templates/': {
@@ -5049,6 +5089,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProvidersSlugRoute: ProvidersSlugRoute,
   ProvidersRssDotxmlRoute: ProvidersRssDotxmlRoute,
   SlackConnectRoute: SlackConnectRoute,
+  UpdatesFileRoute: UpdatesFileRoute,
   V1ArtifactsRoute: V1ArtifactsRouteWithChildren,
   V1ContactRoute: V1ContactRoute,
   V1FeedbackRoute: V1FeedbackRouteWithChildren,
@@ -5070,6 +5111,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsOgOpenbotVsGrokbotDotpngRoute: NewsOgOpenbotVsGrokbotDotpngRoute,
   PluginsIconSlugRoute: PluginsIconSlugRoute,
   V1AdminAccountsRoute: V1AdminAccountsRoute,
+  V1AdminUpdatesRoute: V1AdminUpdatesRoute,
   V1AgentTemplatesTemplateIdRoute: V1AgentTemplatesTemplateIdRouteWithChildren,
   V1AgentTemplatesMineRoute: V1AgentTemplatesMineRoute,
   V1AppMinimumVersionRoute: V1AppMinimumVersionRoute,
