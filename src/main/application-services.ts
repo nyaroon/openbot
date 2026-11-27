@@ -174,6 +174,7 @@ import { providerAuthKind } from "./analytics-provider-auth";
 import { AppBehaviorService } from "./app-behavior-service";
 import { AppearanceService } from "./appearance-service";
 import { ApprovalAutomation, readApprovalAutomation } from "./approval-automation-store";
+import { createArtifactClient } from "./artifact-client";
 import { AttachmentPreviews } from "./attachment-previews";
 import { AutomationServer } from "./automation-server";
 import { listBackgroundProcesses, stopBackgroundProcess } from "./background-processes";
@@ -1841,6 +1842,7 @@ export async function createApplicationServices({
   });
   void Effect.runPromise(universalVault.start());
   teardown.push(TEARDOWN_ORDER.universalVault, "the Universal vault", () => universalVault.dispose());
+  const artifactClient = createArtifactClient(centralAuth);
   const organizations = new OrganizationService({
     auth: centralAuth,
     vault,
@@ -2255,6 +2257,7 @@ export async function createApplicationServices({
     clientBrowser,
     crm: () => crmHandle,
     boards: () => boardsHandle,
+    artifacts: () => artifactClient,
     crmAgentVisibleToMembers: (agentId) => host.agentVisibleToMembers(agentId),
     personCanAdminister: (personId) => host.personCanAdminister(personId),
     mcpServerOwners: {

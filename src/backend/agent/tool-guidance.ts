@@ -152,6 +152,11 @@ function openbotGuidance(namespace: string, tool: string): string {
     case "update_board_card":
     case "move_board_card":
       return "Boards are the server's shared project kanban boards: every member and agent sees the same cards. Read them with openbot.list_boards and openbot.get_board, and use the ids that they give. Add a card with openbot.create_board_card, change one with openbot.update_board_card, and move one with openbot.move_board_card by column name or id. Dates are YYYY-MM-DD. Assigning a card does not start any agent run: tell the assignee in a message when it needs to act. Do not delete cards or boards; ask the user to do that.";
+    case "publish_artifact":
+    case "list_artifacts":
+    case "get_artifact":
+    case "delete_artifact":
+      return "An artifact is a self-contained HTML page with its own link that members of the user's organization open in a browser after they sign in. Use openbot.publish_artifact for a report, dashboard, plan or tool that people keep, share or come back to; use openbot.html_render for a visual that belongs to one answer. Put CSS and scripts inline, or load libraries from a public CDN; the page runs in a sandbox with no access to the app or the account. Write a large page to a file and pass file. To change a page, publish again with its artifactId so the link stays; read openbot.get_artifact first, because members leave comments there. Give the user the url. You cannot make an artifact public: the user does that on the artifact's page.";
     case "html_render":
     case "html_preview":
       return [

@@ -19,6 +19,7 @@ import { z } from "zod";
 import pluginCatalog from "../../resources/plugin-catalog/catalog.json";
 import { advertisedJsonSchema } from "./agent/advertised-json-schema";
 import { interruptAgentToolSchema } from "./agent/agent-interrupt-tool";
+import { ARTIFACT_TOOL_DEFINITIONS } from "./agent/artifact-tool";
 import { BOARDS_TOOL_DEFINITIONS } from "./agent/boards-tool";
 import { setBrowserProfileToolSchema } from "./agent/browser-profile-tool";
 import { createChannelToolSchema, listChannelsToolSchema, updateChannelToolSchema } from "./agent/channel-agent-tools";
@@ -292,6 +293,7 @@ export const OPENBOT_TOOL_DEFINITIONS: readonly OpenBotToolDefinition[] = [
   WORKFLOW_ANSWER_TOOL_DEFINITION,
   ...CRM_TOOL_DEFINITIONS,
   ...BOARDS_TOOL_DEFINITIONS,
+  ...ARTIFACT_TOOL_DEFINITIONS,
   ...MCP_SERVER_TOOL_DEFINITIONS,
   {
     name: "attach_files_to_response",

@@ -197,6 +197,7 @@ import { AgentMemories } from "./agent/agent-memories";
 import { AgentRemoval, AgentRemovalFailed } from "./agent/agent-removal";
 import { AgentSettingsRefused } from "./agent/agent-settings-refused";
 import type { ApprovalAutomationPolicy } from "./agent/approval-automation";
+import type { ArtifactOperations } from "./agent/artifact-tool";
 import { AttachmentGateway } from "./agent/attachment-gateway";
 import {
   type ApprovalResponder,
@@ -460,6 +461,7 @@ export interface AgentServiceOptions {
   clientBrowser?: ClientBrowser | null;
   crm?: (() => CrmHandle | null) | undefined;
   boards?: (() => BoardsHandle | null) | undefined;
+  artifacts?: (() => ArtifactOperations | null) | undefined;
   crmAgentVisibleToMembers?: ((agentId: string) => boolean) | undefined;
   personCanAdminister?: ((personId: string) => boolean) | undefined;
   mcpServerOwners?: McpServerOwnerHooks | undefined;
@@ -2160,6 +2162,7 @@ export class AgentService extends EventEmitter<AgentServiceEvents> {
       fromChrome: (deliveryId) => this.#fromChrome.has(deliveryId),
       ...(options.crm === undefined ? {} : { crm: options.crm }),
       ...(options.boards === undefined ? {} : { boards: options.boards }),
+      ...(options.artifacts === undefined ? {} : { artifacts: options.artifacts }),
       ...(options.crmAgentVisibleToMembers === undefined
         ? {}
         : { crmAgentVisibleToMembers: options.crmAgentVisibleToMembers }),

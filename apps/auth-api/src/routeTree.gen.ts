@@ -43,6 +43,8 @@ import { Route as HomeRuRouteImport } from './routes/_home/ru'
 import { Route as HomeTrRouteImport } from './routes/_home/tr'
 import { Route as HomeZhRouteImport } from './routes/_home/zh'
 import { Route as TeamsTeamsRouteImport } from './routes/_teams/teams'
+import { Route as AIndexRouteImport } from './routes/a/index'
+import { Route as AArtifactIdRouteImport } from './routes/a/$artifactId'
 import { Route as AgentsTemplateIdRouteImport } from './routes/agents/$templateId'
 import { Route as BrandIndexRouteImport } from './routes/brand/index'
 import { Route as BrandFileRouteImport } from './routes/brand/$file'
@@ -71,6 +73,7 @@ import { Route as ProvidersIndexRouteImport } from './routes/providers/index'
 import { Route as ProvidersSlugRouteImport } from './routes/providers/$slug'
 import { Route as ProvidersRssDotxmlRouteImport } from './routes/providers/rss[.]xml'
 import { Route as SlackConnectRouteImport } from './routes/slack/connect'
+import { Route as V1ArtifactsRouteImport } from './routes/v1/artifacts'
 import { Route as V1ContactRouteImport } from './routes/v1/contact'
 import { Route as V1FeedbackRouteImport } from './routes/v1/feedback'
 import { Route as V1MeRouteImport } from './routes/v1/me'
@@ -115,6 +118,7 @@ import { Route as V1AgentTemplatesIndexRouteImport } from './routes/v1/agent-tem
 import { Route as V1AgentTemplatesTemplateIdRouteImport } from './routes/v1/agent-templates/$templateId'
 import { Route as V1AgentTemplatesMineRouteImport } from './routes/v1/agent-templates/mine'
 import { Route as V1AppMinimumVersionRouteImport } from './routes/v1/app/minimum-version'
+import { Route as V1ArtifactsArtifactIdRouteImport } from './routes/v1/artifacts/$artifactId'
 import { Route as V1AuthLogoutRouteImport } from './routes/v1/auth/logout'
 import { Route as V1AvatarsUserIdRouteImport } from './routes/v1/avatars/$userId'
 import { Route as V1BrowserExtensionXRulesRouteImport } from './routes/v1/browser-extension/x-rules'
@@ -404,6 +408,16 @@ const TeamsTeamsRoute = TeamsTeamsRouteImport.update({
   path: '/teams',
   getParentRoute: () => TeamsRoute,
 } as any)
+const AIndexRoute = AIndexRouteImport.update({
+  id: '/a/',
+  path: '/a/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AArtifactIdRoute = AArtifactIdRouteImport.update({
+  id: '/a/$artifactId',
+  path: '/a/$artifactId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentsTemplateIdRoute = AgentsTemplateIdRouteImport.update({
   id: '/agents/$templateId',
   path: '/agents/$templateId',
@@ -542,6 +556,11 @@ const ProvidersRssDotxmlRoute = ProvidersRssDotxmlRouteImport.update({
 const SlackConnectRoute = SlackConnectRouteImport.update({
   id: '/slack/connect',
   path: '/slack/connect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const V1ArtifactsRoute = V1ArtifactsRouteImport.update({
+  id: '/v1/artifacts',
+  path: '/v1/artifacts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const V1ContactRoute = V1ContactRouteImport.update({
@@ -766,6 +785,11 @@ const V1AppMinimumVersionRoute = V1AppMinimumVersionRouteImport.update({
   id: '/v1/app/minimum-version',
   path: '/v1/app/minimum-version',
   getParentRoute: () => rootRouteImport,
+} as any)
+const V1ArtifactsArtifactIdRoute = V1ArtifactsArtifactIdRouteImport.update({
+  id: '/$artifactId',
+  path: '/$artifactId',
+  getParentRoute: () => V1ArtifactsRoute,
 } as any)
 const V1AuthLogoutRoute = V1AuthLogoutRouteImport.update({
   id: '/v1/auth/logout',
@@ -1468,6 +1492,7 @@ export interface FileRoutesByFullPath {
   '/tr': typeof HomeTrRoute
   '/zh': typeof HomeZhRoute
   '/teams': typeof TeamsTeamsRoute
+  '/a/$artifactId': typeof AArtifactIdRoute
   '/agents/$templateId': typeof AgentsTemplateIdRoute
   '/brand/$file': typeof BrandFileRoute
   '/compare/$slug': typeof CompareSlugRoute
@@ -1488,10 +1513,12 @@ export interface FileRoutesByFullPath {
   '/providers/$slug': typeof ProvidersSlugRoute
   '/providers/rss.xml': typeof ProvidersRssDotxmlRoute
   '/slack/connect': typeof SlackConnectRoute
+  '/v1/artifacts': typeof V1ArtifactsRouteWithChildren
   '/v1/contact': typeof V1ContactRoute
   '/v1/feedback': typeof V1FeedbackRouteWithChildren
   '/v1/me': typeof V1MeRouteWithChildren
   '/v1/organizations': typeof V1OrganizationsRouteWithChildren
+  '/a/': typeof AIndexRoute
   '/brand/': typeof BrandIndexRoute
   '/compare/': typeof CompareIndexRoute
   '/download/': typeof DownloadIndexRoute
@@ -1538,6 +1565,7 @@ export interface FileRoutesByFullPath {
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
+  '/v1/artifacts/$artifactId': typeof V1ArtifactsArtifactIdRoute
   '/v1/auth/logout': typeof V1AuthLogoutRoute
   '/v1/avatars/$userId': typeof V1AvatarsUserIdRoute
   '/v1/browser-extension/x-rules': typeof V1BrowserExtensionXRulesRoute
@@ -1693,6 +1721,7 @@ export interface FileRoutesByTo {
   '/tr': typeof HomeTrRoute
   '/zh': typeof HomeZhRoute
   '/teams': typeof TeamsTeamsRoute
+  '/a/$artifactId': typeof AArtifactIdRoute
   '/agents/$templateId': typeof AgentsTemplateIdRoute
   '/brand/$file': typeof BrandFileRoute
   '/compare/$slug': typeof CompareSlugRoute
@@ -1713,10 +1742,12 @@ export interface FileRoutesByTo {
   '/providers/$slug': typeof ProvidersSlugRoute
   '/providers/rss.xml': typeof ProvidersRssDotxmlRoute
   '/slack/connect': typeof SlackConnectRoute
+  '/v1/artifacts': typeof V1ArtifactsRouteWithChildren
   '/v1/contact': typeof V1ContactRoute
   '/v1/feedback': typeof V1FeedbackRouteWithChildren
   '/v1/me': typeof V1MeRouteWithChildren
   '/v1/organizations': typeof V1OrganizationsRouteWithChildren
+  '/a': typeof AIndexRoute
   '/brand': typeof BrandIndexRoute
   '/compare': typeof CompareIndexRoute
   '/download': typeof DownloadIndexRoute
@@ -1763,6 +1794,7 @@ export interface FileRoutesByTo {
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
+  '/v1/artifacts/$artifactId': typeof V1ArtifactsArtifactIdRoute
   '/v1/auth/logout': typeof V1AuthLogoutRoute
   '/v1/avatars/$userId': typeof V1AvatarsUserIdRoute
   '/v1/browser-extension/x-rules': typeof V1BrowserExtensionXRulesRoute
@@ -1921,6 +1953,7 @@ export interface FileRoutesById {
   '/_home/tr': typeof HomeTrRoute
   '/_home/zh': typeof HomeZhRoute
   '/_teams/teams': typeof TeamsTeamsRoute
+  '/a/$artifactId': typeof AArtifactIdRoute
   '/agents/$templateId': typeof AgentsTemplateIdRoute
   '/brand/$file': typeof BrandFileRoute
   '/compare/$slug': typeof CompareSlugRoute
@@ -1941,11 +1974,13 @@ export interface FileRoutesById {
   '/providers/$slug': typeof ProvidersSlugRoute
   '/providers/rss.xml': typeof ProvidersRssDotxmlRoute
   '/slack/connect': typeof SlackConnectRoute
+  '/v1/artifacts': typeof V1ArtifactsRouteWithChildren
   '/v1/contact': typeof V1ContactRoute
   '/v1/feedback': typeof V1FeedbackRouteWithChildren
   '/v1/me': typeof V1MeRouteWithChildren
   '/v1/organizations': typeof V1OrganizationsRouteWithChildren
   '/_home/': typeof HomeIndexRoute
+  '/a/': typeof AIndexRoute
   '/brand/': typeof BrandIndexRoute
   '/compare/': typeof CompareIndexRoute
   '/download/': typeof DownloadIndexRoute
@@ -1992,6 +2027,7 @@ export interface FileRoutesById {
   '/v1/agent-templates/$templateId': typeof V1AgentTemplatesTemplateIdRouteWithChildren
   '/v1/agent-templates/mine': typeof V1AgentTemplatesMineRoute
   '/v1/app/minimum-version': typeof V1AppMinimumVersionRoute
+  '/v1/artifacts/$artifactId': typeof V1ArtifactsArtifactIdRoute
   '/v1/auth/logout': typeof V1AuthLogoutRoute
   '/v1/avatars/$userId': typeof V1AvatarsUserIdRoute
   '/v1/browser-extension/x-rules': typeof V1BrowserExtensionXRulesRoute
@@ -2149,6 +2185,7 @@ export interface FileRouteTypes {
     | '/tr'
     | '/zh'
     | '/teams'
+    | '/a/$artifactId'
     | '/agents/$templateId'
     | '/brand/$file'
     | '/compare/$slug'
@@ -2169,10 +2206,12 @@ export interface FileRouteTypes {
     | '/providers/$slug'
     | '/providers/rss.xml'
     | '/slack/connect'
+    | '/v1/artifacts'
     | '/v1/contact'
     | '/v1/feedback'
     | '/v1/me'
     | '/v1/organizations'
+    | '/a/'
     | '/brand/'
     | '/compare/'
     | '/download/'
@@ -2219,6 +2258,7 @@ export interface FileRouteTypes {
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
+    | '/v1/artifacts/$artifactId'
     | '/v1/auth/logout'
     | '/v1/avatars/$userId'
     | '/v1/browser-extension/x-rules'
@@ -2374,6 +2414,7 @@ export interface FileRouteTypes {
     | '/tr'
     | '/zh'
     | '/teams'
+    | '/a/$artifactId'
     | '/agents/$templateId'
     | '/brand/$file'
     | '/compare/$slug'
@@ -2394,10 +2435,12 @@ export interface FileRouteTypes {
     | '/providers/$slug'
     | '/providers/rss.xml'
     | '/slack/connect'
+    | '/v1/artifacts'
     | '/v1/contact'
     | '/v1/feedback'
     | '/v1/me'
     | '/v1/organizations'
+    | '/a'
     | '/brand'
     | '/compare'
     | '/download'
@@ -2444,6 +2487,7 @@ export interface FileRouteTypes {
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
+    | '/v1/artifacts/$artifactId'
     | '/v1/auth/logout'
     | '/v1/avatars/$userId'
     | '/v1/browser-extension/x-rules'
@@ -2601,6 +2645,7 @@ export interface FileRouteTypes {
     | '/_home/tr'
     | '/_home/zh'
     | '/_teams/teams'
+    | '/a/$artifactId'
     | '/agents/$templateId'
     | '/brand/$file'
     | '/compare/$slug'
@@ -2621,11 +2666,13 @@ export interface FileRouteTypes {
     | '/providers/$slug'
     | '/providers/rss.xml'
     | '/slack/connect'
+    | '/v1/artifacts'
     | '/v1/contact'
     | '/v1/feedback'
     | '/v1/me'
     | '/v1/organizations'
     | '/_home/'
+    | '/a/'
     | '/brand/'
     | '/compare/'
     | '/download/'
@@ -2672,6 +2719,7 @@ export interface FileRouteTypes {
     | '/v1/agent-templates/$templateId'
     | '/v1/agent-templates/mine'
     | '/v1/app/minimum-version'
+    | '/v1/artifacts/$artifactId'
     | '/v1/auth/logout'
     | '/v1/avatars/$userId'
     | '/v1/browser-extension/x-rules'
@@ -2814,6 +2862,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   DotwellKnownAppleAppSiteAssociationRoute: typeof DotwellKnownAppleAppSiteAssociationRoute
   DotwellKnownJwksDotjsonRoute: typeof DotwellKnownJwksDotjsonRoute
+  AArtifactIdRoute: typeof AArtifactIdRoute
   AgentsTemplateIdRoute: typeof AgentsTemplateIdRoute
   BrandFileRoute: typeof BrandFileRoute
   CompareSlugRoute: typeof CompareSlugRoute
@@ -2834,10 +2883,12 @@ export interface RootRouteChildren {
   ProvidersSlugRoute: typeof ProvidersSlugRoute
   ProvidersRssDotxmlRoute: typeof ProvidersRssDotxmlRoute
   SlackConnectRoute: typeof SlackConnectRoute
+  V1ArtifactsRoute: typeof V1ArtifactsRouteWithChildren
   V1ContactRoute: typeof V1ContactRoute
   V1FeedbackRoute: typeof V1FeedbackRouteWithChildren
   V1MeRoute: typeof V1MeRouteWithChildren
   V1OrganizationsRoute: typeof V1OrganizationsRouteWithChildren
+  AIndexRoute: typeof AIndexRoute
   BrandIndexRoute: typeof BrandIndexRoute
   CompareIndexRoute: typeof CompareIndexRoute
   DownloadIndexRoute: typeof DownloadIndexRoute
@@ -3187,6 +3238,20 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof TeamsTeamsRouteImport
       parentRoute: typeof TeamsRoute
     }
+    '/a/': {
+      id: '/a/'
+      path: '/a'
+      fullPath: '/a/'
+      preLoaderRoute: typeof AIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/a/$artifactId': {
+      id: '/a/$artifactId'
+      path: '/a/$artifactId'
+      fullPath: '/a/$artifactId'
+      preLoaderRoute: typeof AArtifactIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agents/$templateId': {
       id: '/agents/$templateId'
       path: '/agents/$templateId'
@@ -3381,6 +3446,13 @@ declare module '@tanstack/solid-router' {
       path: '/slack/connect'
       fullPath: '/slack/connect'
       preLoaderRoute: typeof SlackConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v1/artifacts': {
+      id: '/v1/artifacts'
+      path: '/v1/artifacts'
+      fullPath: '/v1/artifacts'
+      preLoaderRoute: typeof V1ArtifactsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v1/contact': {
@@ -3690,6 +3762,13 @@ declare module '@tanstack/solid-router' {
       fullPath: '/v1/app/minimum-version'
       preLoaderRoute: typeof V1AppMinimumVersionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/v1/artifacts/$artifactId': {
+      id: '/v1/artifacts/$artifactId'
+      path: '/$artifactId'
+      fullPath: '/v1/artifacts/$artifactId'
+      preLoaderRoute: typeof V1ArtifactsArtifactIdRouteImport
+      parentRoute: typeof V1ArtifactsRoute
     }
     '/v1/auth/logout': {
       id: '/v1/auth/logout'
@@ -4649,6 +4728,18 @@ const TeamsRouteChildren: TeamsRouteChildren = {
 
 const TeamsRouteWithChildren = TeamsRoute._addFileChildren(TeamsRouteChildren)
 
+interface V1ArtifactsRouteChildren {
+  V1ArtifactsArtifactIdRoute: typeof V1ArtifactsArtifactIdRoute
+}
+
+const V1ArtifactsRouteChildren: V1ArtifactsRouteChildren = {
+  V1ArtifactsArtifactIdRoute: V1ArtifactsArtifactIdRoute,
+}
+
+const V1ArtifactsRouteWithChildren = V1ArtifactsRoute._addFileChildren(
+  V1ArtifactsRouteChildren,
+)
+
 interface V1FeedbackRouteChildren {
   V1FeedbackSimilarRoute: typeof V1FeedbackSimilarRoute
   V1FeedbackWithdrawRoute: typeof V1FeedbackWithdrawRoute
@@ -4937,6 +5028,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownAppleAppSiteAssociationRoute:
     DotwellKnownAppleAppSiteAssociationRoute,
   DotwellKnownJwksDotjsonRoute: DotwellKnownJwksDotjsonRoute,
+  AArtifactIdRoute: AArtifactIdRoute,
   AgentsTemplateIdRoute: AgentsTemplateIdRoute,
   BrandFileRoute: BrandFileRoute,
   CompareSlugRoute: CompareSlugRoute,
@@ -4957,10 +5049,12 @@ const rootRouteChildren: RootRouteChildren = {
   ProvidersSlugRoute: ProvidersSlugRoute,
   ProvidersRssDotxmlRoute: ProvidersRssDotxmlRoute,
   SlackConnectRoute: SlackConnectRoute,
+  V1ArtifactsRoute: V1ArtifactsRouteWithChildren,
   V1ContactRoute: V1ContactRoute,
   V1FeedbackRoute: V1FeedbackRouteWithChildren,
   V1MeRoute: V1MeRouteWithChildren,
   V1OrganizationsRoute: V1OrganizationsRouteWithChildren,
+  AIndexRoute: AIndexRoute,
   BrandIndexRoute: BrandIndexRoute,
   CompareIndexRoute: CompareIndexRoute,
   DownloadIndexRoute: DownloadIndexRoute,

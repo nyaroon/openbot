@@ -143,6 +143,7 @@ import { AgentInterruptTool } from "./agent-interrupt-tool";
 import type { AgentMemories } from "./agent-memories";
 import { AgentSettingsRefused } from "./agent-settings-refused";
 import { type ApprovalAutomationPolicy, NO_APPROVAL_AUTOMATION } from "./approval-automation";
+import { ARTIFACT_TOOL_NAMES, type ArtifactOperations, handleArtifactTool } from "./artifact-tool";
 import type { AttachmentGateway } from "./attachment-gateway";
 import type { AttentionRegistry, CodexSubagentParent } from "./attention-registry";
 import { type AvatarImageDecoder, loadAvatarFile } from "./avatar-file";
@@ -519,6 +520,7 @@ export interface OpenBotToolRouterOptions {
   browserProfiles?: (() => AgentBrowserProfiles | null) | undefined;
   crm?: (() => CrmHandle | null) | undefined;
   boards?: (() => BoardsHandle | null) | undefined;
+  artifacts?: (() => ArtifactOperations | null) | undefined;
   crmAgentVisibleToMembers?: ((agentId: string) => boolean) | undefined;
   personCanAdminister?: ((personId: string) => boolean) | undefined;
   mcpServerOwners?: McpServerOwnerHooks | undefined;
@@ -579,6 +581,7 @@ export class OpenBotToolRouter {
   readonly #browserProfiles: () => AgentBrowserProfiles | null;
   readonly #crm: () => CrmHandle | null;
   readonly #boards: () => BoardsHandle | null;
+  readonly #artifacts: () => ArtifactOperations | null;
   readonly #crmAgentVisibleToMembers: (agentId: string) => boolean;
   readonly #personCanAdminister: (personId: string) => boolean;
   readonly #mcpServerOwners: McpServerOwnerHooks | null;
@@ -647,6 +650,7 @@ export class OpenBotToolRouter {
     this.#browserProfiles = options.browserProfiles ?? (() => null);
     this.#crm = options.crm ?? (() => null);
     this.#boards = options.boards ?? (() => null);
+    this.#artifacts = options.artifacts ?? (() => null);
     this.#crmAgentVisibleToMembers = options.crmAgentVisibleToMembers ?? (() => true);
     this.#personCanAdminister = options.personCanAdminister ?? (() => true);
     this.#mcpServerOwners = options.mcpServerOwners ?? null;
@@ -2359,6 +2363,11 @@ export class OpenBotToolRouter {
         (text) => this.#hooks.redactMcp(text),
       );
       if (crmResult) return crmResult;
+    }
+
+    if (ARTIFACT_TOOL_NAMES.has(params.tool)) {
+      const artifactResult = yield* handleArtifactTool(params.tool, params.arguments, this.#artifacts());
+      if (artifactResult) return artifactResult;
     }
 
     if (BOARDS_TOOL_NAMES.has(params.tool)) {

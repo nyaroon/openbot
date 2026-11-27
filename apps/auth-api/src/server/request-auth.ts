@@ -10,7 +10,9 @@ import { adminTokenMatches } from "./admin-token";
 import { AgentMarketplace, AgentMarketplaceError } from "./agent-marketplace";
 import { AgentTemplates } from "./agent-templates";
 import { type FcmRelaySender, sharedFcmSender } from "./android-notification-relay";
+import { ArtifactError, Artifacts } from "./artifacts";
 import { AuthOperationError, AuthService, AuthServiceError } from "./auth-service";
+import { browserSessionToken } from "./browser-api";
 import type { ContactMessageServices } from "./contact-message";
 import { D1AuthRepository } from "./d1-auth-repository";
 import { DiscordAppError, DiscordAppService } from "./discord-app";
@@ -427,6 +429,28 @@ export function requestOrganizations(): Organizations {
         requestRemoteControlPlane().revokeOrganizationHosts(userId, organizationId),
     },
   });
+}
+
+export function requestArtifacts(): Artifacts {
+  const bindings = requireWorkerBindings(env);
+  return new Artifacts({
+    database: bindings.DB,
+    // Artifacts share the account bucket; their keys start with `artifacts/`.
+    bucket: () => bindings.AVATARS,
+    ownerEmails: readOwnerPolicy(bindings.OWNER_WHATSAPP_NUMBERS).owners,
+  });
+}
+
+export function artifactErrorResponse(error: unknown): Response {
+  if (error instanceof ArtifactError) return apiError(error.status, error.code, error.message);
+  return authErrorResponse(error);
+}
+
+/** The account that the web sign-in cookie belongs to. Pages outside the browser API use this. */
+export function requestBrowserUser(request: Request) {
+  const token = browserSessionToken(request);
+  if (!token) return Effect.succeed(null);
+  return requestAuthService().authenticate(token);
 }
 
 export function organizationErrorResponse(error: unknown): Response {

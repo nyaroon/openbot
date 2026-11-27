@@ -30,3 +30,4 @@
 - WhatsApp sign-in now finishes by itself once the message arrives, and a WhatsApp reply confirms the code was received.
 - The owner's Accounts page is now a Super admin page: it lists every organization with its members and how many are connected, shows each account's organizations and active sign-ins, and adds a person straight into an organization or starts a new organization with them as its owner.
 - Opening settings on the web no longer lets the sidebar's list show through the settings menu.
+- Agents can publish a page as an artifact with its own link on the account service. Members of the organization open it after they sign in, comment on it, and see its earlier versions; the publisher or a manager can make the link public or delete it.

@@ -118,7 +118,7 @@ function cookieValue(request: Request, name: string): string | null {
   return value.slice(name.length + 1);
 }
 
-function browserSessionToken(request: Request): string | null {
+export function browserSessionToken(request: Request): string | null {
   const token = cookieValue(request, COOKIE);
   return token !== null && /^[A-Za-z0-9_-]{20,512}$/u.test(token) ? token : null;
 }
