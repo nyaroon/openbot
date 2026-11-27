@@ -32,6 +32,7 @@ import { feedbackOwner } from "./feedback-owner";
 import { GitHubInstallationTokens, GitHubInstallationTokensError } from "./github-installation-tokens";
 import { JsonBodyError } from "./json-body";
 import { kirimiWebhookSecret } from "./kirimi-delivery";
+import { readKirimiForwardUrl } from "./kirimi-forward";
 import { type ApnsRelaySender, sharedApnsSender } from "./live-activity-relay";
 import { MarketplaceQueryError } from "./marketplace-pagination";
 import {
@@ -70,6 +71,10 @@ function accountAnalytics(bindings: WorkerBindings): AccountAnalytics {
 /** The secret in the path of the Kirimi incoming-message webhook. Null when reverse sign-in is off. */
 export function requestKirimiWebhookSecret(): string | null {
   return kirimiWebhookSecret(requireWorkerBindings(env));
+}
+
+export function requestKirimiForwardUrl(): string | null {
+  return readKirimiForwardUrl(requireWorkerBindings(env));
 }
 
 export function requestAuthService(): AuthService {

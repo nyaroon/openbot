@@ -41,6 +41,8 @@ export interface WorkerBindings extends ObjectStorageEnv {
   KIRIMI_API_URL?: string;
   KIRIMI_WABA_NUMBER?: string;
   KIRIMI_WEBHOOK_SECRET?: string;
+  /** Another https address that also receives every Kirimi webhook call, unchanged. */
+  KIRIMI_WEBHOOK_FORWARD_URL?: string;
   OWNER_WHATSAPP_NUMBERS?: string;
   /** Base64 32-byte AES-256-GCM key for the organization vault. Without it the vault routes answer 503. */
   ORG_VAULT_KEY?: string;
