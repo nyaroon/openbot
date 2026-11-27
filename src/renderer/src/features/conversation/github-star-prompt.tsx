@@ -8,6 +8,12 @@ const PROMPTED = "shown";
 const SENDS_BEFORE_PROMPT = 3;
 const TOAST_ID = "github-star-prompt";
 
+/**
+ * Whether the app asks its users to star, follow or post about it. It is off: the texts and links
+ * still name the project this app came from. Turn it on when the owner can set them.
+ */
+export const PROMOTION_PROMPTS_ENABLED: boolean = false;
+
 let shownThisSession = false;
 
 export function githubStarPromptShownThisSession(): boolean {
@@ -15,6 +21,7 @@ export function githubStarPromptShownThisSession(): boolean {
 }
 
 export function noteAgentMessageSent(): void {
+  if (!PROMOTION_PROMPTS_ENABLED) return;
   let sent: number;
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY);

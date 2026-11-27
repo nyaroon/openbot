@@ -7,7 +7,7 @@ import { Option, Schema } from "effect";
 import { createSignal } from "solid-js";
 import { appPort } from "../../app-port";
 import { writeClipboardText } from "../../clipboard";
-import { githubStarPromptShownThisSession } from "./github-star-prompt";
+import { githubStarPromptShownThisSession, PROMOTION_PROMPTS_ENABLED } from "./github-star-prompt";
 
 const STORAGE_KEY = "openbot:social-follow-prompt";
 const TOAST_ID = "social-follow-prompt";
@@ -101,6 +101,7 @@ function blocked(): boolean {
 }
 
 export function noteSocialFollowMessageSent(): void {
+  if (!PROMOTION_PROMPTS_ENABLED) return;
   const now = Date.now();
   const state = updateState((saved) => ({
     ...saved,
@@ -111,7 +112,7 @@ export function noteSocialFollowMessageSent(): void {
 }
 
 export function noteSocialFollowReplyCompleted(): void {
-  if (!sentThisSession || checking || blocked()) return;
+  if (!PROMOTION_PROMPTS_ENABLED || !sentThisSession || checking || blocked()) return;
   let state: SocialFollowState;
   try {
     state = readState();

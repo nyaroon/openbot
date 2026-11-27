@@ -1,11 +1,14 @@
 /**
- * Releases the Windows desktop app to the update feed, so that installed apps update themselves.
+ * Releases the desktop app of this computer's system (Windows or macOS) to the update feed, so that
+ * installed apps update themselves.
  *
  *   bun scripts/release-desktop.ts              raise the patch version, build, upload
  *   bun scripts/release-desktop.ts --no-bump    build and upload the version in package.json
  *   bun scripts/release-desktop.ts --no-build   upload what is in dist/ already
  *
- * Run it from PowerShell: the Windows build needs it. The upload token is read from the
+ * On Windows, run it from PowerShell: the Windows build needs it. On macOS it builds for the
+ * processor of this Mac, without a signature unless the signing variables are set (see
+ * docs/HANDOFF-MAC-BUILD.md). The upload token is read from the
  * JUJURLY_RELEASE_TOKEN variable, or from apps/auth-api/.env.release-token, which git ignores.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -14,6 +17,14 @@ import { join } from "node:path";
 const root = join(import.meta.dir, "..");
 const origin = (process.env.JUJURLY_UPDATE_ORIGIN ?? "https://jujurly.id").replace(/\/+$/u, "");
 const flags = new Set(process.argv.slice(2));
+const mac = process.platform === "darwin";
+if (!mac && process.platform !== "win32") {
+  process.stderr.write(`This script releases the Windows and the macOS app only.
+`);
+  process.exit(1);
+}
+/** electron-builder writes one feed file per system. */
+const feedFile = mac ? "latest-mac.yml" : "latest.yml";
 
 function say(message: string): void {
   process.stdout.write(`${message}
@@ -44,7 +55,11 @@ function raiseVersion(): string {
 }
 
 async function build(): Promise<void> {
-  const child = Bun.spawn(["bun", "run", "dist:win"], { cwd: root, stdout: "inherit", stderr: "inherit" });
+  const child = Bun.spawn(["bun", "run", mac ? "dist:mac" : "dist:win"], {
+    cwd: root,
+    stdout: "inherit",
+    stderr: "inherit",
+  });
   if ((await child.exited) !== 0) fail("The build failed. Nothing was uploaded.");
 }
 
@@ -73,12 +88,20 @@ if (!flags.has("--no-build")) {
   if (!flags.has("--no-bump")) say(`Version ${raiseVersion()}.`);
   await build();
 }
-const manifest = readFileSync(join(root, "dist", "latest.yml"), "utf8");
-const installer = /^path:\s*(\S+)\s*$/mu.exec(manifest)?.[1];
-if (!installer) fail("dist/latest.yml names no installer.");
+const manifest = readFileSync(join(root, "dist", feedFile), "utf8");
+const files = [...manifest.matchAll(/^\s*-\s*url:\s*(\S+)\s*$/gmu)].flatMap((match) => (match[1] ? [match[1]] : []));
+if (files.length === 0) fail(`dist/${feedFile} names no release file.`);
 const version = /^version:\s*(\S+)\s*$/mu.exec(manifest)?.[1] ?? "?";
-// The feed file goes last: an app that reads it must find the installer that it names.
-await upload(token, installer);
-await upload(token, `${installer}.blockmap`);
-await upload(token, "latest.yml");
-say(`Released ${version}. Installed apps find it at ${origin}/updates/latest.yml.`);
+// The feed file goes last: an app that reads it must find the files that it names.
+for (const name of files) {
+  await upload(token, name);
+  if (existsSync(join(root, "dist", `${name}.blockmap`))) await upload(token, `${name}.blockmap`);
+}
+// The disk image is what a person downloads for the first install. The feed lists it only sometimes.
+if (mac) {
+  for (const name of files.map((file) => file.replace(/\.zip$/u, ".dmg"))) {
+    if (!files.includes(name) && existsSync(join(root, "dist", name))) await upload(token, name);
+  }
+}
+await upload(token, feedFile);
+say(`Released ${version}. Installed apps find it at ${origin}/updates/${feedFile}.`);

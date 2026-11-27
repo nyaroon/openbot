@@ -35,3 +35,5 @@
 - The desktop app updates itself again: it checks the update feed of this product, and a release is one command (`bun run release:win`).
 - Jujurly can take over the data of an OpenBot installation on the same computer: agents, threads, provider sign-ins, skills, the vault and the server that the computer hosts. A fresh Jujurly asks at its first start; an installed one asks when started with `--import-openbot`. OpenBot must be closed, its data is only read, and what Jujurly held before moves to a backup folder in its data folder. After the import you sign in again. Data saved by an OpenBot newer than database version 70 is refused.
 - A database imported from OpenBot gets the board tables (migration 72).
+- The release command also releases the macOS app (`bun run release:mac`); `docs/HANDOFF-MAC-BUILD.md` says how to build on a Mac.
+- The app no longer asks its users to star the repository or to post about it.
