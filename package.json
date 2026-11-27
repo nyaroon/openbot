@@ -2,7 +2,7 @@
   "name": "openbot",
   "productName": "Jujurly",
   "desktopName": "openbot.desktop",
-  "version": "0.78.1",
+  "version": "0.78.2",
   "description": "Jujurly, a local-first multi-agent desktop workspace for Codex, Claude, and Grok.",
   "author": {
     "name": "Norbert Bodziony",

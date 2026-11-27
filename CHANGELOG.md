@@ -6,6 +6,12 @@ All notable changes to OpenBot will be documented here. The project follows
 
 ## [Unreleased]
 
+## [0.78.2] - 2026-11-27
+
+### Changed
+
+- A release that proves the desktop app updates itself from the update feed. It has no other change.
+
 ## [0.78.1] - 2026-11-27
 
 ### Added
