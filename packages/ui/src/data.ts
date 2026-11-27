@@ -131,6 +131,7 @@ export type ChatActionMarkerModel =
     }
   | { kind: "marketplace-suggestion"; appId: string; timestamp: string }
   | { kind: "setting-link"; settingId: SettingLinkId; timestamp: string }
+  | { kind: "artifact"; artifactId: string; version: number; title: string; url: string; timestamp: string }
   | (SkillSuggestionEvent & { kind: "skill-suggestion"; timestamp: string })
   | { kind: "mcp-sign-in"; mcpServerId: string; timestamp: string }
   | { kind: "server-install"; name: string | null; expiresAt: number; timestamp: string }

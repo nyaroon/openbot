@@ -525,4 +525,6 @@ export const messages = {
   "chat.feedbackWithdrawn.badge": "Kaldırıldı",
   "chat.feedbackWithdrawn.body":
     "Raporunuz artık GitHub'da değil. Düzeltilmiş bir rapor göndermek için ajandan isteyin.",
+  "chat.marker.artifact": "Bir yapıt yayımladı",
+  "chat.artifactCard.subtitle": "Yapıt · sürüm {version}",
 } as const satisfies PartialTranslation<typeof source>;

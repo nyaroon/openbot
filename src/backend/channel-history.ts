@@ -1,5 +1,6 @@
 import {
   type AgentSummary,
+  artifactEvent,
   type ChannelDraft,
   type ChannelMessage,
   type ChannelPage,
@@ -138,6 +139,7 @@ function conversation(all: ChannelMessage[]): ChannelMessage[] {
       !isChannelChangeMarker(message.message) &&
       mcpSignInEvent(message.message) === null &&
       settingLinkEvent(message.message) === null &&
+      artifactEvent(message.message) === null &&
       !isMemberThinking(message) &&
       !(
         message.message.itemType === "commentary" &&

@@ -73,4 +73,18 @@ export const messages = {
     "Участники организации смогут присоединиться к нему. Если позже отвязать сервер, никто не будет удалён.",
   "organization.servers.bindPick": "Выберите сервер",
   "organization.servers.bindConfirm": "Привязать",
+  "organization.artifacts.tab": "Артефакты",
+  "organization.artifacts.title": "Артефакты",
+  "organization.artifacts.intro":
+    "Страницы, которые агенты опубликовали для ваших организаций. Участники открывают их в браузере после входа.",
+  "organization.artifacts.empty": "Артефактов пока нет. Попросите агента опубликовать один.",
+  "organization.artifacts.detail": "{organization} · {owner} · версия {version} · {updated}",
+  "organization.artifacts.public": "Публичная ссылка",
+  "organization.artifacts.open": "Открыть",
+  "organization.artifacts.openLabel": "Открыть «{title}»",
+  "organization.artifacts.delete": "Удалить «{title}»",
+  "organization.artifacts.deleteTitle": "Удалить этот артефакт?",
+  "organization.artifacts.deleteBody": "«{title}» будет удалён со всеми версиями. Ссылка перестанет работать.",
+  "organization.artifacts.deleteConfirm": "Удалить",
+  "organization.artifacts.failed": "Не удалось загрузить артефакты.",
 } as const satisfies PartialTranslation<typeof source>;

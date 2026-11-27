@@ -674,4 +674,6 @@ export const messages = {
   "chat.feedbackWithdrawn.title": "أُزيل البلاغ",
   "chat.feedbackWithdrawn.badge": "أُزيل",
   "chat.feedbackWithdrawn.body": "لم يعد بلاغك على GitHub. لإرسال بلاغ مصحَّح، اطلب ذلك من الوكيل.",
+  "chat.marker.artifact": "نشر صفحة",
+  "chat.artifactCard.subtitle": "صفحة منشورة · الإصدار {version}",
 } as const satisfies PartialTranslation<typeof source>;

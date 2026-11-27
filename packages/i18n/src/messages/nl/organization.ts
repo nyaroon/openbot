@@ -73,4 +73,18 @@ export const messages = {
     "Leden van de organisatie kunnen er dan lid van worden. Later ontkoppelen verwijdert niemand.",
   "organization.servers.bindPick": "Kies een server",
   "organization.servers.bindConfirm": "Koppelen",
+  "organization.artifacts.tab": "Artefacten",
+  "organization.artifacts.title": "Artefacten",
+  "organization.artifacts.intro":
+    "Pagina’s die agenten voor je organisaties hebben gepubliceerd. Leden openen ze in een browser nadat ze zijn ingelogd.",
+  "organization.artifacts.empty": "Nog geen artefacten. Vraag een agent er een te publiceren.",
+  "organization.artifacts.detail": "{organization} · {owner} · versie {version} · {updated}",
+  "organization.artifacts.public": "Openbare link",
+  "organization.artifacts.open": "Openen",
+  "organization.artifacts.openLabel": "{title} openen",
+  "organization.artifacts.delete": "{title} verwijderen",
+  "organization.artifacts.deleteTitle": "Dit artefact verwijderen?",
+  "organization.artifacts.deleteBody": "{title} wordt met alle versies verwijderd. De link werkt daarna niet meer.",
+  "organization.artifacts.deleteConfirm": "Verwijderen",
+  "organization.artifacts.failed": "De artefacten konden niet worden geladen.",
 } as const satisfies PartialTranslation<typeof source>;

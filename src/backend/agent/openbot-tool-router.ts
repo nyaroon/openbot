@@ -56,6 +56,8 @@ import {
   agentPermissionLevel,
   agentPermissionLevels,
   agentQuickAcknowledgementEnabled,
+  artifactEventText,
+  artifactItemType,
   COMPUTER_USE_MCP_SERVER_ID,
   channelAllowsBrowser,
   channelBrowserAgent,
@@ -2366,7 +2368,14 @@ export class OpenBotToolRouter {
     }
 
     if (ARTIFACT_TOOL_NAMES.has(params.tool)) {
-      const artifactResult = yield* handleArtifactTool(params.tool, params.arguments, this.#artifacts());
+      const artifactResult = yield* handleArtifactTool(params.tool, params.arguments, this.#artifacts(), (artifact) =>
+        this.#postSystemCard(senderAgentId, executionThreadId, params.turnId, {
+          itemType: artifactItemType({ artifactId: artifact.id, version: artifact.version }),
+          text: artifactEventText(artifact),
+          eventType: "artifact.published",
+          detail: { artifactId: artifact.id },
+        }),
+      );
       if (artifactResult) return artifactResult;
     }
 
@@ -3262,7 +3271,12 @@ export class OpenBotToolRouter {
       itemType: string;
       text: string;
       eventType: string;
-      detail: { appId: string } | { mcpServerId: string } | { settingId: string } | Record<string, never>;
+      detail:
+        | { appId: string }
+        | { mcpServerId: string }
+        | { settingId: string }
+        | { artifactId: string }
+        | Record<string, never>;
     },
   ): void {
     const snapshot = structuredClone(this.#conversation.ensureSnapshot(agentId, threadId));

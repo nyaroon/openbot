@@ -71,6 +71,22 @@ export interface OrganizationRenameInput {
   name: string;
 }
 
+/** An artifact of one of the account's organizations: a page that an agent published. */
+export interface OrganizationArtifact {
+  id: string;
+  url: string;
+  title: string;
+  version: number;
+  visibility: "organization" | "public";
+  organizationName: string;
+  ownerName: string;
+  updatedAt: number;
+}
+
+export interface OrganizationArtifactTarget {
+  artifactId: string;
+}
+
 export interface OrganizationTarget {
   organizationId: string;
 }

@@ -2,6 +2,20 @@ import { defineMessages } from "../../message";
 
 export const messages = defineMessages("organization", {
   "organization.tab": "Organizations",
+  "organization.artifacts.tab": "Artifacts",
+  "organization.artifacts.title": "Artifacts",
+  "organization.artifacts.intro":
+    "Pages that agents published for your organizations. Members open them in a browser after they sign in.",
+  "organization.artifacts.empty": "No artifacts yet. Ask an agent to publish one.",
+  "organization.artifacts.detail": "{organization} · {owner} · version {version} · {updated}",
+  "organization.artifacts.public": "Public link",
+  "organization.artifacts.open": "Open",
+  "organization.artifacts.openLabel": "Open {title}",
+  "organization.artifacts.delete": "Delete {title}",
+  "organization.artifacts.deleteTitle": "Delete this artifact?",
+  "organization.artifacts.deleteBody": "{title} is deleted with every version. Its link stops working.",
+  "organization.artifacts.deleteConfirm": "Delete",
+  "organization.artifacts.failed": "The artifacts could not be loaded.",
   "organization.title": "Organizations",
   "organization.intro":
     "Teams you belong to. Items an organization shares appear in your Vault with the organization's name and cannot be changed there.",

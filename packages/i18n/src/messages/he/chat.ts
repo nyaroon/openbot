@@ -529,4 +529,6 @@ export const messages = {
   "chat.feedbackWithdrawn.title": "הדיווח הוסר",
   "chat.feedbackWithdrawn.badge": "הוסר",
   "chat.feedbackWithdrawn.body": "הדיווח שלך כבר לא ב-GitHub. כדי לשלוח דיווח מתוקן, בקשו זאת מהסוכן.",
+  "chat.marker.artifact": "פורסם דף",
+  "chat.artifactCard.subtitle": "דף שפורסם · גרסה {version}",
 } as const satisfies PartialTranslation<typeof source>;

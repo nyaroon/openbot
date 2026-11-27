@@ -6,6 +6,7 @@ import type {
   DirectMessage,
 } from "@openbot/contracts/ipc";
 import {
+  ARTIFACT_ITEM_TYPE_PREFIX,
   CONTEXT_RESET_ITEM_TYPE,
   MARKETPLACE_SUGGESTION_ITEM_TYPE_PREFIX,
   MODEL_SWITCH_ITEM_TYPE_PREFIX,
@@ -27,6 +28,7 @@ export function isRoutineEventItem(message: { itemType?: string | undefined }): 
     message.itemType?.startsWith(SKILL_EVENT_ITEM_TYPE_PREFIX) === true ||
     message.itemType?.startsWith(MARKETPLACE_SUGGESTION_ITEM_TYPE_PREFIX) === true ||
     message.itemType?.startsWith(SETTING_LINK_ITEM_TYPE_PREFIX) === true ||
+    message.itemType?.startsWith(ARTIFACT_ITEM_TYPE_PREFIX) === true ||
     message.itemType?.startsWith(MODEL_SWITCH_ITEM_TYPE_PREFIX) === true ||
     message.itemType === CONTEXT_RESET_ITEM_TYPE
   );

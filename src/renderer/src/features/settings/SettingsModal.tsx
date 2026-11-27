@@ -27,6 +27,7 @@ import {
   Tabs,
   TriangleAlert,
 } from "@openbot/ui";
+import { ArtifactsTab } from "@openbot/ui/features/settings/ArtifactsTab";
 import type { GeneralSettingsValue } from "@openbot/ui/features/settings/app-settings";
 import { OrganizationsTab } from "@openbot/ui/features/settings/OrganizationsTab";
 import { SettingsAccountsTab } from "@openbot/ui/features/settings/SettingsAccountsTab";
@@ -40,6 +41,7 @@ import { SettingsMobileConnectTab } from "@openbot/ui/features/settings/Settings
 import { SettingsProfileTab } from "@openbot/ui/features/settings/SettingsProfileTab";
 import { SettingsUpdatesTab } from "@openbot/ui/features/settings/SettingsUpdatesTab";
 import { createSettingsAccountsStore } from "@openbot/ui/features/settings/stores/accounts-store";
+import { createArtifactsStore } from "@openbot/ui/features/settings/stores/artifacts-store";
 import { createSettingsMobileConnectStore } from "@openbot/ui/features/settings/stores/mobile-connect-store";
 import { createOrganizationsStore } from "@openbot/ui/features/settings/stores/organizations-store";
 import { createSettingsProfileStore } from "@openbot/ui/features/settings/stores/profile-store";
@@ -145,6 +147,13 @@ export function SettingsModal(props: SettingsModalProps) {
       return organizations.subscribe();
     },
   );
+  const artifacts = createArtifactsStore({ api: () => window.openbot.organizations });
+  createEffect(
+    () => props.open && activeTab() === "artifacts",
+    (active) => {
+      if (active) void artifacts.refresh();
+    },
+  );
   const profileActivity = createProfileActivityStore(
     () => props.open && activeTab() === "profile",
     (stats) => renderProfileShareImage(props.account, stats),
@@ -200,6 +209,7 @@ export function SettingsModal(props: SettingsModalProps) {
         value === "profile" ||
         (value === "accounts" && owner()) ||
         value === "organizations" ||
+        value === "artifacts" ||
         value === "mobile-connect" ||
         value === "updates"
       ) {
@@ -407,6 +417,10 @@ export function SettingsModal(props: SettingsModalProps) {
 
         <Tabs.Content value="organizations" class="settings-modal-tab-panel" data-tab="organizations">
           <OrganizationsTab store={organizations} />
+        </Tabs.Content>
+
+        <Tabs.Content value="artifacts" class="settings-modal-tab-panel" data-tab="artifacts">
+          <ArtifactsTab store={artifacts} />
         </Tabs.Content>
 
         <Tabs.Content value="mobile-connect" class="settings-modal-tab-panel" data-tab="mobile-connect">

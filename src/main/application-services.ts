@@ -75,6 +75,7 @@ import {
   webContents,
 } from "electron";
 import { toAgentRemovalFailed } from "../backend/agent/agent-removal";
+import type { ArtifactOperations } from "../backend/agent/artifact-tool";
 import { pasteCodeLoginSupported } from "../backend/agent/cli-code-login";
 import { toMcpGatewayFailed } from "../backend/agent/mcp-gateway";
 import { ProviderAccountStore } from "../backend/agent/provider-account-store";
@@ -689,6 +690,7 @@ export interface ApplicationServices {
   vault: VaultService;
   universalVault: UniversalVaultService;
   organizations: OrganizationService;
+  artifacts: ArtifactOperations;
   mailbox: MailboxStore;
   storageUsage: StorageUsageService;
   libraryFoldersService: LibraryFoldersService;
@@ -4327,6 +4329,7 @@ export async function createApplicationServices({
     vault,
     universalVault,
     organizations,
+    artifacts: artifactClient,
     mailbox,
     storageUsage,
     libraryFoldersService,

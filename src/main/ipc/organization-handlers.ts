@@ -1,6 +1,7 @@
 import {
   ORGANIZATION_NAME_MAX,
   type OrganizationAddMemberInput,
+  type OrganizationArtifactTarget,
   type OrganizationCreateInput,
   type OrganizationRemoveMemberInput,
   type OrganizationRenameInput,
@@ -13,6 +14,8 @@ import {
   type VaultItemKind,
 } from "@openbot/contracts/ipc";
 import type { DynamicRecord } from "@openbot/contracts/runtime-values";
+import { Effect } from "effect";
+import type { ArtifactOperations, ArtifactRefusal } from "../../backend/agent/artifact-tool";
 import { runCauseEffect } from "../../backend/effect-boundary";
 import type { OrganizationService } from "../organization-service";
 import { handler, type IpcGroupHandlers, payloadHandler } from "./define-ipc-group";
@@ -20,6 +23,9 @@ import { isObject, requireString } from "./validation";
 
 export interface OrganizationIpcDependencies {
   organizations: OrganizationService;
+  artifacts: ArtifactOperations;
+  /** Opens a link in the browser of the computer. */
+  openExternal: (url: string) => Promise<void>;
 }
 
 const KINDS: readonly VaultItemKind[] = ["login", "card", "contact", "apiKey"];
@@ -100,8 +106,21 @@ function decodeVaultRemove(value: unknown): OrganizationVaultRemoveInput {
   return { organizationId: organizationId(input), itemId: requireString(input.itemId, "itemId", 64) };
 }
 
+/** A refusal carries the sentence that the user reads. */
+function runArtifacts<T>(effect: Effect.Effect<T, ArtifactRefusal>): Promise<T> {
+  return runCauseEffect(effect.pipe(Effect.mapError((cause) => ({ cause }))));
+}
+
+function decodeArtifactTarget(value: unknown): OrganizationArtifactTarget {
+  const artifactId = requireString(request(value).artifactId, "artifactId", 22);
+  if (!/^[A-Za-z0-9_-]{22}$/u.test(artifactId)) throw new Error("Invalid artifact id.");
+  return { artifactId };
+}
+
 export function organizationIpcHandlers({
   organizations,
+  artifacts,
+  openExternal,
 }: OrganizationIpcDependencies): Pick<IpcGroupHandlers, "organizations"> {
   return {
     organizations: {
@@ -122,6 +141,15 @@ export function organizationIpcHandlers({
       vault: payloadHandler(decodeTarget, (input) => runCauseEffect(organizations.vault(input.organizationId))),
       addVaultItem: payloadHandler(decodeVaultAdd, (input) => runCauseEffect(organizations.addVaultItem(input))),
       shareVaultItem: payloadHandler(decodeVaultShare, (input) => runCauseEffect(organizations.shareVaultItem(input))),
+      artifacts: handler(() => runArtifacts(artifacts.list())),
+      removeArtifact: payloadHandler(decodeArtifactTarget, (input) =>
+        runArtifacts(artifacts.remove(input.artifactId).pipe(Effect.andThen(artifacts.list()))),
+      ),
+      openArtifact: payloadHandler(decodeArtifactTarget, async (input) => {
+        const found = (await runArtifacts(artifacts.list())).find((artifact) => artifact.id === input.artifactId);
+        if (!found?.url.startsWith("https://")) throw new Error("The artifact was not found.");
+        await openExternal(found.url);
+      }),
       removeVaultItem: payloadHandler(decodeVaultRemove, (input) =>
         runCauseEffect(organizations.removeVaultItem(input)),
       ),

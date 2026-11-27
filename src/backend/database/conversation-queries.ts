@@ -12,6 +12,7 @@ import type {
 } from "@openbot/contracts/ipc";
 import {
   AGENT_WELCOME_ITEM_TYPE,
+  ARTIFACT_ITEM_TYPE_PREFIX,
   CHANNEL_RESUME_ITEM_TYPE,
   isAttachmentSummary,
   MARKETPLACE_SUGGESTION_ITEM_TYPE_PREFIX,
@@ -474,6 +475,7 @@ export class ConversationQueries {
                AND COALESCE(message.item_type, '') NOT LIKE '${ROUTINE_RUN_EVENT_ITEM_TYPE_PREFIX}%'
                AND COALESCE(message.item_type, '') NOT LIKE '${MARKETPLACE_SUGGESTION_ITEM_TYPE_PREFIX}%'
                AND COALESCE(message.item_type, '') NOT LIKE '${SETTING_LINK_ITEM_TYPE_PREFIX}%'
+               AND COALESCE(message.item_type, '') NOT LIKE '${ARTIFACT_ITEM_TYPE_PREFIX}%'
                AND json_extract(message.message_json, '$.routine') IS NULL
                ${includeSideThreads ? ARCHIVED_SIDE_THREAD_EXCLUSION : SIDE_THREAD_EXCLUSION}
                ${filter}

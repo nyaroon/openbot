@@ -69,4 +69,18 @@ export const messages = {
     "조직 구성원이 참여할 수 있게 됩니다. 나중에 연결을 해제해도 누구도 제거되지 않습니다.",
   "organization.servers.bindPick": "서버 선택",
   "organization.servers.bindConfirm": "연결",
+  "organization.artifacts.tab": "아티팩트",
+  "organization.artifacts.title": "아티팩트",
+  "organization.artifacts.intro":
+    "에이전트가 조직을 위해 게시한 페이지입니다. 구성원은 로그인한 뒤 브라우저에서 엽니다.",
+  "organization.artifacts.empty": "아직 아티팩트가 없습니다. 에이전트에게 게시를 요청하세요.",
+  "organization.artifacts.detail": "{organization} · {owner} · 버전 {version} · {updated}",
+  "organization.artifacts.public": "공개 링크",
+  "organization.artifacts.open": "열기",
+  "organization.artifacts.openLabel": "{title} 열기",
+  "organization.artifacts.delete": "{title} 삭제",
+  "organization.artifacts.deleteTitle": "이 아티팩트를 삭제할까요?",
+  "organization.artifacts.deleteBody": "{title}이(가) 모든 버전과 함께 삭제됩니다. 링크가 더 이상 작동하지 않습니다.",
+  "organization.artifacts.deleteConfirm": "삭제",
+  "organization.artifacts.failed": "아티팩트를 불러오지 못했습니다.",
 } as const satisfies PartialTranslation<typeof source>;

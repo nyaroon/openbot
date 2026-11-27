@@ -69,4 +69,18 @@ export const messages = {
   "organization.servers.bindHint": "組織のメンバーが参加できるようになります。あとで解除しても、誰も削除されません。",
   "organization.servers.bindPick": "サーバーを選択",
   "organization.servers.bindConfirm": "関連付ける",
+  "organization.artifacts.tab": "アーティファクト",
+  "organization.artifacts.title": "アーティファクト",
+  "organization.artifacts.intro":
+    "エージェントが組織向けに公開したページです。メンバーはサインイン後にブラウザーで開けます。",
+  "organization.artifacts.empty": "アーティファクトはまだありません。エージェントに公開を頼んでください。",
+  "organization.artifacts.detail": "{organization} · {owner} · バージョン {version} · {updated}",
+  "organization.artifacts.public": "公開リンク",
+  "organization.artifacts.open": "開く",
+  "organization.artifacts.openLabel": "{title} を開く",
+  "organization.artifacts.delete": "{title} を削除",
+  "organization.artifacts.deleteTitle": "このアーティファクトを削除しますか？",
+  "organization.artifacts.deleteBody": "{title} はすべてのバージョンとともに削除されます。リンクは使えなくなります。",
+  "organization.artifacts.deleteConfirm": "削除",
+  "organization.artifacts.failed": "アーティファクトを読み込めませんでした。",
 } as const satisfies PartialTranslation<typeof source>;

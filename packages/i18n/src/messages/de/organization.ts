@@ -76,4 +76,19 @@ export const messages = {
     "Mitglieder der Organisation können ihm dann beitreten. Wenn du ihn später löst, wird niemand entfernt.",
   "organization.servers.bindPick": "Server wählen",
   "organization.servers.bindConfirm": "Zuordnen",
+  "organization.artifacts.tab": "Artefakte",
+  "organization.artifacts.title": "Artefakte",
+  "organization.artifacts.intro":
+    "Seiten, die Agenten für deine Organisationen veröffentlicht haben. Mitglieder öffnen sie nach der Anmeldung im Browser.",
+  "organization.artifacts.empty": "Noch keine Artefakte. Bitte einen Agenten, eines zu veröffentlichen.",
+  "organization.artifacts.detail": "{organization} · {owner} · Version {version} · {updated}",
+  "organization.artifacts.public": "Öffentlicher Link",
+  "organization.artifacts.open": "Öffnen",
+  "organization.artifacts.openLabel": "{title} öffnen",
+  "organization.artifacts.delete": "{title} löschen",
+  "organization.artifacts.deleteTitle": "Dieses Artefakt löschen?",
+  "organization.artifacts.deleteBody":
+    "{title} wird mit allen Versionen gelöscht. Der Link funktioniert dann nicht mehr.",
+  "organization.artifacts.deleteConfirm": "Löschen",
+  "organization.artifacts.failed": "Die Artefakte konnten nicht geladen werden.",
 } as const satisfies PartialTranslation<typeof source>;

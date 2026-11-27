@@ -73,4 +73,18 @@ export const messages = {
   "organization.servers.bindHint": "Os membros da organização poderão entrar. Desvincular depois não remove ninguém.",
   "organization.servers.bindPick": "Escolha um servidor",
   "organization.servers.bindConfirm": "Vincular",
+  "organization.artifacts.tab": "Artefatos",
+  "organization.artifacts.title": "Artefatos",
+  "organization.artifacts.intro":
+    "Páginas que os agentes publicaram para suas organizações. Os membros as abrem no navegador depois de entrar.",
+  "organization.artifacts.empty": "Ainda não há artefatos. Peça a um agente para publicar um.",
+  "organization.artifacts.detail": "{organization} · {owner} · versão {version} · {updated}",
+  "organization.artifacts.public": "Link público",
+  "organization.artifacts.open": "Abrir",
+  "organization.artifacts.openLabel": "Abrir {title}",
+  "organization.artifacts.delete": "Excluir {title}",
+  "organization.artifacts.deleteTitle": "Excluir este artefato?",
+  "organization.artifacts.deleteBody": "{title} é excluído com todas as versões. O link deixa de funcionar.",
+  "organization.artifacts.deleteConfirm": "Excluir",
+  "organization.artifacts.failed": "Não foi possível carregar os artefatos.",
 } as const satisfies PartialTranslation<typeof source>;

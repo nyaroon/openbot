@@ -74,4 +74,18 @@ export const messages = {
     "Les membres de l'organisation pourront alors le rejoindre. Le détacher plus tard n'exclut personne.",
   "organization.servers.bindPick": "Choisir un serveur",
   "organization.servers.bindConfirm": "Rattacher",
+  "organization.artifacts.tab": "Artefacts",
+  "organization.artifacts.title": "Artefacts",
+  "organization.artifacts.intro":
+    "Pages que les agents ont publiées pour vos organisations. Les membres les ouvrent dans un navigateur après s’être connectés.",
+  "organization.artifacts.empty": "Aucun artefact pour l’instant. Demandez à un agent d’en publier un.",
+  "organization.artifacts.detail": "{organization} · {owner} · version {version} · {updated}",
+  "organization.artifacts.public": "Lien public",
+  "organization.artifacts.open": "Ouvrir",
+  "organization.artifacts.openLabel": "Ouvrir {title}",
+  "organization.artifacts.delete": "Supprimer {title}",
+  "organization.artifacts.deleteTitle": "Supprimer cet artefact ?",
+  "organization.artifacts.deleteBody": "{title} est supprimé avec toutes ses versions. Son lien cesse de fonctionner.",
+  "organization.artifacts.deleteConfirm": "Supprimer",
+  "organization.artifacts.failed": "Impossible de charger les artefacts.",
 } as const satisfies PartialTranslation<typeof source>;

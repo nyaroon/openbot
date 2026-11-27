@@ -70,6 +70,17 @@ describe("artifact tools", () => {
     expect(published).toEqual([{ title: "Plan", html: "<p>page</p>", artifactId: ID }]);
   });
 
+  it("reports a published page so that the chat can show its card", async () => {
+    const shown: ArtifactSummary[] = [];
+    await Effect.runPromise(
+      handleArtifactTool("publish_artifact", { title: "Plan", html: "<p>page</p>" }, operations(), (artifact) =>
+        shown.push(artifact),
+      ),
+    );
+    await Effect.runPromise(handleArtifactTool("list_artifacts", {}, operations(), (artifact) => shown.push(artifact)));
+    expect(shown).toEqual([summary]);
+  });
+
   it("reads the page from a file", async () => {
     const folder = await mkdtemp(join(tmpdir(), "artifact-tool-"));
     try {

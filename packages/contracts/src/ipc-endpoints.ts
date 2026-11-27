@@ -475,6 +475,8 @@ import type {
 } from "./ipc-onepassword-connector";
 import type {
   OrganizationAddMemberInput,
+  OrganizationArtifact,
+  OrganizationArtifactTarget,
   OrganizationCreateInput,
   OrganizationMember,
   OrganizationRemoveMemberInput,
@@ -1391,6 +1393,9 @@ export const IPC_ENDPOINTS = {
     bindServer: request<OrganizationServerTarget, OrganizationServers>()("organizations:bind-server"),
     unbindServer: request<OrganizationServerTarget, OrganizationServers>()("organizations:unbind-server"),
     joinServer: request<OrganizationServerTarget, OrganizationServers>()("organizations:join-server"),
+    artifacts: request<undefined, OrganizationArtifact[]>()("organizations:artifacts"),
+    removeArtifact: request<OrganizationArtifactTarget, OrganizationArtifact[]>()("organizations:remove-artifact"),
+    openArtifact: request<OrganizationArtifactTarget, void>()("organizations:open-artifact"),
     changed: event<OrganizationsState>()("organizations:changed"),
   },
   vault: {

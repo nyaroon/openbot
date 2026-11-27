@@ -171,6 +171,8 @@ export const messages = defineMessages("chat", {
   "chat.usageLimit.failed": "The model could not be changed. Try again.",
   "chat.marker.marketplaceSuggestion": "Suggested a Marketplace app",
   "chat.marker.settingLink": "Showed a setting",
+  "chat.marker.artifact": "Published an artifact",
+  "chat.artifactCard.subtitle": "Artifact · version {version}",
   "chat.settingLink.desktopOnly": "Open it in the OpenBot app on your computer.",
   "chat.settingLink.agentChatOnly": "Open it in your chat with this agent.",
   "chat.settingLink.adminOnly": "Only the server owner or an admin can change this setting.",

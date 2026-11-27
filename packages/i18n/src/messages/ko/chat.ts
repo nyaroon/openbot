@@ -513,4 +513,6 @@ export const messages = {
   "chat.feedbackWithdrawn.title": "보고서 삭제됨",
   "chat.feedbackWithdrawn.badge": "삭제됨",
   "chat.feedbackWithdrawn.body": "보고서가 더 이상 GitHub에 없어요. 수정한 보고서를 보내려면 에이전트에게 요청하세요.",
+  "chat.marker.artifact": "아티팩트를 게시함",
+  "chat.artifactCard.subtitle": "아티팩트 · 버전 {version}",
 } as const satisfies PartialTranslation<typeof source>;

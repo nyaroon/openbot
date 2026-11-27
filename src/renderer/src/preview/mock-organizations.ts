@@ -1,6 +1,7 @@
 import {
   EMPTY_ORGANIZATIONS,
   type OpenBotDesktopApi,
+  type OrganizationArtifact,
   type OrganizationMember,
   type OrganizationServer,
   type OrganizationServers,
@@ -35,6 +36,18 @@ const SERVERS: readonly OrganizationServer[] = [
 
 /** Preview data for the Organizations settings. Nothing here reaches a real account service. */
 export function createMockOrganizations(): OpenBotDesktopApi["organizations"] {
+  let artifacts: OrganizationArtifact[] = [
+    {
+      id: "previewartifact0000001",
+      url: "https://example.test/a/previewartifact0000001",
+      title: "Weekly sales report",
+      version: 3,
+      visibility: "organization",
+      organizationName: "Preview team",
+      ownerName: "You",
+      updatedAt: Date.UTC(2026, 10, 27),
+    },
+  ];
   let members: OrganizationMember[] = [...MEMBERS];
   let items: OrganizationVaultItem[] = [...ITEMS];
   let servers: OrganizationServer[] = [...SERVERS];
@@ -146,6 +159,15 @@ export function createMockOrganizations(): OpenBotDesktopApi["organizations"] {
       items = items.filter((item) => item.id !== input.itemId);
       change();
       return vault();
+    },
+    artifacts: async () => artifacts,
+    removeArtifact: async (input) => {
+      artifacts = artifacts.filter((artifact) => artifact.id !== input.artifactId);
+      return artifacts;
+    },
+    openArtifact: async (input) => {
+      const found = artifacts.find((artifact) => artifact.id === input.artifactId);
+      if (found) window.open(found.url, "_blank", "noopener");
     },
     onChanged: (listener) => {
       listeners.add(listener);

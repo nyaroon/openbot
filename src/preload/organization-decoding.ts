@@ -1,6 +1,7 @@
 import {
   ORGANIZATION_ISSUES,
   ORGANIZATION_ROLES,
+  type OrganizationArtifact,
   type OrganizationMember,
   type OrganizationRole,
   type OrganizationServers,
@@ -100,4 +101,21 @@ export function decodeOrganizationVault(value: unknown): OrganizationVault {
     organizationId: requiredString(record, "organizationId"),
     items: decodeList(record.items, "Organization vault item", decodeVaultItem),
   };
+}
+
+function decodeArtifact(record: DynamicRecord): OrganizationArtifact {
+  return {
+    id: requiredString(record, "id"),
+    url: requiredString(record, "url"),
+    title: requiredString(record, "title"),
+    version: requiredNumber(record, "version"),
+    visibility: record.visibility === "public" ? "public" : "organization",
+    organizationName: requiredString(record, "organizationName"),
+    ownerName: requiredString(record, "ownerName"),
+    updatedAt: requiredNumber(record, "updatedAt"),
+  };
+}
+
+export function decodeOrganizationArtifacts(value: unknown): OrganizationArtifact[] {
+  return decodeList(value, "Artifact", decodeArtifact);
 }

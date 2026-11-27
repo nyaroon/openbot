@@ -521,4 +521,6 @@ export const messages = {
   "chat.feedbackWithdrawn.badge": "Supprimé",
   "chat.feedbackWithdrawn.body":
     "Votre rapport n’est plus sur GitHub. Pour envoyer un rapport corrigé, demandez-le à l’agent.",
+  "chat.marker.artifact": "Artefact publié",
+  "chat.artifactCard.subtitle": "Artefact · version {version}",
 } as const satisfies PartialTranslation<typeof source>;

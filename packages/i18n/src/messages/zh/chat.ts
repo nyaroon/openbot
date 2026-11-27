@@ -510,4 +510,6 @@ export const messages = {
   "chat.feedbackWithdrawn.title": "报告已删除",
   "chat.feedbackWithdrawn.badge": "已删除",
   "chat.feedbackWithdrawn.body": "你的报告已不在 GitHub 上。如需发送修正后的报告，请让助手发送。",
+  "chat.marker.artifact": "已发布工件",
+  "chat.artifactCard.subtitle": "工件 · 版本 {version}",
 } as const satisfies PartialTranslation<typeof source>;

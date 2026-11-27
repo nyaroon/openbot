@@ -15,6 +15,7 @@ import {
   AgentStepsDisclosure,
   type AgentStepsTrace,
 } from "@openbot/ui/features/conversation/AgentSteps";
+import { ArtifactCard } from "@openbot/ui/features/conversation/ArtifactCard";
 import { AttachmentCards } from "@openbot/ui/features/conversation/AttachmentCards";
 import { agentActivityExitDelay, agentActivityExitDuration } from "@openbot/ui/features/conversation/activity-timing";
 import { UsageLimitAskCard } from "@openbot/ui/features/conversation/BackupModels";
@@ -615,6 +616,7 @@ export function ConversationTimeline() {
       ? mcpServers().find((config) => config.id === marker.mcpServerId && config.transport === "http")
       : undefined;
   const settingLinkMarker = (marker: ChatActionMarkerModel) => (marker.kind === "setting-link" ? marker : undefined);
+  const artifactMarker = (marker: ChatActionMarkerModel) => (marker.kind === "artifact" ? marker : undefined);
   const signInAction = (message: AgentMessage | undefined) => {
     const signIn = props.onSignInProvider;
     const marker = message?.actionMarker;
@@ -1053,29 +1055,46 @@ export function ConversationTimeline() {
                                                       <Show
                                                         when={settingLinkMarker(marker())}
                                                         fallback={
-                                                          <ChatActionMarker
-                                                            onOpenSkill={changeMarkerActions.onOpenSkill}
-                                                            marker={marker()}
-                                                            agents={props.agents}
-                                                            announce={arrives}
-                                                            routineAvailable={routineMarkerAvailable(
-                                                              marker(),
-                                                              availableRoutineIds(),
+                                                          <Show
+                                                            when={artifactMarker(marker())}
+                                                            fallback={
+                                                              <ChatActionMarker
+                                                                onOpenSkill={changeMarkerActions.onOpenSkill}
+                                                                marker={marker()}
+                                                                agents={props.agents}
+                                                                announce={arrives}
+                                                                routineAvailable={routineMarkerAvailable(
+                                                                  marker(),
+                                                                  availableRoutineIds(),
+                                                                )}
+                                                                onSelectAgent={props.onSelectAgent}
+                                                                onOpenRoutine={openRoutineSettings}
+                                                                openRoutineThread={openRoutineThread}
+                                                                routineRunFailure={routineRunFailure}
+                                                                onOpenLink={(url) => void openExternalMessageUrl(url)}
+                                                                onWithdrawFeedback={withdrawFeedback()}
+                                                                onRequestFeedbackChange={requestFeedbackChange()}
+                                                                onToggleRoutineRun={toggleRoutineRun}
+                                                                onToggleAgentMessage={toggleAgentMessage}
+                                                                agentMessageText={agentMessageText}
+                                                                instructions={changeMarkerActions.instructions}
+                                                                onOpenInstructions={
+                                                                  changeMarkerActions.onOpenInstructions
+                                                                }
+                                                                onSignInProvider={signInAction(message())}
+                                                              />
+                                                            }
+                                                          >
+                                                            {(artifact) => (
+                                                              <ArtifactCard
+                                                                title={artifact().title}
+                                                                version={artifact().version}
+                                                                onOpen={() =>
+                                                                  void openExternalMessageUrl(artifact().url)
+                                                                }
+                                                              />
                                                             )}
-                                                            onSelectAgent={props.onSelectAgent}
-                                                            onOpenRoutine={openRoutineSettings}
-                                                            openRoutineThread={openRoutineThread}
-                                                            routineRunFailure={routineRunFailure}
-                                                            onOpenLink={(url) => void openExternalMessageUrl(url)}
-                                                            onWithdrawFeedback={withdrawFeedback()}
-                                                            onRequestFeedbackChange={requestFeedbackChange()}
-                                                            onToggleRoutineRun={toggleRoutineRun}
-                                                            onToggleAgentMessage={toggleAgentMessage}
-                                                            agentMessageText={agentMessageText}
-                                                            instructions={changeMarkerActions.instructions}
-                                                            onOpenInstructions={changeMarkerActions.onOpenInstructions}
-                                                            onSignInProvider={signInAction(message())}
-                                                          />
+                                                          </Show>
                                                         }
                                                       >
                                                         {(link) => (

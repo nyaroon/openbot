@@ -527,4 +527,6 @@ export const messages = {
   "chat.feedbackWithdrawn.badge": "Verwijderd",
   "chat.feedbackWithdrawn.body":
     "Je melding staat niet meer op GitHub. Vraag de agent om een verbeterde melding te sturen.",
+  "chat.marker.artifact": "Artefact gepubliceerd",
+  "chat.artifactCard.subtitle": "Artefact · versie {version}",
 } as const satisfies PartialTranslation<typeof source>;

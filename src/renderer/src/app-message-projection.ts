@@ -3,6 +3,7 @@ import type { ConversationMessage, ConversationSearchPage, QueueDeliveryStatus }
 import {
   AGENT_INSTRUCTIONS_CHANGE_ITEM_TYPE,
   AGENT_WELCOME_ITEM_TYPE,
+  artifactEvent,
   CHANNEL_RESUME_ITEM_TYPE,
   CONVERSATION_MEMORY_CHANGES_ITEM_TYPE,
   CONVERSATION_PLAN_ITEM_TYPE,
@@ -441,6 +442,8 @@ function chatActionMarker(
   if (suggestion) return { kind: "marketplace-suggestion", appId: suggestion.appId, timestamp: message.createdAt };
   const settingLink = settingLinkEvent(message);
   if (settingLink) return { kind: "setting-link", settingId: settingLink.settingId, timestamp: message.createdAt };
+  const artifact = artifactEvent(message);
+  if (artifact) return { kind: "artifact", ...artifact, timestamp: message.createdAt };
   const skillSuggestion = skillSuggestionEvent(message);
   if (skillSuggestion) return { ...skillSuggestion, kind: "skill-suggestion", timestamp: message.createdAt };
   const signIn = mcpSignInEvent(message);

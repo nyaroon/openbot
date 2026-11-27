@@ -530,4 +530,6 @@ export const messages = {
   "chat.feedbackWithdrawn.badge": "Eliminado",
   "chat.feedbackWithdrawn.body":
     "Tu informe ya no está en GitHub. Para enviar un informe corregido, pídeselo al agente.",
+  "chat.marker.artifact": "Publicó un artefacto",
+  "chat.artifactCard.subtitle": "Artefacto · versión {version}",
 } as const satisfies PartialTranslation<typeof source>;

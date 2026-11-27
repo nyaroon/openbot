@@ -504,4 +504,6 @@ export const messages = {
   "chat.feedbackWithdrawn.badge": "削除済み",
   "chat.feedbackWithdrawn.body":
     "レポートはもう GitHub にありません。修正したレポートを送信するには、エージェントに依頼してください。",
+  "chat.marker.artifact": "アーティファクトを公開しました",
+  "chat.artifactCard.subtitle": "アーティファクト · バージョン {version}",
 } as const satisfies PartialTranslation<typeof source>;

@@ -70,4 +70,18 @@ export const messages = {
     "Kuruluşun üyeleri ona katılabilir. Daha sonra bağlantıyı kaldırmak kimseyi çıkarmaz.",
   "organization.servers.bindPick": "Sunucu seç",
   "organization.servers.bindConfirm": "Bağla",
+  "organization.artifacts.tab": "Yapıtlar",
+  "organization.artifacts.title": "Yapıtlar",
+  "organization.artifacts.intro":
+    "Aracıların kuruluşların için yayımladığı sayfalar. Üyeler oturum açtıktan sonra bunları tarayıcıda açar.",
+  "organization.artifacts.empty": "Henüz yapıt yok. Bir aracıdan yayımlamasını iste.",
+  "organization.artifacts.detail": "{organization} · {owner} · sürüm {version} · {updated}",
+  "organization.artifacts.public": "Herkese açık bağlantı",
+  "organization.artifacts.open": "Aç",
+  "organization.artifacts.openLabel": "{title} öğesini aç",
+  "organization.artifacts.delete": "{title} öğesini sil",
+  "organization.artifacts.deleteTitle": "Bu yapıt silinsin mi?",
+  "organization.artifacts.deleteBody": "{title} tüm sürümleriyle silinir. Bağlantısı artık çalışmaz.",
+  "organization.artifacts.deleteConfirm": "Sil",
+  "organization.artifacts.failed": "Yapıtlar yüklenemedi.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -3,6 +3,7 @@ import type { AppTextKey } from "@openbot/i18n";
 import {
   Bell,
   CircleArrowDown,
+  FileText,
   Keyboard,
   Mic,
   MousePointer2,
@@ -31,6 +32,7 @@ export type SettingsTab =
   | "profile"
   | "accounts"
   | "organizations"
+  | "artifacts"
   | "mobile-connect"
   | "updates";
 
@@ -173,6 +175,14 @@ export const navItems: ReadonlyArray<SettingsNavItem> = [
       { titleKey: "organization.members" },
       { titleKey: "organization.vault.title", descriptionKey: "organization.vault.intro" },
     ],
+  },
+  {
+    value: "artifacts",
+    titleKey: "organization.artifacts.tab",
+    descriptionKey: "organization.artifacts.intro",
+    icon: FileText,
+    group: "settings.sections.group.account",
+    rows: [{ titleKey: "organization.artifacts.title", descriptionKey: "organization.artifacts.intro" }],
   },
   {
     value: "mobile-connect",

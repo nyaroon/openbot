@@ -118,6 +118,7 @@ export const handleArtifactTool = Effect.fn("ArtifactTools.handle")(function* (
   tool: string,
   args: unknown,
   artifacts: ArtifactOperations | null,
+  onPublished?: (artifact: ArtifactSummary) => void,
 ) {
   if (!ARTIFACT_TOOL_NAMES.has(tool)) return null;
   if (!artifacts) return openBotToolFailure("Artifacts are unavailable on this computer.");
@@ -139,9 +140,10 @@ export const handleArtifactTool = Effect.fn("ArtifactTools.handle")(function* (
         ...(input.artifactId === undefined ? {} : { artifactId: input.artifactId }),
         ...(input.organizationId === undefined ? {} : { organizationId: input.organizationId }),
       });
+      onPublished?.(artifact);
       return openBotToolResult({
         ...compact(artifact),
-        note: "Give the user the url. Members of the organization open it after they sign in.",
+        note: "A card with the link is in the chat. Say in one sentence what the page shows. Members of the organization open it after they sign in.",
       });
     }
     if (tool === "list_artifacts") {

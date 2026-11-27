@@ -10,6 +10,7 @@ import {
   type AgentProviderRef,
   type AgentSummary,
   type AvatarImageInput,
+  artifactEvent,
   CHANNEL_ASSIGNMENT_LIMIT,
   CHANNEL_ASSIGNMENT_LIMIT_ERROR,
   CHANNEL_CHANGE_ITEM_TYPE,
@@ -2685,7 +2686,8 @@ export class ChannelService {
         !message.questionPrompt &&
         !(message.attachments?.length && message.author !== "user") &&
         !mcpSignInEvent(message) &&
-        !settingLinkEvent(message)
+        !settingLinkEvent(message) &&
+        !artifactEvent(message)
       )
         continue;
       const lateId = message.turnId === undefined ? undefined : this.#lateTurns.get(message.turnId);

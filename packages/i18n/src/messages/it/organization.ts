@@ -75,4 +75,19 @@ export const messages = {
     "I membri dell'organizzazione potranno unirsi. Scollegarlo in seguito non rimuove nessuno.",
   "organization.servers.bindPick": "Scegli un server",
   "organization.servers.bindConfirm": "Collega",
+  "organization.artifacts.tab": "Artefatti",
+  "organization.artifacts.title": "Artefatti",
+  "organization.artifacts.intro":
+    "Pagine che gli agenti hanno pubblicato per le tue organizzazioni. I membri le aprono nel browser dopo l’accesso.",
+  "organization.artifacts.empty": "Ancora nessun artefatto. Chiedi a un agente di pubblicarne uno.",
+  "organization.artifacts.detail": "{organization} · {owner} · versione {version} · {updated}",
+  "organization.artifacts.public": "Link pubblico",
+  "organization.artifacts.open": "Apri",
+  "organization.artifacts.openLabel": "Apri {title}",
+  "organization.artifacts.delete": "Elimina {title}",
+  "organization.artifacts.deleteTitle": "Eliminare questo artefatto?",
+  "organization.artifacts.deleteBody":
+    "{title} viene eliminato con tutte le versioni. Il suo link smette di funzionare.",
+  "organization.artifacts.deleteConfirm": "Elimina",
+  "organization.artifacts.failed": "Impossibile caricare gli artefatti.",
 } as const satisfies PartialTranslation<typeof source>;

@@ -1020,6 +1020,7 @@ function markerLabel(
   if (marker.kind === "context-reset") return t("chat.marker.contextReset");
   if (marker.kind === "marketplace-suggestion") return t("chat.marker.marketplaceSuggestion");
   if (marker.kind === "setting-link") return t("chat.marker.settingLink");
+  if (marker.kind === "artifact") return t("chat.marker.artifact");
   if (marker.kind === "skill-suggestion") return t("chat.marker.skillSuggestion");
   if (marker.kind === "mcp-sign-in") return t("chat.marker.mcpSignIn");
   if (marker.kind === "server-install") return t("chat.marker.serverInstall");
@@ -1078,6 +1079,7 @@ function markerAccessibleLabel(
     marker.kind === "context-reset" ||
     marker.kind === "marketplace-suggestion" ||
     marker.kind === "setting-link" ||
+    marker.kind === "artifact" ||
     marker.kind === "mcp-sign-in" ||
     marker.kind === "server-install" ||
     marker.kind === "model-switch" ||

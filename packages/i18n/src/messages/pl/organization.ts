@@ -72,4 +72,19 @@ export const messages = {
     "Członkowie organizacji będą mogli do niego dołączyć. Późniejsze odłączenie nikogo nie usuwa.",
   "organization.servers.bindPick": "Wybierz serwer",
   "organization.servers.bindConfirm": "Przypisz",
+  "organization.artifacts.tab": "Artefakty",
+  "organization.artifacts.title": "Artefakty",
+  "organization.artifacts.intro":
+    "Strony opublikowane przez agentów dla Twoich organizacji. Członkowie otwierają je w przeglądarce po zalogowaniu.",
+  "organization.artifacts.empty": "Nie ma jeszcze artefaktów. Poproś agenta o opublikowanie jednego.",
+  "organization.artifacts.detail": "{organization} · {owner} · wersja {version} · {updated}",
+  "organization.artifacts.public": "Link publiczny",
+  "organization.artifacts.open": "Otwórz",
+  "organization.artifacts.openLabel": "Otwórz: {title}",
+  "organization.artifacts.delete": "Usuń: {title}",
+  "organization.artifacts.deleteTitle": "Usunąć ten artefakt?",
+  "organization.artifacts.deleteBody":
+    "{title} zostanie usunięty ze wszystkimi wersjami. Jego link przestanie działać.",
+  "organization.artifacts.deleteConfirm": "Usuń",
+  "organization.artifacts.failed": "Nie udało się wczytać artefaktów.",
 } as const satisfies PartialTranslation<typeof source>;

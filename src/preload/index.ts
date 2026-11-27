@@ -319,6 +319,7 @@ import {
   decodeWhatsAppOverviewReply,
 } from "./messaging-decoding";
 import {
+  decodeOrganizationArtifacts,
   decodeOrganizationMembers,
   decodeOrganizationServers,
   decodeOrganizationsState,
@@ -1125,6 +1126,9 @@ const openbotApi: OpenBotDesktopApi = {
     bindServer: decodeOrganizationServers,
     unbindServer: decodeOrganizationServers,
     joinServer: decodeOrganizationServers,
+    artifacts: decodeOrganizationArtifacts,
+    removeArtifact: decodeOrganizationArtifacts,
+    openArtifact: decodeVoid,
     changed: decodeOrganizationsState,
   }),
   vault: bridgeGroup(IPC_ENDPOINTS.vault, {
