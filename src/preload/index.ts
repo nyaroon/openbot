@@ -939,6 +939,7 @@ const openbotApi: OpenBotDesktopApi = {
     mediaPrice: decodeWorkflowMediaPrice,
     folders: decodeWorkflowFoldersSnapshotFromMain,
     folderAction: decodeWorkflowFoldersSnapshotFromMain,
+    setSpot: decodeVoid,
   }),
   boards: bridgeGroup(IPC_ENDPOINTS.boards, {
     list: decodeBoardList,

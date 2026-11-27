@@ -353,6 +353,8 @@ export const messages = {
     "{provider} não conseguiu obter as ferramentas do GitHub, porque o GitHub não respondeu. Abra o GitHub na Loja, Apps, e conecte-o de novo se ele pedir. Depois inicie um novo chat para tentar de novo.",
   "error.backend.mcpAppReconnect":
     "{name} no ChatGPT pede que você entre de novo. Reconecte {name} no ChatGPT e peça de novo ao agente.",
+  "error.backend.mcpAppAutoReview":
+    "Este app do ChatGPT não funciona quando o agente tem Perguntar antes ou Acesso completo. O app precisa da revisão automática de aprovações do Codex, que o OpenBot ainda não suporta. Você pode tentar Espaço de trabalho em Acesso, nas configurações do agente, e pedir de novo ao agente.",
   "error.backend.mcpServerSignInPage":
     "O servidor MCP {name} pediu que você entre em uma página da web. O OpenBot não abre essa página para um servidor, então recusou o pedido. Abra {name} na Loja, Apps, entre e peça de novo ao agente.",
   "error.backend.mcpServerRequestDeclined":
@@ -372,6 +374,7 @@ export const messages = {
     "Este computador bloqueou a conexão com o servidor. Verifique seu firewall ou software de segurança e tente novamente.",
   "error.backend.mcpServerIncompatible":
     "Algo respondeu neste endereço, mas não como um servidor MCP por Streamable HTTP. Verifique a URL e atualize o app que executa o servidor.",
+  "error.backend.mcpServerKeyNotAccepted": "O servidor não aceitou a chave de API. Confira a chave e tente de novo.",
   "error.backend.mcpRemoteBridge":
     "{reason} Este comando executa a ponte mcp-remote. Escolha Streamable HTTP com a URL {url} e o OpenBot faz o login para você.",
   "error.backend.oauthNotHttps": "O endpoint OAuth {origin} não usa https, por isso as credenciais não foram enviadas.",

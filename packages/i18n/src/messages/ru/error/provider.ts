@@ -441,6 +441,8 @@ export const messages = {
     "Модель не приняла изображение в этом чате, потому что изображение слишком большое. OpenBot начал новый сеанс {provider} с историей чата. Попробуйте снова.",
   "error.provider.imageCountLimit":
     "Модель не приняла этот чат, потому что в нем слишком много изображений. OpenBot начал новый сеанс {provider} с историей чата. Попробуйте снова.",
+  "error.provider.imageCountLimitRepeated":
+    "Модель снова не приняла этот чат: в нем слишком много изображений. Задача открывает больше изображений, чем принимает модель, и новый сеанс не поможет. Выберите «Новый чат» и попросите агента открывать меньше изображений на каждом шаге или выберите модель, которая принимает больше изображений.",
   "error.provider.imageUnreadable":
     "Модель не смогла прочитать изображение в этом чате. OpenBot начал новый сеанс {provider} с историей чата. Попробуйте снова. Если вы отправили изображение, отправьте другое.",
   "error.provider.requestTooLarge":
@@ -455,6 +457,8 @@ export const messages = {
     "Muse не удалось запустить сервер MCP, и он заблокировал MCP в этом сеансе. OpenBot начал новый сеанс Muse с историей чата. Повторите попытку. Если ошибка повторяется, отключите Управление компьютером или неисправный сервер MCP для этого агента.",
   "error.provider.claudeSessionMissing":
     "Claude Code не нашёл сохранённую сессию этого чата. OpenBot начал новую сессию Claude Code с историей чата. Повторите попытку.",
+  "error.provider.opencodeSessionMissing":
+    "OpenCode не нашёл сохранённую сессию этого чата. OpenBot начал новую сессию OpenCode с историей чата. Повторите попытку.",
   "error.provider.grokSignIn": "Выполните `grok login` или задайте XAI_API_KEY, чтобы использовать Grok.",
   "error.provider.acpSignInNoStart":
     "Провайдер не запустился, поэтому вход не смог начаться. Повторите попытку или перезапустите OpenBot.",
@@ -566,7 +570,10 @@ export const messages = {
   "error.provider.piOutdated":
     "Pi {version} слишком старый. Установите Pi 1.1.0 или новее для поддержки нативного RPC и MCP.",
   "error.provider.nativeMissing": "CLI {provider} не установлен. Скачайте его в настройках.",
-  "error.provider.nativeNotStarted": "Не удалось запустить CLI {provider}.",
+  "error.provider.nativeNotStarted":
+    "OpenBot нашёл установленный вами {provider}, но он не запустился. Обновите или переустановите {provider}, затем попробуйте снова.",
+  "error.provider.nativeManagedNotStarted":
+    "{provider} не запустился на компьютере, на котором работает этот сервер. Перезапустите OpenBot на этом компьютере. Если он всё ещё не запускается, выберите Справка > Сообщить о проблеме.",
   "error.provider.nativeVersionUnreadable": "Не удалось прочитать версию CLI {provider}.",
   "error.provider.piSessionBusy": "Дождитесь окончания текущего хода Pi.",
   "error.provider.acpSessionBusy": "{provider} ещё завершает остановленный ход. Повторите попытку чуть позже.",

@@ -16,6 +16,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AppPreviewRouteImport } from './routes/app-preview'
 import { Route as BrandingRouteImport } from './routes/branding'
 import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as ChromeExtensionRouteImport } from './routes/chrome-extension'
 import { Route as ClaRouteImport } from './routes/cla'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
@@ -265,6 +266,11 @@ const BrandingRoute = BrandingRouteImport.update({
 const ChangelogRoute = ChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChromeExtensionRoute = ChromeExtensionRouteImport.update({
+  id: '/chrome-extension',
+  path: '/chrome-extension',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClaRoute = ClaRouteImport.update({
@@ -1436,6 +1442,7 @@ export interface FileRoutesByFullPath {
   '/app-preview': typeof AppPreviewRoute
   '/branding': typeof BrandingRoute
   '/changelog': typeof ChangelogRoute
+  '/chrome-extension': typeof ChromeExtensionRoute
   '/cla': typeof ClaRoute
   '/join': typeof JoinRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -1660,6 +1667,7 @@ export interface FileRoutesByTo {
   '/app-preview': typeof AppPreviewRoute
   '/branding': typeof BrandingRoute
   '/changelog': typeof ChangelogRoute
+  '/chrome-extension': typeof ChromeExtensionRoute
   '/cla': typeof ClaRoute
   '/join': typeof JoinRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -1887,6 +1895,7 @@ export interface FileRoutesById {
   '/app-preview': typeof AppPreviewRoute
   '/branding': typeof BrandingRoute
   '/changelog': typeof ChangelogRoute
+  '/chrome-extension': typeof ChromeExtensionRoute
   '/cla': typeof ClaRoute
   '/join': typeof JoinRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -2114,6 +2123,7 @@ export interface FileRouteTypes {
     | '/app-preview'
     | '/branding'
     | '/changelog'
+    | '/chrome-extension'
     | '/cla'
     | '/join'
     | '/llms.txt'
@@ -2338,6 +2348,7 @@ export interface FileRouteTypes {
     | '/app-preview'
     | '/branding'
     | '/changelog'
+    | '/chrome-extension'
     | '/cla'
     | '/join'
     | '/llms.txt'
@@ -2564,6 +2575,7 @@ export interface FileRouteTypes {
     | '/app-preview'
     | '/branding'
     | '/changelog'
+    | '/chrome-extension'
     | '/cla'
     | '/join'
     | '/llms.txt'
@@ -2792,6 +2804,7 @@ export interface RootRouteChildren {
   AppPreviewRoute: typeof AppPreviewRoute
   BrandingRoute: typeof BrandingRoute
   ChangelogRoute: typeof ChangelogRoute
+  ChromeExtensionRoute: typeof ChromeExtensionRoute
   ClaRoute: typeof ClaRoute
   JoinRoute: typeof JoinRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
@@ -2983,6 +2996,13 @@ declare module '@tanstack/solid-router' {
       path: '/changelog'
       fullPath: '/changelog'
       preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chrome-extension': {
+      id: '/chrome-extension'
+      path: '/chrome-extension'
+      fullPath: '/chrome-extension'
+      preLoaderRoute: typeof ChromeExtensionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cla': {
@@ -4906,6 +4926,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppPreviewRoute: AppPreviewRoute,
   BrandingRoute: BrandingRoute,
   ChangelogRoute: ChangelogRoute,
+  ChromeExtensionRoute: ChromeExtensionRoute,
   ClaRoute: ClaRoute,
   JoinRoute: JoinRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,

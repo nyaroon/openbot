@@ -987,6 +987,7 @@ function registerIpcHandlers({
     ...routineIpcHandlers({ service, remoteServers }),
     ...workflowIpcHandlers({
       workflows,
+      host,
       events,
       github: workflowGitHub,
       workflowFolders: workflowFoldersService,
@@ -1624,6 +1625,7 @@ if (!hasSingleInstanceLock) {
       host.on("presence", (snapshot) => forwardTeamPresence("local", snapshot));
       host.on("directMessage", (event) => forwardDirectMessage("local", event));
       host.on("directTyping", (event) => forwardDirectTyping("local", event));
+      host.on("workflowSpot", (event) => forwardAgentEvent("local", event));
       remoteDesktop.on("changed", forwardRemoteDesktopSessions);
       built.githubConnector.onChanged(forwardGitHubConnectorStatus);
       built.linkAccount.onChanged(forwardLinkAccountStatus);

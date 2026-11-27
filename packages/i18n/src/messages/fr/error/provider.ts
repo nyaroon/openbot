@@ -468,6 +468,8 @@ export const messages = {
     "Le modèle n'a pas accepté une image de ce chat, car l'image est trop grande. OpenBot a démarré une nouvelle session {provider} avec l'historique du chat. Réessayez.",
   "error.provider.imageCountLimit":
     "Le modèle n'a pas accepté ce chat, car il contient trop d'images. OpenBot a démarré une nouvelle session {provider} avec l'historique du chat. Réessayez.",
+  "error.provider.imageCountLimitRepeated":
+    "Le modèle n'a de nouveau pas accepté ce chat : il contient trop d'images. Une tâche ouvre plus d'images que ce modèle n'en accepte, donc une nouvelle session n'aide pas. Choisissez Nouvelle discussion et demandez à l'agent d'ouvrir moins d'images par étape, ou un modèle qui accepte plus d'images.",
   "error.provider.imageUnreadable":
     "Le modèle n'a pas pu lire une image de ce chat. OpenBot a démarré une nouvelle session {provider} avec l'historique du chat. Réessayez. Si vous avez envoyé une image, envoyez-en une autre.",
   "error.provider.requestTooLarge":
@@ -482,6 +484,8 @@ export const messages = {
     "Muse n’a pas pu démarrer un serveur MCP et a bloqué MCP dans cette session. OpenBot a démarré une nouvelle session Muse avec l’historique de la conversation. Réessayez. Si l’erreur persiste, désactivez Computer Use ou le serveur MCP en échec pour cet agent.",
   "error.provider.claudeSessionMissing":
     "Claude Code n’a pas trouvé la session enregistrée de cette conversation. OpenBot a ouvert une nouvelle session Claude Code avec l’historique de la conversation. Réessayez.",
+  "error.provider.opencodeSessionMissing":
+    "OpenCode n’a pas trouvé la session enregistrée de cette conversation. OpenBot a ouvert une nouvelle session OpenCode avec l’historique de la conversation. Réessayez.",
   "error.provider.grokSignIn": "Exécutez `grok login` ou définissez XAI_API_KEY pour utiliser Grok.",
   "error.provider.acpSignInNoStart":
     "Le fournisseur n’a pas démarré, donc la connexion n’a pas pu commencer. Réessayez ou redémarrez OpenBot.",
@@ -594,7 +598,10 @@ export const messages = {
   "error.provider.piOutdated":
     "Pi {version} est trop ancien. Installez Pi 1.1.0 ou une version ultérieure pour la prise en charge native de RPC et MCP.",
   "error.provider.nativeMissing": "La CLI {provider} n’est pas installée. Téléchargez-la dans les Réglages.",
-  "error.provider.nativeNotStarted": "La CLI {provider} n’a pas pu démarrer.",
+  "error.provider.nativeNotStarted":
+    "OpenBot a trouvé le {provider} que vous avez installé, mais il n’a pas démarré. Mettez à jour ou réinstallez {provider}, puis réessayez.",
+  "error.provider.nativeManagedNotStarted":
+    "{provider} n’a pas démarré sur l’ordinateur qui exécute ce serveur. Redémarrez OpenBot sur cet ordinateur. S’il ne démarre toujours pas, choisissez Aide > Signaler un problème.",
   "error.provider.nativeVersionUnreadable": "Impossible de lire la version de la CLI {provider}.",
   "error.provider.piSessionBusy": "Attendez la fin du tour Pi en cours.",
   "error.provider.acpSessionBusy": "{provider} termine encore un tour arrêté. Réessayez dans un instant.",

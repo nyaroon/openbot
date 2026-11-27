@@ -292,7 +292,7 @@ import {
   aboveAppsWindowKind,
   ozonePlatformArguments,
   setAboveAppsXWayland,
-  usesX11Windows,
+  x11OverlaysShow,
 } from "./linux-wayland-output";
 import { localRoutineFeedDocument } from "./local-routine-calendar";
 import {
@@ -1806,14 +1806,16 @@ export async function createApplicationServices({
   await Effect.runPromise(linkAccount.load());
   teardown.push(TEARDOWN_ORDER.linkAccount, "the Link account", () => Effect.runPromise(linkAccount.dispose()));
   const bitwardenCliTarget = runtimeTarget(process.platform, process.arch);
+  const bitwardenDataDirectory = join(app.getPath("userData"), "provider-state", "bitwarden-host");
   const bitwardenConnector = new BitwardenConnectorService({
     host: {
       store: new BitwardenConnectorStore(join(app.getPath("userData"), BITWARDEN_CONNECTOR_FILE), secretCipher),
-      dataDirectory: join(app.getPath("userData"), "provider-state", "bitwarden-host"),
+      dataDirectory: bitwardenDataDirectory,
       installCli: bitwardenCliTarget
         ? (signal) =>
             managedBitwardenCli({
               directory: join(app.getPath("userData"), "provider-state", "bitwarden-cli"),
+              dataDirectory: bitwardenDataDirectory,
               target: bitwardenCliTarget,
               signal,
             })
@@ -2000,7 +2002,7 @@ export async function createApplicationServices({
     await Effect.runPromise(computerUseReads.close());
   });
   const agentsShareDisplay = !hasSeparateAgentDisplay(process.platform);
-  const drawsComputerUseHighlight = agentsShareDisplay && (process.platform !== "linux" || usesX11Windows());
+  const drawsComputerUseHighlight = agentsShareDisplay && (process.platform !== "linux" || x11OverlaysShow());
   const computerUsePermissionHelp = new ComputerUsePermissionHelpWindowController({
     createWindow: () =>
       createComputerUsePermissionHelpWindow(language.translate, () => localeDirection(language.locale)),
@@ -2095,6 +2097,7 @@ export async function createApplicationServices({
     store,
     mailbox,
     browser,
+    usageReportWorkerPath: join(__dirname, "usage-report-worker.js"),
     finishCheck: true,
     cacheExpiryCompaction: () => cacheExpiryCompaction.get().enabled,
     visualPreview: new ChatVisualPreviewer(),
@@ -2223,15 +2226,14 @@ export async function createApplicationServices({
       mcpToolRuntimes: () => providerRuntimes.mcpToolRuntimes(),
       mcpOAuth,
       mcpOAuthProxySettings,
-      systemProxyFetch: (url, init) => net.fetch(url, { ...init, credentials: "omit", cache: "no-store" }),
       appVersion: app.getVersion(),
       providerStateDirectory: join(app.getPath("userData"), "provider-state"),
       ...(process.platform === "win32" ? { providerTempDirectory } : {}),
       ...(processLauncher ? { launchProcess: processLauncher.launch } : {}),
       serverEnvironment,
-      agentEnvironment: (inherited) => ({
+      agentEnvironment: (inherited, gitConfig) => ({
         ...agentDisplayEnvironment(process.platform),
-        ...githubConnector.agentEnvironment(inherited),
+        ...githubConnector.agentEnvironment(inherited, gitConfig),
       }),
     },
     computerUseMcpServer: () => cuaDriver.mcpServerForProviders(),
@@ -3097,6 +3099,7 @@ export async function createApplicationServices({
     timezone: () => serverTimezone.effective(),
     settings: {
       mcpServers: () => service.listMcpServers(),
+      listedMcpServers: () => catalogPluginServers.filter((server) => server.transport === "http"),
       saveMcpServer: (config) => service.saveMcpServer({ config }),
       customProviders: () => customProviderChanges.list(),
       saveCustomProvider: (input) => customProviderChanges.save(input),
@@ -3916,7 +3919,7 @@ export async function createApplicationServices({
       write: (line) => process.stdout.write(line),
     });
   }
-  configureAttachmentProtocol({ mailbox, agents: service, remoteServers });
+  configureAttachmentProtocol({ mailbox, agents: service, remoteServers, attachmentPreviews });
   configureServerLogoProtocols({ teamStore, remoteServers });
   const browserView = new BrowserViewClient({
     servers: remoteServers,
