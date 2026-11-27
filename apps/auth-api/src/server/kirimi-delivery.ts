@@ -26,10 +26,10 @@ interface KirimiConfig {
 const KIRIMI_API_URL = "https://api.kirimi.id";
 const KIRIMI_TIMEOUT_MS = 10_000;
 const MIN_WEBHOOK_SECRET_LENGTH = 32;
-const REVERSE_MESSAGE_PREFIX = "Masuk OpenBot:";
+const REVERSE_MESSAGE_PREFIX = "Masuk Jujurly:";
 const MAX_INCOMING_TEXT_LENGTH = 1_000;
 const MAX_INCOMING_MESSAGES = 10;
-const KIRIMI_MESSAGE_EVENT = "message.received";
+const KIRIMI_MESSAGE_EVENTS = new Set(["message", "message.received"]);
 const MAX_CODES_PER_MESSAGE = 3;
 /** A sign-in code that stands alone: four and four characters of the code alphabet. */
 const SIGN_IN_CODE_PATTERN = /(?<![A-Z0-9])[2-9A-HJ-NP-Z]{4}-?[2-9A-HJ-NP-Z]{4}(?![A-Z0-9])/gu;
@@ -79,35 +79,55 @@ export interface IncomingWhatsAppMessage {
 }
 
 /**
- * Incoming text messages of a webhook call. It reads the Kirimi `message.received` event, the
- * WhatsApp Cloud API shape (`entry[].changes[].value.messages[]`) and a flat
- * `{ from | sender, message | text }` object. Other Kirimi events carry no message and give nothing.
+ * Incoming text messages of a webhook call. Kirimi names the event `message` (in the body and in the
+ * `X-Kirimi-Event` header) and puts the sender in `from`. The message may sit at the top, under
+ * `data` or `message`, in a `messages` list, or in the WhatsApp Cloud API shape
+ * (`entry[].changes[].value.messages[]`). Other Kirimi events carry no message and give nothing.
  * A field that could also name the receiving number is never read as the sender.
  */
 export function incomingWhatsAppMessages(payload: unknown): IncomingWhatsAppMessage[] {
   const found: IncomingWhatsAppMessage[] = [];
-  const add = (from: unknown, text: unknown) => {
+  const add = (from: unknown, text: string | null) => {
     const digits = typeof from === "string" ? normalizePhoneNumber(`+${from.replace(/\D/gu, "")}`) : null;
-    if (digits && typeof text === "string" && text.length <= MAX_INCOMING_TEXT_LENGTH)
-      found.push({ from: digits, text });
+    if (digits && text !== null && text.length <= MAX_INCOMING_TEXT_LENGTH) found.push({ from: digits, text });
   };
   const root = record(payload);
   if (!root) return found;
-  for (const entry of list(root.entry)) {
-    for (const change of list(record(entry)?.changes)) {
-      for (const message of list(record(record(change)?.value)?.messages)) {
-        const item = record(message);
-        add(item?.from, record(item?.text)?.body);
+  if (root.event !== undefined && !KIRIMI_MESSAGE_EVENTS.has(String(root.event))) return found;
+  const data = record(root.data);
+  for (const holder of [root, data]) {
+    for (const entry of list(holder?.entry)) {
+      for (const change of list(record(entry)?.changes)) {
+        for (const message of list(record(record(change)?.value)?.messages)) {
+          const item = record(message);
+          add(item?.from, messageText(item));
+        }
       }
     }
   }
-  if (found.length === 0 && (root.event === undefined || root.event === KIRIMI_MESSAGE_EVENT)) {
-    // Kirimi: `{ event: "message.received", data: { device_id, from, message, timestamp, type } }`.
-    const data = record(root.data) ?? root;
-    const text = data.message ?? data.text;
-    add(data.from ?? data.sender, typeof text === "string" ? text : record(text)?.body);
+  if (found.length === 0) {
+    const nested = [record(root.message), record(data?.message)];
+    const listed = [...list(root.messages), ...list(data?.messages)].map(record);
+    for (const item of [data, root, ...nested, ...listed]) {
+      // A nested message may leave the sender on the object around it.
+      add(item?.from ?? item?.sender ?? data?.from ?? root.from, messageText(item));
+      if (found.length > 0 && !listed.includes(item)) break;
+    }
   }
   return found.slice(0, MAX_INCOMING_MESSAGES);
+}
+
+/** The text of one message object: a string, or a `{ body }` object, under one of the usual names. */
+function messageText(item: DynamicRecord | null): string | null {
+  if (!item) return null;
+  for (const value of [item.text, item.message, item.body, item.content]) {
+    if (typeof value === "string") return value;
+    const inner = record(value);
+    for (const nested of [inner?.body, inner?.text, record(inner?.text)?.body]) {
+      if (typeof nested === "string") return nested;
+    }
+  }
+  return null;
 }
 
 /** Normalized sign-in codes that a message text contains. */
