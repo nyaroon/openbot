@@ -29,3 +29,4 @@
 - The Kirimi webhook can pass every call on, unchanged, to a second address (`KIRIMI_WEBHOOK_FORWARD_URL`), because Kirimi allows one webhook address per device.
 - WhatsApp sign-in now finishes by itself once the message arrives, and a WhatsApp reply confirms the code was received.
 - The owner's Accounts page is now a Super admin page: it lists every organization with its members and how many are connected, shows each account's organizations and active sign-ins, and adds a person straight into an organization or starts a new organization with them as its owner.
+- Opening settings on the web no longer lets the sidebar's list show through the settings menu.

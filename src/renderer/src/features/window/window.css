@@ -747,7 +747,9 @@
     inset-inline-start: calc(var(--server-rail-width) + 1px);
   }
 
+  /* The descendants are named too: a selected tab panel sets its own visibility and would show through the page. */
   .app-frame-edge:not([data-window-page-kind="agents"]) > .sidebar > :not(.sidebar-topbar),
+  .app-frame-edge:not([data-window-page-kind="agents"]) > .sidebar > :not(.sidebar-topbar) *,
   .app-frame-edge:not([data-window-page-kind="agents"]) > .left-panel-resizer {
     visibility: hidden;
   }
