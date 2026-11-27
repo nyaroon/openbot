@@ -6,6 +6,17 @@ All notable changes to OpenBot will be documented here. The project follows
 
 ## [Unreleased]
 
+## [0.78.1] - 2026-11-27
+
+### Added
+
+- Agents can publish a page as an artifact with its own link on the account service. A published artifact shows as a card in the chat with an Open button, and Settings has an Artifacts tab that lists the artifacts of your organizations, opens them and deletes them.
+
+### Changed
+
+- The desktop app updates itself again. It checks the update feed of this product at `https://jujurly.id/updates`, and a release is one command (`bun run release:win`).
+- The account service keeps its files in the storage bucket that its storage key owns.
+
 ## [0.78.0] - 2026-11-24
 
 ### Added

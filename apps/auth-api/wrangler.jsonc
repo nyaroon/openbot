@@ -39,7 +39,7 @@
   "vars": {
     "STORAGE_S3_ENDPOINT": "https://kencana.basic.box.cloudeka.id",
     "STORAGE_S3_REGION": "auto",
-    "STORAGE_S3_BUCKET": "surveykita-bucket-fndq9h",
+    "STORAGE_S3_BUCKET": "wahyu-39oiud",
     "STORAGE_S3_FORCE_PATH_STYLE": "true",
     "AUTH_EXPOSE_DEVELOPMENT_CODE": "false",
     "KIRIMI_USER_CODE": "KMYH501126",
