@@ -59,7 +59,7 @@
     {
       "binding": "DB",
       "database_name": "openbot-auth",
-      "database_id": "40355598-6c7b-4e81-9d7e-f8fba1da1e59",
+      "database_id": "5333678f-abb8-43bd-8fde-55d713f88a23",
       "migrations_dir": "migrations"
     }
   ],
